@@ -141,8 +141,9 @@ a {
 .w { max-width: 1120px; margin: 0 auto; padding: 0 24px; box-sizing: border-box; }
 
 h1, h2, h3, p { margin: 0; }
-h2 { font-size: 34px; font-weight: 700; text-align: center; }
-h3 { font-size: 16px; font-weight: 600; }
+h1, .hero-h1 { color: #D4FF24; }
+h2 { font-size: 34px; font-weight: 700; text-align: center; color: #D4FF24; }
+h3 { font-size: 16px; font-weight: 600; color: #D4FF24; }
 
 .c { padding: 22px; }
 .f { display: flex; }

@@ -22,6 +22,7 @@
   --r: 20px;
   --shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 25px 60px rgba(0, 0, 0, 0.6);
+  --acid-lime: #D4FF24;
   --glass-border: 1px solid rgba(255, 255, 255, 0.15);
   --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
@@ -54,11 +55,11 @@ h1 {
   font-weight: 700;
   margin: 20px 0;
   letter-spacing: -0.02em;
-  color: #ffffff;
+  color: var(--acid-lime, #D4FF24);
 }
 h1 em {
   font-style: normal;
-  background: linear-gradient(135deg, #60a5fa, #5eead4);
+  background: linear-gradient(135deg, #D4FF24, #bbf418);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -69,10 +70,10 @@ h2 {
   margin-bottom: 12px;
   font-weight: 700;
   letter-spacing: -0.01em;
-  color: #ffffff;
+  color: var(--acid-lime, #D4FF24);
 }
 h2.left { text-align: left; }
-h3 { font-size: 18px; font-weight: 600; color: #ffffff; }
+h3 { font-size: 18px; font-weight: 600; color: var(--acid-lime, #D4FF24); }
 .center { text-align: center; }
 .muted { color: var(--mut); }
 .small { font-size: 12px; color: var(--mut); margin-top: 12px; }
@@ -656,7 +657,7 @@ input[type=color] {
   margin-bottom: 16px;
   box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
 }
-.fc h3 { font-size: 17px; margin-bottom: 8px; color: #ffffff; }
+.fc h3 { font-size: 17px; margin-bottom: 8px; color: var(--acid-lime, #D4FF24); }
 .fc p { font-size: 14px; color: var(--mut); line-height: 1.55; }
 
 .split {
@@ -747,7 +748,7 @@ details p { color: var(--mut); margin-top: 12px; font-size: 14px; line-height: 1
   margin: 55px 0 75px;
   box-shadow: var(--shadow-lg), var(--glass-inset);
 }
-.cta h2 { text-align: left; font-size: 32px; color: #ffffff; }
+.cta h2 { text-align: left; font-size: 32px; color: var(--acid-lime, #D4FF24); }
 .cta p { color: #cbd5e1; margin-top: 6px; font-size: 16px; }
 
 /* ---------------- DASHBOARD & APP VIEWS ---------------- */
@@ -946,7 +947,7 @@ section[data-page]:not([data-page=home]) { padding: 45px 0 85px; }
   border-bottom: 1px solid var(--line);
 }
 .rc div + div { padding: 18px 20px; }
-.rc h3 { font-size: 16px; margin-top: 6px; color: #ffffff; }
+.rc h3 { font-size: 16px; margin-top: 6px; color: var(--acid-lime, #D4FF24); }
 .rc p { font-size: 13px; color: var(--mut); margin-top: 6px; line-height: 1.45; }
 
 /* Bio Builder */
