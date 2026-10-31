@@ -49,20 +49,26 @@ h1, h2, h3, h4, p { margin: 0; }
 .wrap { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
 .narrow { max-width: 520px; margin: 0 auto; }
 
+h1, h2, h3, .cta h2, .fc h3, .rc h3 {
+  color: #D4FF24 !important;
+}
+
 h1 {
   font-size: clamp(34px, 5.5vw, 58px);
   line-height: 1.15;
   font-weight: 700;
   margin: 20px 0;
   letter-spacing: -0.02em;
-  color: var(--acid-lime, #D4FF24);
+  color: #D4FF24 !important;
 }
 h1 em {
   font-style: normal;
-  background: linear-gradient(135deg, #D4FF24, #bbf418);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: #D4FF24 !important;
+  -webkit-text-fill-color: #D4FF24 !important;
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  text-shadow: 0 0 25px rgba(212, 255, 36, 0.4);
 }
 h2 {
   font-size: clamp(26px, 3.5vw, 36px);
@@ -70,10 +76,10 @@ h2 {
   margin-bottom: 12px;
   font-weight: 700;
   letter-spacing: -0.01em;
-  color: var(--acid-lime, #D4FF24);
+  color: #D4FF24 !important;
 }
 h2.left { text-align: left; }
-h3 { font-size: 18px; font-weight: 600; color: var(--acid-lime, #D4FF24); }
+h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
 .center { text-align: center; }
 .muted { color: var(--mut); }
 .small { font-size: 12px; color: var(--mut); margin-top: 12px; }
@@ -81,7 +87,7 @@ h3 { font-size: 18px; font-weight: 600; color: var(--acid-lime, #D4FF24); }
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.14em;
-  color: var(--teal);
+  color: #D4FF24 !important;
   text-align: center;
   text-transform: uppercase;
 }
