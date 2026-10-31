@@ -118,7 +118,7 @@ h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
   font-size: 22px;
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: #D4FF24 !important;
+  color: #ffffff !important;
 }
 .logo-img {
   width: 44px;
@@ -132,12 +132,12 @@ h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
 }
 .logo b {
   font-style: italic;
-  color: #D4FF24 !important;
+  color: #ffffff !important;
   background: none !important;
   -webkit-background-clip: initial !important;
   background-clip: initial !important;
-  -webkit-text-fill-color: #D4FF24 !important;
-  text-shadow: 0 0 20px rgba(212, 255, 36, 0.4);
+  -webkit-text-fill-color: #ffffff !important;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.25);
 }
 
 #menu {
