@@ -114,26 +114,29 @@ h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
 .logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   font-size: 22px;
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: #ffffff;
+  color: #D4FF24 !important;
 }
 .logo i {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #38bdf8, #2563eb);
+  width: 44px;
+  height: 44px;
+  border-radius: 0;
+  background: url('logo.png') center/contain no-repeat;
   display: inline-block;
-  box-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
+  box-shadow: none;
+  filter: drop-shadow(0 0 10px rgba(212, 255, 36, 0.45));
 }
 .logo b {
   font-style: italic;
-  background: linear-gradient(135deg, #60a5fa, #38bdf8);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: #D4FF24 !important;
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  -webkit-text-fill-color: #D4FF24 !important;
+  text-shadow: 0 0 20px rgba(212, 255, 36, 0.4);
 }
 
 #menu {

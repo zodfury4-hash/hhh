@@ -36,8 +36,8 @@ $baseUrl = get_base_url();
             <div class="w f" style="align-items:center;justify-content:space-between;padding-top:20px">
                 <div class="g f" style="width:100%;align-items:center;justify-content:space-between;padding:12px 22px;border-radius:99px;box-sizing:border-box">
                     <a href="index.php" class="f" style="align-items:center;gap:10px">
-                        <span style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#2563eb);box-shadow:0 0 20px rgba(56,189,248,.6);display:inline-block"></span>
-                        <span style="font-size:20px"><b style="font-style:italic">HEA</b> <span class="k">Link</span></span>
+                        <img src="logo.png" alt="HEA Link Logo" style="width:38px;height:38px;object-fit:contain">
+                        <span style="font-size:20px;color:#D4FF24"><b style="font-style:italic">HEA</b> Link</span>
                     </a>
                     
                     <div class="m nav-links-desktop" style="font-size:14px;display:flex;gap:30px">
@@ -265,8 +265,8 @@ $baseUrl = get_base_url();
             <div class="w f footer-flex" style="justify-content:space-between;padding-top:80px;padding-bottom:50px;font-size:13px">
                 <div>
                     <span class="f" style="align-items:center;gap:10px">
-                        <span style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#2563eb);box-shadow:0 0 20px rgba(56,189,248,.6);display:inline-block"></span>
-                        <span style="font-size:20px"><b style="font-style:italic">HEA</b> <span class="k">Link</span></span>
+                        <img src="logo.png" alt="HEA Link Logo" style="width:38px;height:38px;object-fit:contain">
+                        <span style="font-size:20px;color:#D4FF24"><b style="font-style:italic">HEA</b> Link</span>
                     </span>
                     <p class="m" style="margin-top:10px;max-width:240px">Short links, QR codes and bio pages with analytics.</p>
                     <p class="m" style="margin-top:24px">© 2026 HEA Link. All rights reserved.</p>
