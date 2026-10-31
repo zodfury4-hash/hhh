@@ -111,7 +111,7 @@ h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
   gap: 20px;
   height: 74px;
 }
-.logo {
+.logo, .logo b, .logo span {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -119,6 +119,7 @@ h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
   font-weight: 700;
   letter-spacing: -0.02em;
   color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 .logo-img {
   width: 44px;
@@ -131,13 +132,14 @@ h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
   display: none;
 }
 .logo b {
+  display: inline;
   font-style: italic;
   color: #ffffff !important;
   background: none !important;
   -webkit-background-clip: initial !important;
   background-clip: initial !important;
   -webkit-text-fill-color: #ffffff !important;
-  text-shadow: 0 0 15px rgba(255, 255, 255, 0.25);
+  text-shadow: none !important;
 }
 
 #menu {
@@ -181,9 +183,13 @@ h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
   gap: 12px;
 }
 .nav-r a {
-  color: #D4FF24 !important;
-  font-weight: 700;
+  color: #ffffff !important;
+  font-weight: 600;
   text-decoration: none;
+  transition: all 0.15s ease;
+}
+.nav-r a:hover {
+  color: #D4FF24 !important;
 }
 .nav-r a.btn {
   background: linear-gradient(135deg, #D4FF24, #b2f00d) !important;

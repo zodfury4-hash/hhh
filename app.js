@@ -575,7 +575,7 @@ function renderNavRight() {
   $('#navR').innerHTML = session
     ? `<a class="btn ghost sm" href="#dashboard">Dashboard</a>
        <button class="btn dark sm" id="logoutBtn" type="button">Log out</button>`
-    : `<a href="#login" style="font-weight:600;font-size:14px;padding:8px 12px">Log in</a>
+    : `<a href="#login" style="font-weight:600;font-size:14px;padding:8px 12px;color:#ffffff !important">Log in</a>
        <a class="btn dark sm" href="#signup">Sign up Free</a>`;
 
   const lo = $('#logoutBtn');
