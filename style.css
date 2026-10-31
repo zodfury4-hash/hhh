@@ -198,19 +198,20 @@ h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
   color: #D4FF24 !important;
 }
 .nav-r a.btn {
-  background: #D4FF24 !important;
+  background: linear-gradient(135deg, #2563eb, #38bdf8) !important;
   color: #ffffff !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+  text-shadow: none !important;
   border: 0 !important;
-  font-weight: 700 !important;
-  box-shadow: none !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.45), var(--glass-inset) !important;
   filter: none !important;
 }
 .nav-r a.btn:hover {
-  background: #c3f20d !important;
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #2563eb, #38bdf8) !important;
   color: #ffffff !important;
-  box-shadow: none !important;
-  filter: none !important;
+  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.65), var(--glass-inset) !important;
+  filter: brightness(1.08) !important;
 }
 
 /* Glassmorphism Mega dropdown */
@@ -460,57 +461,57 @@ h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
   border: 0;
   border-radius: 14px;
   padding: 12px 24px;
-  font: 700 15px inherit;
-  background: #D4FF24 !important;
+  font: 600 15px inherit;
+  background: linear-gradient(135deg, #2563eb, #38bdf8) !important;
   color: #ffffff !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+  text-shadow: none !important;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: none !important;
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.45), var(--glass-inset) !important;
   filter: none !important;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
   text-decoration: none;
 }
 .btn:hover {
-  transform: translateY(-1px);
-  background: #c3f20d !important;
-  box-shadow: none !important;
-  filter: none !important;
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #2563eb, #38bdf8) !important;
+  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.65), var(--glass-inset) !important;
+  filter: brightness(1.08) !important;
   color: #ffffff !important;
 }
 .btn.dark {
-  background: #D4FF24 !important;
+  background: rgba(15, 23, 42, 0.85) !important;
+  border: 1px solid var(--line-strong) !important;
   color: #ffffff !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
-  border: 0 !important;
-  font-weight: 700 !important;
-  box-shadow: none !important;
+  text-shadow: none !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), var(--glass-inset) !important;
   filter: none !important;
 }
 .btn.dark:hover {
-  transform: translateY(-1px);
-  background: #c3f20d !important;
-  box-shadow: none !important;
+  transform: translateY(-2px);
+  background: rgba(30, 41, 59, 0.9) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5), var(--glass-inset) !important;
   filter: none !important;
   color: #ffffff !important;
 }
 .btn.teal {
-  background: #D4FF24 !important;
-  color: #ffffff !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+  background: linear-gradient(135deg, #0d9488, #2dd4bf) !important;
+  color: #042f2e !important;
+  text-shadow: none !important;
   font-weight: 700 !important;
-  box-shadow: none !important;
+  box-shadow: 0 4px 20px rgba(45, 212, 191, 0.4) !important;
   filter: none !important;
 }
 .btn.teal:hover {
-  transform: translateY(-1px);
-  background: #c3f20d !important;
-  box-shadow: none !important;
-  filter: none !important;
-  color: #ffffff !important;
+  transform: translateY(-2px);
+  filter: brightness(1.1) !important;
+  box-shadow: 0 8px 25px rgba(45, 212, 191, 0.6) !important;
+  color: #042f2e !important;
 }
 .btn.ghost {
   background: rgba(255, 255, 255, 0.08) !important;
@@ -521,6 +522,7 @@ h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
   filter: none !important;
 }
 .btn.ghost:hover {
+  transform: translateY(-1px);
   background: rgba(255, 255, 255, 0.16) !important;
   border-color: rgba(255, 255, 255, 0.35) !important;
   box-shadow: none !important;
@@ -648,15 +650,14 @@ input[type=color] {
   transition: all 0.15s ease;
 }
 .tabs button:hover {
-  background: rgba(212, 255, 36, 0.12);
-  border-color: rgba(212, 255, 36, 0.4);
-  color: #D4FF24;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
 }
 .tabs .on, .tabs button.on, [data-sol].on {
-  background: rgba(212, 255, 36, 0.22) !important;
-  color: #D4FF24 !important;
-  border-color: #D4FF24 !important;
-  box-shadow: none !important;
+  background: rgba(56, 189, 248, 0.22) !important;
+  color: #38bdf8 !important;
+  border-color: rgba(56, 189, 248, 0.55) !important;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.3) !important;
 }
 
 .res {
@@ -983,9 +984,9 @@ section[data-page]:not([data-page=home]) { padding: 45px 0 85px; }
   transition: all 0.15s ease;
 }
 .chips button:hover {
-  background: rgba(212, 255, 36, 0.18) !important;
-  border-color: #D4FF24 !important;
-  color: #D4FF24 !important;
+  background: rgba(56, 189, 248, 0.18) !important;
+  border-color: #38bdf8 !important;
+  color: #38bdf8 !important;
 }
 
 /* Resources */
@@ -1151,12 +1152,12 @@ footer .muted, footer p { color: #94a3b8; }
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  border: 1px solid rgba(212, 255, 36, 0.5);
-  background: linear-gradient(135deg, #D4FF24, #a3e635) !important;
-  color: #0b1120 !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  background: linear-gradient(135deg, #2563eb, #38bdf8) !important;
+  color: #ffffff !important;
   font-size: 24px;
   cursor: pointer;
-  box-shadow: 0 8px 25px rgba(212, 255, 36, 0.5) !important;
+  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5) !important;
   transition: transform 0.15s ease;
 }
 .a11y > button:hover { transform: scale(1.08); }
