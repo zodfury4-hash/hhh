@@ -25,7 +25,7 @@ const store = {
   }
 };
 
-const DOMAIN = 'healink.pk';
+const DOMAIN = (typeof window !== 'undefined' && window.location.host) ? window.location.host : 'www.healink.store';
 let links = store.get('hea_links', []);
 let session = store.get('hea_session', null);
 let bios = store.get('hea_bios', []);
