@@ -184,9 +184,10 @@ h3 { font-size: 16px; font-weight: 600; color: #D4FF24; }
 }
 
 .nav-links-desktop a, .nav-menu-mobile a {
-    color: #D4FF24 !important;
+    color: #ffffff !important;
     font-weight: 600;
 }
+.k { color: #ffffff !important; }
 
 /* Responsive adjustments */
 @media (max-width: 900px) {

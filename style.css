@@ -87,9 +87,10 @@ h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.14em;
-  color: #D4FF24 !important;
+  color: #ffffff !important;
   text-align: center;
   text-transform: uppercase;
+  opacity: 0.9;
 }
 .split .eyebrow { text-align: left; }
 .split h2 { text-align: left; }
@@ -111,15 +112,13 @@ h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
   gap: 20px;
   height: 74px;
 }
-.logo, .logo b, .logo span {
+.logo {
   display: flex;
   align-items: center;
   gap: 12px;
   font-size: 22px;
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
 }
 .logo-img {
   width: 44px;
@@ -141,6 +140,12 @@ h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
   -webkit-text-fill-color: #ffffff !important;
   text-shadow: none !important;
 }
+.logo span {
+  display: inline;
+  color: #D4FF24 !important;
+  -webkit-text-fill-color: #D4FF24 !important;
+  text-shadow: 0 0 15px rgba(212, 255, 36, 0.45) !important;
+}
 
 #menu {
   display: flex;
@@ -158,23 +163,24 @@ h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
   padding: 10px 14px;
   border-radius: 12px;
   cursor: pointer;
-  color: #D4FF24 !important;
+  color: #ffffff !important;
   display: flex;
   align-items: center;
   gap: 6px;
   transition: all 0.15s ease;
 }
 .mi > button:hover, .mi > a:hover, .mi.open > button {
-  background: rgba(212, 255, 36, 0.12) !important;
-  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #D4FF24 !important;
 }
 .mi .arrow {
   font-size: 10px;
   transition: transform 0.2s ease;
-  color: #D4FF24 !important;
+  color: rgba(255, 255, 255, 0.8) !important;
 }
 .mi.open .arrow, .mi:hover .arrow {
   transform: rotate(180deg);
+  color: #D4FF24 !important;
 }
 
 .nav-r {
