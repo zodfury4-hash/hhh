@@ -71,10 +71,10 @@ a {
     border: 0;
     border-radius: 12px;
     padding: 12px 22px;
-    font: 600 14px 'Poppins', sans-serif;
-    color: #fff;
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
-    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    font: 700 14px 'Poppins', sans-serif;
+    color: #0b1120 !important;
+    background: linear-gradient(135deg, #D4FF24, #b2f00d) !important;
+    box-shadow: 0 8px 24px rgba(212, 255, 36, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.4);
     cursor: pointer;
     text-decoration: none;
     display: inline-flex;
@@ -85,7 +85,7 @@ a {
 
 .b:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 30px rgba(37, 99, 235, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    box-shadow: 0 12px 30px rgba(212, 255, 36, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 .n {
