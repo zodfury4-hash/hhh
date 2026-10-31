@@ -120,14 +120,15 @@ h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
   letter-spacing: -0.02em;
   color: #D4FF24 !important;
 }
-.logo i {
+.logo-img {
   width: 44px;
   height: 44px;
-  border-radius: 0;
-  background: url('logo.png') center/contain no-repeat;
-  display: inline-block;
-  box-shadow: none;
+  object-fit: contain;
+  display: block;
   filter: drop-shadow(0 0 10px rgba(212, 255, 36, 0.45));
+}
+.logo i {
+  display: none;
 }
 .logo b {
   font-style: italic;
