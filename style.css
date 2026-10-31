@@ -49,8 +49,12 @@ h1, h2, h3, h4, p { margin: 0; }
 .wrap { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
 .narrow { max-width: 520px; margin: 0 auto; }
 
-h1, h2, h3, .cta h2, .fc h3, .rc h3 {
+h1, h2, .cta h2 {
   color: #D4FF24 !important;
+}
+
+h3, .card h3, .card h4, .fc h3, .rc h3 {
+  color: #ffffff !important;
 }
 
 h1 {
@@ -79,7 +83,7 @@ h2 {
   color: #D4FF24 !important;
 }
 h2.left { text-align: left; }
-h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
+h3 { font-size: 18px; font-weight: 600; color: #ffffff !important; }
 .center { text-align: center; }
 .muted { color: var(--mut); }
 .small { font-size: 12px; color: var(--mut); margin-top: 12px; }
@@ -728,7 +732,7 @@ input[type=color] {
   margin-bottom: 16px;
   box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
 }
-.fc h3 { font-size: 17px; margin-bottom: 8px; color: var(--acid-lime, #D4FF24); }
+.fc h3 { font-size: 17px; margin-bottom: 8px; color: #ffffff !important; }
 .fc p { font-size: 14px; color: var(--mut); line-height: 1.55; }
 
 .split {
@@ -1018,7 +1022,7 @@ section[data-page]:not([data-page=home]) { padding: 45px 0 85px; }
   border-bottom: 1px solid var(--line);
 }
 .rc div + div { padding: 18px 20px; }
-.rc h3 { font-size: 16px; margin-top: 6px; color: var(--acid-lime, #D4FF24); }
+.rc h3 { font-size: 16px; margin-top: 6px; color: #ffffff !important; }
 .rc p { font-size: 13px; color: var(--mut); margin-top: 6px; line-height: 1.45; }
 
 /* Bio Builder */
