@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Redirecting to destination…</title>
+  <script>
+    (function() {
+      const p = new URLSearchParams(location.search);
+      const c = p.get('c') || p.get('slug') || location.hash.replace('#', '');
+      const u = p.get('u');
+      let target = 'index.html';
+      if (c) {
+        target += '#go-' + encodeURIComponent(c);
+        if (u) target += '?u=' + encodeURIComponent(u);
+      }
+      location.replace(target);
+    })();
+  </script>
+</head>
+<body style="font-family:sans-serif;text-align:center;padding:50px">
+  <p>Safely redirecting…</p>
+</body>
+</html>

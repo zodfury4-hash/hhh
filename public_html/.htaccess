@@ -1,0 +1,18 @@
+# HEA Link — Apache Routing & Security Configuration
+RewriteEngine On
+
+# 1. Force HTTPS on Production (exclude localhost / local IP testing)
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP_HOST} !=localhost
+RewriteCond %{HTTP_HOST} !=127.0.0.1
+RewriteCond %{REMOTE_ADDR} !=127.0.0.1
+RewriteCond %{REMOTE_ADDR} !=::1
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# 2. Prevent directory listings
+Options -Indexes
+
+# 3. Route short codes like /abc or /summer-sale to redirect.php?c=abc
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([A-Za-z0-9_-]{1,32})$ redirect.php?c=$1 [L,QSA]
