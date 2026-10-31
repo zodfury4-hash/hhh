@@ -152,26 +152,49 @@ h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
 .mi > button, .mi > a {
   background: none;
   border: 0;
-  font: 500 15px inherit;
+  font: 600 15px inherit;
   padding: 10px 14px;
   border-radius: 12px;
   cursor: pointer;
-  color: var(--ink-secondary);
+  color: #D4FF24 !important;
   display: flex;
   align-items: center;
   gap: 6px;
   transition: all 0.15s ease;
 }
 .mi > button:hover, .mi > a:hover, .mi.open > button {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--blue);
+  background: rgba(212, 255, 36, 0.12) !important;
+  color: #ffffff !important;
 }
 .mi .arrow {
   font-size: 10px;
   transition: transform 0.2s ease;
+  color: #D4FF24 !important;
 }
 .mi.open .arrow, .mi:hover .arrow {
   transform: rotate(180deg);
+}
+
+.nav-r {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.nav-r a {
+  color: #D4FF24 !important;
+  font-weight: 700;
+  text-decoration: none;
+}
+.nav-r a.btn {
+  background: linear-gradient(135deg, #D4FF24, #b2f00d) !important;
+  color: #0b1120 !important;
+  border: 1px solid #D4FF24 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 18px rgba(212, 255, 36, 0.45) !important;
+}
+.nav-r a.btn:hover {
+  background: #e4ff54 !important;
+  box-shadow: 0 6px 25px rgba(212, 255, 36, 0.7) !important;
 }
 
 /* Glassmorphism Mega dropdown */
@@ -412,7 +435,7 @@ h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
   background: none;
   border: 0;
   font-size: 26px;
-  color: #ffffff;
+  color: #D4FF24 !important;
   cursor: pointer;
 }
 

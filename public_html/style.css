@@ -183,6 +183,11 @@ h3 { font-size: 16px; font-weight: 600; color: #D4FF24; }
     pointer-events: auto;
 }
 
+.nav-links-desktop a, .nav-menu-mobile a {
+    color: #D4FF24 !important;
+    font-weight: 600;
+}
+
 /* Responsive adjustments */
 @media (max-width: 900px) {
     .hero-h1 { font-size: 40px !important; }
