@@ -198,17 +198,19 @@ h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
   color: #D4FF24 !important;
 }
 .nav-r a.btn {
-  background: linear-gradient(135deg, #D4FF24, #b2f00d) !important;
+  background: #D4FF24 !important;
   color: #ffffff !important;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
-  border: 1px solid #D4FF24 !important;
+  border: 0 !important;
   font-weight: 700 !important;
-  box-shadow: 0 4px 18px rgba(212, 255, 36, 0.45) !important;
+  box-shadow: none !important;
+  filter: none !important;
 }
 .nav-r a.btn:hover {
-  background: #e4ff54 !important;
+  background: #c3f20d !important;
   color: #ffffff !important;
-  box-shadow: 0 6px 25px rgba(212, 255, 36, 0.7) !important;
+  box-shadow: none !important;
+  filter: none !important;
 }
 
 /* Glassmorphism Mega dropdown */
@@ -458,8 +460,8 @@ h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
   border: 0;
   border-radius: 14px;
   padding: 12px 24px;
-  font: 800 15px inherit;
-  background: linear-gradient(135deg, #D4FF24, #b2f00d) !important;
+  font: 700 15px inherit;
+  background: #D4FF24 !important;
   color: #ffffff !important;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
   cursor: pointer;
@@ -467,57 +469,63 @@ h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: 0 6px 24px rgba(212, 255, 36, 0.5), 0 0 12px rgba(212, 255, 36, 0.3) !important;
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: none !important;
+  filter: none !important;
+  transition: all 0.15s ease;
   text-decoration: none;
 }
 .btn:hover {
-  transform: translateY(-3px) scale(1.02);
-  background: linear-gradient(135deg, #e4ff54, #D4FF24) !important;
-  box-shadow: 0 14px 45px rgba(212, 255, 36, 0.95), 0 0 60px rgba(212, 255, 36, 0.8), 0 0 20px #D4FF24 !important;
-  filter: drop-shadow(0 10px 30px rgba(212, 255, 36, 0.85)) brightness(1.1);
+  transform: translateY(-1px);
+  background: #c3f20d !important;
+  box-shadow: none !important;
+  filter: none !important;
   color: #ffffff !important;
 }
 .btn.dark {
-  background: linear-gradient(135deg, #D4FF24, #b2f00d) !important;
+  background: #D4FF24 !important;
   color: #ffffff !important;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
-  border: 1px solid #D4FF24 !important;
-  font-weight: 800 !important;
-  box-shadow: 0 6px 24px rgba(212, 255, 36, 0.5), 0 0 12px rgba(212, 255, 36, 0.3) !important;
+  border: 0 !important;
+  font-weight: 700 !important;
+  box-shadow: none !important;
+  filter: none !important;
 }
 .btn.dark:hover {
-  transform: translateY(-3px) scale(1.02);
-  background: #e4ff54 !important;
-  box-shadow: 0 14px 45px rgba(212, 255, 36, 0.95), 0 0 60px rgba(212, 255, 36, 0.8), 0 0 20px #D4FF24 !important;
-  filter: drop-shadow(0 10px 30px rgba(212, 255, 36, 0.85)) brightness(1.1);
+  transform: translateY(-1px);
+  background: #c3f20d !important;
+  box-shadow: none !important;
+  filter: none !important;
   color: #ffffff !important;
 }
 .btn.teal {
-  background: linear-gradient(135deg, #D4FF24, #a3e635) !important;
+  background: #D4FF24 !important;
   color: #ffffff !important;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
-  font-weight: 800 !important;
-  box-shadow: 0 6px 24px rgba(212, 255, 36, 0.5), 0 0 12px rgba(212, 255, 36, 0.3) !important;
+  font-weight: 700 !important;
+  box-shadow: none !important;
+  filter: none !important;
 }
 .btn.teal:hover {
-  transform: translateY(-3px) scale(1.02);
-  filter: drop-shadow(0 10px 30px rgba(212, 255, 36, 0.85)) brightness(1.12);
-  box-shadow: 0 14px 45px rgba(212, 255, 36, 0.95), 0 0 60px rgba(212, 255, 36, 0.8), 0 0 20px #D4FF24 !important;
+  transform: translateY(-1px);
+  background: #c3f20d !important;
+  box-shadow: none !important;
+  filter: none !important;
   color: #ffffff !important;
 }
 .btn.ghost {
-  background: rgba(212, 255, 36, 0.1) !important;
-  color: #D4FF24 !important;
-  border: 1px solid rgba(212, 255, 36, 0.45) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
   backdrop-filter: blur(10px);
+  box-shadow: none !important;
+  filter: none !important;
 }
 .btn.ghost:hover {
-  transform: translateY(-2px);
-  background: rgba(212, 255, 36, 0.28) !important;
-  border-color: #D4FF24 !important;
+  background: rgba(255, 255, 255, 0.16) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  box-shadow: none !important;
+  filter: none !important;
   color: #ffffff !important;
-  box-shadow: 0 8px 30px rgba(212, 255, 36, 0.65), 0 0 20px rgba(212, 255, 36, 0.45) !important;
 }
 .btn.wide { width: 100%; }
 .btn.sm { padding: 7px 14px; font-size: 12px; border-radius: 10px; }
@@ -648,7 +656,7 @@ input[type=color] {
   background: rgba(212, 255, 36, 0.22) !important;
   color: #D4FF24 !important;
   border-color: #D4FF24 !important;
-  box-shadow: 0 0 18px rgba(212, 255, 36, 0.4) !important;
+  box-shadow: none !important;
 }
 
 .res {
