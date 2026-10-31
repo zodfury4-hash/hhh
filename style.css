@@ -199,13 +199,15 @@ h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
 }
 .nav-r a.btn {
   background: linear-gradient(135deg, #D4FF24, #b2f00d) !important;
-  color: #0b1120 !important;
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
   border: 1px solid #D4FF24 !important;
   font-weight: 700 !important;
   box-shadow: 0 4px 18px rgba(212, 255, 36, 0.45) !important;
 }
 .nav-r a.btn:hover {
   background: #e4ff54 !important;
+  color: #ffffff !important;
   box-shadow: 0 6px 25px rgba(212, 255, 36, 0.7) !important;
 }
 
@@ -458,7 +460,8 @@ h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
   padding: 12px 24px;
   font: 800 15px inherit;
   background: linear-gradient(135deg, #D4FF24, #b2f00d) !important;
-  color: #050b14 !important;
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -473,11 +476,12 @@ h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
   background: linear-gradient(135deg, #e4ff54, #D4FF24) !important;
   box-shadow: 0 14px 45px rgba(212, 255, 36, 0.95), 0 0 60px rgba(212, 255, 36, 0.8), 0 0 20px #D4FF24 !important;
   filter: drop-shadow(0 10px 30px rgba(212, 255, 36, 0.85)) brightness(1.1);
-  color: #000000 !important;
+  color: #ffffff !important;
 }
 .btn.dark {
   background: linear-gradient(135deg, #D4FF24, #b2f00d) !important;
-  color: #050b14 !important;
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
   border: 1px solid #D4FF24 !important;
   font-weight: 800 !important;
   box-shadow: 0 6px 24px rgba(212, 255, 36, 0.5), 0 0 12px rgba(212, 255, 36, 0.3) !important;
@@ -487,11 +491,12 @@ h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
   background: #e4ff54 !important;
   box-shadow: 0 14px 45px rgba(212, 255, 36, 0.95), 0 0 60px rgba(212, 255, 36, 0.8), 0 0 20px #D4FF24 !important;
   filter: drop-shadow(0 10px 30px rgba(212, 255, 36, 0.85)) brightness(1.1);
-  color: #000000 !important;
+  color: #ffffff !important;
 }
 .btn.teal {
   background: linear-gradient(135deg, #D4FF24, #a3e635) !important;
-  color: #050b14 !important;
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
   font-weight: 800 !important;
   box-shadow: 0 6px 24px rgba(212, 255, 36, 0.5), 0 0 12px rgba(212, 255, 36, 0.3) !important;
 }
@@ -499,6 +504,7 @@ h3 { font-size: 18px; font-weight: 600; color: #D4FF24 !important; }
   transform: translateY(-3px) scale(1.02);
   filter: drop-shadow(0 10px 30px rgba(212, 255, 36, 0.85)) brightness(1.12);
   box-shadow: 0 14px 45px rgba(212, 255, 36, 0.95), 0 0 60px rgba(212, 255, 36, 0.8), 0 0 20px #D4FF24 !important;
+  color: #ffffff !important;
 }
 .btn.ghost {
   background: rgba(212, 255, 36, 0.1) !important;
