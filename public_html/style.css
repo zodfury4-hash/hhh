@@ -145,7 +145,7 @@ a {
 h1, h2, h3, p { margin: 0; }
 h1, .hero-h1 { color: #D4FF24; }
 h2 { font-size: 34px; font-weight: 700; text-align: center; color: #D4FF24; }
-h3 { font-size: 16px; font-weight: 600; color: #D4FF24; }
+h3, .c h3, .card h3 { font-size: 16px; font-weight: 600; color: #ffffff !important; }
 
 .c { padding: 22px; }
 .f { display: flex; }
