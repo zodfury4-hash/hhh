@@ -38,8 +38,6 @@
       const p = JSON.parse(saved);
       if (p && p.name) appUser.name = p.name;
       if (p && p.email) appUser.email = p.email;
-    } else {
-      localStorage.setItem('hea_session', JSON.stringify(appUser));
     }
   } catch (e) {}
 
@@ -972,6 +970,20 @@
     }
     if (drawerClose && drawer) {
       drawerClose.onclick = () => { drawer.hidden = true; };
+    }
+
+    // Logout button in sidebar
+    const logoutBtn = $('#sidebarLogoutBtn');
+    if (logoutBtn) {
+      logoutBtn.onclick = () => {
+        try {
+          localStorage.removeItem('hea_session');
+        } catch (e) {}
+        if (typeof session !== 'undefined') session = null;
+        document.body.classList.remove('app-mode');
+        location.hash = '#home';
+        toast('Logged out successfully');
+      };
     }
 
     // SSO buttons

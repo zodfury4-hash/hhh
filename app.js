@@ -27,12 +27,7 @@ const store = {
 
 const DOMAIN = (typeof window !== 'undefined' && window.location.host) ? window.location.host : 'www.healink.store';
 let links = store.get('hea_links', []);
-let session = store.get('hea_session', {
-  name: 'Hayyam Ameer',
-  email: 'hayyamameer3030@gmail.com',
-  country: 'Pakistan',
-  city: 'Faisalabad'
-});
+let session = store.get('hea_session', null);
 let bios = store.get('hea_bios', []);
 const saveLinks = () => store.set('hea_links', links);
 
@@ -588,6 +583,7 @@ function renderNavRight() {
     lo.onclick = () => {
       session = null;
       store.set('hea_session', null);
+      document.body.classList.remove('app-mode');
       renderNavRight();
       location.hash = '#home';
       toast('Logged out successfully');
@@ -1589,7 +1585,7 @@ function show(pageName) {
 }
 
 function route() {
-  const rawHash = location.hash.slice(1) || 'dashboard';
+  const rawHash = location.hash.slice(1) || 'home';
   const page = rawHash.split('?')[0];
 
   if (rawHash.startsWith('go-')) {
@@ -1599,17 +1595,26 @@ function route() {
     return bioPage(rawHash.slice(4));
   }
 
-  // App Shell Hubs & Bitly-Style Flow
-  const appViews = ['dashboard', 'home', 'create-link', 'links', 'qr', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'app'];
+  // 1. Auth split-screen (when user clicks Login or Signup)
+  if (page === 'login' || page === 'signup') {
+    if (session) {
+      location.hash = '#dashboard';
+      return;
+    }
+    document.body.classList.remove('app-mode');
+    show('auth');
+    showAuth(page);
+    window.scrollTo(0, 0);
+    return;
+  }
+
+  // 2. App Shell Views (ONLY accessible when user is logged in!)
+  const appViews = ['dashboard', 'create-link', 'links', 'qr', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'app'];
   if (appViews.includes(page)) {
     if (!session) {
-      session = {
-        name: 'Hayyam Ameer',
-        email: 'hayyamameer3030@gmail.com',
-        country: 'Pakistan',
-        city: 'Faisalabad'
-      };
-      store.set('hea_session', session);
+      location.hash = '#login';
+      toast('Please log in to access your dashboard');
+      return;
     }
     document.body.classList.add('app-mode');
     show('app');
@@ -1621,16 +1626,7 @@ function route() {
     return;
   }
 
-  // Auth split-screen
-  if (page === 'login' || page === 'signup') {
-    document.body.classList.remove('app-mode');
-    show('auth');
-    showAuth(page);
-    window.scrollTo(0, 0);
-    return;
-  }
-
-  // Public Landing / Info Pages (if user explicitly visits #pricing, #faq, #solutions)
+  // 3. Public Landing / Marketing Site (Default for guest visitors or #home)
   document.body.classList.remove('app-mode');
 
   if (page === 'assist') {
@@ -1672,12 +1668,8 @@ function route() {
     return;
   }
 
-  // Default fallback into app dashboard
-  document.body.classList.add('app-mode');
-  show('app');
-  if (window.appShell && typeof window.appShell.navigate === 'function') {
-    window.appShell.navigate('home');
-  }
+  // Default: Public landing page
+  show('home');
   window.scrollTo(0, 0);
 }
 
