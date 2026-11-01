@@ -1589,7 +1589,7 @@ function show(pageName) {
 }
 
 function route() {
-  const rawHash = location.hash.slice(1) || 'home';
+  const rawHash = location.hash.slice(1) || 'dashboard';
   const page = rawHash.split('?')[0];
 
   if (rawHash.startsWith('go-')) {
@@ -1599,37 +1599,8 @@ function route() {
     return bioPage(rawHash.slice(4));
   }
 
-  if (page === 'assist') {
-    show('assist');
-    initChat();
-    window.scrollTo(0, 0);
-    return;
-  }
-  if (page === 'resources') {
-    show('resources');
-    renderResources();
-    window.scrollTo(0, 0);
-    return;
-  }
-  if (page === 'solutions') {
-    show('solutions');
-    renderSolutionsPage('industry');
-    window.scrollTo(0, 0);
-    return;
-  }
-  if (page === 'utm') {
-    show('utm');
-    window.scrollTo(0, 0);
-    return;
-  }
-  if (page === 'integrations') {
-    show('integrations');
-    renderIntegrationsPage();
-    window.scrollTo(0, 0);
-    return;
-  }
-  // App Shell Hubs & Pages
-  const appViews = ['dashboard', 'links', 'qr', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'app'];
+  // App Shell Hubs & Bitly-Style Flow
+  const appViews = ['dashboard', 'home', 'create-link', 'links', 'qr', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'app'];
   if (appViews.includes(page)) {
     if (!session) {
       session = {
@@ -1659,8 +1630,32 @@ function route() {
     return;
   }
 
-  // Public Landing & Info Pages
+  // Public Landing / Info Pages (if user explicitly visits #pricing, #faq, #solutions)
   document.body.classList.remove('app-mode');
+
+  if (page === 'assist') {
+    show('assist');
+    initChat();
+    window.scrollTo(0, 0);
+    return;
+  }
+  if (page === 'resources') {
+    show('resources');
+    renderResources();
+    window.scrollTo(0, 0);
+    return;
+  }
+  if (page === 'solutions') {
+    show('solutions');
+    renderSolutionsPage('industry');
+    window.scrollTo(0, 0);
+    return;
+  }
+  if (page === 'utm') {
+    show('utm');
+    window.scrollTo(0, 0);
+    return;
+  }
 
   if (['pricing', 'faq', 'features', 'ai'].includes(page)) {
     show('home');
@@ -1677,7 +1672,12 @@ function route() {
     return;
   }
 
-  show('home');
+  // Default fallback into app dashboard
+  document.body.classList.add('app-mode');
+  show('app');
+  if (window.appShell && typeof window.appShell.navigate === 'function') {
+    window.appShell.navigate('home');
+  }
   window.scrollTo(0, 0);
 }
 
