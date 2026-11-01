@@ -1609,7 +1609,7 @@ function route() {
   }
 
   // 2. App Shell Views (ONLY accessible when user is logged in!)
-  const appViews = ['dashboard', 'create-link', 'links', 'qr', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'app'];
+  const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'app'];
   if (appViews.includes(page)) {
     if (!session) {
       location.hash = '#login';

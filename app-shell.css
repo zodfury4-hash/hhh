@@ -1102,3 +1102,252 @@ section[data-page="auth"] {
   font-weight: 600;
   color: #38bdf8;
 }
+
+/* ---------------- 12. ADVANCED BITLY FLOW COMPONENTS (Website Theme) ---------------- */
+
+/* Custom Dark Toggle Switch */
+.app-toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+.app-toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.app-toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.14);
+  transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.app-toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 2px;
+  bottom: 2px;
+  background-color: #ffffff;
+  transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+.app-toggle-switch input:checked + .app-toggle-slider {
+  background-color: #0066ff;
+  border-color: #38bdf8;
+}
+.app-toggle-switch input:checked + .app-toggle-slider:before {
+  transform: translateX(20px);
+}
+
+/* Collapsible Sidebar (Screenshot 12.02.42 AM 1) */
+.sidebar-collapse-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  transition: all 0.15s ease;
+}
+.sidebar-collapse-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+.app-sidebar.collapsed {
+  width: 68px !important;
+}
+.app-sidebar.collapsed .sidebar-logo span,
+.app-sidebar.collapsed .sidebar-create-text,
+.app-sidebar.collapsed .sidebar-nav-item span:not(.sidebar-nav-icon),
+.app-sidebar.collapsed .sidebar-bottom {
+  display: none !important;
+}
+.app-sidebar.collapsed .sidebar-create-btn {
+  padding: 10px 0;
+  width: 44px;
+  height: 44px;
+  margin: 6px auto 16px;
+  border-radius: 10px;
+}
+.app-sidebar.collapsed .sidebar-nav-item {
+  padding: 12px 0;
+  justify-content: center;
+}
+.app-sidebar.collapsed .sidebar-nav-icon {
+  margin: 0;
+}
+
+/* HEA Assist Drawer (Website Dark Cyber Look) */
+.drawer-hero-illus {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 14px;
+  background: rgba(56, 189, 248, 0.06);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 12px;
+  width: 100%;
+}
+.drawer-hero-illus span {
+  font-size: 32px;
+}
+.drawer-hero-illus b {
+  color: #ffffff;
+  font-size: 15px;
+}
+.drawer-hero-illus p {
+  color: #94a3b8;
+  font-size: 12px;
+  margin: 0;
+  line-height: 1.4;
+}
+.drawer-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+.drawer-chip-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.drawer-chip-btn:hover {
+  background: rgba(0, 102, 255, 0.15);
+  border-color: #38bdf8;
+  color: #38bdf8;
+}
+.drawer-chat-log {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-top: 10px;
+}
+.drawer-chat-bubble {
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: left;
+  max-width: 90%;
+  animation: fadeIn 0.2s ease;
+}
+.drawer-chat-bubble.ai {
+  background: #0d172e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  align-self: flex-start;
+}
+.drawer-chat-bubble.user {
+  background: linear-gradient(135deg, #0066ff, #0099ff);
+  color: #ffffff;
+  align-self: flex-end;
+}
+.drawer-input-row {
+  display: flex;
+  gap: 8px;
+  padding: 14px 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: #090f22;
+}
+.drawer-input-row input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+}
+.drawer-input-row input:focus {
+  border-color: #38bdf8;
+}
+.drawer-input-row button {
+  background: #0066ff;
+  color: #ffffff;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 16px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.drawer-input-row button:hover {
+  background: #0052cc;
+}
+
+/* Settings Email Addresses Table (Screenshot 12.02.42 AM 3) */
+.settings-email-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+.settings-email-table th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #94a3b8;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.settings-email-table td {
+  padding: 14px;
+  font-size: 14px;
+  color: #ffffff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* QR Code Studio & Details (Screenshots 12.02.39 AM 1, 2, 3) */
+.qr-detail-layout {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+.qr-preview-box {
+  background: #0d172e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.qr-chart-card {
+  background: #0d172e;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 24px;
+  margin-top: 24px;
+}
+.qr-wave-container {
+  height: 180px;
+  width: 100%;
+  margin-top: 16px;
+}
+

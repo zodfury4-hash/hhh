@@ -345,13 +345,16 @@
   <section data-page="app" id="appShell" hidden>
     <!-- LEFT SIDEBAR -->
     <aside class="app-sidebar" id="appSidebar">
-      <a href="#home" class="sidebar-logo">
-        <img src="logo.png" alt="HEA Link" style="width:30px;height:30px;object-fit:contain;">
-        <span style="color:#ffffff;font-weight:700;"><b style="color:#ffffff;font-style:italic">HEA</b> <span style="color:#D4FF24">Link</span></span>
-      </a>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 14px 12px;">
+        <a href="#home" class="sidebar-logo">
+          <img src="logo.png" alt="HEA Link" style="width:30px;height:30px;object-fit:contain;">
+          <span style="color:#ffffff;font-weight:700;"><b style="color:#ffffff;font-style:italic">HEA</b> <span style="color:#D4FF24">Link</span></span>
+        </a>
+        <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" type="button" title="Collapse sidebar">‹</button>
+      </div>
 
       <button class="sidebar-create-btn" id="sidebarCreateBtn" type="button">
-        <span style="font-size:18px;font-weight:800;line-height:1;">+</span> Create new
+        <span class="sidebar-create-plus" style="font-size:18px;font-weight:800;line-height:1;">+</span> <span class="sidebar-create-text">Create new</span>
       </button>
 
       <nav class="sidebar-nav" id="sidebarNav">
@@ -469,23 +472,23 @@
   <div class="create-modal-overlay" id="whatModal" hidden>
     <div class="create-modal-card">
       <div class="create-modal-header">
-        <h3 style="font-size:24px;font-weight:800;color:#111827;margin:0;">What do you want to create?</h3>
-        <button class="create-modal-close" id="whatModalClose" style="background:none;border:0;font-size:22px;color:#6b7280;cursor:pointer;">✕</button>
+        <h3 style="font-size:24px;font-weight:800;color:#ffffff;margin:0;">What do you want to create?</h3>
+        <button class="create-modal-close" id="whatModalClose" style="background:none;border:0;font-size:22px;color:#94a3b8;cursor:pointer;">✕</button>
       </div>
       <div class="create-modal-grid">
         <div class="create-option-card" id="optCreateLink">
-          <div style="font-size:24px;color:#0c3ebe;margin-bottom:8px;">🔗</div>
-          <b style="font-size:15px;color:#111827;display:block;margin-bottom:4px;">Shorten a link</b>
+          <div style="font-size:24px;color:#38bdf8;margin-bottom:8px;">🔗</div>
+          <b style="font-size:15px;color:#ffffff;display:block;margin-bottom:4px;">Shorten a link</b>
           <span class="create-option-badge">L</span>
         </div>
         <div class="create-option-card" id="optCreateQR">
-          <div style="font-size:24px;color:#f05a28;margin-bottom:8px;">▦</div>
-          <b style="font-size:15px;color:#111827;display:block;margin-bottom:4px;">Create a QR Code</b>
+          <div style="font-size:24px;color:#D4FF24;margin-bottom:8px;">▦</div>
+          <b style="font-size:15px;color:#ffffff;display:block;margin-bottom:4px;">Create a QR Code</b>
           <span class="create-option-badge">Q</span>
         </div>
         <div class="create-option-card" id="optCreatePage">
-          <div style="font-size:24px;color:#8b5cf6;margin-bottom:8px;">🗐</div>
-          <b style="font-size:15px;color:#111827;display:block;margin-bottom:4px;">Build a landing page</b>
+          <div style="font-size:24px;color:#a855f7;margin-bottom:8px;">🗐</div>
+          <b style="font-size:15px;color:#ffffff;display:block;margin-bottom:4px;">Build a landing page</b>
         </div>
       </div>
     </div>
