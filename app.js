@@ -670,6 +670,10 @@ function initStaticSections() {
       <p>${f[1]}</p>
     </details>
   `).join('');
+
+  if (typeof ScrollTrigger !== 'undefined') {
+    setTimeout(() => ScrollTrigger.refresh(), 100);
+  }
 }
 
 /* =========================================================
@@ -1633,7 +1637,13 @@ function route() {
     show('home');
     setTimeout(() => {
       const el = $('#' + page);
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
+      if (el) {
+        if (window.lenis) {
+          window.lenis.scrollTo(el, { offset: -70, duration: 1.2 });
+        } else {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
     }, 50);
     return;
   }

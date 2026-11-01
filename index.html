@@ -8,9 +8,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="logo.png">
-  <link rel="stylesheet" href="style.css?v=14">
+  <link rel="stylesheet" href="style.css?v=15">
 </head>
 <body>
+<canvas id="webgl-bg"></canvas>
 
 <!-- HEADER NAVBAR -->
 <header class="nav">
@@ -62,6 +63,135 @@
         <p class="small">By shortening a link you agree to our Terms and Acceptable Use Policy.</p>
       </div>
     </div>
+
+    <!-- Interactive Skipper Feature Showcase Carousel -->
+    <section class="wrap slider-section" id="skipperShowcase">
+      <div class="slider-header">
+        <p class="eyebrow">AWARDS EXPERIENCE</p>
+        <h2>Interactive Platform Showcase</h2>
+        <p class="lead2 center">Swipe, click, or explore the suite of tools designed for high-performance links.</p>
+      </div>
+      
+      <div class="skipper-container" id="skipperSlider">
+        <div class="skipper-track">
+          <!-- Slide 1: AI Shortener -->
+          <div class="skipper-slide active">
+            <div class="slide-content">
+              <div class="slide-badge">⚡ Intelligent Shortener</div>
+              <h3>AI-Powered Custom Short Links</h3>
+              <p>Generate memorable, branded links with readable AI-suggested back-halves, password protection, expiration timers, and universal device routing.</p>
+              <div class="slide-stats">
+                <div><b>99.99%</b><span>Uptime SLA</span></div>
+                <div><b>&lt;50ms</b><span>Redirect Speed</span></div>
+                <div><b>Zero</b><span>Ad Interstitials</span></div>
+              </div>
+              <a href="#home" class="btn sm">Try Shortener Now</a>
+            </div>
+            <div class="slide-visual">
+              <div class="mock-card">
+                <div class="mock-top">
+                  <span class="mock-dot red"></span><span class="mock-dot yellow"></span><span class="mock-dot green"></span>
+                  <span class="mock-url">healink.store/summer-sale</span>
+                </div>
+                <div class="mock-body">
+                  <div class="mock-line glow"></div>
+                  <div class="mock-row">
+                    <span class="mock-tag">AI Generated</span>
+                    <span class="mock-clicks">2,480 Clicks Today</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 2: Dynamic QR -->
+          <div class="skipper-slide">
+            <div class="slide-content">
+              <div class="slide-badge">▦ Vector QR Studio</div>
+              <h3>Dynamic Gradient QR Codes</h3>
+              <p>Create scannable, high-density vector QR codes with custom gradients, embedded brand logos, dynamic destination updates, and instant high-res PNG downloads.</p>
+              <div class="slide-stats">
+                <div><b>Vector PNG</b><span>High-Res Export</span></div>
+                <div><b>Dynamic</b><span>Editable Target</span></div>
+                <div><b>Custom</b><span>Brand Palettes</span></div>
+              </div>
+              <a href="#qr" class="btn sm teal">Launch QR Studio</a>
+            </div>
+            <div class="slide-visual">
+              <div class="mock-card">
+                <div class="qr-mock-box">
+                  <span>▦</span>
+                  <div class="qr-center-pill">HEA</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 3: Bio Pages -->
+          <div class="skipper-slide">
+            <div class="slide-content">
+              <div class="slide-badge">📱 Mobile Experience</div>
+              <h3>Link-in-Bio Social Showcases</h3>
+              <p>Curate all your products, socials, and campaigns onto one mobile-first glassmorphic bio page with live themes, click tracking, and verified badges.</p>
+              <div class="slide-stats">
+                <div><b>100%</b><span>Mobile First</span></div>
+                <div><b>Themes</b><span>Dark Glassmorphism</span></div>
+                <div><b>Instant</b><span>Live Publishing</span></div>
+              </div>
+              <a href="#pages" class="btn sm dark">Create Bio Page</a>
+            </div>
+            <div class="slide-visual">
+              <div class="mock-card" style="text-align:center">
+                <div style="font-size:32px;margin-bottom:8px">✨</div>
+                <b style="color:#ffffff;font-size:16px">@yourbrand</b>
+                <p style="color:#94a3b8;font-size:12px;margin:4px 0 12px">All our official links & releases</p>
+                <div class="mock-line glow" style="margin-bottom:8px"></div>
+                <div class="mock-line" style="opacity:0.4"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 4: Deep Analytics -->
+          <div class="skipper-slide">
+            <div class="slide-content">
+              <div class="slide-badge">📊 Deep Intelligence</div>
+              <h3>Real-Time Deep Analytics</h3>
+              <p>Understand your audience with click heatmaps, country-level geolocation, browser &amp; OS breakdowns, referrer channels, and single-click CSV exports.</p>
+              <div class="slide-stats">
+                <div><b>Live Stream</b><span>Instant Logging</span></div>
+                <div><b>Geo</b><span>Country &amp; City</span></div>
+                <div><b>CSV</b><span>Full Data Export</span></div>
+              </div>
+              <a href="#analytics" class="btn sm">View Analytics</a>
+            </div>
+            <div class="slide-visual">
+              <div class="mock-card">
+                <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+                  <span style="font-size:13px;font-weight:600;color:#ffffff">Total Traffic</span>
+                  <span style="color:#D4FF24;font-size:13px;font-weight:700">+34.8% ↑</span>
+                </div>
+                <div class="mock-line glow" style="height:14px;border-radius:6px"></div>
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;margin-top:10px">
+                  <span>Mobile 68%</span>
+                  <span>Desktop 32%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slider Controls -->
+        <button class="skipper-btn prev" aria-label="Previous slide">‹</button>
+        <button class="skipper-btn next" aria-label="Next slide">›</button>
+        
+        <div class="skipper-pagination">
+          <button class="dot on" data-index="0" aria-label="Slide 1"></button>
+          <button class="dot" data-index="1" aria-label="Slide 2"></button>
+          <button class="dot" data-index="2" aria-label="Slide 3"></button>
+          <button class="dot" data-index="3" aria-label="Slide 4"></button>
+        </div>
+      </div>
+    </section>
 
     <!-- Features Band -->
     <div class="band">
@@ -439,7 +569,13 @@
   </div>
 </div>
 
+<!-- High-End Visuals & Motion Engines: Three.js (WebGL Shader), Lenis (Smooth Scroll), GSAP + ScrollTrigger -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="qrcode.js"></script>
-<script src="app.js?v=9"></script>
+<script src="heavy-fx.js?v=1"></script>
+<script src="app.js?v=10"></script>
 </body>
 </html>
