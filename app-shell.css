@@ -1,20 +1,20 @@
 /* =========================================================
-   HEA Link — Exact Bitly-Style Professional Light Theme
-   Matches 100% of reference screenshots in clean light design:
-   - Primary: #0c3ebe (Royal Blue)
-   - Background: #f4f6fa (Soft Light Gray)
-   - Cards/Surfaces: #ffffff (Pure White)
-   - Borders: #e2e8f0 / #d1d5db
-   - Accents: #007a5a (Teal/Green), #f05a28 (Bitly Orange), #e8f7fa (Cyan Alert)
+   HEA Link — Logged-in App Shell (Website Dark Theme)
+   Matches the website aesthetic:
+   - Deep Midnight: #060b18
+   - Glass Cards: #0d172e / rgba(13, 23, 46, 0.85)
+   - Borders: rgba(255, 255, 255, 0.08) / rgba(0, 180, 255, 0.25)
+   - Accents: #38bdf8 (Cyan/Sky), #0066ff (Neon Blue), #10b981 (Green)
+   - Text: #ffffff (Headings), #94a3b8 (Muted body)
    ========================================================= */
 
 /* Body in App Mode */
 body.app-mode {
-  background-color: #f4f6fa !important;
+  background-color: #060b18 !important;
   background-image: none !important;
-  color: #1f2937 !important;
+  color: #f8fafc !important;
   overflow-x: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
 }
 
 body.app-mode > header.nav,
@@ -22,7 +22,9 @@ body.app-mode > footer,
 body.app-mode > .slider-section,
 body.app-mode > .bg-glow-curves,
 body.app-mode > #webgl-bg,
-body.app-mode > section[data-page="home"] {
+body.app-mode .a11y,
+body.app-mode main > section[data-page="home"],
+body.app-mode section[data-page="home"] {
   display: none !important;
 }
 
@@ -40,7 +42,7 @@ section[data-page="auth"] {
   display: grid;
   grid-template-columns: 1.1fr 1fr;
   min-height: 100vh;
-  background: #ffffff;
+  background: #060b18;
 }
 .auth-left-col {
   padding: 60px 80px;
@@ -50,7 +52,7 @@ section[data-page="auth"] {
   max-width: 540px;
   margin: 0 auto;
   width: 100%;
-  background: #ffffff;
+  background: #060b18;
 }
 .auth-brand-logo {
   display: flex;
@@ -58,7 +60,7 @@ section[data-page="auth"] {
   gap: 10px;
   font-size: 26px;
   font-weight: 800;
-  color: #f05a28;
+  color: #ffffff;
   margin-bottom: 32px;
   text-decoration: none;
 }
@@ -70,17 +72,17 @@ section[data-page="auth"] {
 .auth-title {
   font-size: 32px;
   font-weight: 800;
-  color: #111827 !important;
+  color: #ffffff !important;
   margin-bottom: 6px;
   letter-spacing: -0.02em;
 }
 .auth-sub {
-  color: #4b5563;
+  color: #94a3b8;
   font-size: 14px;
   margin-bottom: 24px;
 }
 .auth-sub a {
-  color: #0c3ebe;
+  color: #38bdf8;
   font-weight: 600;
   text-decoration: underline;
 }
@@ -99,18 +101,18 @@ section[data-page="auth"] {
   gap: 12px;
   width: 100%;
   padding: 12px 18px;
-  border-radius: 6px;
-  background: #ffffff;
-  border: 1px solid #d1d5db;
-  color: #1f2937;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 .sso-btn:hover {
-  background: #f9fafb;
-  border-color: #9ca3af;
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.22);
 }
 
 .auth-divider {
@@ -118,14 +120,14 @@ section[data-page="auth"] {
   align-items: center;
   text-align: center;
   margin: 16px 0 22px;
-  color: #6b7280;
+  color: #64748b;
   font-size: 12px;
   font-weight: 600;
 }
 .auth-divider::before, .auth-divider::after {
   content: '';
   flex: 1;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 .auth-divider span {
   padding: 0 14px;
@@ -140,41 +142,42 @@ section[data-page="auth"] {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  color: #1f2937;
+  color: #e2e8f0;
   font-size: 13px;
   font-weight: 600;
 }
 .auth-form-card input {
-  background: #ffffff;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
   padding: 12px 14px;
-  color: #111827;
+  color: #ffffff;
   font-size: 14px;
   transition: border-color 0.15s;
 }
 .auth-form-card input:focus {
-  border-color: #0c3ebe;
+  border-color: #0066ff;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(12, 62, 190, 0.12);
+  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.2);
 }
 .auth-submit-btn {
-  background: #0c3ebe !important;
+  background: linear-gradient(135deg, #0066ff, #00d2ff) !important;
   color: #ffffff !important;
-  border-radius: 6px !important;
+  border-radius: 8px !important;
   padding: 13px 20px !important;
   font-size: 15px !important;
   font-weight: 700 !important;
   border: 0 !important;
   cursor: pointer !important;
   margin-top: 8px;
-  transition: background 0.15s;
+  box-shadow: 0 4px 18px rgba(0, 102, 255, 0.35);
+  transition: opacity 0.15s;
 }
 .auth-submit-btn:hover {
-  background: #0b35a5 !important;
+  opacity: 0.95;
 }
 .auth-terms {
-  color: #6b7280;
+  color: #64748b;
   font-size: 12px;
   line-height: 1.5;
   margin-top: 18px;
@@ -182,8 +185,8 @@ section[data-page="auth"] {
 
 /* Right Illustration Column */
 .auth-right-col {
-  background: #fcfaf7;
-  border-left: 1px solid #f0eee9;
+  background: radial-gradient(circle at 60% 40%, rgba(0, 102, 255, 0.15) 0%, #080f22 70%);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -195,17 +198,17 @@ section[data-page="auth"] {
   max-width: 460px;
 }
 .auth-illus-mockup {
-  background: #ffffff;
-  border: 2px solid #111827;
+  background: #0d172e;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 20px;
   padding: 24px;
   margin: 0 auto 32px;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+  box-shadow: 0 16px 36px rgba(0,0,0,0.4);
   position: relative;
   width: 320px;
 }
 .auth-illus-url-bar {
-  background: #ff5000;
+  background: linear-gradient(90deg, #ff5000, #ff7a00);
   color: #ffffff;
   padding: 8px 14px;
   border-radius: 10px;
@@ -220,7 +223,7 @@ section[data-page="auth"] {
   width: 140px;
   height: 140px;
   margin: 0 auto;
-  border: 2px solid #111827;
+  border: 2px solid #ffffff;
   border-radius: 12px;
   padding: 10px;
   background: #ffffff;
@@ -230,29 +233,29 @@ section[data-page="auth"] {
 .auth-illus-card h3 {
   font-size: 24px;
   font-weight: 800;
-  color: #111827 !important;
+  color: #ffffff !important;
   margin-bottom: 12px;
 }
 .auth-illus-card p {
-  color: #6b7280;
+  color: #94a3b8;
   font-size: 14px;
   line-height: 1.6;
 }
 
-/* ---------------- 2. MAIN APP SHELL ---------------- */
+/* ---------------- 2. MAIN APP SHELL (Dark Theme) ---------------- */
 #appShell {
   display: flex;
   min-height: 100vh;
   width: 100%;
-  background: #f4f6fa;
-  color: #1f2937;
+  background: #060b18;
+  color: #f8fafc;
 }
 
 /* Sidebar */
 .app-sidebar {
-  width: 220px;
-  background: #ffffff;
-  border-right: 1px solid #e2e8f0;
+  width: 230px;
+  background: #090f22;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -273,9 +276,9 @@ section[data-page="auth"] {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 800;
-  color: #f05a28;
+  color: #ffffff;
   text-decoration: none;
 }
 .sidebar-logo img {
@@ -287,39 +290,39 @@ section[data-page="auth"] {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  border: 1px solid #e2e8f0;
-  background: #ffffff;
-  color: #6b7280;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
   display: grid;
   place-items: center;
   cursor: pointer;
   font-size: 12px;
-  transition: background 0.15s;
 }
 .sidebar-collapse-btn:hover {
-  background: #f3f4f6;
-  color: #111827;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
 }
 
 /* "Create new" button */
 .sidebar-create-btn {
-  background: #0c3ebe;
+  background: linear-gradient(135deg, #0066ff, #00d2ff);
   color: #ffffff;
   border: 0;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 700;
-  padding: 10px 16px;
+  padding: 11px 16px;
   margin: 4px 14px 16px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: background 0.15s;
+  box-shadow: 0 4px 16px rgba(0, 102, 255, 0.35);
+  transition: opacity 0.15s;
 }
 .sidebar-create-btn:hover {
-  background: #0a329b;
+  opacity: 0.92;
 }
 
 .sidebar-nav {
@@ -333,23 +336,23 @@ section[data-page="auth"] {
   align-items: center;
   gap: 12px;
   padding: 10px 18px;
-  color: #374151;
+  color: #94a3b8;
   font-size: 14px;
   font-weight: 500;
   text-decoration: none;
   cursor: pointer;
   transition: all 0.15s ease;
-  border-left: 4px solid transparent;
+  border-left: 3px solid transparent;
 }
 .sidebar-nav-item:hover {
-  background: #f8fafc;
-  color: #111827;
+  background: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
 }
 .sidebar-nav-item.active {
-  background: #e8f0fe;
-  color: #0c3ebe;
+  background: rgba(0, 102, 255, 0.15);
+  color: #38bdf8;
   font-weight: 700;
-  border-left-color: #0c3ebe;
+  border-left-color: #38bdf8;
 }
 .sidebar-nav-icon {
   font-size: 16px;
@@ -359,7 +362,7 @@ section[data-page="auth"] {
 }
 
 .sidebar-bottom {
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding: 12px 14px;
   margin-top: auto;
 }
@@ -376,8 +379,8 @@ section[data-page="auth"] {
 /* Topbar */
 .app-topbar {
   height: 60px;
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
+  background: #090f22;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -395,23 +398,23 @@ section[data-page="auth"] {
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #9ca3af;
+  color: #64748b;
   font-size: 14px;
 }
 .topbar-search-input {
   width: 100%;
-  background: #ffffff;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
   padding: 8px 12px 8px 36px;
-  color: #111827;
+  color: #ffffff;
   font-size: 13px;
   transition: all 0.15s;
 }
 .topbar-search-input:focus {
-  border-color: #0c3ebe;
+  border-color: #38bdf8;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(12, 62, 190, 0.1);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
 }
 .topbar-actions {
   display: flex;
@@ -421,16 +424,15 @@ section[data-page="auth"] {
 .topbar-icon-btn {
   background: none;
   border: 0;
-  color: #4b5563;
+  color: #94a3b8;
   font-size: 16px;
   cursor: pointer;
   padding: 6px 8px;
   border-radius: 6px;
-  transition: background 0.15s;
 }
 .topbar-icon-btn:hover {
-  background: #f3f4f6;
-  color: #111827;
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
 }
 .topbar-upgrade-btn {
   background: #007a5a;
@@ -441,7 +443,6 @@ section[data-page="auth"] {
   font-weight: 700;
   border: 0;
   cursor: pointer;
-  transition: background 0.15s;
 }
 .topbar-upgrade-btn:hover {
   background: #006046;
@@ -450,14 +451,14 @@ section[data-page="auth"] {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #e5e7eb;
-  color: #1f2937;
+  background: #0066ff;
+  color: #ffffff;
   font-weight: 700;
   font-size: 13px;
   display: grid;
   place-items: center;
   cursor: pointer;
-  border: 1px solid #d1d5db;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* Main pane & Right drawer */
@@ -475,9 +476,9 @@ section[data-page="auth"] {
 
 /* Right Bitly Assist Drawer */
 .app-assist-drawer {
-  width: 340px;
-  background: #ffffff;
-  border-left: 1px solid #e2e8f0;
+  width: 350px;
+  background: #090f22;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -490,7 +491,7 @@ section[data-page="auth"] {
 }
 .drawer-header {
   padding: 16px 20px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -501,12 +502,12 @@ section[data-page="auth"] {
   gap: 8px;
   font-size: 15px;
   font-weight: 700;
-  color: #111827;
+  color: #38bdf8;
 }
 .drawer-close {
   background: none;
   border: 0;
-  color: #6b7280;
+  color: #94a3b8;
   font-size: 18px;
   cursor: pointer;
 }
@@ -521,21 +522,21 @@ section[data-page="auth"] {
   text-align: center;
 }
 .drawer-illus-box {
-  width: 130px;
-  height: 130px;
+  width: 100px;
+  height: 100px;
   margin-top: 10px;
   display: grid;
   place-items: center;
-  font-size: 64px;
+  font-size: 54px;
 }
 .drawer-heading {
   font-size: 20px;
   font-weight: 800;
-  color: #111827;
+  color: #ffffff;
   margin: 0;
 }
 .drawer-subtext {
-  color: #6b7280;
+  color: #94a3b8;
   font-size: 13px;
   line-height: 1.5;
   margin: 0;
@@ -543,11 +544,10 @@ section[data-page="auth"] {
 .drawer-input-card {
   width: 100%;
   margin-top: auto;
-  background: #ffffff;
-  border: 1px solid #d1d5db;
+  background: #0d172e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   padding: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -558,7 +558,8 @@ section[data-page="auth"] {
   outline: none;
   resize: none;
   font-size: 13px;
-  color: #111827;
+  color: #ffffff;
+  background: transparent;
   font-family: inherit;
   height: 48px;
 }
@@ -568,7 +569,7 @@ section[data-page="auth"] {
   align-items: center;
 }
 .drawer-send-btn {
-  background: #0c3ebe;
+  background: #0066ff;
   color: #ffffff;
   border: 0;
   width: 32px;
@@ -579,7 +580,7 @@ section[data-page="auth"] {
   place-items: center;
 }
 
-/* ---------------- 3. DASHBOARD VIEWS & CARDS ---------------- */
+/* ---------------- 3. DASHBOARD VIEWS & CARDS (Dark Website Theme) ---------------- */
 .view-header {
   display: flex;
   justify-content: space-between;
@@ -589,25 +590,37 @@ section[data-page="auth"] {
 .view-header h2 {
   font-size: 26px;
   font-weight: 800;
-  color: #111827 !important;
+  color: #ffffff !important;
   margin: 0;
   letter-spacing: -0.02em;
 }
 
+/* Cards */
+.dash-white-card,
+.home-create-card,
+.create-link-card,
+.qr-card-item,
+.page-row-card,
+.campaigns-hero-wrap,
+.settings-main-panel,
+.integration-card-white {
+  background: #0d172e !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 14px;
+  color: #f8fafc !important;
+}
+
 /* "What do you want to create?" Card (Screenshot 12.02.37 AM) */
 .home-create-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
   padding: 32px;
   margin-bottom: 24px;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
 .home-create-card h3 {
   font-size: 28px;
   font-weight: 800;
-  color: #111827;
+  color: #ffffff;
   margin: 0 0 20px;
 }
 .home-type-tabs {
@@ -616,60 +629,63 @@ section[data-page="auth"] {
   margin-bottom: 24px;
 }
 .home-type-tab {
-  background: #ffffff;
-  border: 1px solid #d1d5db;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 99px;
   padding: 8px 18px;
   font-size: 13px;
   font-weight: 600;
-  color: #374151;
+  color: #94a3b8;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
+  transition: all 0.15s;
+}
+.home-type-tab:hover {
+  color: #ffffff;
 }
 .home-type-tab.active {
-  border-color: #0c3ebe;
-  color: #0c3ebe;
-  background: #f0f4ff;
+  border-color: #38bdf8;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
 }
 
 .home-shorten-box {
   max-width: 680px;
   margin: 0 auto 16px;
-  background: #ffffff;
-  border: 1px solid #d1d5db;
+  background: #0f1b36;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 10px;
   padding: 6px 8px 6px 14px;
   display: flex;
   align-items: center;
   gap: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
 }
 .home-shorten-box:focus-within {
-  border-color: #0c3ebe;
-  box-shadow: 0 0 0 3px rgba(12, 62, 190, 0.12);
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
 }
 .home-shorten-input {
   flex: 1;
   border: 0;
   outline: none;
   font-size: 14px;
-  color: #111827;
+  color: #ffffff;
   background: none;
 }
 .home-domain-select {
-  border: 1px solid #d1d5db;
-  background: #f9fafb;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #090f22;
   border-radius: 6px;
   padding: 8px 12px;
   font-size: 13px;
   font-weight: 600;
-  color: #1f2937;
+  color: #38bdf8;
   cursor: pointer;
 }
 .home-shorten-btn {
-  background: #0c3ebe;
+  background: #0066ff;
   color: #ffffff;
   border: 0;
   width: 40px;
@@ -679,11 +695,15 @@ section[data-page="auth"] {
   display: grid;
   place-items: center;
   font-size: 18px;
+  transition: background 0.15s;
+}
+.home-shorten-btn:hover {
+  background: #0052cc;
 }
 
 .home-cyan-banner {
-  background: #e8f7fa;
-  border: 1px solid #c2edf3;
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.2);
   border-radius: 8px;
   padding: 10px 16px;
   display: inline-flex;
@@ -691,11 +711,11 @@ section[data-page="auth"] {
   gap: 8px;
   font-size: 13px;
   font-weight: 600;
-  color: #007a5a;
+  color: #38bdf8;
   margin-top: 8px;
 }
 .home-cyan-banner a {
-  color: #007a5a;
+  color: #38bdf8;
   text-decoration: underline;
 }
 
@@ -707,20 +727,16 @@ section[data-page="auth"] {
   margin-top: 20px;
 }
 .dash-white-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
   padding: 24px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.02);
 }
 .dash-white-card h4 {
   font-size: 18px;
   font-weight: 700;
-  color: #111827;
+  color: #ffffff;
   margin: 0 0 6px;
 }
 .dash-white-card p {
-  color: #6b7280;
+  color: #94a3b8;
   font-size: 13px;
   margin: 0 0 16px;
 }
@@ -731,26 +747,22 @@ section[data-page="auth"] {
   margin: 0 auto;
 }
 .create-link-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
   padding: 28px;
   margin-bottom: 20px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
 }
 .create-link-card h3 {
   font-size: 18px;
   font-weight: 700;
-  color: #111827;
+  color: #ffffff;
   margin: 0 0 4px;
 }
 .create-link-sub {
-  color: #6b7280;
+  color: #94a3b8;
   font-size: 13px;
   margin: 0 0 20px;
 }
 .create-link-sub a {
-  color: #0c3ebe;
+  color: #38bdf8;
   text-decoration: underline;
 }
 .create-link-field {
@@ -762,25 +774,25 @@ section[data-page="auth"] {
 .create-link-field label {
   font-size: 14px;
   font-weight: 700;
-  color: #1f2937;
+  color: #e2e8f0;
 }
 .create-link-field input, .create-link-field select {
-  background: #ffffff;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
   padding: 10px 14px;
   font-size: 14px;
-  color: #111827;
+  color: #ffffff;
 }
 .create-link-field input:focus, .create-link-field select:focus {
-  border-color: #0c3ebe;
+  border-color: #38bdf8;
   outline: none;
 }
 
 /* Dynamic routing alert */
 .dynamic-routing-alert {
-  background: #f0f7ff;
-  border: 1px solid #cce3ff;
+  background: rgba(0, 102, 255, 0.12);
+  border: 1px solid rgba(0, 102, 255, 0.25);
   border-radius: 8px;
   padding: 12px 16px;
   display: flex;
@@ -788,21 +800,20 @@ section[data-page="auth"] {
   justify-content: space-between;
   margin-bottom: 20px;
   font-size: 13px;
-  color: #1e40af;
+  color: #93c5fd;
 }
 
 /* Sticky action bar */
 .sticky-bottom-actions {
   position: sticky;
   bottom: 0;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: #090f22;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   padding: 14px 20px;
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  box-shadow: 0 -4px 16px rgba(0,0,0,0.04);
 }
 
 /* ---------------- 5. QR CODES VIEW (Screenshot 12.02.39 AM) ---------------- */
@@ -813,15 +824,11 @@ section[data-page="auth"] {
   align-items: center;
 }
 .qr-card-item {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
   padding: 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 14px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
 }
 .qr-card-left {
   display: flex;
@@ -829,7 +836,7 @@ section[data-page="auth"] {
   gap: 20px;
 }
 .qr-framed-thumbnail {
-  border: 2px solid #111827;
+  border: 2px solid #ffffff;
   border-radius: 10px;
   padding: 8px 8px 4px;
   background: #ffffff;
@@ -850,12 +857,12 @@ section[data-page="auth"] {
 .qr-details h4 {
   font-size: 16px;
   font-weight: 700;
-  color: #111827;
+  color: #ffffff;
   margin: 6px 0 4px;
 }
 .qr-dest-text {
   font-size: 13px;
-  color: #4b5563;
+  color: #94a3b8;
   margin-bottom: 6px;
   max-width: 500px;
   overflow: hidden;
@@ -867,14 +874,11 @@ section[data-page="auth"] {
   align-items: center;
   gap: 14px;
   font-size: 12px;
-  color: #6b7280;
+  color: #64748b;
 }
 
 /* ---------------- 6. PAGES VIEW (Screenshot 12.02.40 AM) ---------------- */
 .page-row-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
   padding: 20px;
   display: flex;
   align-items: center;
@@ -884,8 +888,8 @@ section[data-page="auth"] {
 .page-wireframe-thumb {
   width: 70px;
   height: 90px;
-  background: #ffffff;
-  border: 2px solid #e5e7eb;
+  background: #090f22;
+  border: 2px solid rgba(255, 255, 255, 0.15);
   border-radius: 10px;
   padding: 8px;
   display: flex;
@@ -895,20 +899,17 @@ section[data-page="auth"] {
 .page-wireframe-thumb span {
   font-size: 8px;
   font-weight: 700;
-  color: #6b7280;
+  color: #38bdf8;
   text-align: center;
 }
 .wireframe-bar {
   height: 6px;
-  background: #e5e7eb;
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 3px;
 }
 
 /* ---------------- 7. CAMPAIGNS VIEW (Screenshot 12.02.41 AM 1) ---------------- */
 .campaigns-hero-wrap {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
   padding: 60px 20px;
   text-align: center;
   max-width: 800px;
@@ -918,20 +919,20 @@ section[data-page="auth"] {
   width: 280px;
   height: 180px;
   margin: 0 auto 28px;
-  background: #ffffff;
-  border: 2px solid #e5e7eb;
+  background: #090f22;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 12px;
   padding: 16px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.04);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
 }
 .campaigns-hero-wrap h3 {
   font-size: 28px;
   font-weight: 800;
-  color: #111827;
+  color: #ffffff;
   margin: 0 0 12px;
 }
 .campaigns-hero-wrap p {
-  color: #4b5563;
+  color: #94a3b8;
   font-size: 15px;
   max-width: 520px;
   margin: 0 auto 24px;
@@ -940,8 +941,8 @@ section[data-page="auth"] {
 
 /* ---------------- 8. CUSTOM DOMAINS VIEW (Screenshot 12.02.41 AM 2) ---------------- */
 .domains-cyan-card {
-  background: #e8f7fa;
-  border: 1px solid #c2edf3;
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.2);
   border-radius: 14px;
   padding: 24px 28px;
   margin-bottom: 24px;
@@ -957,19 +958,20 @@ section[data-page="auth"] {
 }
 .domain-ai-textarea {
   width: 100%;
-  border: 1px solid #d1d5db;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
   padding: 12px 14px;
   font-size: 14px;
   height: 80px;
   resize: none;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
 }
 
 /* ---------------- 9. INTEGRATIONS VIEW (Screenshot 12.02.42 AM) ---------------- */
 .shopify-cream-banner {
-  background: #f4eee5;
-  border: 1px solid #e8decb;
+  background: #0f1c3a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   padding: 32px;
   margin-bottom: 24px;
@@ -979,16 +981,12 @@ section[data-page="auth"] {
   align-items: center;
 }
 .integration-card-white {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
   transition: all 0.15s;
 }
 .integration-card-white:hover {
-  border-color: #0c3ebe;
-  box-shadow: 0 4px 12px rgba(12, 62, 190, 0.08);
+  border-color: #38bdf8 !important;
+  transform: translateY(-2px);
 }
 
 /* ---------------- 10. SETTINGS VIEW (Screenshots 12.02.42 AM 2 & 12.02.43 AM) ---------------- */
@@ -1005,7 +1003,7 @@ section[data-page="auth"] {
 .settings-subsidebar-group h5 {
   font-size: 12px;
   font-weight: 700;
-  color: #111827;
+  color: #ffffff;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin: 0 0 8px;
@@ -1015,28 +1013,25 @@ section[data-page="auth"] {
   padding: 8px 12px;
   border-radius: 6px;
   font-size: 14px;
-  color: #4b5563;
+  color: #94a3b8;
   text-decoration: none;
   cursor: pointer;
 }
 .settings-subsidebar-link:hover {
-  background: #f3f4f6;
-  color: #111827;
+  background: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
 }
 .settings-subsidebar-link.active {
-  background: #e8f0fe;
-  color: #0c3ebe;
+  background: rgba(0, 102, 255, 0.15);
+  color: #38bdf8;
   font-weight: 700;
 }
 
 .settings-main-panel {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
   padding: 32px;
 }
 .settings-section-divider {
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   margin: 32px 0;
 }
 
@@ -1044,8 +1039,8 @@ section[data-page="auth"] {
 .create-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(17, 24, 39, 0.45);
-  backdrop-filter: blur(4px);
+  background: rgba(4, 8, 20, 0.7);
+  backdrop-filter: blur(8px);
   display: grid;
   place-items: center;
   z-index: 200;
@@ -1057,11 +1052,11 @@ section[data-page="auth"] {
 .create-modal-card {
   width: 100%;
   max-width: 640px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: #0a1329;
+  border: 1px solid rgba(0, 180, 255, 0.3);
   border-radius: 16px;
   padding: 28px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.7);
 }
 .create-modal-header {
   display: flex;
@@ -1072,7 +1067,7 @@ section[data-page="auth"] {
 .create-modal-header h3 {
   font-size: 24px;
   font-weight: 800;
-  color: #111827 !important;
+  color: #ffffff !important;
   margin: 0;
 }
 .create-modal-grid {
@@ -1081,8 +1076,8 @@ section[data-page="auth"] {
   gap: 16px;
 }
 .create-option-card {
-  background: #ffffff;
-  border: 1px solid #d1d5db;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   padding: 20px 16px;
   text-align: left;
@@ -1091,19 +1086,19 @@ section[data-page="auth"] {
   position: relative;
 }
 .create-option-card:hover {
-  border-color: #0c3ebe;
-  box-shadow: 0 4px 14px rgba(12, 62, 190, 0.1);
+  border-color: #38bdf8;
+  background: rgba(0, 102, 255, 0.15);
   transform: translateY(-2px);
 }
 .create-option-badge {
   position: absolute;
   right: 12px;
   bottom: 12px;
-  background: #f3f4f6;
-  border: 1px solid #e5e7eb;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 11px;
   font-weight: 600;
-  color: #6b7280;
+  color: #38bdf8;
 }
