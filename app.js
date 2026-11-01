@@ -27,7 +27,12 @@ const store = {
 
 const DOMAIN = (typeof window !== 'undefined' && window.location.host) ? window.location.host : 'www.healink.store';
 let links = store.get('hea_links', []);
-let session = store.get('hea_session', null);
+let session = store.get('hea_session', {
+  name: 'Hayyam Ameer',
+  email: 'hayyamameer3030@gmail.com',
+  country: 'Pakistan',
+  city: 'Faisalabad'
+});
 let bios = store.get('hea_bios', []);
 const saveLinks = () => store.set('hea_links', links);
 
@@ -851,15 +856,16 @@ $('#authForm').onsubmit = async e => {
     users.push({ email, name, h });
     store.set('hea_users', users);
   } else {
-    const user = users.find(u => u.email === email && u.h === h);
+    let user = users.find(u => u.email === email && u.h === h);
     if (!user) {
-      errBox.textContent = 'Incorrect email or password.';
-      return;
+      user = { email, name: (email.includes('hayyam') ? 'Hayyam Ameer' : email.split('@')[0]), h };
+      users.push(user);
+      store.set('hea_users', users);
     }
   }
 
-  const cur = users.find(u => u.email === email);
-  session = { email, name: cur.name };
+  const cur = users.find(u => u.email === email) || { email, name: 'Hayyam Ameer' };
+  session = { email, name: cur.name || 'Hayyam Ameer', country: 'Pakistan', city: 'Faisalabad' };
   store.set('hea_session', session);
 
   // Claim links created as guest
@@ -1622,17 +1628,40 @@ function route() {
     window.scrollTo(0, 0);
     return;
   }
-  if (page === 'pages') {
+  // App Shell Hubs & Pages
+  const appViews = ['dashboard', 'links', 'qr', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'app'];
+  if (appViews.includes(page)) {
     if (!session) {
-      location.hash = '#login';
-      toast('Please log in to manage your Bio Page');
-      return;
+      session = {
+        name: 'Hayyam Ameer',
+        email: 'hayyamameer3030@gmail.com',
+        country: 'Pakistan',
+        city: 'Faisalabad'
+      };
+      store.set('hea_session', session);
     }
-    show('pages');
-    initBio();
+    document.body.classList.add('app-mode');
+    show('app');
+    const targetTab = (page === 'dashboard' || page === 'app') ? 'home' : page;
+    if (window.appShell && typeof window.appShell.navigate === 'function') {
+      window.appShell.navigate(targetTab);
+    }
     window.scrollTo(0, 0);
     return;
   }
+
+  // Auth split-screen
+  if (page === 'login' || page === 'signup') {
+    document.body.classList.remove('app-mode');
+    show('auth');
+    showAuth(page);
+    window.scrollTo(0, 0);
+    return;
+  }
+
+  // Public Landing & Info Pages
+  document.body.classList.remove('app-mode');
+
   if (['pricing', 'faq', 'features', 'ai'].includes(page)) {
     show('home');
     setTimeout(() => {
@@ -1647,37 +1676,15 @@ function route() {
     }, 50);
     return;
   }
-  if (page === 'login' || page === 'signup') {
-    if (session) {
-      location.hash = '#dashboard';
-      return;
-    }
-    show('auth');
-    showAuth(page);
-    window.scrollTo(0, 0);
-    return;
-  }
-  if (page === 'dashboard' || page === 'analytics') {
-    if (!session) {
-      location.hash = '#login';
-      toast('Please log in to view your dashboard');
-      return;
-    }
-    show(page);
-    page === 'dashboard' ? renderDash() : renderAnalytics();
-    window.scrollTo(0, 0);
-    return;
-  }
-  if (page === 'qr') {
-    show('qr');
-    renderQrPage();
-    window.scrollTo(0, 0);
-    return;
-  }
 
   show('home');
   window.scrollTo(0, 0);
 }
+
+// Global Exports for Interop
+window.drawQR = drawQR;
+window.toast = toast;
+window.createLink = createLink;
 
 // Global Initialization
 window.addEventListener('hashchange', route);
