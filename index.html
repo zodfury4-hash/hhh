@@ -27,74 +27,123 @@
 
 <main>
   <!-- 1. HOME VIEW -->
+  <!-- 1. HOME VIEW (Matches media_1793564494242_dc725741.png) -->
   <section data-page="home">
-    <div class="hero wrap">
-      <span class="pill">✦ Now: AI-suggested short links &amp; universal redirect</span>
-      <h1>Short links, QR codes &amp; bio pages —<br><span class="lime-text">all in one place</span></h1>
-      <p class="lead">Create branded short links and scannable QR codes, then see exactly who clicks.</p>
-      
-      <div class="card hero-card">
-        <div class="tabs" id="heroTabs">
-          <button class="on" data-t="link">🔗 Short link</button>
-          <button data-t="qr">▦ QR code</button>
-          <button data-t="bulk">⚡ Bulk shorten</button>
-        </div>
-
-        <form id="heroForm" class="hero-form-row">
-          <div class="input-wrap">
-            <span class="input-icon">🔗</span>
-            <input id="heroUrl" placeholder="https://example.com/a-very-long-page-address" aria-label="Long URL" autocomplete="off" required>
+    <div class="hero-split-wrap wrap">
+      <!-- LEFT COLUMN -->
+      <div class="hero-col-left">
+        <span class="pill">
+          <span class="pill-sparkle">✨</span> Now: AI-suggested short links &amp; universal redirect <span class="pill-green-dot"></span>
+        </span>
+        <h1 class="hero-title">Short links,<br>QR codes &amp;<br>bio pages —<br><span class="lime-text">all in one place</span></h1>
+        <p class="lead">Create branded short links and scalable QR codes, then see exactly who clicks.</p>
+        
+        <div class="card hero-card">
+          <div class="tabs" id="heroTabs">
+            <button class="on" data-t="link">🔗 Short link</button>
+            <button data-t="qr">▦ QR code</button>
+            <button data-t="bulk">⚡ Bulk shorten</button>
           </div>
-          <button class="btn hero-submit-btn" id="heroBtn" type="submit">Shorten link →</button>
-        </form>
-        
-        <p class="err" id="heroErr"></p>
-        
-        <!-- Short link result -->
-        <div id="heroRes" class="res" hidden></div>
-        
-        <!-- QR preview -->
-        <canvas id="heroQr" hidden></canvas>
 
-        <!-- Bulk Shorten UI -->
-        <div id="heroBulk" class="stack" style="margin-top:14px" hidden>
-          <label>Paste multiple URLs (one per line)
-            <textarea id="bulkUrls" rows="4" placeholder="https://example.com/page-1&#10;https://example.com/page-2&#10;https://example.com/page-3"></textarea>
-          </label>
-          <button type="button" class="btn hero-submit-btn" id="bulkBtn">Shorten all links →</button>
-          <div id="bulkRes" class="stack" style="margin-top:10px"></div>
+          <form id="heroForm" class="hero-form-row">
+            <div class="input-wrap">
+              <span class="input-icon">🔗</span>
+              <input id="heroUrl" placeholder="Paste your long URL here..." aria-label="Long URL" autocomplete="off" required>
+            </div>
+            <button class="btn hero-submit-btn" id="heroBtn" type="submit">Shorten link →</button>
+          </form>
+          
+          <p class="err" id="heroErr"></p>
+          
+          <!-- Short link result -->
+          <div id="heroRes" class="res" hidden></div>
+          
+          <!-- QR preview -->
+          <canvas id="heroQr" hidden></canvas>
+
+          <!-- Bulk Shorten UI -->
+          <div id="heroBulk" class="stack" style="margin-top:14px" hidden>
+            <label>Paste multiple URLs (one per line)
+              <textarea id="bulkUrls" rows="4" placeholder="https://example.com/page-1&#10;https://example.com/page-2&#10;https://example.com/page-3"></textarea>
+            </label>
+            <button type="button" class="btn hero-submit-btn" id="bulkBtn">Shorten all links →</button>
+            <div id="bulkRes" class="stack" style="margin-top:10px"></div>
+          </div>
         </div>
       </div>
 
-      <!-- 4 Hero Feature Badges (Excluding reviews part as requested) -->
-      <div class="hero-badges">
-        <div class="badge-item">
-          <div class="badge-icon">⚡</div>
-          <div>
-            <b>Instant &amp; Reliable</b>
-            <span>Shorten in milliseconds</span>
+      <!-- RIGHT COLUMN: 3D CYBER STAGE & FLOATING CARDS -->
+      <div class="hero-col-right">
+        <div class="cyber-stage-container" id="cyberStage">
+          <!-- Floating HUD Card 1: Real-time Analytics -->
+          <div class="hud-card hud-analytics float-anim-1">
+            <div class="hud-icon chart-icon">
+              <span class="bar b1"></span>
+              <span class="bar b2"></span>
+              <span class="bar b3"></span>
+            </div>
+            <div class="hud-info">
+              <div class="hud-label">Real-time Analytics</div>
+              <div class="hud-value neon-green">↗ +245%</div>
+            </div>
+          </div>
+
+          <!-- Floating HUD Card 2: Create QR Codes -->
+          <div class="hud-card hud-qr float-anim-2">
+            <div class="hud-qr-thumb">
+              <canvas id="stageQrMini" width="48" height="48"></canvas>
+            </div>
+            <div class="hud-info">
+              <div class="hud-label">Create</div>
+              <div class="hud-sub">QR Codes</div>
+            </div>
+          </div>
+
+          <!-- Floating HUD Card 3: Track Clicks -->
+          <div class="hud-card hud-clicks float-anim-3">
+            <div class="hud-icon users-icon">👥</div>
+            <div class="hud-info">
+              <div class="hud-label">Track</div>
+              <div class="hud-sub">Clicks</div>
+            </div>
+          </div>
+
+          <!-- 3D WebGL Canvas for Glowing Chain Links & Cyber Pedestal Stage -->
+          <div class="cyber-canvas-wrap">
+            <canvas id="chain3dCanvas"></canvas>
           </div>
         </div>
-        <div class="badge-item">
-          <div class="badge-icon">📊</div>
-          <div>
-            <b>Powerful Analytics</b>
-            <span>Track every click</span>
-          </div>
+      </div>
+    </div>
+
+    <!-- 4 Hero Feature Badges (Spanning below the split hero) -->
+    <div class="hero-badges wrap">
+      <div class="badge-item">
+        <div class="badge-icon">⚡</div>
+        <div>
+          <b>Instant &amp; Reliable</b>
+          <span>Shorten in milliseconds</span>
         </div>
-        <div class="badge-item">
-          <div class="badge-icon">🛡️</div>
-          <div>
-            <b>Branded Experience</b>
-            <span>Build trust with your brand</span>
-          </div>
+      </div>
+      <div class="badge-item">
+        <div class="badge-icon">📊</div>
+        <div>
+          <b>Powerful Analytics</b>
+          <span>Track every click</span>
         </div>
-        <div class="badge-item">
-          <div class="badge-icon">🌐</div>
-          <div>
-            <b>Global Reach</b>
-            <span>Share anywhere</span>
-          </div>
+      </div>
+      <div class="badge-item">
+        <div class="badge-icon">🛡️</div>
+        <div>
+          <b>Branded Experience</b>
+          <span>Build trust with your brand</span>
+        </div>
+      </div>
+      <div class="badge-item">
+        <div class="badge-icon">🌐</div>
+        <div>
+          <b>Global Reach</b>
+          <span>Share anywhere</span>
         </div>
       </div>
     </div>

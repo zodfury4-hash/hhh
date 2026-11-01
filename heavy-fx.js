@@ -16,6 +16,7 @@
 
   function initAll() {
     initShaderBackground();
+    init3DCyberChainStage();
     initLenisScroll();
     initGsapAnimations();
     initSkipprSlider();
@@ -519,5 +520,239 @@
         card.style.transform = '';
       });
     });
+  }
+  /* ---------------------------------------------------------
+     6. 3D CYBER CHAIN LINKS ON GLOWING PEDESTAL (Hero Stage)
+     Matches media_1793564494242_dc725741.png
+     --------------------------------------------------------- */
+  function init3DCyberChainStage() {
+    const canvas = document.getElementById('chain3dCanvas');
+    if (!canvas || typeof THREE === 'undefined') return;
+
+    // Mini QR inside HUD card
+    setTimeout(() => {
+      const miniCv = document.getElementById('stageQrMini');
+      if (miniCv && typeof window.drawQR === 'function') {
+        window.drawQR(miniCv, 'https://healink.store', '#38bdf8', '#090f22', 48);
+      }
+    }, 200);
+
+    const wrap = canvas.parentElement;
+    if (!wrap) return;
+
+    // Check WebGL support
+    try {
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      if (!gl) return;
+    } catch (e) {
+      return;
+    }
+
+    const width = wrap.clientWidth || 500;
+    const height = wrap.clientHeight || 460;
+
+    const renderer = new THREE.WebGLRenderer({
+      canvas: canvas,
+      alpha: true,
+      antialias: true,
+      powerPreference: 'high-performance'
+    });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100);
+    camera.position.set(0, 0.9, 8.2);
+
+    const stageGroup = new THREE.Group();
+    scene.add(stageGroup);
+
+    // 1. Pedestal Base (Concentric Cyber Rings)
+    const pedestalGroup = new THREE.Group();
+    pedestalGroup.position.y = -2.1;
+    stageGroup.add(pedestalGroup);
+
+    const baseMat = new THREE.MeshStandardMaterial({
+      color: 0x071126,
+      metalness: 0.85,
+      roughness: 0.25
+    });
+
+    // Tier 1
+    const tier1 = new THREE.Mesh(new THREE.CylinderGeometry(2.9, 3.3, 0.45, 48), baseMat);
+    pedestalGroup.add(tier1);
+
+    // Tier 2
+    const tier2 = new THREE.Mesh(new THREE.CylinderGeometry(2.35, 2.65, 0.4, 48), baseMat);
+    tier2.position.y = 0.38;
+    pedestalGroup.add(tier2);
+
+    // Tier 3
+    const tier3 = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 2.05, 0.35, 48), baseMat);
+    tier3.position.y = 0.72;
+    pedestalGroup.add(tier3);
+
+    // Neon Glow Rings on Pedestal Tiers
+    const ringMatCyan = new THREE.MeshBasicMaterial({ color: 0x00d2ff });
+    const ringMatLime = new THREE.MeshBasicMaterial({ color: 0xD4FF24 });
+
+    const ring1 = new THREE.Mesh(new THREE.TorusGeometry(2.95, 0.045, 16, 64), ringMatCyan);
+    ring1.rotation.x = Math.PI / 2;
+    ring1.position.y = 0.22;
+    pedestalGroup.add(ring1);
+
+    const ring2 = new THREE.Mesh(new THREE.TorusGeometry(2.4, 0.055, 16, 64), ringMatCyan);
+    ring2.rotation.x = Math.PI / 2;
+    ring2.position.y = 0.56;
+    pedestalGroup.add(ring2);
+
+    const ring3 = new THREE.Mesh(new THREE.TorusGeometry(1.85, 0.065, 16, 64), ringMatLime);
+    ring3.rotation.x = Math.PI / 2;
+    ring3.position.y = 0.88;
+    pedestalGroup.add(ring3);
+
+    // Central Core Disc
+    const coreDisc = new THREE.Mesh(
+      new THREE.CylinderGeometry(1.4, 1.4, 0.06, 32),
+      new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
+    );
+    coreDisc.position.y = 0.9;
+    pedestalGroup.add(coreDisc);
+
+    // 2. Interlocking 3D Chain Links
+    const chainGroup = new THREE.Group();
+    chainGroup.position.y = 0.4;
+    stageGroup.add(chainGroup);
+
+    function createChainLink(color, emissive, scaleY) {
+      const geo = new THREE.TorusGeometry(1.35, 0.4, 28, 72);
+      geo.scale(1.0, scaleY || 1.45, 1.0);
+      const mat = new THREE.MeshPhysicalMaterial({
+        color: color,
+        emissive: emissive,
+        emissiveIntensity: 0.65,
+        metalness: 0.6,
+        roughness: 0.12,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.1,
+        transmission: 0.4,
+        ior: 1.5
+      });
+      return new THREE.Mesh(geo, mat);
+    }
+
+    // Left Link: Emerald / Lime Green
+    const link1 = createChainLink(0x10b981, 0x059669, 1.46);
+    link1.position.set(-0.65, 0.05, 0);
+    link1.rotation.set(0.42, 0.32, 0.78);
+    chainGroup.add(link1);
+
+    // Right Link: Electric Cyan / Neon Blue (Interlocked)
+    const link2 = createChainLink(0x00d2ff, 0x0066ff, 1.46);
+    link2.position.set(0.65, 0.65, 0);
+    link2.rotation.set(-0.38, -0.36, -0.72);
+    chainGroup.add(link2);
+
+    // 3. Orbiting Neon Rings in 3D around the links
+    const orbit1 = new THREE.Mesh(
+      new THREE.TorusGeometry(2.85, 0.028, 16, 100),
+      new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.7 })
+    );
+    orbit1.rotation.set(1.2, 0.4, 0.2);
+    stageGroup.add(orbit1);
+
+    const orbit2 = new THREE.Mesh(
+      new THREE.TorusGeometry(3.2, 0.022, 16, 100),
+      new THREE.MeshBasicMaterial({ color: 0xD4FF24, transparent: true, opacity: 0.5 })
+    );
+    orbit2.rotation.set(-0.8, -0.6, 0.8);
+    stageGroup.add(orbit2);
+
+    // 4. Floating Cyber Sparkle Particles
+    const particleCount = 60;
+    const particleGeo = new THREE.BufferGeometry();
+    const particlePositions = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount * 3; i += 3) {
+      particlePositions[i] = (Math.random() - 0.5) * 5.0;
+      particlePositions[i + 1] = (Math.random() - 0.5) * 4.0 - 0.5;
+      particlePositions[i + 2] = (Math.random() - 0.5) * 4.0;
+    }
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+    const particleMat = new THREE.PointsMaterial({
+      color: 0x38bdf8,
+      size: 0.065,
+      transparent: true,
+      opacity: 0.85
+    });
+    const particles = new THREE.Points(particleGeo, particleMat);
+    stageGroup.add(particles);
+
+    // 5. Lighting
+    const ambientLight = new THREE.AmbientLight(0x0a1a3a, 2.2);
+    scene.add(ambientLight);
+
+    const cyanLight = new THREE.PointLight(0x00d2ff, 4, 15);
+    cyanLight.position.set(2, 2, 3);
+    scene.add(cyanLight);
+
+    const limeLight = new THREE.PointLight(0xD4FF24, 3.5, 15);
+    limeLight.position.set(-2.5, 1, 3);
+    scene.add(limeLight);
+
+    const bottomSpot = new THREE.SpotLight(0x38bdf8, 5, 10, Math.PI / 4, 0.5);
+    bottomSpot.position.set(0, -2, 0);
+    bottomSpot.target.position.set(0, 0, 0);
+    scene.add(bottomSpot);
+    scene.add(bottomSpot.target);
+
+    // Mouse tracking for 3D tactile tilt
+    let targetRotX = 0;
+    let targetRotY = 0;
+    window.addEventListener('mousemove', e => {
+      const x = (e.clientX / window.innerWidth) * 2 - 1;
+      const y = (e.clientY / window.innerHeight) * 2 - 1;
+      targetRotY = x * 0.35;
+      targetRotX = y * 0.2;
+    });
+
+    // Resize handler
+    window.addEventListener('resize', () => {
+      if (!wrap) return;
+      const w = wrap.clientWidth || 500;
+      const h = wrap.clientHeight || 460;
+      renderer.setSize(w, h);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    });
+
+    // Render loop
+    let clock = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+      const elapsed = clock.getElapsedTime();
+
+      // Smooth floating and gentle oscillation
+      chainGroup.position.y = 0.4 + Math.sin(elapsed * 1.5) * 0.12;
+      chainGroup.rotation.y = Math.sin(elapsed * 0.6) * 0.1;
+
+      // Orbit rings rotation
+      orbit1.rotation.z = elapsed * 0.35;
+      orbit2.rotation.z = -elapsed * 0.28;
+
+      // Particles gentle upward drift
+      const positions = particleGeo.attributes.position.array;
+      for (let i = 1; i < particleCount * 3; i += 3) {
+        positions[i] += 0.007;
+        if (positions[i] > 2.5) positions[i] = -2.0;
+      }
+      particleGeo.attributes.position.needsUpdate = true;
+
+      // Mouse interactive tilt damping
+      stageGroup.rotation.y += (targetRotY - stageGroup.rotation.y) * 0.05;
+      stageGroup.rotation.x += (targetRotX - stageGroup.rotation.x) * 0.05;
+
+      renderer.render(scene, camera);
+    }
+    animate();
   }
 })();
