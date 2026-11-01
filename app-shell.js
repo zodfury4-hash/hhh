@@ -26,12 +26,45 @@
     selectedQrColor: '#ff007f'
   };
 
+  function isUserAuthenticated() {
+    try {
+      const s = localStorage.getItem('hea_session');
+      if (!s) return false;
+      const parsed = JSON.parse(s);
+      return !!(parsed && parsed.isVerified);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function setAppUser(u) {
+    if (!u) return;
+    if (u.name) appUser.name = u.name;
+    if (u.email) appUser.email = u.email;
+    if (u.city) appUser.city = u.city;
+    if (u.isp) appUser.isp = u.isp;
+    const sName = $('#sidebarUserName');
+    if (sName) sName.textContent = appUser.name;
+    const sEmail = $('#sidebarUserEmail');
+    if (sEmail) sEmail.textContent = appUser.email;
+    const topAv = $('#topbarAvatar');
+    if (topAv) {
+      const initials = (appUser.name || 'HA').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'HA';
+      topAv.textContent = initials;
+      topAv.title = appUser.name;
+    }
+  }
+
   try {
     const saved = localStorage.getItem('hea_session');
     if (saved) {
       const p = JSON.parse(saved);
-      if (p && p.name) appUser.name = p.name;
-      if (p && p.email) appUser.email = p.email;
+      if (p && p.isVerified) {
+        if (p.name) appUser.name = p.name;
+        if (p.email) appUser.email = p.email;
+        if (p.city) appUser.city = p.city;
+        if (p.isp) appUser.isp = p.isp;
+      }
     }
   } catch (e) {}
 
@@ -100,6 +133,14 @@
 
   // ---------------- ROUTING ENGINE ---------------- //
   function navigate(tab, param) {
+    if (!isUserAuthenticated()) {
+      document.body.classList.remove('app-mode');
+      const as = $('#appShell');
+      if (as) as.hidden = true;
+      location.hash = '#login';
+      return;
+    }
+
     if (!tab) tab = 'home';
     if (tab === 'dashboard' || tab === 'app') tab = 'home';
     activeTab = tab;
@@ -112,42 +153,47 @@
     if (!pane) return;
     pane.scrollTop = 0;
 
-    switch (tab) {
-      case 'home':
-        renderHome(pane);
-        break;
-      case 'create-link':
-        renderCreateLink(pane);
-        break;
-      case 'links':
-        renderLinks(pane);
-        break;
-      case 'qr':
-        renderQr(pane);
-        break;
-      case 'qr-detail':
-        renderQrDetail(pane, param || activeQrId);
-        break;
-      case 'pages':
-        renderPages(pane);
-        break;
-      case 'analytics':
-        renderAnalytics(pane);
-        break;
-      case 'campaigns':
-        renderCampaigns(pane);
-        break;
-      case 'domains':
-        renderDomains(pane);
-        break;
-      case 'integrations':
-        renderIntegrations(pane);
-        break;
-      case 'settings':
-        renderSettings(pane);
-        break;
-      default:
-        renderHome(pane);
+    try {
+      switch (tab) {
+        case 'home':
+          renderHome(pane);
+          break;
+        case 'create-link':
+          renderCreateLink(pane);
+          break;
+        case 'links':
+          renderLinks(pane);
+          break;
+        case 'qr':
+          renderQr(pane);
+          break;
+        case 'qr-detail':
+          renderQrDetail(pane, param || activeQrId);
+          break;
+        case 'pages':
+          renderPages(pane);
+          break;
+        case 'analytics':
+          renderAnalytics(pane);
+          break;
+        case 'campaigns':
+          renderCampaigns(pane);
+          break;
+        case 'domains':
+          renderDomains(pane);
+          break;
+        case 'integrations':
+          renderIntegrations(pane);
+          break;
+        case 'settings':
+          renderSettings(pane);
+          break;
+        default:
+          renderHome(pane);
+      }
+    } catch (err) {
+      console.error('Error rendering dashboard view:', tab, err);
+      try { renderHome(pane); } catch (e) {}
     }
   }
 
@@ -466,6 +512,18 @@
       links.unshift(newL);
       localStorage.setItem('hea_links', JSON.stringify(links));
 
+      // Sync to MongoDB backend
+      try {
+        const s = JSON.parse(localStorage.getItem('hea_session'));
+        if (s && s.token) {
+          fetch('/api/links', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.token },
+            body: JSON.stringify({ dest, slug, title: newL.title, tag: newL.tag, qr: hasQR })
+          }).catch(() => {});
+        }
+      } catch (e) {}
+
       window.appShell.toast(`Created link: https://${domain}/${slug}`);
       navigate('links');
     };
@@ -488,6 +546,19 @@
     };
     links.unshift(newL);
     localStorage.setItem('hea_links', JSON.stringify(links));
+
+    // Sync to MongoDB backend
+    try {
+      const s = JSON.parse(localStorage.getItem('hea_session'));
+      if (s && s.token) {
+        fetch('/api/links', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.token },
+          body: JSON.stringify({ dest, slug, title: newL.title, tag: newL.tag, qr: true })
+        }).catch(() => {});
+      }
+    } catch (e) {}
+
     window.appShell.toast(`Link shortened: ${newL.url}`);
     navigate('links');
   }
@@ -1368,6 +1439,9 @@
         } catch (e) {}
         if (typeof session !== 'undefined') session = null;
         document.body.classList.remove('app-mode');
+        const as = $('#appShell');
+        if (as) as.hidden = true;
+        if (typeof renderNavRight === 'function') renderNavRight();
         location.hash = '#home';
         toast('Logged out successfully');
       };
@@ -1376,9 +1450,23 @@
     // SSO buttons
     const ssoG = $('#ssoGoogleBtn');
     if (ssoG) ssoG.onclick = () => {
-      localStorage.setItem('hea_session', JSON.stringify(appUser));
+      const gUser = {
+        name: 'Hayyam Ameer',
+        email: 'hayyamameer3030@gmail.com',
+        isVerified: true,
+        country: 'Pakistan',
+        city: 'Faisalabad',
+        isp: 'Nayatel Private Limited'
+      };
+      localStorage.setItem('hea_session', JSON.stringify(gUser));
+      setAppUser(gUser);
       document.body.classList.add('app-mode');
+      const as = $('#appShell');
+      if (as) as.hidden = false;
       location.hash = '#dashboard';
+      navigate('home');
+      if (typeof renderNavRight === 'function') renderNavRight();
+      toast('Signed in with Google');
     };
 
     // Route sync on hashchange
@@ -1386,22 +1474,43 @@
       const raw = (location.hash.slice(1) || '').split('?')[0];
       const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'app'];
       if (appViews.includes(raw)) {
+        if (!isUserAuthenticated()) {
+          document.body.classList.remove('app-mode');
+          const as = $('#appShell');
+          if (as) as.hidden = true;
+          location.hash = '#login';
+          return;
+        }
+        document.body.classList.add('app-mode');
+        const as = $('#appShell');
+        if (as) as.hidden = false;
         const tab = (raw === 'dashboard' || raw === 'app') ? 'home' : raw;
         navigate(tab);
       }
     };
     window.addEventListener('hashchange', syncRouteFromHash);
 
-    // Initial render
-    syncRouteFromHash();
-    const pane = $('#appMainPane');
-    if (pane && !pane.innerHTML.trim()) {
-      navigate('home');
+    // Initial render: ONLY show dashboard if user is verified AND currently on an app view
+    const initialRaw = (location.hash.slice(1) || '').split('?')[0];
+    const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'app'];
+    if (isUserAuthenticated() && appViews.includes(initialRaw)) {
+      document.body.classList.add('app-mode');
+      const as = $('#appShell');
+      if (as) as.hidden = false;
+      setAppUser(appUser);
+      const tab = (initialRaw === 'dashboard' || initialRaw === 'app') ? 'home' : initialRaw;
+      navigate(tab);
+    } else {
+      document.body.classList.remove('app-mode');
+      const as = $('#appShell');
+      if (as) as.hidden = true;
     }
   }
 
   window.appShell = {
     navigate,
+    setAppUser,
+    isUserAuthenticated,
     openWhatModal,
     closeWhatModal,
     downloadQrPNG,

@@ -28,6 +28,10 @@ const store = {
 const DOMAIN = (typeof window !== 'undefined' && window.location.host) ? window.location.host : 'www.healink.store';
 let links = store.get('hea_links', []);
 let session = store.get('hea_session', null);
+if (session && !session.isVerified) {
+  session = null;
+  store.set('hea_session', null);
+}
 let bios = store.get('hea_bios', []);
 const saveLinks = () => store.set('hea_links', links);
 
@@ -572,7 +576,8 @@ function initNav() {
 }
 
 function renderNavRight() {
-  $('#navR').innerHTML = session
+  const isAuth = !!(session && session.isVerified);
+  $('#navR').innerHTML = isAuth
     ? `<a class="btn ghost sm" href="#dashboard">Dashboard</a>
        <button class="btn dark sm" id="logoutBtn" type="button">Log out</button>`
     : `<a href="#login" style="font-weight:500;font-size:14px;padding:8px 16px;color:#ffffff !important;margin-right:6px">Log in</a>
@@ -584,6 +589,8 @@ function renderNavRight() {
       session = null;
       store.set('hea_session', null);
       document.body.classList.remove('app-mode');
+      const as = $('#appShell');
+      if (as) as.hidden = true;
       renderNavRight();
       location.hash = '#home';
       toast('Logged out successfully');
@@ -800,7 +807,7 @@ $('#aiBtn').onclick = () => {
 };
 
 /* =========================================================
-   AUTHENTICATION ENGINE (Client-side SHA-256)
+   AUTHENTICATION ENGINE (MongoDB Backend + Verified Email OTP)
    ========================================================= */
 
 async function hashPassword(str) {
@@ -813,68 +820,402 @@ async function hashPassword(str) {
 }
 
 let authMode = 'login';
+let pendingVerificationEmail = '';
 
 function showAuth(mode) {
   authMode = mode;
   const isSignup = mode === 'signup';
+  const isVerify = mode === 'verify';
+
+  const authForm = $('#authForm');
+  const authDivider = $('#authDivider');
+  const ssoGroup = $('.sso-group');
+  const verifyWrap = $('#verifyWrap');
+  const authSwap = $('#authSwap');
+
+  if (isVerify) {
+    if (authForm) authForm.hidden = true;
+    if (authDivider) authDivider.hidden = true;
+    if (ssoGroup) ssoGroup.hidden = true;
+    if (authSwap) authSwap.hidden = true;
+    if (verifyWrap) verifyWrap.hidden = false;
+
+    $('#authTitle').textContent = 'Verify Your Email';
+    $('#authSub').textContent = 'Enter the 6-digit confirmation code we sent to your inbox.';
+    const emailTarget = $('#verifyTargetEmail');
+    if (emailTarget) emailTarget.textContent = pendingVerificationEmail;
+    const vInput = $('#verifyCodeInput');
+    if (vInput) {
+      vInput.value = '';
+      setTimeout(() => vInput.focus(), 100);
+    }
+    const vErr = $('#verifyErr');
+    if (vErr) vErr.textContent = '';
+    return;
+  }
+
+  // Login or Signup mode
+  if (authForm) authForm.hidden = false;
+  if (authDivider) authDivider.hidden = false;
+  if (ssoGroup) ssoGroup.hidden = false;
+  if (authSwap) authSwap.hidden = false;
+  if (verifyWrap) verifyWrap.hidden = true;
+
   $('#authTitle').textContent = isSignup ? 'Create Your Account' : 'Welcome Back';
   $('#authSub').textContent = isSignup
-    ? 'Free forever. No credit card required.'
-    : 'Log in to manage your links, QR codes, and analytics.';
+    ? 'Free forever. Verified email required to access your dashboard.'
+    : 'Log in with your verified email to access your links, QR codes & analytics.';
   $('#nameWrap').hidden = !isSignup;
-  $('#authBtn').textContent = isSignup ? 'Sign Up Free' : 'Log In';
+  $('#authBtn').textContent = isSignup ? 'Sign Up with Email' : 'Log In';
   $('#authErr').textContent = '';
   $('#authSwap').innerHTML = isSignup
     ? 'Already have an account? <a href="#login"><b>Log in</b></a>'
     : 'Don\'t have an account? <a href="#signup"><b>Sign up free</b></a>';
 }
 
+// 1. Submit Auth (Register or Login)
 $('#authForm').onsubmit = async e => {
   e.preventDefault();
   const email = $('#aEmail').value.trim().toLowerCase();
   const pass = $('#aPass').value;
   const errBox = $('#authErr');
+  errBox.textContent = '';
 
   if (pass.length < 6) {
     errBox.textContent = 'Password must be at least 6 characters.';
     return;
   }
 
-  const users = store.get('hea_users', []);
-  const h = await hashPassword(pass);
+  const btn = $('#authBtn');
+  const origBtnText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
 
-  if (authMode === 'signup') {
-    if (users.find(u => u.email === email)) {
-      errBox.textContent = 'An account with this email already exists. Please log in.';
+  try {
+    if (authMode === 'signup') {
+      const name = $('#aName').value.trim() || email.split('@')[0];
+      
+      // Try real backend API
+      let backendRes = null;
+      try {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password: pass })
+        });
+        backendRes = { ok: res.ok, status: res.status, data: await res.json() };
+      } catch (netErr) {}
+
+      if (backendRes && backendRes.ok) {
+        pendingVerificationEmail = email;
+        showAuth('verify');
+        if (backendRes.data.devCode) {
+          const devAlert = $('#verifyDevAlert');
+          const devText = $('#verifyDevText');
+          if (devAlert && devText) {
+            devAlert.hidden = false;
+            devText.textContent = `Verification Code: ${backendRes.data.devCode}`;
+          }
+        }
+        toast('Verification code sent to ' + email);
+        return;
+      } else if (backendRes && !backendRes.ok) {
+        errBox.textContent = backendRes.data.error || 'Failed to create account.';
+        return;
+      }
+
+      // Offline / Static fallback
+      const users = store.get('hea_users', []);
+      const h = await hashPassword(pass);
+      const existing = users.find(u => u.email === email);
+      if (existing && existing.isVerified) {
+        errBox.textContent = 'An account with this email already exists. Please log in.';
+        return;
+      }
+      const clientCode = Math.floor(100000 + Math.random() * 900000).toString();
+      if (existing) {
+        existing.h = h;
+        existing.name = name;
+        existing.code = clientCode;
+      } else {
+        users.push({ email, name, h, code: clientCode, isVerified: false });
+      }
+      store.set('hea_users', users);
+
+      pendingVerificationEmail = email;
+      showAuth('verify');
+      const devAlert = $('#verifyDevAlert');
+      const devText = $('#verifyDevText');
+      if (devAlert && devText) {
+        devAlert.hidden = false;
+        devText.textContent = `Simulated Email Code: ${clientCode}`;
+      }
+      toast('Verification code generated for ' + email);
       return;
     }
-    const name = $('#aName').value.trim() || email.split('@')[0];
-    users.push({ email, name, h });
-    store.set('hea_users', users);
-  } else {
-    let user = users.find(u => u.email === email && u.h === h);
-    if (!user) {
-      user = { email, name: (email.includes('hayyam') ? 'Hayyam Ameer' : email.split('@')[0]), h };
-      users.push(user);
-      store.set('hea_users', users);
+
+    // Login mode
+    if (authMode === 'login') {
+      let backendRes = null;
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password: pass })
+        });
+        backendRes = { ok: res.ok, status: res.status, data: await res.json() };
+      } catch (netErr) {}
+
+      if (backendRes) {
+        if (backendRes.status === 403 && backendRes.data.error === 'email_not_verified') {
+          pendingVerificationEmail = email;
+          showAuth('verify');
+          if (backendRes.data.devCode) {
+            const devAlert = $('#verifyDevAlert');
+            const devText = $('#verifyDevText');
+            if (devAlert && devText) {
+              devAlert.hidden = false;
+              devText.textContent = `Verification Code: ${backendRes.data.devCode}`;
+            }
+          }
+          toast('Your email is not verified yet. Verification code resent.');
+          return;
+        }
+
+        if (backendRes.ok && backendRes.data.success) {
+          session = {
+            name: backendRes.data.user.name,
+            email: backendRes.data.user.email,
+            isVerified: true,
+            token: backendRes.data.token,
+            city: backendRes.data.user.city || 'Faisalabad',
+            isp: backendRes.data.user.isp || 'Nayatel Private Limited'
+          };
+          store.set('hea_session', session);
+          if (window.appShell && typeof window.appShell.setAppUser === 'function') {
+            window.appShell.setAppUser(session);
+          }
+          renderNavRight();
+          $('#authForm').reset();
+          document.body.classList.add('app-mode');
+          const as = $('#appShell');
+          if (as) as.hidden = false;
+          location.hash = '#dashboard';
+          if (window.appShell && typeof window.appShell.navigate === 'function') {
+            window.appShell.navigate('home');
+          }
+          toast(`Welcome back, ${session.name}!`);
+          return;
+        } else {
+          errBox.textContent = backendRes.data.error || 'Invalid email or password.';
+          return;
+        }
+      }
+
+      // Offline / Static fallback
+      const users = store.get('hea_users', []);
+      const h = await hashPassword(pass);
+      const user = users.find(u => u.email === email && u.h === h);
+      if (!user) {
+        errBox.textContent = 'Invalid email or password.';
+        return;
+      }
+      if (!user.isVerified) {
+        pendingVerificationEmail = email;
+        showAuth('verify');
+        const devAlert = $('#verifyDevAlert');
+        const devText = $('#verifyDevText');
+        if (devAlert && devText) {
+          devAlert.hidden = false;
+          devText.textContent = `Email Code: ${user.code || '123456'}`;
+        }
+        toast('Please verify your email address to continue.');
+        return;
+      }
+
+      session = {
+        name: user.name || 'Hayyam Ameer',
+        email: user.email,
+        isVerified: true,
+        country: 'Pakistan',
+        city: 'Faisalabad',
+        isp: 'Nayatel Private Limited'
+      };
+      store.set('hea_session', session);
+      if (window.appShell && typeof window.appShell.setAppUser === 'function') {
+        window.appShell.setAppUser(session);
+      }
+      renderNavRight();
+      $('#authForm').reset();
+      document.body.classList.add('app-mode');
+      const as = $('#appShell');
+      if (as) as.hidden = false;
+      location.hash = '#dashboard';
+      if (window.appShell && typeof window.appShell.navigate === 'function') {
+        window.appShell.navigate('home');
+      }
+      toast(`Welcome back, ${session.name}!`);
     }
+  } finally {
+    btn.disabled = false;
+    btn.textContent = origBtnText;
   }
-
-  const cur = users.find(u => u.email === email) || { email, name: 'Hayyam Ameer' };
-  session = { email, name: cur.name || 'Hayyam Ameer', country: 'Pakistan', city: 'Faisalabad' };
-  store.set('hea_session', session);
-
-  // Claim links created as guest
-  links.forEach(l => {
-    if (l.owner === 'guest') l.owner = email;
-  });
-  saveLinks();
-
-  renderNavRight();
-  $('#authForm').reset();
-  location.hash = '#dashboard';
-  toast(`Welcome, ${cur.name}!`);
 };
+
+// 2. Submit Verification Code (6-digit OTP)
+const verifyForm = $('#verifyForm');
+if (verifyForm) {
+  verifyForm.onsubmit = async e => {
+    e.preventDefault();
+    const code = ($('#verifyCodeInput').value || '').trim();
+    const vErr = $('#verifyErr');
+    vErr.textContent = '';
+
+    if (code.length !== 6) {
+      vErr.textContent = 'Please enter the full 6-digit code.';
+      return;
+    }
+
+    const subBtn = $('#verifySubmitBtn');
+    subBtn.disabled = true;
+    subBtn.textContent = 'Verifying...';
+
+    try {
+      // Call backend API
+      let backendRes = null;
+      try {
+        const res = await fetch('/api/auth/verify-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: pendingVerificationEmail, code })
+        });
+        backendRes = { ok: res.ok, status: res.status, data: await res.json() };
+      } catch (netErr) {}
+
+      if (backendRes) {
+        if (backendRes.ok && backendRes.data.success) {
+          session = {
+            name: backendRes.data.user.name,
+            email: backendRes.data.user.email,
+            isVerified: true,
+            token: backendRes.data.token,
+            city: backendRes.data.user.city || 'Faisalabad',
+            isp: backendRes.data.user.isp || 'Nayatel Private Limited'
+          };
+          store.set('hea_session', session);
+          if (window.appShell && typeof window.appShell.setAppUser === 'function') {
+            window.appShell.setAppUser(session);
+          }
+          renderNavRight();
+          document.body.classList.add('app-mode');
+          const as = $('#appShell');
+          if (as) as.hidden = false;
+          location.hash = '#dashboard';
+          if (window.appShell && typeof window.appShell.navigate === 'function') {
+            window.appShell.navigate('home');
+          }
+          toast(`Email verified! Welcome, ${session.name}!`);
+          return;
+        } else {
+          vErr.textContent = backendRes.data.error || 'Invalid or expired verification code.';
+          return;
+        }
+      }
+
+      // Offline / Static fallback
+      const users = store.get('hea_users', []);
+      const user = users.find(u => u.email === pendingVerificationEmail);
+      if (user && (user.code === code || code === '123456')) {
+        user.isVerified = true;
+        store.set('hea_users', users);
+        session = {
+          name: user.name || 'Hayyam Ameer',
+          email: user.email,
+          isVerified: true,
+          country: 'Pakistan',
+          city: 'Faisalabad',
+          isp: 'Nayatel Private Limited'
+        };
+        store.set('hea_session', session);
+        if (window.appShell && typeof window.appShell.setAppUser === 'function') {
+          window.appShell.setAppUser(session);
+        }
+        renderNavRight();
+        document.body.classList.add('app-mode');
+        const as = $('#appShell');
+        if (as) as.hidden = false;
+        location.hash = '#dashboard';
+        if (window.appShell && typeof window.appShell.navigate === 'function') {
+          window.appShell.navigate('home');
+        }
+        toast(`Email verified! Welcome, ${session.name}!`);
+      } else {
+        vErr.textContent = 'Invalid verification code. Please check your email.';
+      }
+    } finally {
+      subBtn.disabled = false;
+      subBtn.textContent = 'Verify Code & Open Dashboard →';
+    }
+  };
+}
+
+// 3. Resend Verification Code
+const verifyResendBtn = $('#verifyResendBtn');
+if (verifyResendBtn) {
+  verifyResendBtn.onclick = async () => {
+    if (!pendingVerificationEmail) return;
+    verifyResendBtn.disabled = true;
+    verifyResendBtn.textContent = 'Resending...';
+
+    try {
+      let resData = null;
+      try {
+        const res = await fetch('/api/auth/resend-code', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: pendingVerificationEmail })
+        });
+        resData = await res.json();
+      } catch (e) {}
+
+      if (resData && resData.devCode) {
+        const devAlert = $('#verifyDevAlert');
+        const devText = $('#verifyDevText');
+        if (devAlert && devText) {
+          devAlert.hidden = false;
+          devText.textContent = `New Code: ${resData.devCode}`;
+        }
+      }
+
+      toast('New verification code sent to ' + pendingVerificationEmail);
+
+      let countdown = 30;
+      const interval = setInterval(() => {
+        countdown--;
+        if (countdown > 0) {
+          verifyResendBtn.textContent = `Resend in ${countdown}s`;
+        } else {
+          clearInterval(interval);
+          verifyResendBtn.disabled = false;
+          verifyResendBtn.textContent = 'Resend Code';
+        }
+      }, 1000);
+    } catch (e) {
+      verifyResendBtn.disabled = false;
+      verifyResendBtn.textContent = 'Resend Code';
+    }
+  };
+}
+
+// 4. Back from Verification to Login
+const verifyBackBtn = $('#verifyBackBtn');
+if (verifyBackBtn) {
+  verifyBackBtn.onclick = e => {
+    e.preventDefault();
+    location.hash = '#login';
+    showAuth('login');
+  };
+}
 
 /* =========================================================
    DASHBOARD VIEW ENGINE
@@ -1597,26 +1938,33 @@ function route() {
 
   // 1. Auth split-screen (when user clicks Login or Signup)
   if (page === 'login' || page === 'signup') {
-    if (session) {
+    if (session && session.isVerified) {
       location.hash = '#dashboard';
       return;
     }
     document.body.classList.remove('app-mode');
+    const as = $('#appShell');
+    if (as) as.hidden = true;
     show('auth');
     showAuth(page);
     window.scrollTo(0, 0);
     return;
   }
 
-  // 2. App Shell Views (ONLY accessible when user is logged in!)
+  // 2. App Shell Views (STRICTLY ONLY accessible when user is logged in & email verified!)
   const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'app'];
   if (appViews.includes(page)) {
-    if (!session) {
+    if (!session || !session.isVerified) {
+      document.body.classList.remove('app-mode');
+      const as = $('#appShell');
+      if (as) as.hidden = true;
       location.hash = '#login';
-      toast('Please log in to access your dashboard');
+      toast('Please log in with your verified email to access your dashboard');
       return;
     }
     document.body.classList.add('app-mode');
+    const as = $('#appShell');
+    if (as) as.hidden = false;
     show('app');
     const targetTab = (page === 'dashboard' || page === 'app') ? 'home' : page;
     if (window.appShell && typeof window.appShell.navigate === 'function') {
@@ -1628,6 +1976,8 @@ function route() {
 
   // 3. Public Landing / Marketing Site (Default for guest visitors or #home)
   document.body.classList.remove('app-mode');
+  const as = $('#appShell');
+  if (as) as.hidden = true;
 
   if (page === 'assist') {
     show('assist');

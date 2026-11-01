@@ -1952,3 +1952,16 @@ html.lenis, html.lenis body {
   .slide-stats { justify-content: center; }
   .skipper-btn { display: none; }
 }
+
+/* Strict Access Control: Dashboard shell is completely hidden unless body has .app-mode */
+#appShell {
+  display: none !important;
+}
+body.app-mode #appShell {
+  display: flex !important;
+}
+body:not(.app-mode) #appShell,
+#appShell[hidden],
+section[data-page="app"][hidden] {
+  display: none !important;
+}

@@ -1,0 +1,33 @@
+{
+  "name": "hhh",
+  "version": "1.0.0",
+  "description": "Full Glassmorphism landing page + real functional PHP backend + SQLite database + Admin Control Panel.",
+  "main": "app-shell.js",
+  "scripts": {
+    "start": "node server.js",
+    "server": "node server.js",
+    "dev": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zodfury4-hash/hhh.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/zodfury4-hash/hhh/issues"
+  },
+  "homepage": "https://github.com/zodfury4-hash/hhh#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.11.4",
+    "nodemailer": "^10.3.1"
+  }
+}
