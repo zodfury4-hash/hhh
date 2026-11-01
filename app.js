@@ -95,10 +95,10 @@ function suggest(url) {
 
 const shortText = l => `${DOMAIN}/${l.slug}`;
 
-// Universal URL that works everywhere: preserves original destination in ?u=
+// Universal URL that works everywhere: preserves original destination and hits direct redirect
 const visitUrl = l => {
-  const base = location.href.split('#')[0];
-  return `${base}#go-${l.slug}?u=${encodeURIComponent(l.url)}`;
+  const origin = (typeof window !== 'undefined' && window.location.origin) ? window.location.origin : 'https://www.healink.store';
+  return `${origin}/r/${l.slug}`;
 };
 
 // Asynchronously fetch genuine short URL from da.gd with 2-second timeout
@@ -739,38 +739,33 @@ $('#heroForm').onsubmit = async e => {
   const box = $('#heroRes');
   box.hidden = false;
 
-  // Show immediate branded short link and loading state for external short URL
   const vUrl = visitUrl(l);
   box.innerHTML = `
     <div>
-      <small>Branded Short Link:</small>
-      <a href="${esc(vUrl)}" target="_blank" rel="noopener">${esc(shortText(l))}</a>
-      <div id="realShortContainer" style="margin-top:4px;font-size:13px;color:var(--mut);">
-        <span>Fetching short link...</span>
+      <small style="color:#94a3b8;font-size:12px;display:block;">Your Live Short Link (Click to open destination):</small>
+      <a href="${esc(vUrl)}" target="_blank" rel="noopener" style="font-size:16px;font-weight:700;color:#38bdf8;">${esc(vUrl)}</a>
+      <div id="realShortContainer" style="margin-top:6px;font-size:13px;color:#94a3b8;">
+        <span>Destination: <b style="color:#ffffff;">${esc(l.url.length > 50 ? l.url.slice(0, 48) + '...' : l.url)}</b></span>
       </div>
     </div>
-    <div class="row">
-      <button class="btn ghost sm" id="rCopy" type="button">📋 Copy</button>
+    <div class="row" style="gap:8px;margin-top:10px;">
+      <button class="btn sm" id="rCopy" type="button" style="background:#38bdf8;color:#060b18;font-weight:700;">📋 Copy</button>
       <button class="btn ghost sm" id="rQr" type="button">▦ QR Code</button>
+      <a class="btn ghost sm" href="${esc(vUrl)}" target="_blank" rel="noopener" style="text-decoration:none;">🚀 Visit</a>
     </div>
   `;
 
-  $('#rCopy').onclick = () => copy(l.realShort || vUrl);
+  $('#rCopy').onclick = () => copy(vUrl);
   $('#rQr').onclick = () => qrModal(vUrl);
 
-  // Attempt real 17-char short link
-  fetchOnlineShortUrl(l.url).then(shortUrl => {
-    const sc = $('#realShortContainer');
-    if (shortUrl) {
-      l.realShort = shortUrl;
-      saveLinks();
-      if (sc) {
-        sc.innerHTML = `Short URL: <a href="${esc(shortUrl)}" target="_blank" style="color:#ea580c;font-weight:600">${esc(shortUrl)}</a>`;
-      }
-    } else if (sc) {
-      sc.innerHTML = `Shareable Link: <a href="${esc(vUrl)}" target="_blank">${esc(vUrl.slice(0, 42))}…</a>`;
-    }
-  });
+  // Sync to MongoDB backend
+  try {
+    fetch('/api/shorten', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: l.url, slug: l.slug, tag: l.tag || 'General' })
+    }).catch(() => {});
+  } catch (e) {}
 };
 
 // Bulk shortener button
@@ -782,21 +777,31 @@ $('#bulkBtn').onclick = async () => {
     return;
   }
   const lines = text.split('\n').map(x => x.trim()).filter(Boolean);
-  resBox.innerHTML = '<p class="muted">Shortening links…</p>';
+  resBox.innerHTML = '<p class="muted">Shortening links & saving to database…</p>';
 
   const outputs = [];
   for (const raw of lines) {
     const r = createLink({ url: raw });
     if (r.link) {
       const v = visitUrl(r.link);
-      outputs.push(`<div class="res" style="margin:4px 0;padding:8px 12px">
-        <span>${esc(r.link.url.slice(0, 36))}…</span>
-        <a href="${esc(v)}" target="_blank"><b>${esc(shortText(r.link))}</b></a>
+      outputs.push(`<div class="res" style="margin:4px 0;padding:10px 14px;background:rgba(255,255,255,0.04);border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <span style="color:#94a3b8;font-size:12px;display:block;">${esc(r.link.url.slice(0, 45))}…</span>
+          <a href="${esc(v)}" target="_blank" rel="noopener" style="color:#38bdf8;font-weight:700;">${esc(v)}</a>
+        </div>
+        <button class="btn ghost sm" onclick="window.copy('${esc(v)}')">Copy</button>
       </div>`);
+
+      // Sync to MongoDB
+      fetch('/api/shorten', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: r.link.url, slug: r.link.slug })
+      }).catch(() => {});
     }
   }
   resBox.innerHTML = outputs.join('') || '<p class="err">No valid URLs provided.</p>';
-  toast(`Shortened ${outputs.length} links!`);
+  toast(`Shortened ${outputs.length} links and persisted to database!`);
 };
 
 // AI Suggest back-half button

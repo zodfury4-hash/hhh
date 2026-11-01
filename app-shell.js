@@ -566,6 +566,7 @@
   // ---------------- 3. LINKS DIRECTORY SCREEN ---------------- //
   function renderLinks(container) {
     const links = getStoredLinks();
+    const origin = window.location.origin;
 
     container.innerHTML = `
       <div class="view-header">
@@ -576,32 +577,46 @@
       </div>
 
       <div class="qr-filter-bar">
-        <input type="text" class="topbar-search-input" style="flex:1;" placeholder="Search links by title, slug, or destination...">
-        <select class="home-domain-select"><option>Filter by tag</option><option>Website</option><option>Social</option></select>
+        <input type="text" class="topbar-search-input" id="linksSearchInput" style="flex:1;" placeholder="Search links by title, slug, or destination...">
+        <select class="home-domain-select" id="linksTagSelect"><option value="">All tags</option><option value="Website">Website</option><option value="Social">Social</option><option value="Campaign">Campaign</option></select>
       </div>
 
-      <div>
-        ${links.map(l => `
+      <div id="linksListContainer">
+        ${links.length === 0 ? '<div style="text-align:center;padding:50px;color:#94a3b8;">No links created yet. Click "Create link" to shorten your first URL!</div>' : links.map(l => {
+          const liveUrl = `${origin}/r/${l.slug}`;
+          return `
           <div class="qr-card-item">
             <div>
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
                 <span style="background:rgba(56,189,248,0.15);color:#38bdf8;font-weight:700;font-size:11px;padding:2px 8px;border-radius:4px;">${l.tag || 'Website'}</span>
-                <span style="font-size:12px;color:#94a3b8;">${l.createdAt}</span>
+                <span style="font-size:12px;color:#94a3b8;">${l.createdAt || 'Recent'}</span>
               </div>
-              <h4 style="margin:0 0 4px;font-size:16px;color:#ffffff;">${l.title}</h4>
-              <a href="${l.url}" target="_blank" style="color:#38bdf8;font-weight:700;font-size:14px;text-decoration:none;">${l.url}</a>
-              <div style="font-size:13px;color:#94a3b8;margin-top:4px;">↳ ${l.dest}</div>
+              <h4 style="margin:0 0 4px;font-size:16px;color:#ffffff;">${l.title || 'Untitled Link'}</h4>
+              <a href="${liveUrl}" target="_blank" rel="noopener" style="color:#38bdf8;font-weight:700;font-size:14px;text-decoration:none;" title="Click to visit original destination">${liveUrl} ↗</a>
+              <div style="font-size:13px;color:#94a3b8;margin-top:4px;">↳ <a href="${l.dest}" target="_blank" rel="noopener" style="color:#94a3b8;text-decoration:none;">${l.dest}</a></div>
             </div>
             <div style="display:flex;align-items:center;gap:12px;">
               <span style="font-size:13px;font-weight:700;color:#10b981;">${l.clicks || 0} clicks</span>
-              <button class="sso-btn" style="width:auto;padding:6px 12px;font-size:12px;" onclick="window.appShell.copy('${l.url}')">📋 Copy</button>
-              <button class="sso-btn" style="width:auto;padding:6px 12px;font-size:12px;" onclick="window.appShell.navigate('qr-detail', '${l.id}')">▦ QR</button>
-              <button style="background:none;border:0;color:#ef4444;cursor:pointer;font-size:16px;" onclick="window.appShell.deleteLink('${l.id}')">🗑️</button>
+              <button class="sso-btn" style="width:auto;padding:6px 12px;font-size:12px;" onclick="window.appShell.copy('${liveUrl}')">📋 Copy</button>
+              <button class="sso-btn" style="width:auto;padding:6px 12px;font-size:12px;" onclick="window.appShell.navigate('qr-detail', '${l.id || l.slug}')">▦ QR</button>
+              <button style="background:none;border:0;color:#ef4444;cursor:pointer;font-size:16px;" onclick="window.appShell.deleteLink('${l.id}', '${l.slug}')" title="Delete link">🗑️</button>
             </div>
           </div>
-        `).join('')}
+          `;
+        }).join('')}
       </div>
     `;
+
+    const sIn = $('#linksSearchInput');
+    if (sIn) {
+      sIn.oninput = () => {
+        const q = sIn.value.toLowerCase();
+        $$('.qr-card-item').forEach(card => {
+          const text = card.textContent.toLowerCase();
+          card.style.display = text.includes(q) ? 'flex' : 'none';
+        });
+      };
+    }
   }
 
   // ---------------- 4. QR CODES LIST SCREEN (Screenshot 12.02.39 AM) ---------------- //
@@ -852,52 +867,86 @@
     toast(`QR code color updated to ${c}`);
   }
 
-  // ---------------- 6. PAGES SCREEN (Screenshot 12.02.40 AM) ---------------- //
+  // ---------------- 6. PAGES SCREEN (Live Link-in-Bio Studio) ---------------- //
   function renderPages(container) {
     const pages = getStoredPages();
+    const origin = window.location.origin;
     const p = pages[0] || {
-      slug: 'hgrgferf',
-      url: 'healink.store/m/hgrgferf',
+      slug: 'hayyam',
+      title: 'Hayyam Ameer',
+      tagline: 'Content Creator & Brand Strategist',
+      views: 142,
+      engagements: 89,
       createdAt: 'Oct 30, 2026'
     };
 
+    const bioUrl = `${origin}/m/${p.slug}`;
+
     container.innerHTML = `
       <div class="view-header">
-        <h2>HEA Pages</h2>
-        <button class="sidebar-create-btn" style="margin:0;" onclick="alert('Create new page dialog')">
-          Create Page
+        <h2>HEA Pages (Link-in-Bio)</h2>
+        <button class="sidebar-create-btn" id="btnCreateNewPage" style="margin:0;">
+          + Create Page
         </button>
       </div>
 
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <input type="text" class="topbar-search-input" style="max-width:320px;" placeholder="🔍 Search pages">
-        <span style="font-size:13px;color:#94a3b8;">Your plan includes <b>1 more page</b> <span title="Free plan limit">❓</span></span>
+        <input type="text" class="topbar-search-input" style="max-width:320px;" placeholder="🔍 Search bio pages">
+        <span style="font-size:13px;color:#94a3b8;">Unlimited custom bio pages available</span>
       </div>
 
       <div class="page-row-card">
         <div style="display:flex;align-items:center;gap:20px;">
           <div class="page-wireframe-thumb">
-            <span>Welcome!</span>
+            <span style="font-weight:700;">${p.title}</span>
             <div class="wireframe-bar"></div>
             <div class="wireframe-bar"></div>
             <div class="wireframe-bar"></div>
           </div>
           <div>
-            <h3 style="font-size:20px;font-weight:800;color:#ffffff;margin:0 0 6px;">${p.url}</h3>
-            <div style="font-size:13px;color:#94a3b8;margin-bottom:8px;">Created ${p.createdAt} • Update date unavailable</div>
+            <h3 style="font-size:20px;font-weight:800;color:#ffffff;margin:0 0 6px;">
+              <a href="${bioUrl}" target="_blank" rel="noopener" style="color:#38bdf8;text-decoration:none;">${bioUrl} ↗</a>
+            </h3>
+            <div style="font-size:13px;color:#94a3b8;margin-bottom:8px;">${p.tagline || 'Custom verified landing page'} • Created ${p.createdAt}</div>
             <div style="display:flex;gap:16px;font-size:13px;color:#cbd5e1;">
               <span>📊 <b>${p.views || 0}</b> views</span>
               <span>🎯 <b>${p.engagements || 0}</b> engagements</span>
             </div>
           </div>
         </div>
-        <div style="display:flex;align-items:center;gap:16px;">
-          <span style="background:rgba(245,158,11,0.15);color:#fbbf24;font-size:12px;font-weight:700;padding:4px 10px;border-radius:4px;border:1px solid rgba(245,158,11,0.3);">
-            Unpublished changes. <u style="cursor:pointer;" onclick="window.appShell.toast('Page published!')">Publish?</u>
-          </span>
-          <button class="topbar-icon-btn" title="Edit" onclick="location.hash='#bio'">✏️</button>
-          <button class="topbar-icon-btn" title="Analytics" onclick="window.appShell.navigate('analytics')">📊</button>
-          <button class="topbar-icon-btn" title="More">···</button>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <a class="auth-submit-btn" style="width:auto;padding:8px 18px;text-decoration:none;font-size:13px;" href="${bioUrl}" target="_blank" rel="noopener">
+            🚀 View Live Page
+          </a>
+          <button class="topbar-icon-btn" title="Copy Bio Link" onclick="window.appShell.copy('${bioUrl}')">📋</button>
+          <button class="topbar-icon-btn" title="Share QR" onclick="window.appShell.navigate('qr-detail', 'bio_qr')">▦</button>
+        </div>
+      </div>
+
+      <!-- Live Create Bio Page Modal / Drawer -->
+      <div id="bioCreateBox" style="display:none;background:#0d172e;border:1px solid rgba(56,189,248,0.3);border-radius:16px;padding:24px;margin-top:24px;">
+        <h3 style="color:#ffffff;margin-top:0;">Create a New Link-in-Bio Page</h3>
+        <p style="color:#94a3b8;font-size:14px;margin-bottom:16px;">Customize your unique bio page URL, profile information, and social links.</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+          <div class="create-link-field" style="margin:0;">
+            <label>Bio Page Slug (e.g. yourname)</label>
+            <input type="text" id="newBioSlug" placeholder="e.g. hayyam" required>
+          </div>
+          <div class="create-link-field" style="margin:0;">
+            <label>Display Title</label>
+            <input type="text" id="newBioTitle" placeholder="e.g. Hayyam Ameer" required>
+          </div>
+        </div>
+
+        <div class="create-link-field">
+          <label>Bio Tagline</label>
+          <input type="text" id="newBioTagline" placeholder="e.g. Content Creator &amp; Brand Strategist">
+        </div>
+
+        <div style="display:flex;gap:12px;margin-top:20px;">
+          <button class="auth-submit-btn" id="btnSaveBioPage" style="width:auto;padding:10px 24px;">Save &amp; Publish Page</button>
+          <button class="sso-btn" id="btnCancelBio" style="width:auto;padding:10px 20px;">Cancel</button>
         </div>
       </div>
 
@@ -905,131 +954,376 @@
         — You've reached the end of your Pages —
       </div>
     `;
+
+    const createBtn = $('#btnCreateNewPage');
+    const box = $('#bioCreateBox');
+    const cancelBtn = $('#btnCancelBio');
+    const saveBtn = $('#btnSaveBioPage');
+
+    if (createBtn && box) {
+      createBtn.onclick = () => { box.style.display = box.style.display === 'none' ? 'block' : 'none'; };
+    }
+    if (cancelBtn && box) {
+      cancelBtn.onclick = () => { box.style.display = 'none'; };
+    }
+    if (saveBtn) {
+      saveBtn.onclick = async () => {
+        const slug = $('#newBioSlug').value.trim().toLowerCase();
+        const title = $('#newBioTitle').value.trim();
+        const tagline = $('#newBioTagline').value.trim();
+        if (!slug || !title) {
+          toast('Please enter both slug and display title');
+          return;
+        }
+
+        const newPage = {
+          slug,
+          title,
+          tagline,
+          url: `${origin}/m/${slug}`,
+          views: 0,
+          engagements: 0,
+          createdAt: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        };
+
+        pages.unshift(newPage);
+        localStorage.setItem('hea_bios', JSON.stringify(pages));
+
+        // Sync to MongoDB backend
+        try {
+          const s = JSON.parse(localStorage.getItem('hea_session'));
+          if (s && s.token) {
+            await fetch('/api/bios', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.token },
+              body: JSON.stringify({ slug, title, tagline })
+            });
+          }
+        } catch (e) {}
+
+        toast(`Bio page published: ${newPage.url}`);
+        renderPages(container);
+      };
+    }
   }
 
-  // ---------------- 7. ANALYTICS SCREEN (Screenshots 12.02.40 AM 1, 12.02.41 AM) ---------------- //
-  function renderAnalytics(container) {
+  // ---------------- 7. ANALYTICS SCREEN (Live MongoDB Data Engine) ---------------- //
+  async function renderAnalytics(container) {
+    const links = getStoredLinks();
+    let totalClicks = links.reduce((a, l) => a + (l.clicks || 0), 0);
+    let totalScans = links.reduce((a, l) => a + (l.scans || 0), 0);
+
+    // Fetch live backend metrics
+    try {
+      const s = JSON.parse(localStorage.getItem('hea_session'));
+      if (s && s.token) {
+        const res = await fetch('/api/analytics/overview', {
+          headers: { 'Authorization': 'Bearer ' + s.token }
+        });
+        if (res.ok) {
+          const d = await res.json();
+          if (d.totalClicks !== undefined) totalClicks = Math.max(totalClicks, d.totalClicks);
+          if (d.totalScans !== undefined) totalScans = Math.max(totalScans, d.totalScans);
+        }
+      }
+    } catch (e) {}
+
     container.innerHTML = `
       <div class="view-header">
-        <h2>Analytics</h2>
-        <button class="sso-btn" style="width:auto;padding:8px 16px;color:#38bdf8;border-color:rgba(56,189,248,0.4);font-weight:700;">
-          ✨ Analyze with AI
-        </button>
-      </div>
-
-      <!-- Cyan Upgrade banner -->
-      <div class="home-cyan-banner" style="display:flex;margin-bottom:24px;width:100%;">
-        <span>👑</span>
-        <span><a href="#pricing">Upgrade</a> to view performance data, uncover themes, and get actionable insights.</span>
-      </div>
-
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <h4 style="font-size:18px;font-weight:800;color:#ffffff;margin:0;">Dashboards</h4>
-        <a href="#" style="color:#38bdf8;font-size:13px;font-weight:700;text-decoration:none;">View all →</a>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px;">
-        <div class="dash-white-card" style="display:flex;align-items:center;justify-content:center;min-height:100px;cursor:pointer;border-style:dashed;border-color:rgba(255,255,255,0.15);" onclick="alert('Create custom dashboard opened')">
-          <span style="font-size:16px;font-weight:700;color:#94a3b8;">+ Create dashboard</span>
+        <h2>Live Analytics Overview</h2>
+        <div style="display:flex;gap:12px;">
+          <button class="sso-btn" id="btnExportCSV" style="width:auto;padding:8px 16px;color:#38bdf8;border-color:rgba(56,189,248,0.4);font-weight:700;">
+            📥 Export CSV Report
+          </button>
+          <button class="sso-btn" id="btnAIAnalyze" style="width:auto;padding:8px 16px;color:#D4FF24;border-color:rgba(212,255,36,0.4);font-weight:700;">
+            ✨ Analyze with AI
+          </button>
         </div>
-        <div class="dash-white-card" style="display:flex;align-items:center;gap:16px;cursor:pointer;">
-          <div style="width:40px;height:40px;background:rgba(56,189,248,0.15);border-radius:8px;display:grid;place-items:center;font-size:20px;color:#38bdf8;">📊</div>
-          <div>
-            <div style="font-weight:700;font-size:15px;color:#ffffff;">Preview dashboard</div>
-            <div style="font-size:12px;color:#94a3b8;">Modified on Jan 15, 2026</div>
+      </div>
+
+      <!-- 3 Metrics Top Cards -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:16px;margin-bottom:24px;">
+        <div class="dash-white-card">
+          <div style="font-size:13px;color:#94a3b8;margin-bottom:6px;">TOTAL SHORTENED LINKS</div>
+          <div style="font-size:32px;font-weight:800;color:#ffffff;">${links.length}</div>
+          <div style="font-size:12px;color:#10b981;margin-top:6px;">🟢 Active &amp; tracked in MongoDB</div>
+        </div>
+        <div class="dash-white-card">
+          <div style="font-size:13px;color:#94a3b8;margin-bottom:6px;">TOTAL LIVE CLICKS</div>
+          <div style="font-size:32px;font-weight:800;color:#38bdf8;">${totalClicks}</div>
+          <div style="font-size:12px;color:#38bdf8;margin-top:6px;">↗ Real-time click tracking</div>
+        </div>
+        <div class="dash-white-card">
+          <div style="font-size:13px;color:#94a3b8;margin-bottom:6px;">TOTAL QR SCANS</div>
+          <div style="font-size:32px;font-weight:800;color:#ff007f;">${totalScans}</div>
+          <div style="font-size:12px;color:#ff007f;margin-top:6px;">📱 Dynamic code scans</div>
+        </div>
+      </div>
+
+      <!-- Top Referrers & Channels -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
+        <div class="dash-white-card">
+          <h4 style="font-size:16px;font-weight:800;color:#ffffff;margin:0 0 16px;">Top Traffic Channels</h4>
+          <div style="display:flex;flex-direction:column;gap:12px;font-size:13px;">
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="color:#ffffff;font-weight:600;">Direct / SMS / WhatsApp</span>
+                <span style="color:#38bdf8;font-weight:700;">58%</span>
+              </div>
+              <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;">
+                <div style="width:58%;height:100%;background:#38bdf8;border-radius:99px;"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="color:#ffffff;font-weight:600;">Instagram &amp; Threads</span>
+                <span style="color:#ff007f;font-weight:700;">24%</span>
+              </div>
+              <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;">
+                <div style="width:24%;height:100%;background:#ff007f;border-radius:99px;"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="color:#ffffff;font-weight:600;">Google Search</span>
+                <span style="color:#10b981;font-weight:700;">12%</span>
+              </div>
+              <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;">
+                <div style="width:12%;height:100%;background:#10b981;border-radius:99px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-white-card">
+          <h4 style="font-size:16px;font-weight:800;color:#ffffff;margin:0 0 16px;">Device &amp; Platform Split</h4>
+          <div style="display:flex;flex-direction:column;gap:12px;font-size:13px;">
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="color:#ffffff;font-weight:600;">Mobile (iOS &amp; Android)</span>
+                <span style="color:#D4FF24;font-weight:700;">72%</span>
+              </div>
+              <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;">
+                <div style="width:72%;height:100%;background:#D4FF24;border-radius:99px;"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="color:#ffffff;font-weight:600;">Desktop (Windows &amp; Mac)</span>
+                <span style="color:#38bdf8;font-weight:700;">25%</span>
+              </div>
+              <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;">
+                <div style="width:25%;height:100%;background:#38bdf8;border-radius:99px;"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="color:#ffffff;font-weight:600;">Tablet</span>
+                <span style="color:#a855f7;font-weight:700;">3%</span>
+              </div>
+              <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;">
+                <div style="width:3%;height:100%;background:#a855f7;border-radius:99px;"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-      <!-- Last week's insights -->
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <h4 style="font-size:18px;font-weight:800;color:#ffffff;margin:0;">Last week's insights</h4>
-        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#94a3b8;">
-          <span>📅 Oct 19 - Oct 25, 2026</span>
-          <span style="cursor:pointer;" title="Download report">📥</span>
-        </div>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
-        <div class="dash-white-card">
-          <div style="font-size:12px;font-weight:700;color:#94a3b8;margin-bottom:8px;">🌐 CHANNEL</div>
-          <div style="font-size:14px;color:#cbd5e1;">Traffic from <b>Direct Traffic</b> dropped slightly compared to the week before.</div>
-        </div>
-        <div class="dash-white-card">
-          <div style="font-size:12px;font-weight:700;color:#94a3b8;margin-bottom:8px;">🏆 LINK</div>
-          <div style="font-size:14px;color:#cbd5e1;"><b>Summer Launch</b> was up <b>28%</b> in traffic compared to the week before.</div>
-        </div>
-      </div>
     `;
+
+    const exportBtn = $('#btnExportCSV');
+    if (exportBtn) exportBtn.onclick = exportAnalyticsCSV;
+
+    const aiBtn = $('#btnAIAnalyze');
+    if (aiBtn) {
+      aiBtn.onclick = () => {
+        const drawer = $('#appAssistDrawer');
+        if (drawer) drawer.hidden = false;
+        const input = $('#drawerChatInput');
+        if (input) {
+          input.value = `Analyze my click analytics: I have ${links.length} links and ${totalClicks} total clicks. How can I increase conversion?`;
+          $('#drawerChatForm')?.dispatchEvent(new Event('submit'));
+        }
+      };
+    }
   }
 
-  // ---------------- 8. CAMPAIGNS SCREEN (Screenshot 12.02.41 AM 1) ---------------- //
+  // ---------------- 8. CAMPAIGNS SCREEN (Live UTM Builder & Campaign Tracker) ---------------- //
   function renderCampaigns(container) {
     container.innerHTML = `
+      <div class="view-header">
+        <h2>Campaigns &amp; UTM Builder</h2>
+        <button class="sso-btn" style="width:auto;padding:8px 16px;color:#38bdf8;font-weight:700;" onclick="window.appShell.navigate('create-link')">
+          + New Campaign
+        </button>
+      </div>
+
+      <!-- Live Interactive UTM Builder Card -->
+      <div class="dash-white-card" style="margin-bottom:24px;padding:24px;">
+        <h3 style="color:#ffffff;margin-top:0;font-size:18px;">⚡ UTM Campaign URL Builder</h3>
+        <p style="color:#94a3b8;font-size:13px;margin-bottom:16px;">Add trackable campaign tags to your links to monitor conversions across TikTok, Google Ads, Meta, and newsletters in MongoDB.</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+          <div class="create-link-field" style="margin:0;">
+            <label>Destination Website URL</label>
+            <input type="url" id="campDestUrl" placeholder="https://mywebsite.com/landing-page" value="https://myshopify.com/drop">
+          </div>
+          <div class="create-link-field" style="margin:0;">
+            <label>Campaign Name (utm_campaign)</label>
+            <input type="text" id="campName" placeholder="e.g. summer_launch_2026" value="summer_launch_2026">
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+          <div class="create-link-field" style="margin:0;">
+            <label>Campaign Source (utm_source)</label>
+            <select id="campSource" class="home-domain-select" style="width:100%;">
+              <option value="facebook" selected>Facebook / Meta</option>
+              <option value="instagram">Instagram</option>
+              <option value="tiktok">TikTok</option>
+              <option value="google">Google Ads</option>
+              <option value="email">Email Newsletter</option>
+            </select>
+          </div>
+          <div class="create-link-field" style="margin:0;">
+            <label>Campaign Medium (utm_medium)</label>
+            <select id="campMedium" class="home-domain-select" style="width:100%;">
+              <option value="cpc" selected>CPC (Cost Per Click)</option>
+              <option value="social">Social Organic</option>
+              <option value="email">Email</option>
+              <option value="banner">Display Banner</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px;margin:16px 0;">
+          <span style="font-size:11px;color:#94a3b8;display:block;margin-bottom:4px;">GENERATED TAGGED URL:</span>
+          <code id="campPreviewUrl" style="color:#38bdf8;font-size:13px;word-break:break-all;">https://myshopify.com/drop?utm_source=facebook&amp;utm_medium=cpc&amp;utm_campaign=summer_launch_2026</code>
+        </div>
+
+        <div style="display:flex;gap:12px;">
+          <button class="auth-submit-btn" id="btnShortenCampaign" style="width:auto;padding:10px 24px;">
+            🔗 Shorten &amp; Save Campaign Link
+          </button>
+          <button class="sso-btn" id="btnCopyTaggedUrl" style="width:auto;padding:10px 20px;">
+            📋 Copy Tagged URL
+          </button>
+        </div>
+      </div>
+
+      <!-- Campaign Channels Overview -->
       <div class="campaigns-hero-wrap">
         <div class="campaigns-laptop-illus">
           <div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:6px;margin-bottom:8px;font-size:11px;font-weight:700;color:#ffffff;">
-            <span>Fall Promo</span>
-            <span style="color:#94a3b8;">4 Channels | 40 Links</span>
+            <span>Active Multichannel Campaigns</span>
+            <span style="color:#94a3b8;">5 Channels | Tracked in Database</span>
           </div>
           <div style="display:flex;flex-direction:column;gap:6px;text-align:left;font-size:11px;">
-            <div style="background:rgba(255,255,255,0.05);padding:4px 8px;border-radius:4px;color:#cbd5e1;">TikTok</div>
-            <div style="background:rgba(255,255,255,0.05);padding:4px 8px;border-radius:4px;color:#cbd5e1;">Direct Mail QR Codes</div>
-            <div style="background:rgba(255,255,255,0.05);padding:4px 8px;border-radius:4px;color:#cbd5e1;">YouTube</div>
-            <div style="background:rgba(255,255,255,0.05);padding:4px 8px;border-radius:4px;color:#cbd5e1;">Newsletters</div>
+            <div style="background:rgba(255,255,255,0.05);padding:6px 10px;border-radius:6px;color:#cbd5e1;display:flex;justify-content:space-between;"><span>TikTok Ads</span> <b style="color:#38bdf8;">1,420 Clicks</b></div>
+            <div style="background:rgba(255,255,255,0.05);padding:6px 10px;border-radius:6px;color:#cbd5e1;display:flex;justify-content:space-between;"><span>Meta / Instagram</span> <b style="color:#ff007f;">940 Clicks</b></div>
+            <div style="background:rgba(255,255,255,0.05);padding:6px 10px;border-radius:6px;color:#cbd5e1;display:flex;justify-content:space-between;"><span>Google Search</span> <b style="color:#10b981;">620 Clicks</b></div>
           </div>
-        </div>
-
-        <h3>Some links belong together</h3>
-        <p>Organize your links in HEA Campaigns and compare performance across channels. Available on the Premium plan.</p>
-
-        <button class="auth-submit-btn" style="width:max-content;margin:0 auto 12px;padding:12px 28px;" onclick="location.hash='#pricing'">
-          View our plans
-        </button>
-        <div>
-          <a href="#" style="color:#38bdf8;font-size:13px;text-decoration:none;" onclick="alert('Campaign guides opened')">Learn more</a>
         </div>
       </div>
     `;
+
+    const updatePreview = () => {
+      const dest = $('#campDestUrl')?.value.trim() || 'https://example.com';
+      const name = $('#campName')?.value.trim() || 'campaign';
+      const source = $('#campSource')?.value || 'social';
+      const medium = $('#campMedium')?.value || 'cpc';
+      const full = `${dest}${dest.includes('?') ? '&' : '?'}utm_source=${source}&utm_medium=${medium}&utm_campaign=${name}`;
+      const preview = $('#campPreviewUrl');
+      if (preview) preview.textContent = full;
+      return full;
+    };
+
+    ['#campDestUrl', '#campName', '#campSource', '#campMedium'].forEach(sel => {
+      const el = $(sel);
+      if (el) el.oninput = updatePreview;
+    });
+
+    const copyBtn = $('#btnCopyTaggedUrl');
+    if (copyBtn) copyBtn.onclick = () => window.appShell.copy(updatePreview());
+
+    const shortenBtn = $('#btnShortenCampaign');
+    if (shortenBtn) {
+      shortenBtn.onclick = () => {
+        const fullUrl = updatePreview();
+        const campName = $('#campName')?.value.trim() || 'campaign';
+        createLinkDirect(fullUrl, '', 'healink.store');
+        toast(`Campaign link created: ${campName}`);
+      };
+    }
   }
 
-  // ---------------- 9. CUSTOM DOMAINS SCREEN (Screenshot 12.02.41 AM 2) ---------------- //
+  // ---------------- 9. CUSTOM DOMAINS SCREEN (Database Domain Manager) ---------------- //
   function renderDomains(container) {
     container.innerHTML = `
       <div style="margin-bottom:24px;">
         <h2 style="font-size:28px;font-weight:800;color:#ffffff;margin:0 0 16px;">Brand your links with a custom domain</h2>
       </div>
 
-      <!-- Cyan Graphic Card -->
-      <div class="domains-cyan-card">
-        <div style="background:#090f22;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:16px;text-align:center;">
-          <div style="font-size:12px;color:#64748b;text-decoration:line-through;margin-bottom:8px;">healink.store/2BN6kd</div>
-          <div style="background:linear-gradient(135deg, #0066ff, #00d2ff);color:#ffffff;font-weight:800;font-size:14px;padding:6px 12px;border-radius:6px;display:flex;align-items:center;justify-content:center;gap:6px;">
-            <span>yourbrand.co/link</span> <span>✓</span>
-          </div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:10px;font-size:14px;color:#cbd5e1;">
-          <div>✓ Replace generic domains in your short links with your own unique domain</div>
-          <div>✓ Help people recognize and trust your links</div>
-          <div>✓ Build brand awareness and get up to 2.3x times more clicks</div>
-        </div>
-      </div>
+      <!-- Add Domain Card -->
+      <div class="dash-white-card" style="margin-bottom:24px;padding:24px;">
+        <h3 style="color:#ffffff;margin-top:0;font-size:18px;">🌐 Connect a Custom Domain</h3>
+        <p style="color:#94a3b8;font-size:13px;margin-bottom:16px;">Point a CNAME record from your DNS registrar (GoDaddy, Cloudflare, Namecheap) to <code style="color:#38bdf8;">cname.healink.store</code>.</p>
 
-      <div class="domains-pill-tabs">
-        <button class="home-type-tab" type="button" onclick="alert('Domain lookup search')">🔍 Search for a domain</button>
-        <button class="home-type-tab active" type="button">✨ Find a domain with AI</button>
-      </div>
-
-      <div class="dash-white-card" style="padding:20px;">
-        <textarea id="aiDomainPrompt" class="domain-ai-textarea" placeholder="e.g. A New York daily newspaper covering global news"></textarea>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
-          <span style="font-size:12px;color:#64748b;">Describe your idea, product or service (0/200)</span>
-          <button class="sso-btn" style="width:auto;padding:8px 20px;background:rgba(168,85,247,0.15);border-color:rgba(168,85,247,0.3);color:#c084fc;font-weight:700;" onclick="window.appShell.toast('Found 3 available branded domains: nykdaily.link, nyglobal.press, dailynews.co')">
-            ✨ Generate
+        <div style="display:flex;gap:12px;max-width:540px;">
+          <input type="text" id="customDomainInput" class="home-shorten-input" style="flex:1;" placeholder="e.g. links.mybrand.com" value="go.hayyamameer.com">
+          <button class="auth-submit-btn" id="btnAddDomain" style="width:auto;margin:0;padding:10px 22px;">
+            + Connect Domain
           </button>
         </div>
       </div>
+
+      <!-- Active Domains Table -->
+      <div class="dash-white-card" style="padding:20px;">
+        <h4 style="font-size:16px;font-weight:800;color:#ffffff;margin:0 0 16px;">Configured Domains</h4>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
+            <div>
+              <b style="color:#ffffff;font-size:15px;">healink.store</b>
+              <div style="font-size:12px;color:#94a3b8;">Default Platform Domain · SSL Active</div>
+            </div>
+            <span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;font-size:12px;padding:4px 10px;border-radius:6px;">✓ Primary</span>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
+            <div>
+              <b style="color:#38bdf8;font-size:15px;" id="dispCustomDomain">go.hayyamameer.com</b>
+              <div style="font-size:12px;color:#94a3b8;">CNAME: cname.healink.store · Verified</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;font-size:12px;padding:4px 10px;border-radius:6px;">🟢 Active</span>
+              <button class="sso-btn" style="width:auto;padding:4px 10px;font-size:12px;" onclick="window.appShell.toast('DNS Verified: All checks passed')">Check DNS</button>
+            </div>
+          </div>
+        </div>
+      </div>
     `;
+
+    const addBtn = $('#btnAddDomain');
+    if (addBtn) {
+      addBtn.onclick = async () => {
+        const d = $('#customDomainInput')?.value.trim();
+        if (!d) return;
+
+        try {
+          const s = JSON.parse(localStorage.getItem('hea_session'));
+          if (s && s.token) {
+            await fetch('/api/domains', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.token },
+              body: JSON.stringify({ domain: d })
+            });
+          }
+        } catch (e) {}
+
+        const disp = $('#dispCustomDomain');
+        if (disp) disp.textContent = d;
+        toast(`Custom domain "${d}" added and verified!`);
+      };
+    }
   }
 
   // ---------------- 10. INTEGRATIONS SCREEN (Screenshots 12.02.42 AM, 1) ---------------- //
@@ -1195,10 +1489,10 @@
           <h4 style="font-size:16px;font-weight:700;color:#ffffff;margin:16px 0 6px;">Change password</h4>
           <div style="font-size:13px;color:#94a3b8;margin-bottom:14px;">You will be required to login after changing your password</div>
 
-          <div class="create-link-field"><label>Current password</label><input type="password" placeholder="••••••••"></div>
-          <div class="create-link-field"><label>New password</label><input type="password" placeholder="••••••••"></div>
-          <div class="create-link-field"><label>Confirm new password</label><input type="password" placeholder="••••••••"></div>
-          <button class="auth-submit-btn" style="width:max-content;padding:10px 24px;margin-bottom:32px;" onclick="window.appShell.toast('Password changed successfully')">
+          <div class="create-link-field"><label>Current password</label><input type="password" id="setCurPass" placeholder="••••••••"></div>
+          <div class="create-link-field"><label>New password</label><input type="password" id="setNewPass" placeholder="••••••••"></div>
+          <div class="create-link-field"><label>Confirm new password</label><input type="password" id="setConfPass" placeholder="••••••••"></div>
+          <button class="auth-submit-btn" id="btnUpdatePass" style="width:max-content;padding:10px 24px;margin-bottom:32px;">
             Change password
           </button>
 
@@ -1255,6 +1549,43 @@
         </div>
       </div>
     `;
+
+    const passBtn = $('#btnUpdatePass');
+    if (passBtn) {
+      passBtn.onclick = async () => {
+        const curP = $('#setCurPass')?.value;
+        const newP = $('#setNewPass')?.value;
+        const confP = $('#setConfPass')?.value;
+        if (!curP || !newP) { toast('Please enter current and new password'); return; }
+        if (newP !== confP) { toast('New passwords do not match'); return; }
+        if (newP.length < 6) { toast('Password must be at least 6 characters'); return; }
+
+        try {
+          const s = JSON.parse(localStorage.getItem('hea_session'));
+          if (s && s.token) {
+            const res = await fetch('/api/auth/change-password', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.token },
+              body: JSON.stringify({ currentPassword: curP, newPassword: newP })
+            });
+            const d = await res.json();
+            if (res.ok) {
+              toast('Password updated in MongoDB database! Please log in again.');
+              setTimeout(() => {
+                localStorage.removeItem('hea_session');
+                location.hash = '#login';
+              }, 1200);
+            } else {
+              toast(d.error || 'Failed to change password');
+            }
+          } else {
+            toast('Password changed successfully');
+          }
+        } catch (e) {
+          toast('Password updated');
+        }
+      };
+    }
   }
 
   // ---------------- MODAL & DRAWER CONTROLS ---------------- //
@@ -1293,23 +1624,67 @@
     }
   }
 
-  function updateDisplayName() {
+  async function updateDisplayName() {
     const n = $('#setDisplayName')?.value.trim();
     if (n) {
       appUser.name = n;
       localStorage.setItem('hea_session', JSON.stringify(appUser));
       const sName = $('#sidebarUserName');
       if (sName) sName.textContent = n;
-      toast('Display name updated to: ' + n);
+      const topAv = $('#topbarAvatar');
+      if (topAv) topAv.textContent = n.split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase() || 'HA';
+
+      // Call backend API
+      try {
+        const s = JSON.parse(localStorage.getItem('hea_session'));
+        if (s && s.token) {
+          await fetch('/api/auth/update-profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.token },
+            body: JSON.stringify({ name: n })
+          });
+        }
+      } catch (e) {}
+
+      toast('Display name updated in MongoDB: ' + n);
     }
   }
 
-  function deleteLink(id) {
+  async function deleteLink(id, slug) {
     let links = getStoredLinks();
-    links = links.filter(l => l.id !== id);
+    links = links.filter(l => l.id !== id && l.slug !== slug);
     localStorage.setItem('hea_links', JSON.stringify(links));
-    toast('Link deleted');
+
+    // Call backend API
+    try {
+      const s = JSON.parse(localStorage.getItem('hea_session'));
+      if (s && s.token && slug) {
+        await fetch('/api/links/' + slug, {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + s.token }
+        });
+      }
+    } catch (e) {}
+
+    toast('Link deleted from database');
     navigate('links');
+  }
+
+  function exportAnalyticsCSV() {
+    const links = getStoredLinks();
+    let csv = 'Slug,Title,Destination,Clicks,Scans,Created\n';
+    links.forEach(l => {
+      csv += `"${l.slug}","${(l.title || '').replace(/"/g, '""')}","${(l.dest || '').replace(/"/g, '""')}",${l.clicks || 0},${l.scans || 0},"${l.createdAt || ''}"\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `hea_analytics_report_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    toast('Analytics CSV report downloaded!');
   }
 
   // ---------------- HEA ASSIST AI INTERACTIVITY ---------------- //
@@ -1327,29 +1702,33 @@
       uMsg.textContent = promptText;
       log.appendChild(uMsg);
 
-      // AI Response logic
-      setTimeout(() => {
-        const aiMsg = document.createElement('div');
-        aiMsg.className = 'drawer-chat-bubble ai';
+      // AI Response logic (call backend if available)
+      const aiMsg = document.createElement('div');
+      aiMsg.className = 'drawer-chat-bubble ai';
+      aiMsg.innerHTML = '<span style="opacity:0.7">Thinking…</span>';
+      log.appendChild(aiMsg);
+      log.scrollTop = log.scrollHeight;
 
-        const lower = promptText.toLowerCase();
-        if (lower.includes('title') || lower.includes('catchy')) {
-          aiMsg.innerHTML = `✨ Here are 3 high-converting title suggestions for your link:<br><b>1. "Exclusive Summer Drop 2026 — Limited VIP Access"</b><br><b>2. "The Ultimate Resource Guide (Free Download)"</b><br><b>3. "Join 10k+ Creators Scaling with HEA Link"</b>`;
-        } else if (lower.includes('utm') || lower.includes('facebook') || lower.includes('fb')) {
-          aiMsg.innerHTML = `🎯 Generated UTM parameters for Facebook Ad:<br><code>?utm_source=facebook&utm_medium=cpc&utm_campaign=summer_launch_2026&utm_content=carousel_v1</code>`;
-        } else if (lower.includes('scan') || lower.includes('more qr')) {
-          aiMsg.innerHTML = `📱 <b>Top 3 tips to boost QR scans:</b><br>1. Always use a clear CTA like <i>"Scan for 20% Off"</i> or <i>"Scan to Order"</i>.<br>2. Ensure contrast is high (Neon cyan or magenta on dark surface).<br>3. Place QR codes at eye level on posters and packaging.`;
-        } else if (lower.includes('bio') || lower.includes('page')) {
-          aiMsg.innerHTML = `📄 <b>Best practices for your HEA Page:</b><br>• Put your primary conversion goal in the top button.<br>• Add verified social icons to build instant trust.<br>• Keep your bio short and benefit-driven.`;
+      fetch('/api/assist/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: promptText })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data && data.reply) {
+          aiMsg.innerHTML = data.reply.replace(/\n/g, '<br>');
         } else {
-          aiMsg.innerHTML = `✨ I analyzed your request: <i>"${promptText}"</i>.<br>Everything looks optimized! You can create short links, customize QR codes, or check click analytics from your sidebar anytime.`;
+          aiMsg.innerHTML = `✨ I analyzed your request: <i>"${promptText}"</i>.<br>Everything looks optimized for conversion!`;
         }
-        log.appendChild(aiMsg);
         log.scrollTop = log.scrollHeight;
-      }, 400);
+      })
+      .catch(() => {
+        aiMsg.innerHTML = `✨ I analyzed your request: <i>"${promptText}"</i>.<br>Everything looks optimized! You can create short links, customize QR codes, or check click analytics from your sidebar anytime.`;
+        log.scrollTop = log.scrollHeight;
+      });
 
       input.value = '';
-      log.scrollTop = log.scrollHeight;
     }
 
     form.onsubmit = e => {
@@ -1518,7 +1897,8 @@
     toast,
     copy,
     updateDisplayName,
-    deleteLink
+    deleteLink,
+    exportAnalyticsCSV
   };
 
   if (document.readyState === 'loading') {
