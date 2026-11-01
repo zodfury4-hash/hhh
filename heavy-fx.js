@@ -20,7 +20,6 @@
     initGsapAnimations();
     initSkipprSlider();
     initInteractive3DTilt();
-    initAmbientSpotlight();
   }
 
   /* ---------------------------------------------------------
@@ -75,33 +74,10 @@
       uniform float u_scroll;
       varying vec2 vUv;
 
-      // Simplex 2D noise implementation
-      vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
-      float snoise(vec2 v){
-        const vec4 C = vec4(0.211324865405187, 0.366025403784439,
-                 -0.577350269189626, 0.024390243902439);
-        vec2 i  = floor(v + dot(v, C.yy) );
-        vec2 x0 = v -   i + dot(i, C.xx);
-        vec2 i1;
-        i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-        vec4 x12 = x0.xyxy + C.xxzz;
-        x12.xy -= i1;
-        i = mod(i, 289.0);
-        vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
-        + i.x + vec3(0.0, i1.x, 1.0 ));
-        vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy),
-          dot(x12.zw,x12.zw)), 0.0);
-        m = m*m ;
-        m = m*m ;
-        vec3 x = 2.0 * fract(p * C.www) - 1.0;
-        vec3 h = abs(x) - 0.5;
-        vec3 ox = floor(x + 0.5);
-        vec3 a0 = x - ox;
-        m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
-        vec3 g;
-        g.x  = a0.x  * x0.x  + h.x  * x0.y;
-        g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-        return 130.0 * dot(m, g);
+      // Smooth radial Gaussian falloff for clean ambient light nodes
+      float softGlow(vec2 st, vec2 center, float radius) {
+        float d = length(st - center);
+        return exp(- (d * d) / (2.0 * radius * radius));
       }
 
       void main() {
@@ -109,54 +85,43 @@
         float aspect = u_resolution.x / u_resolution.y;
         st.x *= aspect;
 
-        vec2 m = u_mouse * vec2(aspect, 1.0);
-        float distToMouse = length(st - m);
+        vec2 mouse = u_mouse * vec2(aspect, 1.0);
+        float t = u_time * 0.22;
+        float scrollOffset = u_scroll * 0.0003;
 
-        float t = u_time * 0.16;
-        float scrollWave = u_scroll * 0.0006;
+        // Base luxury midnight dark space
+        vec3 color = vec3(0.043, 0.067, 0.125); // #0b1120
 
-        // Multi-layered organic fluid motion
-        vec2 q = vec2(0.0);
-        q.x = snoise(st * 0.9 + vec2(t * 0.25, scrollWave));
-        q.y = snoise(st * 0.9 + vec2(t * 0.18, t * 0.12));
+        // Subtle slow drifting ambient light positions (smooth lissajous motion)
+        vec2 p1 = vec2(0.20 * aspect + sin(t * 0.4) * 0.12, 0.85 + cos(t * 0.3) * 0.08 - scrollOffset * 0.2);
+        vec2 p2 = vec2(0.85 * aspect + cos(t * 0.35) * 0.10, 0.78 + sin(t * 0.45) * 0.08);
+        vec2 p3 = vec2(0.50 * aspect + sin(t * 0.25) * 0.15, 0.30 + cos(t * 0.35) * 0.10);
 
-        vec2 r = vec2(0.0);
-        r.x = snoise(st * 1.6 + 1.2 * q + vec2(1.7, 9.2) + 0.12 * t);
-        r.y = snoise(st * 1.6 + 1.2 * q + vec2(8.3, 2.8) + 0.09 * t);
+        // Soft, elegant atmospheric glows
+        float g1 = softGlow(st, p1, 0.55); // Top-left Royal Blue
+        float g2 = softGlow(st, p2, 0.48); // Top-right Emerald / Teal
+        float g3 = softGlow(st, p3, 0.60); // Mid-bottom Deep Purple
+        float gMouse = softGlow(st, mouse, 0.32); // Interactive subtle cursor light
 
-        // Fluid distortion toward mouse
-        float mouseField = smoothstep(0.75, 0.0, distToMouse);
-        r += (st - m) * mouseField * 0.25;
+        // Refined, subtle color palette
+        vec3 colBlue   = vec3(0.145, 0.388, 0.922); // #2563eb
+        vec3 colTeal   = vec3(0.176, 0.831, 0.749); // #2dd4bf
+        vec3 colViolet = vec3(0.486, 0.227, 0.929); // #7c3aed
+        vec3 colSky    = vec3(0.22, 0.741, 0.973);  // #38bdf8
 
-        float f = snoise(st * 1.3 + r);
+        // Combine ambient lighting (soft, calm, elegant)
+        color += colBlue * g1 * 0.22;
+        color += colTeal * g2 * 0.14;
+        color += colViolet * g3 * 0.12;
+        color += colSky * gMouse * 0.15;
 
-        // Color Palette corresponding to HEA Link Glassmorphism Theme
-        vec3 darkVoid   = vec3(0.043, 0.067, 0.125); // #0b1120 deep navy
-        vec3 navyGlow   = vec3(0.082, 0.153, 0.322); // #152752 deep blue
-        vec3 royalBlue  = vec3(0.145, 0.388, 0.922); // #2563eb bright cobalt
-        vec3 electricSky = vec3(0.22, 0.741, 0.973);  // #38bdf8 sky blue
-        vec3 luminousTeal = vec3(0.176, 0.831, 0.749); // #2dd4bf teal
-        vec3 cosmicViolet = vec3(0.486, 0.227, 0.929); // #7c3aed violet
-        vec3 acidLime    = vec3(0.831, 1.0, 0.141);   // #D4FF24 brand lime
+        // Faint, high-end technical dot grid (subtle 36px grid)
+        vec2 grid = fract(gl_FragCoord.xy / 36.0) - 0.5;
+        float dGrid = length(grid * 36.0);
+        float dots = smoothstep(1.4, 0.4, dGrid) * 0.06;
+        color += vec3(dots);
 
-        // Interpolation
-        vec3 color = mix(darkVoid, navyGlow, clamp((st.y + 0.2), 0.0, 1.0));
-        color = mix(color, royalBlue, clamp(f * f * 2.2, 0.0, 1.0) * 0.7);
-        color = mix(color, cosmicViolet, clamp(length(q) * 0.65, 0.0, 1.0) * 0.45);
-        color = mix(color, luminousTeal, clamp(length(r.x) * 0.55, 0.0, 1.0) * 0.5);
-
-        // Acid Lime accents and highlights
-        float limeSparks = pow(clamp(f * 0.88 + mouseField * 0.45, 0.0, 1.0), 3.8);
-        color += acidLime * limeSparks * 0.25;
-
-        // Interactive cursor spotlight highlight
-        color += electricSky * mouseField * 0.22;
-
-        // Subtle micro-grain for analogue film depth
-        float grain = fract(sin(dot(gl_FragCoord.xy + vec2(u_time * 4.0), vec2(12.9898, 78.233))) * 43758.5453);
-        color += (grain - 0.5) * 0.02;
-
-        gl_FragColor = vec4(color, 0.95);
+        gl_FragColor = vec4(color, 1.0);
       }
     `;
 
@@ -554,42 +519,5 @@
         card.style.transform = '';
       });
     });
-  }
-
-  /* ---------------------------------------------------------
-     6. AMBIENT GLOW SPOTLIGHT CURSOR
-     --------------------------------------------------------- */
-  function initAmbientSpotlight() {
-    if (window.matchMedia('(hover: none)').matches) return;
-
-    let spotlight = document.getElementById('ambient-spotlight');
-    if (!spotlight) {
-      spotlight = document.createElement('div');
-      spotlight.id = 'ambient-spotlight';
-      document.body.appendChild(spotlight);
-    }
-
-    let targetX = window.innerWidth / 2;
-    let targetY = window.innerHeight / 2;
-    let currX = targetX;
-    let currY = targetY;
-
-    window.addEventListener('mousemove', (e) => {
-      targetX = e.clientX;
-      targetY = e.clientY;
-      spotlight.style.opacity = '1';
-    }, { passive: true });
-
-    document.addEventListener('mouseleave', () => {
-      spotlight.style.opacity = '0';
-    });
-
-    function loop() {
-      currX += (targetX - currX) * 0.12;
-      currY += (targetY - currY) * 0.12;
-      spotlight.style.transform = `translate3d(${currX - 250}px, ${currY - 250}px, 0)`;
-      requestAnimationFrame(loop);
-    }
-    loop();
   }
 })();

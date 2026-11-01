@@ -1234,24 +1234,6 @@ body.mo * { transition: none !important; animation: none !important; scroll-beha
   height: 100vh;
   z-index: -2;
   pointer-events: none;
-  opacity: 0.85;
-}
-
-/* Ambient Cursor Spotlight */
-#ambient-spotlight {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 500px;
-  height: 500px;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: -1;
-  background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(212, 255, 36, 0.04) 40%, transparent 70%);
-  filter: blur(45px);
-  transform: translate3d(-250px, -250px, 0);
-  transition: opacity 0.4s ease;
-  mix-blend-mode: screen;
 }
 
 /* Lenis Smooth Scroll resets */
