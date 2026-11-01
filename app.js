@@ -575,8 +575,8 @@ function renderNavRight() {
   $('#navR').innerHTML = session
     ? `<a class="btn ghost sm" href="#dashboard">Dashboard</a>
        <button class="btn dark sm" id="logoutBtn" type="button">Log out</button>`
-    : `<a href="#login" style="font-weight:600;font-size:14px;padding:8px 12px;color:#ffffff !important">Log in</a>
-       <a class="btn dark sm" href="#signup">Sign up Free</a>`;
+    : `<a href="#login" style="font-weight:500;font-size:14px;padding:8px 16px;color:#ffffff !important;margin-right:6px">Log in</a>
+       <a class="btn pill-btn sm" href="#signup">Sign up free →</a>`;
 
   const lo = $('#logoutBtn');
   if (lo) {
@@ -693,10 +693,10 @@ $$('#heroTabs button').forEach(btn => {
     $('#heroForm').hidden = heroMode === 'bulk';
 
     if (heroMode === 'link') {
-      $('#heroBtn').textContent = 'Shorten link';
+      $('#heroBtn').textContent = 'Shorten link →';
       $('#heroUrl').placeholder = 'https://example.com/a-very-long-page-address';
     } else if (heroMode === 'qr') {
-      $('#heroBtn').textContent = 'Create QR code';
+      $('#heroBtn').textContent = 'Create QR code →';
       $('#heroUrl').placeholder = 'https://example.com or any text';
     }
   };

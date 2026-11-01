@@ -8,9 +8,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="logo.png">
-  <link rel="stylesheet" href="style.css?v=16">
+  <link rel="stylesheet" href="style.css?v=17">
 </head>
 <body>
+<div class="bg-glow-curves"></div>
 <canvas id="webgl-bg"></canvas>
 
 <!-- HEADER NAVBAR -->
@@ -27,20 +28,23 @@
   <!-- 1. HOME VIEW -->
   <section data-page="home">
     <div class="hero wrap">
-      <span class="pill">✦ New: AI-suggested short links &amp; universal redirect</span>
-      <h1>Short links, QR codes &amp; bio pages — <em>all in one place</em></h1>
+      <span class="pill">✦ Now: AI-suggested short links &amp; universal redirect</span>
+      <h1>Short links, QR codes &amp; bio pages —<br><span class="lime-text">all in one place</span></h1>
       <p class="lead">Create branded short links and scannable QR codes, then see exactly who clicks.</p>
       
       <div class="card hero-card">
         <div class="tabs" id="heroTabs">
           <button class="on" data-t="link">🔗 Short link</button>
           <button data-t="qr">▦ QR code</button>
-          <button data-t="bulk">⚡ Bulk Shorten</button>
+          <button data-t="bulk">⚡ Bulk shorten</button>
         </div>
 
-        <form id="heroForm" class="row">
-          <input id="heroUrl" placeholder="https://example.com/a-very-long-page-address" aria-label="Long URL" autocomplete="off" required>
-          <button class="btn" id="heroBtn" type="submit">Shorten link</button>
+        <form id="heroForm" class="hero-form-row">
+          <div class="input-wrap">
+            <span class="input-icon">🔗</span>
+            <input id="heroUrl" placeholder="https://example.com/a-very-long-page-address" aria-label="Long URL" autocomplete="off" required>
+          </div>
+          <button class="btn hero-submit-btn" id="heroBtn" type="submit">Shorten link →</button>
         </form>
         
         <p class="err" id="heroErr"></p>
@@ -56,11 +60,41 @@
           <label>Paste multiple URLs (one per line)
             <textarea id="bulkUrls" rows="4" placeholder="https://example.com/page-1&#10;https://example.com/page-2&#10;https://example.com/page-3"></textarea>
           </label>
-          <button type="button" class="btn" id="bulkBtn">Shorten all links</button>
+          <button type="button" class="btn hero-submit-btn" id="bulkBtn">Shorten all links →</button>
           <div id="bulkRes" class="stack" style="margin-top:10px"></div>
         </div>
+      </div>
 
-        <p class="small">By shortening a link you agree to our Terms and Acceptable Use Policy.</p>
+      <!-- 4 Hero Feature Badges (Excluding reviews part as requested) -->
+      <div class="hero-badges">
+        <div class="badge-item">
+          <div class="badge-icon">⚡</div>
+          <div>
+            <b>Instant &amp; Reliable</b>
+            <span>Shorten in milliseconds</span>
+          </div>
+        </div>
+        <div class="badge-item">
+          <div class="badge-icon">📊</div>
+          <div>
+            <b>Powerful Analytics</b>
+            <span>Track every click</span>
+          </div>
+        </div>
+        <div class="badge-item">
+          <div class="badge-icon">🛡️</div>
+          <div>
+            <b>Branded Experience</b>
+            <span>Build trust with your brand</span>
+          </div>
+        </div>
+        <div class="badge-item">
+          <div class="badge-icon">🌐</div>
+          <div>
+            <b>Global Reach</b>
+            <span>Share anywhere</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -576,6 +610,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="qrcode.js"></script>
 <script src="heavy-fx.js?v=2"></script>
-<script src="app.js?v=10"></script>
+<script src="app.js?v=11"></script>
 </body>
 </html>
