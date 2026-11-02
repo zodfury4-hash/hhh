@@ -1052,12 +1052,16 @@ section[data-page="app"][hidden] {
 .create-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(4, 8, 20, 0.7);
-  backdrop-filter: blur(8px);
-  display: grid;
-  place-items: center;
-  z-index: 200;
-  padding: 20px;
+  background: rgba(4, 8, 20, 0.78);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  padding: 24px 16px;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch;
 }
 .create-modal-overlay[hidden] {
   display: none !important;
@@ -1065,6 +1069,13 @@ section[data-page="app"][hidden] {
 .create-modal-card {
   width: 100%;
   max-width: 640px;
+  max-height: min(92vh, 840px);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch;
+  margin: auto;
   background: #0a1329;
   border: 1px solid rgba(0, 180, 255, 0.3);
   border-radius: 16px;

@@ -2291,20 +2291,31 @@ section[data-page="app"][hidden] {
 /* =====================================================================
    PRO MAX CHECKOUT & UPGRADE MODAL (Glassmorphic Luxury Cyber UI)
    ===================================================================== */
+/* Body scroll lock when any modal is open */
+html.modal-scroll-lock,
+body.modal-scroll-lock {
+  overflow: hidden !important;
+  height: 100vh !important;
+  touch-action: none;
+}
+
 .checkout-modal-overlay {
   position: fixed;
   inset: 0;
   z-index: 999999;
-  background: rgba(4, 9, 20, 0.82);
+  background: rgba(4, 9, 20, 0.85);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 30px 16px;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch;
 }
 .checkout-modal-overlay:not([hidden]) {
   opacity: 1;
@@ -2313,19 +2324,25 @@ section[data-page="app"][hidden] {
 .checkout-card {
   width: 100%;
   max-width: 640px;
-  background: linear-gradient(145deg, rgba(17, 24, 39, 0.96), rgba(9, 15, 30, 0.98));
+  max-height: min(92vh, 880px);
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(145deg, rgba(17, 24, 39, 0.98), rgba(9, 15, 30, 0.99));
   border: 1px solid rgba(56, 189, 248, 0.35);
   box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.85), 0 0 45px rgba(56, 189, 248, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.16);
   border-radius: 26px;
   overflow: hidden;
+  margin: auto;
   transform: translateY(24px) scale(0.96);
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  overscroll-behavior: contain;
 }
 .checkout-modal-overlay:not([hidden]) .checkout-card {
   transform: translateY(0) scale(1);
 }
 .checkout-header {
-  padding: 24px 28px 20px;
+  flex-shrink: 0;
+  padding: 22px 28px 18px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: flex-start;
@@ -2376,6 +2393,10 @@ section[data-page="app"][hidden] {
   transform: rotate(90deg);
 }
 .checkout-body {
+  flex: 1 1 auto;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch;
   padding: 22px 28px 28px;
 }
 .billing-cycle-toggle {

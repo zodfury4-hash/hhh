@@ -553,19 +553,41 @@ function renderSolMegaGrid(tabKey = 'industry') {
    INTERACTIVE REAL-TIME FEATURE MODALS & ACTIONS
    ========================================================= */
 
+function lockModalScroll() {
+  document.body.classList.add('modal-scroll-lock');
+  document.documentElement.classList.add('modal-scroll-lock');
+  if (window.lenis && typeof window.lenis.stop === 'function') {
+    try { window.lenis.stop(); } catch (e) {}
+  }
+}
+
+function unlockModalScroll() {
+  document.body.classList.remove('modal-scroll-lock');
+  document.documentElement.classList.remove('modal-scroll-lock');
+  if (window.lenis && typeof window.lenis.start === 'function') {
+    try { window.lenis.start(); } catch (e) {}
+  }
+}
+window.lockModalScroll = lockModalScroll;
+window.unlockModalScroll = unlockModalScroll;
+
 function closeAllCustomModals() {
   const ids = ['mobileLinksModal', 'devHubModal', 'trustModal', 'reportModal', 'mcpModal', 'salesModal', 'bioPreviewModal', 'analyticsSandboxModal', 'checkoutModal'];
   ids.forEach(id => {
     const el = $('#' + id);
     if (el) el.hidden = true;
   });
+  unlockModalScroll();
 }
 window.closeAllCustomModals = closeAllCustomModals;
 
 function openMobileLinksModal() {
   closeAllCustomModals();
   const m = $('#mobileLinksModal');
-  if (m) m.hidden = false;
+  if (m) {
+    m.hidden = false;
+    lockModalScroll();
+  }
 }
 window.openMobileLinksModal = openMobileLinksModal;
 
@@ -574,6 +596,7 @@ function openDevHubModal() {
   const m = $('#devHubModal');
   if (m) {
     m.hidden = false;
+    lockModalScroll();
     switchApiTab('curl');
   }
 }
@@ -582,42 +605,60 @@ window.openDevHubModal = openDevHubModal;
 function openTrustModal() {
   closeAllCustomModals();
   const m = $('#trustModal');
-  if (m) m.hidden = false;
+  if (m) {
+    m.hidden = false;
+    lockModalScroll();
+  }
 }
 window.openTrustModal = openTrustModal;
 
 function openReportModal() {
   closeAllCustomModals();
   const m = $('#reportModal');
-  if (m) m.hidden = false;
+  if (m) {
+    m.hidden = false;
+    lockModalScroll();
+  }
 }
 window.openReportModal = openReportModal;
 
 function openMcpModal() {
   closeAllCustomModals();
   const m = $('#mcpModal');
-  if (m) m.hidden = false;
+  if (m) {
+    m.hidden = false;
+    lockModalScroll();
+  }
 }
 window.openMcpModal = openMcpModal;
 
 function openSalesModal() {
   closeAllCustomModals();
   const m = $('#salesModal');
-  if (m) m.hidden = false;
+  if (m) {
+    m.hidden = false;
+    lockModalScroll();
+  }
 }
 window.openSalesModal = openSalesModal;
 
 function openBioPreviewModal() {
   closeAllCustomModals();
   const m = $('#bioPreviewModal');
-  if (m) m.hidden = false;
+  if (m) {
+    m.hidden = false;
+    lockModalScroll();
+  }
 }
 window.openBioPreviewModal = openBioPreviewModal;
 
 function openAnalyticsSandboxModal() {
   closeAllCustomModals();
   const m = $('#analyticsSandboxModal');
-  if (m) m.hidden = false;
+  if (m) {
+    m.hidden = false;
+    lockModalScroll();
+  }
 }
 window.openAnalyticsSandboxModal = openAnalyticsSandboxModal;
 
@@ -2697,6 +2738,7 @@ function openCheckoutModal(plan = 'pro') {
   }
 
   modal.hidden = false;
+  lockModalScroll();
 
   if (window.Motion && typeof window.Motion.animate === 'function') {
     window.Motion.animate('.checkout-card', {
@@ -2714,6 +2756,7 @@ function closeCheckoutModal() {
   const modal = $('#checkoutModal');
   if (!modal) return;
   modal.hidden = true;
+  unlockModalScroll();
 }
 
 function setupCheckoutModal() {
@@ -2726,6 +2769,15 @@ function setupCheckoutModal() {
   });
   window.addEventListener('keydown', e => {
     if (e.key === 'Escape' && !modal.hidden) closeCheckoutModal();
+  });
+
+  // Contain mousewheel and touch scroll so background never scrolls
+  modal.addEventListener('wheel', e => e.stopPropagation(), { passive: true });
+  modal.addEventListener('touchmove', e => e.stopPropagation(), { passive: true });
+
+  $$('.checkout-modal-overlay, .create-modal-overlay').forEach(ov => {
+    ov.addEventListener('wheel', e => e.stopPropagation(), { passive: true });
+    ov.addEventListener('touchmove', e => e.stopPropagation(), { passive: true });
   });
 
   const btnMonthly = $('#cycleMonthly');
