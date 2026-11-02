@@ -221,8 +221,10 @@
     }
   }
 
-  // ---------------- 1. HOME SCREEN (Screenshot 12.02.37 AM) ---------------- //
+  // ---------------- 1. HOME SCREEN (Frame 1 & Frame 6) ---------------- //
   function renderHome(container) {
+    let activeType = 'link'; // 'link' or 'qr'
+
     container.innerHTML = `
       <!-- "What do you want to create?" Card -->
       <div class="home-create-card">
@@ -231,19 +233,19 @@
           <button class="home-type-tab active" type="button" id="tabShortLinkOpt">
             <span>🔗</span> Short link
           </button>
-          <button class="home-type-tab" type="button" onclick="window.appShell.navigate('qr')">
+          <button class="home-type-tab" type="button" id="tabQrCodeOpt">
             <span>▦</span> QR Code
           </button>
         </div>
 
         <form id="homeShortenForm" class="home-shorten-box">
-          <span style="color:#94a3b8;font-size:16px;">🔗</span>
-          <input type="url" id="homeShortenInput" class="home-shorten-input" placeholder="Enter long destination link (e.g. https://shopify.com/promo)..." required>
+          <span id="homeInputIcon" style="color:#94a3b8;font-size:16px;">🔗</span>
+          <input type="url" id="homeShortenInput" class="home-shorten-input" placeholder="Paste a long URL to shorten it..." required>
           <select class="home-domain-select" id="homeDomainSelect">
             <option value="healink.store" selected>healink.store</option>
             <option value="bit.ly">bit.ly</option>
           </select>
-          <button type="submit" class="home-shorten-btn">→</button>
+          <button type="submit" class="home-shorten-btn" id="homeSubmitBtn">→</button>
         </form>
 
         <div class="home-cyan-banner">
@@ -252,44 +254,68 @@
         </div>
 
         <div style="font-size:12px;color:#94a3b8;margin-top:14px;">
-          ${appUser.isPro ? '<span style="color:#10b981;font-weight:700;">👑 Core PRO Active: Unlimited short links &amp; Vector QR Codes</span>' : 'You can create <b>4 more</b> short links this month. <span title="Free plan limit" style="cursor:help;">❓</span>'}
+          ${appUser.isPro ? '<span style="color:#10b981;font-weight:700;">👑 Core PRO Active: Unlimited short links &amp; Vector QR Codes</span>' : 'You can create <b>5 more</b> short links this month. <span title="Free plan limit" style="cursor:help;">❓</span>'}
         </div>
       </div>
 
       <!-- Simplify Workflow Banner -->
-      <div class="dash-white-card" style="display:flex;justify-content:space-between;align-items:center;padding:16px 24px;margin-bottom:20px;">
-        <div style="display:flex;align-items:center;gap:12px;">
+      <div class="dash-white-card" style="display:flex;justify-content:space-between;align-items:center;padding:16px 24px;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
           <span style="font-size:20px;color:#38bdf8;">✨</span>
           <span style="font-weight:700;color:#ffffff;font-size:15px;">Simplify your workflow</span>
           <span style="color:#94a3b8;font-size:14px;">Explore smarter ways to create links.</span>
+          <button class="home-type-tab" type="button" style="padding:4px 10px;font-size:12px;" onclick="window.appShell.navigate('create-link')">🔗 Personalize a short link</button>
+          <button class="home-type-tab" type="button" style="padding:4px 10px;font-size:12px;" onclick="window.appShell.navigate('create-link')">⭐ Make a unique link for every post</button>
         </div>
         <button class="topbar-upgrade-btn" style="background:${appUser.isPro ? 'linear-gradient(135deg, #eab308, #ca8a04)' : 'linear-gradient(135deg, #10b981, #059669)'};" onclick="window.openCheckoutModal('pro')">
-          ${appUser.isPro ? '👑 PRO Active' : '👑 Upgrade to Core'}
+          ${appUser.isPro ? '👑 PRO Active' : '👑 Upgrade to Create with AI'}
         </button>
       </div>
 
-      <!-- 2-Card Row: Connect your account & Hi John -->
+      <!-- 2-Card Row: Connect your account & Hi User -->
       <div class="dash-row-2">
-        <!-- Connect your account (Zapier) -->
+        <!-- Connect your account (Frame 6) -->
         <div class="dash-white-card">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
             <h4 style="margin:0;color:#ffffff;">Connect your account</h4>
-            <a href="#integrations" style="color:#38bdf8;font-size:13px;font-weight:600;text-decoration:none;">Explore integrations →</a>
+            <a href="#integrations" style="color:#38bdf8;font-size:13px;font-weight:600;text-decoration:none;">Explore Integrations →</a>
           </div>
-          <p style="color:#94a3b8;margin:0 0 16px;font-size:13px;">Automation must-haves</p>
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <div style="width:38px;height:38px;border-radius:8px;background:linear-gradient(135deg, #ff4a00, #ff7a00);color:#ffffff;display:grid;place-items:center;font-weight:800;font-size:14px;">_z</div>
-              <div>
-                <div style="font-weight:700;font-size:14px;color:#ffffff;">Zapier</div>
-                <div style="font-size:12px;color:#94a3b8;">Add HEA Link into your workflows</div>
+          <p style="color:#94a3b8;margin:0 0 16px;font-size:13px;">Recommended for you</p>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div style="font-size:24px;">🌐</div>
+                <div>
+                  <div style="font-weight:700;font-size:14px;color:#ffffff;">Chrome Extension</div>
+                  <div style="font-size:12px;color:#94a3b8;">Instant links and QR Codes from anywhere</div>
+                </div>
               </div>
+              <button class="sso-btn" style="width:auto;padding:6px 14px;font-size:13px;" onclick="window.appShell.toast('Chrome Extension installed in browser!')">Install</button>
             </div>
-            <button class="sso-btn" style="width:auto;padding:6px 14px;font-size:13px;" onclick="window.appShell.toast('Zapier connected successfully!')">Connect</button>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div style="font-size:24px;">🎨</div>
+                <div>
+                  <div style="font-weight:700;font-size:14px;color:#ffffff;">Canva</div>
+                  <div style="font-size:12px;color:#94a3b8;">Popular pick in productivity and design</div>
+                </div>
+              </div>
+              <button class="sso-btn" style="width:auto;padding:6px 14px;font-size:13px;" onclick="window.appShell.toast('Canva workspace connected!')">Connect</button>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div style="font-size:24px;">🛍️</div>
+                <div>
+                  <div style="font-weight:700;font-size:14px;color:#ffffff;">Shopify <span style="background:#0284c7;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;font-weight:800;margin-left:4px;">New</span></div>
+                  <div style="font-size:12px;color:#94a3b8;">Auto-attribute orders to specific links</div>
+                </div>
+              </div>
+              <button class="sso-btn" style="width:auto;padding:6px 14px;font-size:13px;" onclick="window.appShell.toast('Shopify store connected!')">Connect</button>
+            </div>
           </div>
         </div>
 
-        <!-- Hi John Progress -->
+        <!-- Hi User Progress (Frame 6) -->
         <div class="dash-white-card">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
             <div>
@@ -297,17 +323,26 @@
               <h4 style="margin:0;color:#ffffff;font-size:18px;font-weight:800;">get started with HEA Link</h4>
             </div>
             <div style="display:flex;align-items:center;gap:6px;color:#10b981;font-weight:800;font-size:16px;">
-              <span>67%</span>
-              <svg width="26" height="26" viewBox="0 0 36 36"><path stroke="rgba(255,255,255,0.1)" stroke-width="4" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/><path stroke="#10b981" stroke-width="4" stroke-dasharray="67, 100" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/></svg>
+              <span>33%</span>
+              <svg width="26" height="26" viewBox="0 0 36 36"><path stroke="rgba(255,255,255,0.1)" stroke-width="4" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/><path stroke="#10b981" stroke-width="4" stroke-dasharray="33, 100" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/></svg>
             </div>
           </div>
-          <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;">
-            <div style="display:flex;align-items:center;gap:10px;color:#10b981;font-weight:600;">
-              <span>✓</span> <span>Link shortened</span>
+          <div style="display:flex;flex-direction:column;gap:12px;font-size:13px;">
+            <div style="padding:10px 12px;background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:10px;">
+              <div style="display:flex;align-items:center;gap:10px;color:#ffffff;font-weight:700;margin-bottom:6px;">
+                <span style="width:16px;height:16px;border:2px solid #38bdf8;border-radius:50%;display:inline-block;"></span>
+                <span>Shorten a URL</span>
+              </div>
+              <button class="sso-btn" style="width:auto;padding:6px 14px;font-size:12px;color:#38bdf8;font-weight:700;" onclick="window.appShell.navigate('create-link')">
+                🔗 Let's make a link
+              </button>
             </div>
-            <div style="display:flex;align-items:center;gap:10px;color:#94a3b8;">
-              <span style="width:14px;height:14px;border:2px dashed #64748b;border-radius:50%;display:inline-block;"></span>
+            <div style="display:flex;align-items:center;gap:10px;color:#94a3b8;padding:4px 0;">
+              <span style="width:16px;height:16px;border:2px dashed #64748b;border-radius:50%;display:inline-block;"></span>
               <span>Collect 10 clicks or scans</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;color:#10b981;font-weight:600;cursor:pointer;padding:4px 0;" onclick="window.appShell.navigate('analytics')">
+              <span>✓</span> <span>Analytics preview</span>
             </div>
           </div>
         </div>
@@ -342,14 +377,46 @@
       </div>
     `;
 
+    // Tab switcher logic on Home
+    const tabLink = $('#tabShortLinkOpt');
+    const tabQr = $('#tabQrCodeOpt');
+    const input = $('#homeShortenInput');
+    const icon = $('#homeInputIcon');
+    const domSelect = $('#homeDomainSelect');
+
+    if (tabLink && tabQr && input) {
+      tabLink.onclick = () => {
+        activeType = 'link';
+        tabLink.classList.add('active');
+        tabQr.classList.remove('active');
+        input.placeholder = 'Paste a long URL to shorten it...';
+        if (icon) icon.textContent = '🔗';
+        if (domSelect) domSelect.style.display = 'block';
+      };
+      tabQr.onclick = () => {
+        activeType = 'qr';
+        tabQr.classList.add('active');
+        tabLink.classList.remove('active');
+        input.placeholder = 'Enter a URL to create a QR Code...';
+        if (icon) icon.textContent = '▦';
+        if (domSelect) domSelect.style.display = 'none';
+      };
+    }
+
     const form = $('#homeShortenForm');
     if (form) {
       form.onsubmit = e => {
         e.preventDefault();
         const dest = $('#homeShortenInput').value.trim();
-        const dom = $('#homeDomainSelect').value;
+        const dom = $('#homeDomainSelect')?.value || 'healink.store';
         if (!dest) return;
-        createLinkDirect(dest, '', dom);
+        if (activeType === 'qr') {
+          // Direct QR creation and navigate to QR studio
+          createLinkDirect(dest, '', dom);
+          navigate('qr-detail', 'lnk_' + Date.now());
+        } else {
+          createLinkDirect(dest, '', dom);
+        }
       };
     }
   }
@@ -678,87 +745,241 @@
     }
   }
 
-  // ---------------- 4. QR CODES LIST SCREEN (Screenshot 12.02.39 AM) ---------------- //
-  function renderQr(container) {
+  // ---------------- 4. QR CODES LIST SCREEN (Frame 8 & Frame 9) ---------------- //
+  function renderQr(container, mode) {
     const links = getStoredLinks();
-    const primary = links[0] || {
-      id: 'lnk_1',
-      title: 'Untitled 2026-10-30',
-      dest: 'https://claude.ai/chat/7f036851-018e-4d51-a859-3730634bb296',
-      slug: '3WeOEOz',
-      createdAt: 'Oct 30, 2026'
-    };
+    let qrMode = mode || (links.length === 0 ? 'empty' : 'list');
 
-    container.innerHTML = `
-      <div class="view-header">
-        <h2>QR Codes</h2>
-        <button class="sidebar-create-btn" style="margin:0;" onclick="window.appShell.navigate('qr-detail', '${primary.id}')">
-          Create code
-        </button>
-      </div>
+    function renderView() {
+      if (qrMode === 'empty') {
+        container.innerHTML = `
+          <div class="view-header">
+            <h2>QR Codes</h2>
+            <button class="sso-btn" style="width:auto;padding:8px 16px;" id="btnViewAllQr">
+              View All Codes (${links.length})
+            </button>
+          </div>
 
-      <div class="qr-filter-bar">
-        <input type="text" class="topbar-search-input" style="flex:1;" placeholder="Search QR codes by label, destination, or color...">
-        <button class="sso-btn" style="width:auto;padding:8px 14px;font-size:13px;">📅 Filter by created date</button>
-        <button class="sso-btn" style="width:auto;padding:8px 14px;font-size:13px;">⊞ Add filters</button>
-      </div>
-
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;font-size:13px;color:#94a3b8;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:16px;">
-        <div style="display:flex;gap:16px;align-items:center;">
-          <input type="checkbox">
-          <span>0 selected</span>
-          <span style="cursor:pointer;" onclick="window.appShell.downloadQrPNG()">Export</span>
-          <span style="cursor:pointer;">Hide</span>
-          <span style="cursor:pointer;">Tag</span>
-        </div>
-        <select class="home-domain-select" style="padding:4px 8px;font-size:12px;">
-          <option>Show: Active</option>
-        </select>
-      </div>
-
-      <!-- QR Card Items matching screenshot -->
-      ${links.map((item, idx) => `
-        <div class="qr-card-item">
-          <div class="qr-card-left">
-            <input type="checkbox">
-            <div class="qr-framed-thumbnail" style="cursor:pointer;" onclick="window.appShell.navigate('qr-detail', '${item.id}')">
-              <canvas id="qrCardCanvas_${idx}" width="160" height="160"></canvas>
-              <div class="qr-thumb-label">SCAN ME</div>
+          <!-- Empty / Welcome State matching Frame 8 -->
+          <div class="dash-white-card" style="text-align:center;padding:60px 20px;max-width:680px;margin:20px auto;">
+            <div style="width:140px;height:140px;margin:0 auto 24px;background:rgba(56,189,248,0.06);border:2px solid rgba(56,189,248,0.25);border-radius:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 12px 30px rgba(56,189,248,0.15);">
+              <span style="font-size:52px;color:#38bdf8;">▦</span>
+              <span style="font-size:11px;font-weight:800;letter-spacing:1px;color:#D4FF24;margin-top:4px;">SCAN ME</span>
             </div>
-            <div class="qr-details">
-              <span style="background:rgba(255,255,255,0.06);color:#38bdf8;font-weight:600;font-size:11px;padding:2px 8px;border-radius:4px;">🌐 ${item.tag || 'Website'}</span>
-              <h4 style="cursor:pointer;" onclick="window.appShell.navigate('qr-detail', '${item.id}')">${item.title}</h4>
-              <div class="qr-dest-text">↳ ${item.dest}</div>
-              <div class="qr-meta-row">
-                <span>👑 ${item.scans || 0} scans</span>
-                <span>📅 ${item.createdAt}</span>
-                <span>🔗 healink.store/${item.slug}</span>
-                <span>🏷 No tags</span>
+
+            <h3 style="font-size:26px;font-weight:800;color:#ffffff;margin:0 0 10px;">Connect your audience with a simple scan</h3>
+            <p style="color:#94a3b8;font-size:15px;max-width:480px;margin:0 auto 24px;line-height:1.5;">
+              Create a QR Code from any short link. Then edit, customize, and track your QR Codes here.
+            </p>
+
+            <button class="auth-submit-btn" id="btnLaunchQrForm" style="width:auto;padding:12px 32px;font-size:15px;margin:0 auto 12px;">
+              Create a HEA Code
+            </button>
+            <div style="margin-top:10px;">
+              <a href="#analytics" style="color:#38bdf8;font-size:13px;text-decoration:none;">Learn more →</a>
+            </div>
+          </div>
+        `;
+
+        $('#btnLaunchQrForm').onclick = () => {
+          qrMode = 'create';
+          renderView();
+        };
+        const viewAll = $('#btnViewAllQr');
+        if (viewAll) viewAll.onclick = () => {
+          qrMode = 'list';
+          renderView();
+        };
+        return;
+      }
+
+      if (qrMode === 'create') {
+        container.innerHTML = `
+          <div class="view-header">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <button class="sso-btn" id="btnBackToQrList" style="width:auto;padding:6px 12px;">←</button>
+              <h2>Create a QR Code</h2>
+            </div>
+          </div>
+
+          <!-- QR Creation Form matching Frame 9 -->
+          <div class="qr-detail-layout">
+            <div class="dash-white-card">
+              <h3 style="color:#ffffff;margin-top:0;font-size:18px;">QR Code Details</h3>
+              <div class="create-link-field">
+                <label>Destination URL</label>
+                <input type="url" id="qrInputDest" placeholder="https://yourstore.com/summer-promo" value="https://myshopify.com/special-drop" required>
+              </div>
+
+              <div class="create-link-field">
+                <label>Title (optional)</label>
+                <input type="text" id="qrInputTitle" placeholder="e.g. Table 4 Menu or Conference Flyer">
+              </div>
+
+              <!-- Advanced Settings (Frame 9) -->
+              <h4 style="font-size:15px;color:#ffffff;margin:20px 0 10px;">Advanced settings</h4>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+                <span style="color:#cbd5e1;font-size:13px;">{ } UTM parameters 👑</span>
+                <label class="app-toggle-switch"><input type="checkbox" checked><span class="app-toggle-slider"></span></label>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+                <span style="color:#cbd5e1;font-size:13px;">⏱️ Code expiration 👑</span>
+                <label class="app-toggle-switch"><input type="checkbox"><span class="app-toggle-slider"></span></label>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;">
+                <div>
+                  <div style="color:#cbd5e1;font-size:13px;">🔀 Dynamic routing 👑</div>
+                  <div style="font-size:11px;color:#94a3b8;">Send visitors to different destinations based on device</div>
+                </div>
+                <label class="app-toggle-switch"><input type="checkbox" checked><span class="app-toggle-slider"></span></label>
+              </div>
+
+              <div style="display:flex;gap:12px;margin-top:24px;">
+                <button class="auth-submit-btn" id="btnDesignYourCode" style="width:auto;padding:10px 24px;">Design your code →</button>
+                <button class="sso-btn" id="btnCancelQrCreate" style="width:auto;padding:10px 20px;">Cancel</button>
               </div>
             </div>
+
+            <!-- Right Preview -->
+            <div class="qr-preview-box">
+              <span style="font-size:12px;color:#94a3b8;margin-bottom:12px;">Live Preview</span>
+              <div class="qr-framed-thumbnail" style="width:180px;padding:14px 14px 8px;margin-bottom:16px;">
+                <canvas id="qrCreatePreviewCanvas" width="180" height="180"></canvas>
+                <div class="qr-thumb-label">SCAN ME</div>
+              </div>
+              <div style="font-size:12px;color:#38bdf8;font-weight:700;">Vector 4K Resolution</div>
+            </div>
           </div>
-          <div style="display:flex;align-items:center;gap:16px;color:#94a3b8;">
-            <button class="topbar-icon-btn" title="Edit & Customize" onclick="window.appShell.navigate('qr-detail', '${item.id}')">✏️</button>
-            <button class="topbar-icon-btn" title="Download" onclick="window.appShell.downloadQrPNG('${item.slug}')">📥</button>
-            <button class="topbar-icon-btn" title="Stats" onclick="window.appShell.navigate('analytics')">📊</button>
-            <button class="topbar-icon-btn" title="More">···</button>
+        `;
+
+        setTimeout(() => {
+          const cv = $('#qrCreatePreviewCanvas');
+          if (cv && typeof window.drawQR === 'function') {
+            window.drawQR(cv, 'https://healink.store/3WeOEOz', '#ff007f', '#ffffff', 180);
+          }
+        }, 30);
+
+        $('#btnBackToQrList').onclick = () => { qrMode = 'list'; renderView(); };
+        $('#btnCancelQrCreate').onclick = () => { qrMode = 'list'; renderView(); };
+        $('#btnDesignYourCode').onclick = () => {
+          const dest = $('#qrInputDest').value.trim();
+          const title = $('#qrInputTitle').value.trim() || 'Custom QR Code';
+          if (!dest) { alert('Please enter destination URL'); return; }
+          const slug = generateShortSlug(6);
+          const links = getStoredLinks();
+          const newQ = {
+            id: 'lnk_' + Date.now(),
+            title: title,
+            dest: dest,
+            slug: slug,
+            url: `https://healink.store/${slug}`,
+            tag: 'QR Campaign',
+            createdAt: 'Just now',
+            clicks: 0,
+            scans: 0,
+            qr: true
+          };
+          links.unshift(newQ);
+          localStorage.setItem('hea_links', JSON.stringify(links));
+          window.appShell.toast('QR Code created! Welcome to the Studio.');
+          navigate('qr-detail', newQ.id);
+        };
+        return;
+      }
+
+      // Default 'list' mode
+      container.innerHTML = `
+        <div class="view-header">
+          <h2>QR Codes</h2>
+          <div style="display:flex;gap:10px;">
+            <button class="sidebar-create-btn" id="btnNewQrHero" style="margin:0;">
+              + Create code
+            </button>
           </div>
         </div>
-      `).join('')}
 
-      <div style="text-align:center;color:#64748b;font-size:13px;margin:40px 0;">
-        — You've reached the end of your QR codes —
-      </div>
-    `;
+        <div class="qr-filter-bar">
+          <input type="text" class="topbar-search-input" id="qrSearchInput" style="flex:1;" placeholder="Search QR codes by label, destination, or color...">
+          <button class="sso-btn" style="width:auto;padding:8px 14px;font-size:13px;">📅 Filter by created date</button>
+          <button class="sso-btn" style="width:auto;padding:8px 14px;font-size:13px;">⊞ Add filters</button>
+        </div>
 
-    setTimeout(() => {
-      links.forEach((item, idx) => {
-        const cv = $(`#qrCardCanvas_${idx}`);
-        if (cv && typeof window.drawQR === 'function') {
-          window.drawQR(cv, `https://healink.store/${item.slug}`, appUser.selectedQrColor || '#ff007f', '#ffffff', 160);
-        }
-      });
-    }, 50);
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;font-size:13px;color:#94a3b8;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:16px;">
+          <div style="display:flex;gap:16px;align-items:center;">
+            <input type="checkbox">
+            <span>${links.length} total codes</span>
+            <span style="cursor:pointer;" onclick="window.appShell.downloadQrPNG()">Export</span>
+            <span style="cursor:pointer;">Hide</span>
+            <span style="cursor:pointer;">Tag</span>
+          </div>
+          <select class="home-domain-select" style="padding:4px 8px;font-size:12px;">
+            <option>Show: Active</option>
+          </select>
+        </div>
+
+        <!-- QR Card Items matching screenshot -->
+        <div id="qrCardsContainer">
+          ${links.map((item, idx) => `
+            <div class="qr-card-item">
+              <div class="qr-card-left">
+                <input type="checkbox">
+                <div class="qr-framed-thumbnail" style="cursor:pointer;" onclick="window.appShell.navigate('qr-detail', '${item.id}')">
+                  <canvas id="qrCardCanvas_${idx}" width="160" height="160"></canvas>
+                  <div class="qr-thumb-label">SCAN ME</div>
+                </div>
+                <div class="qr-details">
+                  <span style="background:rgba(255,255,255,0.06);color:#38bdf8;font-weight:600;font-size:11px;padding:2px 8px;border-radius:4px;">🌐 ${item.tag || 'Website'}</span>
+                  <h4 style="cursor:pointer;" onclick="window.appShell.navigate('qr-detail', '${item.id}')">${item.title}</h4>
+                  <div class="qr-dest-text">↳ ${item.dest}</div>
+                  <div class="qr-meta-row">
+                    <span>👑 ${item.scans || 0} scans</span>
+                    <span>📅 ${item.createdAt}</span>
+                    <span>🔗 healink.store/${item.slug}</span>
+                    <span>🏷 No tags</span>
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:16px;color:#94a3b8;">
+                <button class="topbar-icon-btn" title="Edit & Customize" onclick="window.appShell.navigate('qr-detail', '${item.id}')">✏️</button>
+                <button class="topbar-icon-btn" title="Download" onclick="window.appShell.downloadQrPNG('${item.slug}')">📥</button>
+                <button class="topbar-icon-btn" title="Stats" onclick="window.appShell.navigate('analytics')">📊</button>
+                <button class="topbar-icon-btn" title="More">···</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div style="text-align:center;color:#64748b;font-size:13px;margin:40px 0;">
+          — You've reached the end of your QR codes —
+        </div>
+      `;
+
+      $('#btnNewQrHero').onclick = () => {
+        qrMode = 'empty';
+        renderView();
+      };
+
+      const sIn = $('#qrSearchInput');
+      if (sIn) {
+        sIn.oninput = () => {
+          const q = sIn.value.toLowerCase();
+          $$('.qr-card-item').forEach(card => {
+            card.style.display = card.textContent.toLowerCase().includes(q) ? 'flex' : 'none';
+          });
+        };
+      }
+
+      setTimeout(() => {
+        links.forEach((item, idx) => {
+          const cv = $(`#qrCardCanvas_${idx}`);
+          if (cv && typeof window.drawQR === 'function') {
+            window.drawQR(cv, `https://healink.store/${item.slug}`, appUser.selectedQrColor || '#ff007f', '#ffffff', 160);
+          }
+        });
+      }, 50);
+    }
+
+    renderView();
   }
 
   // ---------------- 5. QR CODE DETAILS & STUDIO (Screenshots 12.02.39 AM 1, 2, 3) ---------------- //
@@ -929,147 +1150,396 @@
     toast(`QR code color updated to ${c}`);
   }
 
-  // ---------------- 6. PAGES SCREEN (Live Link-in-Bio Studio) ---------------- //
-  function renderPages(container) {
+  // ---------------- 6. PAGES SCREEN (Frame 11 & Frame 14) ---------------- //
+  function renderPages(container, initialMode) {
     const pages = getStoredPages();
     const origin = window.location.origin;
-    const p = pages[0] || {
-      slug: 'john',
-      title: 'John',
-      tagline: 'Content Creator & Brand Strategist',
-      views: 142,
-      engagements: 89,
-      createdAt: 'Oct 30, 2026'
+    let mode = initialMode || (pages.length === 0 ? 'catalog' : 'list');
+    let selectedTemplate = {
+      id: 'biz_card',
+      category: 'Digital business card',
+      title: appUser.name || 'John',
+      tagline: 'Brand Strategist & Digital Creator',
+      color: '#38bdf8',
+      slug: (appUser.name || 'john').toLowerCase().replace(/\s+/g, '-')
     };
+    let qrColor = '#38bdf8';
 
-    const bioUrl = `${origin}/m/${p.slug}`;
+    const templates = [
+      {
+        id: 'biz_card',
+        category: 'Digital business card',
+        title: appUser.name || 'John',
+        tagline: 'Founder & Tech Strategist',
+        color: '#38bdf8',
+        icon: '💼',
+        desc: 'Clean corporate identity with social links and vCard contact.'
+      },
+      {
+        id: 'new_arrivals',
+        category: 'Promotions',
+        title: 'Our New Arrivals',
+        tagline: 'Limited Summer Apparel & Essentials',
+        color: '#ff007f',
+        icon: '🛍️',
+        desc: 'Highlight hot products, drops, and ecommerce checkout links.'
+      },
+      {
+        id: 'new_drinks',
+        category: 'Promotions',
+        title: 'New Drinks & Brews',
+        tagline: 'Artisan Cafe & Seasonal Cold Brews',
+        color: '#f97316',
+        icon: '☕',
+        desc: 'Vibrant menu showcase for cafes, restaurants, and bars.'
+      },
+      {
+        id: 'hearth_home',
+        category: 'Digital business card',
+        title: 'Hearth & Home',
+        tagline: 'Minimalist Interior Design Studio',
+        color: '#D4FF24',
+        icon: '🪴',
+        desc: 'Minimal editorial aesthetic for boutique creators and architects.'
+      },
+      {
+        id: 'portfolio',
+        category: 'Portfolio',
+        title: 'Creative Portfolio',
+        tagline: 'Visual Architecture & Web3 Design',
+        color: '#a855f7',
+        icon: '🎨',
+        desc: 'High-impact dark cyber showcase for designers and developers.'
+      }
+    ];
 
-    container.innerHTML = `
-      <div class="view-header">
-        <h2>HEA Pages (Link-in-Bio)</h2>
-        <button class="sidebar-create-btn" id="btnCreateNewPage" style="margin:0;">
-          + Create Page
-        </button>
-      </div>
-
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <input type="text" class="topbar-search-input" style="max-width:320px;" placeholder="Search bio pages by title, handle, or bio...">
-        <span style="font-size:13px;color:#94a3b8;">Unlimited custom bio pages available</span>
-      </div>
-
-      <div class="page-row-card">
-        <div style="display:flex;align-items:center;gap:20px;">
-          <div class="page-wireframe-thumb">
-            <span style="font-weight:700;">${p.title}</span>
-            <div class="wireframe-bar"></div>
-            <div class="wireframe-bar"></div>
-            <div class="wireframe-bar"></div>
+    function renderView() {
+      // 1. Step 1: Template Catalog (Frame 11)
+      if (mode === 'catalog') {
+        container.innerHTML = `
+          <div class="view-header">
+            <div>
+              <h2 style="margin:0 0 4px;">Choose a Template for Your Page</h2>
+              <p style="color:#94a3b8;font-size:14px;margin:0;">Select a professionally crafted layout to showcase your links and brand.</p>
+            </div>
+            ${pages.length > 0 ? `<button class="sso-btn" style="width:auto;padding:8px 16px;" id="btnReturnToPageList">← Back to My Pages</button>` : ''}
           </div>
-          <div>
-            <h3 style="font-size:20px;font-weight:800;color:#ffffff;margin:0 0 6px;">
-              <a href="${bioUrl}" target="_blank" rel="noopener" style="color:#38bdf8;text-decoration:none;">${bioUrl} ↗</a>
-            </h3>
-            <div style="font-size:13px;color:#94a3b8;margin-bottom:8px;">${p.tagline || 'Custom verified landing page'} • Created ${p.createdAt}</div>
-            <div style="display:flex;gap:16px;font-size:13px;color:#cbd5e1;">
-              <span>📊 <b>${p.views || 0}</b> views</span>
-              <span>🎯 <b>${p.engagements || 0}</b> engagements</span>
+
+          <!-- Template Filter Pills (Frame 11) -->
+          <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:12px;margin:16px 0 24px;">
+            ${['All templates', 'Digital business card', 'Promotions', 'Portfolio'].map((cat, i) => `
+              <button class="home-type-tab ${i === 0 ? 'active' : ''}" style="white-space:nowrap;padding:6px 16px;font-size:13px;" data-cat="${cat}">
+                ${cat}
+              </button>
+            `).join('')}
+          </div>
+
+          <!-- Template Cards Grid (Frame 11) -->
+          <div class="template-grid" id="templateGrid">
+            ${templates.map(t => `
+              <div class="template-card" data-id="${t.id}">
+                <div class="template-preview-frame">
+                  <div style="width:50px;height:50px;border-radius:50%;background:${t.color};display:grid;place-items:center;font-size:24px;box-shadow:0 8px 20px ${t.color}40;margin-bottom:12px;">
+                    ${t.icon}
+                  </div>
+                  <div style="font-weight:800;font-size:16px;color:#ffffff;text-align:center;">${t.title}</div>
+                  <div style="font-size:11px;color:#94a3b8;margin-top:4px;text-align:center;">${t.tagline}</div>
+                  <div style="display:flex;gap:6px;margin-top:14px;width:80%;">
+                    <div style="flex:1;height:6px;background:${t.color};border-radius:4px;opacity:0.8;"></div>
+                    <div style="flex:1;height:6px;background:rgba(255,255,255,0.15);border-radius:4px;"></div>
+                    <div style="flex:1;height:6px;background:rgba(255,255,255,0.15);border-radius:4px;"></div>
+                  </div>
+                </div>
+                <div style="padding:16px;display:flex;flex-direction:column;flex:1;justify-content:space-between;">
+                  <div>
+                    <span style="font-size:11px;font-weight:700;color:${t.color};text-transform:uppercase;">${t.category}</span>
+                    <h4 style="margin:4px 0 6px;color:#ffffff;font-size:15px;">${t.title}</h4>
+                    <p style="font-size:12px;color:#94a3b8;line-height:1.4;margin:0 0 16px;">${t.desc}</p>
+                  </div>
+                  <button class="auth-submit-btn btn-use-template" data-id="${t.id}" style="width:100%;margin:0;padding:10px 14px;font-size:13px;background:${t.color};">
+                    Use template →
+                  </button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+
+        const returnBtn = $('#btnReturnToPageList');
+        if (returnBtn) returnBtn.onclick = () => { mode = 'list'; renderView(); };
+
+        $$('.btn-use-template').forEach(btn => {
+          btn.onclick = () => {
+            const tid = btn.dataset.id;
+            const chosen = templates.find(t => t.id === tid) || templates[0];
+            selectedTemplate = { ...chosen, slug: chosen.title.toLowerCase().replace(/[^a-z0-9]/g, '-') };
+            qrColor = chosen.color;
+            mode = 'configure';
+            renderView();
+          };
+        });
+        return;
+      }
+
+      // 2. Step 2: Configure How to Share Your Page (Frame 14)
+      if (mode === 'configure') {
+        const initialSlug = selectedTemplate.slug || 'my-page';
+        const initialTitle = selectedTemplate.title;
+        const initialTagline = selectedTemplate.tagline;
+
+        container.innerHTML = `
+          <div class="view-header">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <button class="sso-btn" id="btnBackToTemplates" style="width:auto;padding:6px 12px;">←</button>
+              <div>
+                <h2 style="margin:0 0 2px;">Configure how to share your page</h2>
+                <p style="color:#94a3b8;font-size:13px;margin:0;">Setup your link and QR Code to get page visitors</p>
+              </div>
             </div>
           </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:12px;">
-          <a class="auth-submit-btn" style="width:auto;padding:8px 18px;text-decoration:none;font-size:13px;" href="${bioUrl}" target="_blank" rel="noopener">
-            🚀 View Live Page
-          </a>
-          <button class="topbar-icon-btn" title="Copy Bio Link" onclick="window.appShell.copy('${bioUrl}')">📋</button>
-          <button class="topbar-icon-btn" title="Share QR" onclick="window.appShell.navigate('qr-detail', 'bio_qr')">▦</button>
-        </div>
-      </div>
 
-      <!-- Live Create Bio Page Modal / Drawer -->
-      <div id="bioCreateBox" style="display:none;background:#0d172e;border:1px solid rgba(56,189,248,0.3);border-radius:16px;padding:24px;margin-top:24px;">
-        <h3 style="color:#ffffff;margin-top:0;">Create a New Link-in-Bio Page</h3>
-        <p style="color:#94a3b8;font-size:14px;margin-bottom:16px;">Customize your unique bio page URL, profile information, and social links.</p>
+          <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:28px;align-items:flex-start;margin-bottom:60px;">
+            <!-- Left Column: Settings (Frame 14) -->
+            <div class="dash-white-card" style="padding:24px;">
+              <h3 style="color:#ffffff;font-size:18px;margin-top:0;">Page URL</h3>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+                <span style="color:#ffffff;font-size:14px;font-weight:700;">healink.store / m /</span>
+                <input type="text" id="configBioSlug" class="home-shorten-input" style="flex:1;" value="${initialSlug}" required>
+              </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
-          <div class="create-link-field" style="margin:0;">
-            <label>Bio Page Slug (e.g. yourname)</label>
-            <input type="text" id="newBioSlug" placeholder="e.g. alex-creative" required>
+              <!-- Brand with custom domain banner -->
+              <div class="home-cyan-banner" style="margin-bottom:24px;">
+                <span>👑</span>
+                <span>Brand your page with a custom domain. <a href="#" onclick="window.openCheckoutModal('pro'); return false;">View Plans</a></span>
+              </div>
+
+              <!-- Profile Details -->
+              <h3 style="color:#ffffff;font-size:18px;margin:24px 0 14px;">Page Details</h3>
+              <div class="create-link-field">
+                <label>Page Title</label>
+                <input type="text" id="configBioTitle" value="${initialTitle}">
+              </div>
+              <div class="create-link-field">
+                <label>Tagline / Description</label>
+                <input type="text" id="configBioTagline" value="${initialTagline}">
+              </div>
+
+              <!-- QR Code Section (Frame 14) -->
+              <h3 style="color:#ffffff;font-size:18px;margin:24px 0 10px;">QR Code</h3>
+              <div style="margin-bottom:14px;">
+                <label style="font-size:12px;color:#94a3b8;display:block;margin-bottom:8px;">Code color</label>
+                <div style="display:flex;gap:10px;align-items:center;">
+                  ${['#111827', '#ef4444', '#f97316', '#10b981', '#38bdf8', '#8b5cf6', '#ff007f'].map(c => `
+                    <button class="color-dot" data-color="${c}" style="width:24px;height:24px;border-radius:50%;background:${c};border:2px solid ${qrColor === c ? '#ffffff' : 'transparent'};cursor:pointer;"></button>
+                  `).join('')}
+                </div>
+              </div>
+
+              <div style="display:flex;gap:16px;align-items:center;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;">
+                <canvas id="configQrCanvas" width="90" height="90" style="border-radius:8px;background:#ffffff;padding:4px;"></canvas>
+                <div>
+                  <div style="font-weight:700;color:#ffffff;font-size:13px;">Dynamic Landing QR</div>
+                  <div style="font-size:11px;color:#94a3b8;margin-top:2px;">Scans route straight to your Bio Page</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Live Smartphone Mockup (Frame 14) -->
+            <div style="position:sticky;top:20px;">
+              <div style="text-align:center;font-size:12px;color:#94a3b8;margin-bottom:8px;">Live Mobile Preview</div>
+              <div class="phone-mockup">
+                <div class="phone-notch"></div>
+                <div class="phone-screen" id="mockupScreen" style="border-top:3px solid ${qrColor};">
+                  <div style="width:64px;height:64px;border-radius:50%;background:${qrColor};color:#000000;display:grid;place-items:center;font-size:26px;font-weight:900;margin-top:16px;box-shadow:0 8px 24px ${qrColor}50;" id="mockupAvatar">
+                    ${selectedTemplate.icon || '★'}
+                  </div>
+                  <h4 style="color:#ffffff;font-size:17px;font-weight:800;margin:12px 0 4px;text-align:center;" id="mockupTitle">${initialTitle}</h4>
+                  <p style="color:#94a3b8;font-size:11px;margin:0 0 20px;text-align:center;" id="mockupTagline">${initialTagline}</p>
+
+                  <div style="display:flex;flex-direction:column;gap:10px;width:100%;margin-top:10px;">
+                    <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);padding:10px 14px;border-radius:10px;color:#ffffff;font-size:12px;font-weight:700;text-align:center;display:flex;align-items:center;justify-content:space-between;">
+                      <span>🌐 Official Website</span> <span>↗</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);padding:10px 14px;border-radius:10px;color:#ffffff;font-size:12px;font-weight:700;text-align:center;display:flex;align-items:center;justify-content:space-between;">
+                      <span>🛍️ Featured Collection</span> <span>↗</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);padding:10px 14px;border-radius:10px;color:#ffffff;font-size:12px;font-weight:700;text-align:center;display:flex;align-items:center;justify-content:space-between;">
+                      <span>💬 Direct WhatsApp / SMS</span> <span>↗</span>
+                    </div>
+                  </div>
+
+                  <div style="margin-top:auto;padding-top:20px;font-size:10px;color:#64748b;">
+                    Powered by HEA Link
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="create-link-field" style="margin:0;">
-            <label>Display Title</label>
-            <input type="text" id="newBioTitle" placeholder="e.g. Alex Rivera • Creative Studio" required>
+
+          <!-- Sticky Bottom Actions Bar (Frame 14) -->
+          <div class="sticky-bottom-actions">
+            <button class="sso-btn" style="width:auto;padding:10px 22px;" id="btnCancelConfig">← Back</button>
+            <button class="auth-submit-btn" style="margin:0;padding:10px 28px;" id="btnPublishConfiguredPage">Create your page →</button>
           </div>
-        </div>
+        `;
 
-        <div class="create-link-field">
-          <label>Bio Tagline</label>
-          <input type="text" id="newBioTagline" placeholder="e.g. Design Systems &amp; Visual Architecture for Web3">
-        </div>
+        const updateLiveQR = () => {
+          const cv = $('#configQrCanvas');
+          const slug = $('#configBioSlug')?.value.trim().toLowerCase() || 'my-page';
+          if (cv && typeof window.drawQR === 'function') {
+            window.drawQR(cv, `https://healink.store/m/${slug}`, qrColor, '#ffffff', 90);
+          }
+        };
+        setTimeout(updateLiveQR, 40);
 
-        <div style="display:flex;gap:12px;margin-top:20px;">
-          <button class="auth-submit-btn" id="btnSaveBioPage" style="width:auto;padding:10px 24px;">Save &amp; Publish Page</button>
-          <button class="sso-btn" id="btnCancelBio" style="width:auto;padding:10px 20px;">Cancel</button>
-        </div>
-      </div>
+        // Reactive input listeners for live smartphone preview
+        const titleIn = $('#configBioTitle');
+        const tagIn = $('#configBioTagline');
+        const slugIn = $('#configBioSlug');
 
-      <div style="text-align:center;color:#64748b;font-size:13px;margin:40px 0;">
-        — You've reached the end of your Pages —
-      </div>
-    `;
-
-    const createBtn = $('#btnCreateNewPage');
-    const box = $('#bioCreateBox');
-    const cancelBtn = $('#btnCancelBio');
-    const saveBtn = $('#btnSaveBioPage');
-
-    if (createBtn && box) {
-      createBtn.onclick = () => { box.style.display = box.style.display === 'none' ? 'block' : 'none'; };
-    }
-    if (cancelBtn && box) {
-      cancelBtn.onclick = () => { box.style.display = 'none'; };
-    }
-    if (saveBtn) {
-      saveBtn.onclick = async () => {
-        const slug = $('#newBioSlug').value.trim().toLowerCase();
-        const title = $('#newBioTitle').value.trim();
-        const tagline = $('#newBioTagline').value.trim();
-        if (!slug || !title) {
-          toast('Please enter both slug and display title');
-          return;
+        if (titleIn) {
+          titleIn.oninput = () => {
+            const val = titleIn.value.trim() || 'My Page';
+            const mTitle = $('#mockupTitle');
+            if (mTitle) mTitle.textContent = val;
+          };
+        }
+        if (tagIn) {
+          tagIn.oninput = () => {
+            const val = tagIn.value.trim() || 'Welcome to my links';
+            const mTag = $('#mockupTagline');
+            if (mTag) mTag.textContent = val;
+          };
+        }
+        if (slugIn) {
+          slugIn.oninput = updateLiveQR;
         }
 
-        const newPage = {
-          slug,
-          title,
-          tagline,
-          url: `${origin}/m/${slug}`,
-          views: 0,
-          engagements: 0,
-          createdAt: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        // Color swatches selector
+        $$('.color-dot').forEach(dot => {
+          dot.onclick = () => {
+            qrColor = dot.dataset.color;
+            $$('.color-dot').forEach(d => d.style.borderColor = (d === dot ? '#ffffff' : 'transparent'));
+            const scr = $('#mockupScreen');
+            if (scr) scr.style.borderTopColor = qrColor;
+            const av = $('#mockupAvatar');
+            if (av) {
+              av.style.background = qrColor;
+              av.style.boxShadow = `0 8px 24px ${qrColor}50`;
+            }
+            updateLiveQR();
+          };
+        });
+
+        $('#btnBackToTemplates').onclick = () => { mode = 'catalog'; renderView(); };
+        $('#btnCancelConfig').onclick = () => { mode = 'catalog'; renderView(); };
+
+        $('#btnPublishConfiguredPage').onclick = async () => {
+          const slug = ($('#configBioSlug')?.value.trim() || 'my-page').toLowerCase().replace(/[^a-z0-9-]/g, '');
+          const title = $('#configBioTitle')?.value.trim() || selectedTemplate.title;
+          const tagline = $('#configBioTagline')?.value.trim() || selectedTemplate.tagline;
+
+          const newPage = {
+            slug,
+            title,
+            tagline,
+            url: `${origin}/m/${slug}`,
+            color: qrColor,
+            views: 0,
+            engagements: 0,
+            createdAt: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+          };
+
+          pages.unshift(newPage);
+          localStorage.setItem('hea_bios', JSON.stringify(pages));
+
+          // Sync to MongoDB backend
+          try {
+            const s = JSON.parse(localStorage.getItem('hea_session'));
+            if (s && s.token) {
+              await fetch('/api/bios', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.token },
+                body: JSON.stringify({ slug, title, tagline })
+              });
+            }
+          } catch (e) {}
+
+          window.appShell.toast(`Page created successfully: ${newPage.url}`);
+          window.appShell.copy(newPage.url);
+          mode = 'list';
+          renderView();
         };
+        return;
+      }
 
-        pages.unshift(newPage);
-        localStorage.setItem('hea_bios', JSON.stringify(pages));
+      // 3. Default: List View (Frame 11 existing pages)
+      const p = pages[0] || {
+        slug: 'john',
+        title: 'John',
+        tagline: 'Content Creator & Brand Strategist',
+        views: 142,
+        engagements: 89,
+        createdAt: 'Oct 30, 2026'
+      };
+      const bioUrl = `${origin}/m/${p.slug}`;
 
-        // Sync to MongoDB backend
-        try {
-          const s = JSON.parse(localStorage.getItem('hea_session'));
-          if (s && s.token) {
-            await fetch('/api/bios', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.token },
-              body: JSON.stringify({ slug, title, tagline })
-            });
-          }
-        } catch (e) {}
+      container.innerHTML = `
+        <div class="view-header">
+          <h2>HEA Pages (Link-in-Bio)</h2>
+          <button class="sidebar-create-btn" id="btnLaunchTemplateCatalog" style="margin:0;">
+            + Create Page
+          </button>
+        </div>
 
-        toast(`Bio page published: ${newPage.url}`);
-        renderPages(container);
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <input type="text" class="topbar-search-input" style="max-width:320px;" placeholder="Search bio pages by title, handle, or bio...">
+          <span style="font-size:13px;color:#94a3b8;">${pages.length} published page${pages.length === 1 ? '' : 's'}</span>
+        </div>
+
+        <div class="page-row-card">
+          <div style="display:flex;align-items:center;gap:20px;">
+            <div class="page-wireframe-thumb">
+              <span style="font-weight:700;">${p.title}</span>
+              <div class="wireframe-bar"></div>
+              <div class="wireframe-bar"></div>
+              <div class="wireframe-bar"></div>
+            </div>
+            <div>
+              <h3 style="font-size:20px;font-weight:800;color:#ffffff;margin:0 0 6px;">
+                <a href="${bioUrl}" target="_blank" rel="noopener" style="color:#38bdf8;text-decoration:none;">${bioUrl} ↗</a>
+              </h3>
+              <div style="font-size:13px;color:#94a3b8;margin-bottom:8px;">${p.tagline || 'Custom verified landing page'} • Created ${p.createdAt}</div>
+              <div style="display:flex;gap:16px;font-size:13px;color:#cbd5e1;">
+                <span>📊 <b>${p.views || 0}</b> views</span>
+                <span>🎯 <b>${p.engagements || 0}</b> engagements</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <a class="auth-submit-btn" style="width:auto;padding:8px 18px;text-decoration:none;font-size:13px;" href="${bioUrl}" target="_blank" rel="noopener">
+              🚀 View Live Page
+            </a>
+            <button class="topbar-icon-btn" title="Copy Bio Link" onclick="window.appShell.copy('${bioUrl}')">📋</button>
+            <button class="topbar-icon-btn" title="Share QR" onclick="window.appShell.navigate('qr-detail', 'bio_qr')">▦</button>
+          </div>
+        </div>
+
+        <div style="text-align:center;color:#64748b;font-size:13px;margin:40px 0;">
+          — You've reached the end of your Pages —
+        </div>
+      `;
+
+      $('#btnLaunchTemplateCatalog').onclick = () => {
+        mode = 'catalog';
+        renderView();
       };
     }
+
+    renderView();
   }
 
-  // ---------------- 7. ANALYTICS SCREEN (Live MongoDB Data Engine) ---------------- //
+  // ---------------- 7. ANALYTICS SCREEN (Frame 17 Bitly Flow) ---------------- //
   async function renderAnalytics(container) {
     const links = getStoredLinks();
     let totalClicks = links.reduce((a, l) => a + (l.clicks || 0), 0);
@@ -1119,6 +1589,42 @@
           <div style="font-size:13px;color:#94a3b8;margin-bottom:6px;">TOTAL QR SCANS</div>
           <div style="font-size:32px;font-weight:800;color:#ff007f;">${totalScans}</div>
           <div style="font-size:12px;color:#ff007f;margin-top:6px;">📱 Dynamic code scans</div>
+        </div>
+      </div>
+
+      <!-- 3-Step Guided Journey matching Frame 17 -->
+      <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:16px;margin-bottom:24px;">
+        <div class="dash-white-card" style="padding:20px;display:flex;flex-direction:column;justify-content:space-between;">
+          <div>
+            <div style="font-size:11px;font-weight:800;color:#38bdf8;text-transform:uppercase;margin-bottom:6px;">Step 1</div>
+            <h4 style="color:#ffffff;font-size:16px;margin:0 0 8px;">Create links and codes</h4>
+            <p style="color:#94a3b8;font-size:12px;line-height:1.5;margin:0 0 16px;">Transform any long URL into a short, trackable link or QR Code. It's quick, easy, and takes seconds.</p>
+          </div>
+          <button class="sso-btn" style="width:100%;padding:8px;font-size:12px;color:#38bdf8;" onclick="window.appShell.navigate('create-link')">
+            Create a link →
+          </button>
+        </div>
+
+        <div class="dash-white-card" style="padding:20px;display:flex;flex-direction:column;justify-content:space-between;">
+          <div>
+            <div style="font-size:11px;font-weight:800;color:#D4FF24;text-transform:uppercase;margin-bottom:6px;">Step 2</div>
+            <h4 style="color:#ffffff;font-size:16px;margin:0 0 8px;">Share them anywhere</h4>
+            <p style="color:#94a3b8;font-size:12px;line-height:1.5;margin:0 0 16px;">Post on social, include in emails, or share however you want. Every click is tracked in real-time.</p>
+          </div>
+          <button class="sso-btn" style="width:100%;padding:8px;font-size:12px;color:#D4FF24;" onclick="window.appShell.navigate('pages')">
+            Tips to drive engagement →
+          </button>
+        </div>
+
+        <div class="dash-white-card" style="padding:20px;display:flex;flex-direction:column;justify-content:space-between;">
+          <div>
+            <div style="font-size:11px;font-weight:800;color:#ff007f;text-transform:uppercase;margin-bottom:6px;">Step 3</div>
+            <h4 style="color:#ffffff;font-size:16px;margin:0 0 8px;">Come back for insights</h4>
+            <p style="color:#94a3b8;font-size:12px;line-height:1.5;margin:0 0 16px;">Bring your analytics to life—from weekly insights to detailed dashboards about clicks and audience.</p>
+          </div>
+          <button class="auth-submit-btn" style="width:100%;margin:0;padding:8px;font-size:12px;" onclick="window.appShell.exportAnalyticsCSV()">
+            Export report 📥
+          </button>
         </div>
       </div>
 
@@ -1209,13 +1715,30 @@
     }
   }
 
-  // ---------------- 8. CAMPAIGNS SCREEN (Live UTM Builder & Campaign Tracker) ---------------- //
+  // ---------------- 8. CAMPAIGNS SCREEN (Frame 20 Bitly Flow) ---------------- //
   function renderCampaigns(container) {
     container.innerHTML = `
       <div class="view-header">
         <h2>Campaigns &amp; UTM Builder</h2>
         <button class="sso-btn" style="width:auto;padding:8px 16px;color:#38bdf8;font-weight:700;" onclick="window.appShell.navigate('create-link')">
           + New Campaign
+        </button>
+      </div>
+
+      <!-- Hero Banner matching Frame 20 -->
+      <div class="dash-white-card" style="text-align:center;padding:40px 24px;margin-bottom:24px;">
+        <div style="width:160px;height:100px;margin:0 auto 20px;background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.25);border-radius:12px;display:flex;flex-direction:column;justify-content:center;padding:12px;gap:6px;">
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:#ffffff;background:rgba(255,255,255,0.08);padding:4px 8px;border-radius:4px;"><span>TikTok</span> <b>840 clicks</b></div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:#ffffff;background:rgba(255,255,255,0.08);padding:4px 8px;border-radius:4px;"><span>YouTube</span> <b>520 clicks</b></div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:#ffffff;background:rgba(255,255,255,0.08);padding:4px 8px;border-radius:4px;"><span>Direct Mail QR</span> <b>310 scans</b></div>
+        </div>
+
+        <h3 style="font-size:24px;font-weight:800;color:#ffffff;margin:0 0 10px;">Some links belong together</h3>
+        <p style="color:#94a3b8;font-size:14px;max-width:520px;margin:0 auto 20px;line-height:1.5;">
+          Organize your links in HEA Campaigns and compare performance across channels. Available on the Premium plan.
+        </p>
+        <button class="auth-submit-btn" style="width:auto;padding:10px 28px;margin:0 auto;" onclick="window.openCheckoutModal('pro')">
+          View our plans
         </button>
       </div>
 
@@ -1271,21 +1794,6 @@
           </button>
         </div>
       </div>
-
-      <!-- Campaign Channels Overview -->
-      <div class="campaigns-hero-wrap">
-        <div class="campaigns-laptop-illus">
-          <div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:6px;margin-bottom:8px;font-size:11px;font-weight:700;color:#ffffff;">
-            <span>Active Multichannel Campaigns</span>
-            <span style="color:#94a3b8;">5 Channels | Tracked in Database</span>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:6px;text-align:left;font-size:11px;">
-            <div style="background:rgba(255,255,255,0.05);padding:6px 10px;border-radius:6px;color:#cbd5e1;display:flex;justify-content:space-between;"><span>TikTok Ads</span> <b style="color:#38bdf8;">1,420 Clicks</b></div>
-            <div style="background:rgba(255,255,255,0.05);padding:6px 10px;border-radius:6px;color:#cbd5e1;display:flex;justify-content:space-between;"><span>Meta / Instagram</span> <b style="color:#ff007f;">940 Clicks</b></div>
-            <div style="background:rgba(255,255,255,0.05);padding:6px 10px;border-radius:6px;color:#cbd5e1;display:flex;justify-content:space-between;"><span>Google Search</span> <b style="color:#10b981;">620 Clicks</b></div>
-          </div>
-        </div>
-      </div>
     `;
 
     const updatePreview = () => {
@@ -1318,74 +1826,210 @@
     }
   }
 
-  // ---------------- 9. CUSTOM DOMAINS SCREEN (Database Domain Manager) ---------------- //
+  // ---------------- 9. CUSTOM DOMAINS SCREEN (Frame 22 & Frame 23) ---------------- //
   function renderDomains(container) {
-    container.innerHTML = `
-      <div style="margin-bottom:24px;">
-        <h2 style="font-size:28px;font-weight:800;color:#ffffff;margin:0 0 16px;">Brand your links with a custom domain</h2>
-      </div>
+    let domainTab = 'ai'; // 'ai' or 'search'
 
-      <!-- Add Domain Card -->
-      <div class="dash-white-card" style="margin-bottom:24px;padding:24px;">
-        <h3 style="color:#ffffff;margin-top:0;font-size:18px;">🌐 Connect a Custom Domain</h3>
-        <p style="color:#94a3b8;font-size:13px;margin-bottom:16px;">Point a CNAME record from your DNS registrar (GoDaddy, Cloudflare, Namecheap) to <code style="color:#38bdf8;">cname.healink.store</code>.</p>
-
-        <div style="display:flex;gap:12px;max-width:540px;">
-          <input type="text" id="customDomainInput" class="home-shorten-input" style="flex:1;" placeholder="e.g. links.yourbrand.com or go.domain.io" value="go.johnlinks.com">
-          <button class="auth-submit-btn" id="btnAddDomain" style="width:auto;margin:0;padding:10px 22px;">
-            + Connect Domain
-          </button>
-        </div>
-      </div>
-
-      <!-- Active Domains Table -->
-      <div class="dash-white-card" style="padding:20px;">
-        <h4 style="font-size:16px;font-weight:800;color:#ffffff;margin:0 0 16px;">Configured Domains</h4>
-        <div style="display:flex;flex-direction:column;gap:12px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
-            <div>
-              <b style="color:#ffffff;font-size:15px;">healink.store</b>
-              <div style="font-size:12px;color:#94a3b8;">Default Platform Domain · SSL Active</div>
-            </div>
-            <span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;font-size:12px;padding:4px 10px;border-radius:6px;">✓ Primary</span>
-          </div>
-
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
-            <div>
-              <b style="color:#38bdf8;font-size:15px;" id="dispCustomDomain">go.johnlinks.com</b>
-              <div style="font-size:12px;color:#94a3b8;">CNAME: cname.healink.store · Verified</div>
-            </div>
-            <div style="display:flex;gap:8px;align-items:center;">
-              <span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;font-size:12px;padding:4px 10px;border-radius:6px;">🟢 Active</span>
-              <button class="sso-btn" style="width:auto;padding:4px 10px;font-size:12px;" onclick="window.appShell.toast('DNS Verified: All checks passed')">Check DNS</button>
-            </div>
+    function renderView() {
+      container.innerHTML = `
+        <div style="margin-bottom:24px;">
+          <h2 style="font-size:28px;font-weight:800;color:#ffffff;margin:0 0 16px;">Brand your links with a custom domain</h2>
+          
+          <!-- Tabs matching Frame 22 -->
+          <div style="display:flex;gap:10px;margin-bottom:24px;">
+            <button class="home-type-tab ${domainTab === 'search' ? 'active' : ''}" type="button" id="tabDomainSearch" style="padding:8px 20px;font-size:14px;">
+              🔍 Search for a domain
+            </button>
+            <button class="home-type-tab ${domainTab === 'ai' ? 'active' : ''}" type="button" id="tabDomainAi" style="padding:8px 20px;font-size:14px;">
+              ✨ Find a domain with AI
+            </button>
           </div>
         </div>
-      </div>
-    `;
 
-    const addBtn = $('#btnAddDomain');
-    if (addBtn) {
-      addBtn.onclick = async () => {
-        const d = $('#customDomainInput')?.value.trim();
-        if (!d) return;
+        <div id="domainTabContent"></div>
+      `;
 
-        try {
-          const s = JSON.parse(localStorage.getItem('hea_session'));
-          if (s && s.token) {
-            await fetch('/api/domains', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.token },
-              body: JSON.stringify({ domain: d })
-            });
-          }
-        } catch (e) {}
+      $('#tabDomainSearch').onclick = () => { domainTab = 'search'; renderView(); };
+      $('#tabDomainAi').onclick = () => { domainTab = 'ai'; renderView(); };
 
-        const disp = $('#dispCustomDomain');
-        if (disp) disp.textContent = d;
-        toast(`Custom domain "${d}" added and verified!`);
-      };
+      const content = $('#domainTabContent');
+      if (!content) return;
+
+      if (domainTab === 'ai') {
+        content.innerHTML = `
+          <!-- AI Domain Generator matching Frame 22 -->
+          <div class="dash-white-card" style="padding:24px;margin-bottom:24px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+              <span style="font-size:14px;color:#94a3b8;font-weight:600;">Describe your idea, product or service</span>
+              <span style="font-size:12px;color:#64748b;" id="domainCharCount">0/200</span>
+            </div>
+
+            <div style="display:flex;gap:12px;align-items:center;">
+              <input type="text" id="domainAiInput" class="home-shorten-input" style="flex:1;" placeholder="e.g. coffee roasters in Austin, vintage sneaker resale, or AI dev tools..." maxlength="200">
+              <button class="auth-submit-btn" id="btnGenerateAiDomains" style="width:auto;margin:0;padding:12px 26px;display:flex;align-items:center;gap:8px;">
+                ✨ Generate
+              </button>
+            </div>
+          </div>
+
+          <!-- Results Container -->
+          <div id="domainAiResults"></div>
+        `;
+
+        const input = $('#domainAiInput');
+        const counter = $('#domainCharCount');
+        const genBtn = $('#btnGenerateAiDomains');
+        const resBox = $('#domainAiResults');
+
+        if (input && counter) {
+          input.oninput = () => {
+            counter.textContent = `${input.value.length}/200`;
+          };
+          input.onkeydown = e => {
+            if (e.key === 'Enter') genBtn?.click();
+          };
+        }
+
+        if (genBtn && resBox) {
+          genBtn.onclick = () => {
+            const raw = (input?.value || '').trim();
+            const idea = raw ? raw.toLowerCase().replace(/[^a-z0-9]/g, '') : 'brand';
+
+            // Show 4 animated skeleton loaders matching Frame 22
+            resBox.innerHTML = `
+              <div style="margin-top:16px;">
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line"></div>
+              </div>
+            `;
+
+            setTimeout(() => {
+              const tlds = [
+                { ext: '.link', badge: 'Popular' },
+                { ext: '.store', badge: 'Ecommerce' },
+                { ext: '.bio', badge: 'Creator' },
+                { ext: '.chat', badge: 'Community' },
+                { ext: '.io', badge: 'Tech' },
+                { ext: '.app', badge: 'Mobile' },
+                { ext: '.me', badge: 'Personal' },
+                { ext: '.agency', badge: 'Services' }
+              ];
+
+              const suggestions = [
+                `${idea}.link`,
+                `${idea}.store`,
+                `${idea}.bio`,
+                `get${idea}.com`,
+                `${idea}.chat`,
+                `${idea}hq.io`,
+                `${idea}.app`,
+                `${idea}.agency`
+              ];
+
+              resBox.innerHTML = `
+                <div class="dash-white-card" style="padding:8px 20px;">
+                  ${suggestions.map((dom, i) => `
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:${i === suggestions.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.06)'};">
+                      <div style="display:flex;align-items:center;gap:12px;">
+                        <span style="font-size:18px;color:#38bdf8;">🌐</span>
+                        <div>
+                          <b style="color:#ffffff;font-size:15px;font-family:monospace;">${dom}</b>
+                          <span style="font-size:11px;color:#10b981;margin-left:8px;background:rgba(16,185,129,0.12);padding:2px 6px;border-radius:4px;font-weight:700;">Available</span>
+                        </div>
+                      </div>
+                      <button class="sso-btn btn-claim-domain" data-domain="${dom}" style="width:auto;padding:8px 18px;font-size:13px;color:#38bdf8;border-color:rgba(56,189,248,0.3);font-weight:700;">
+                        Upgrade to claim
+                      </button>
+                    </div>
+                  `).join('')}
+                </div>
+                <div style="text-align:center;color:#64748b;font-size:13px;margin:30px 0;">
+                  — You've reached the end of your results —
+                </div>
+              `;
+
+              $$('.btn-claim-domain').forEach(btn => {
+                btn.onclick = () => {
+                  const dName = btn.dataset.domain;
+                  window.appShell.toast(`Selected domain: ${dName}. Upgrading to claim...`);
+                  if (typeof window.openCheckoutModal === 'function') {
+                    window.openCheckoutModal('pro');
+                  }
+                };
+              });
+            }, 450);
+          };
+        }
+      } else {
+        // Search & Manual CNAME connection tab
+        content.innerHTML = `
+          <!-- Add Domain Card -->
+          <div class="dash-white-card" style="margin-bottom:24px;padding:24px;">
+            <h3 style="color:#ffffff;margin-top:0;font-size:18px;">🌐 Connect a Custom Domain</h3>
+            <p style="color:#94a3b8;font-size:13px;margin-bottom:16px;">Point a CNAME record from your DNS registrar (GoDaddy, Cloudflare, Namecheap) to <code style="color:#38bdf8;">cname.healink.store</code>.</p>
+
+            <div style="display:flex;gap:12px;max-width:540px;">
+              <input type="text" id="customDomainInput" class="home-shorten-input" style="flex:1;" placeholder="e.g. links.yourbrand.com or go.domain.io" value="go.johnlinks.com">
+              <button class="auth-submit-btn" id="btnAddDomain" style="width:auto;margin:0;padding:10px 22px;">
+                + Connect Domain
+              </button>
+            </div>
+          </div>
+
+          <!-- Active Domains Table -->
+          <div class="dash-white-card" style="padding:20px;">
+            <h4 style="font-size:16px;font-weight:800;color:#ffffff;margin:0 0 16px;">Configured Domains</h4>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
+                <div>
+                  <b style="color:#ffffff;font-size:15px;">healink.store</b>
+                  <div style="font-size:12px;color:#94a3b8;">Default Platform Domain · SSL Active</div>
+                </div>
+                <span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;font-size:12px;padding:4px 10px;border-radius:6px;">✓ Primary</span>
+              </div>
+
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
+                <div>
+                  <b style="color:#38bdf8;font-size:15px;" id="dispCustomDomain">go.johnlinks.com</b>
+                  <div style="font-size:12px;color:#94a3b8;">CNAME: cname.healink.store · Verified</div>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;font-size:12px;padding:4px 10px;border-radius:6px;">🟢 Active</span>
+                  <button class="sso-btn" style="width:auto;padding:4px 10px;font-size:12px;" onclick="window.appShell.toast('DNS Verified: All checks passed')">Check DNS</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        const addBtn = $('#btnAddDomain');
+        if (addBtn) {
+          addBtn.onclick = async () => {
+            const d = $('#customDomainInput')?.value.trim();
+            if (!d) return;
+
+            try {
+              const s = JSON.parse(localStorage.getItem('hea_session'));
+              if (s && s.token) {
+                await fetch('/api/domains', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.token },
+                  body: JSON.stringify({ domain: d })
+                });
+              }
+            } catch (e) {}
+
+            const disp = $('#dispCustomDomain');
+            if (disp) disp.textContent = d;
+            toast(`Custom domain "${d}" added and verified!`);
+          };
+        }
+      }
     }
+
+    renderView();
   }
 
   // ---------------- 10. INTEGRATIONS SCREEN (Screenshots 12.02.42 AM, 1) ---------------- //
