@@ -182,7 +182,7 @@ const memStore = {
   links: [
     {
       id: 'lnk_1',
-      ownerEmail: 'hayyamameer3030@gmail.com',
+      ownerEmail: 'john@example.com',
       title: 'Claude AI Workspace',
       dest: 'https://claude.ai',
       slug: '3WeOEOz',
@@ -194,7 +194,7 @@ const memStore = {
     },
     {
       id: 'lnk_2',
-      ownerEmail: 'hayyamameer3030@gmail.com',
+      ownerEmail: 'john@example.com',
       title: 'Summer Launch Campaign 2026',
       dest: 'https://myshopify.com',
       slug: 'summer-26',
@@ -208,7 +208,7 @@ const memStore = {
   qrs: [
     {
       id: 'qr_1',
-      ownerEmail: 'hayyamameer3030@gmail.com',
+      ownerEmail: 'john@example.com',
       title: 'Summer Drop QR',
       dest: 'https://myshopify.com',
       color: '#ff007f',
@@ -218,9 +218,9 @@ const memStore = {
   ],
   bios: [
     {
-      slug: 'hayyam',
-      ownerEmail: 'hayyamameer3030@gmail.com',
-      title: 'Hayyam Ameer',
+      slug: 'john',
+      ownerEmail: 'john@example.com',
+      title: 'John',
       tagline: 'Content Creator & Brand Strategist',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=250&q=80',
       theme: 'cyber-dark',
@@ -236,8 +236,8 @@ const memStore = {
   ],
   domains: [
     {
-      domain: 'go.hayyamameer.com',
-      ownerEmail: 'hayyamameer3030@gmail.com',
+      domain: 'go.johnlinks.com',
+      ownerEmail: 'john@example.com',
       status: 'active',
       targetCname: 'cname.healink.store'
     }
@@ -1523,14 +1523,14 @@ app.post('/api/ai/ask', async (req, res) => {
           title: 'AI Quick Shortened',
           dest,
           slug,
-          ownerEmail: email || 'hayyamameer3030@gmail.com',
+          ownerEmail: email || 'john@example.com',
           tag: 'AI Assist'
         });
         await newLink.save();
       } else {
         memStore.links.unshift({
           id: 'lnk_' + Date.now(),
-          ownerEmail: email || 'hayyamameer3030@gmail.com',
+          ownerEmail: email || 'john@example.com',
           title: 'AI Quick Shortened',
           dest,
           slug,

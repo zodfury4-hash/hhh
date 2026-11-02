@@ -17,12 +17,12 @@
 
   // User state matching screenshots
   let appUser = {
-    name: 'Hayyam Ameer',
-    email: 'hayyamameer3030@gmail.com',
+    name: 'John',
+    email: 'john@example.com',
     orgId: 'o_6ljsuhe8q5',
-    city: 'Faisalabad',
-    isp: 'Nayatel Private Limited',
-    avatar: 'HA',
+    city: 'New York',
+    isp: 'Global Internet',
+    avatar: 'JD',
     selectedQrColor: '#ff007f',
     isPro: false,
     plan: 'Free'
@@ -140,7 +140,7 @@
       {
         slug: 'hgrgferf',
         url: 'healink.store/m/hgrgferf',
-        title: 'Hayyam Ameer',
+        title: 'John',
         tagline: 'Content Creator & Brand Strategist',
         createdAt: 'Oct 30, 2026',
         views: 0,
@@ -263,7 +263,7 @@
         </button>
       </div>
 
-      <!-- 2-Card Row: Connect your account & Hi Hayyam Ameer -->
+      <!-- 2-Card Row: Connect your account & Hi John -->
       <div class="dash-row-2">
         <!-- Connect your account (Zapier) -->
         <div class="dash-white-card">
@@ -284,7 +284,7 @@
           </div>
         </div>
 
-        <!-- Hi Hayyam Ameer Progress -->
+        <!-- Hi John Progress -->
         <div class="dash-white-card">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
             <div>
@@ -926,8 +926,8 @@
     const pages = getStoredPages();
     const origin = window.location.origin;
     const p = pages[0] || {
-      slug: 'hayyam',
-      title: 'Hayyam Ameer',
+      slug: 'john',
+      title: 'John',
       tagline: 'Content Creator & Brand Strategist',
       views: 142,
       engagements: 89,
@@ -1323,7 +1323,7 @@
         <p style="color:#94a3b8;font-size:13px;margin-bottom:16px;">Point a CNAME record from your DNS registrar (GoDaddy, Cloudflare, Namecheap) to <code style="color:#38bdf8;">cname.healink.store</code>.</p>
 
         <div style="display:flex;gap:12px;max-width:540px;">
-          <input type="text" id="customDomainInput" class="home-shorten-input" style="flex:1;" placeholder="e.g. links.yourbrand.com or go.domain.io" value="go.hayyamameer.com">
+          <input type="text" id="customDomainInput" class="home-shorten-input" style="flex:1;" placeholder="e.g. links.yourbrand.com or go.domain.io" value="go.johnlinks.com">
           <button class="auth-submit-btn" id="btnAddDomain" style="width:auto;margin:0;padding:10px 22px;">
             + Connect Domain
           </button>
@@ -1344,7 +1344,7 @@
 
           <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
             <div>
-              <b style="color:#38bdf8;font-size:15px;" id="dispCustomDomain">go.hayyamameer.com</b>
+              <b style="color:#38bdf8;font-size:15px;" id="dispCustomDomain">go.johnlinks.com</b>
               <div style="font-size:12px;color:#94a3b8;">CNAME: cname.healink.store · Verified</div>
             </div>
             <div style="display:flex;gap:8px;align-items:center;">
@@ -1974,7 +1974,7 @@ Here are recommended optimizations for your links and campaigns:<br>
     if (appUser.isPro) {
       const orgEl = $('#sidebarOrgName');
       if (orgEl) {
-        orgEl.innerHTML = `${(appUser.name || 'Hayyam').split(' ')[0]}'s Org <span style="background:linear-gradient(135deg,#eab308,#f59e0b);color:#000;font-size:10px;font-weight:800;padding:2px 6px;border-radius:6px;margin-left:4px;">PRO 👑</span>`;
+        orgEl.innerHTML = `${(appUser.name || 'John').split(' ')[0]}'s Org <span style="background:linear-gradient(135deg,#eab308,#f59e0b);color:#000;font-size:10px;font-weight:800;padding:2px 6px;border-radius:6px;margin-left:4px;">PRO 👑</span>`;
       }
       $$('.topbar-upgrade-btn').forEach(b => {
         b.innerHTML = '👑 PRO Active';
@@ -2003,14 +2003,14 @@ Here are recommended optimizations for your links and campaigns:<br>
     const ssoG = $('#ssoGoogleBtn');
     if (ssoG) ssoG.onclick = () => {
       const gUser = {
-        name: 'Hayyam Ameer',
-        email: 'hayyamameer3030@gmail.com',
+        name: 'John',
+        email: 'john@example.com',
         isVerified: true,
         provider: 'google',
-        avatar: 'HA',
-        country: 'Pakistan',
-        city: 'Faisalabad',
-        isp: 'Nayatel Private Limited'
+        avatar: 'JD',
+        country: 'United States',
+        city: 'New York',
+        isp: 'Global Internet'
       };
       localStorage.setItem('hea_session', JSON.stringify(gUser));
       if (typeof session !== 'undefined') session = gUser;
@@ -2021,20 +2021,20 @@ Here are recommended optimizations for your links and campaigns:<br>
       location.hash = '#dashboard';
       navigate('home');
       if (typeof renderNavRight === 'function') renderNavRight();
-      toast('✅ Successfully signed in with Google as Hayyam Ameer!');
+      toast('✅ Successfully signed in with Google as John!');
     };
 
     const ssoA = $('#ssoAppleBtn');
     if (ssoA) ssoA.onclick = () => {
       const aUser = {
-        name: 'Hayyam Ameer',
-        email: 'hayyam.ameer@icloud.com',
+        name: 'John',
+        email: 'john.apple@icloud.com',
         isVerified: true,
         provider: 'apple',
-        avatar: 'HA',
-        country: 'Pakistan',
-        city: 'Faisalabad',
-        isp: 'Nayatel Private Limited'
+        avatar: 'JD',
+        country: 'United States',
+        city: 'New York',
+        isp: 'Global Internet'
       };
       localStorage.setItem('hea_session', JSON.stringify(aUser));
       if (typeof session !== 'undefined') session = aUser;
@@ -2098,7 +2098,7 @@ Here are recommended optimizations for your links and campaigns:<br>
 
     const orgEl = $('#sidebarOrgName');
     if (orgEl) {
-      orgEl.innerHTML = `${(appUser.name || 'Hayyam').split(' ')[0]}'s Org <span style="background:linear-gradient(135deg,#eab308,#f59e0b);color:#000;font-size:10px;font-weight:800;padding:2px 6px;border-radius:6px;margin-left:4px;">PRO 👑</span>`;
+      orgEl.innerHTML = `${(appUser.name || 'John').split(' ')[0]}'s Org <span style="background:linear-gradient(135deg,#eab308,#f59e0b);color:#000;font-size:10px;font-weight:800;padding:2px 6px;border-radius:6px;margin-left:4px;">PRO 👑</span>`;
     }
 
     $$('.topbar-upgrade-btn').forEach(b => {

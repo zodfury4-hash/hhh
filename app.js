@@ -423,9 +423,9 @@ const MEGA = {
       </div>
 
       <!-- Col 3: Featured Card -->
-      <div class="mega-side-card" style="background:linear-gradient(135deg,#fff7ed,#fef3c7);border-color:#fed7aa">
+      <div class="mega-side-card">
         <h4>FEATURED</h4>
-        <div style="border-radius:10px;background:#fde68a;height:90px;display:grid;place-items:center;font-size:32px;">📈</div>
+        <div style="border-radius:10px;background:rgba(251,146,60,0.12);border:1px solid rgba(251,146,60,0.25);height:90px;display:grid;place-items:center;font-size:32px;">📈</div>
         <div>
           <span class="pill" style="font-size:10px;padding:3px 8px;background:#ea580c;color:#fff">RESEARCH REPORT</span>
           <b style="display:block;font-size:13px;margin-top:6px;color:var(--ink)">The Click Expectation Report</b>
@@ -1392,14 +1392,14 @@ function setupSsoButtons() {
 
       setTimeout(() => {
         const gUser = {
-          name: 'Hayyam Ameer',
-          email: 'hayyamameer3030@gmail.com',
+          name: 'John',
+          email: 'john@example.com',
           isVerified: true,
           provider: 'google',
-          avatar: 'HA',
-          country: 'Pakistan',
-          city: 'Faisalabad',
-          isp: 'Nayatel Private Limited'
+          avatar: 'JD',
+          country: 'United States',
+          city: 'New York',
+          isp: 'Global Internet'
         };
 
         session = gUser;
@@ -1422,7 +1422,7 @@ function setupSsoButtons() {
           window.appShell.navigate('home');
         }
 
-        toast('✅ Successfully signed in with Google as Hayyam Ameer!');
+        toast('✅ Successfully signed in with Google as John!');
         ssoGoogle.disabled = false;
         ssoGoogle.innerHTML = origHtml;
       }, 350);
@@ -1441,14 +1441,14 @@ function setupSsoButtons() {
 
       setTimeout(() => {
         const aUser = {
-          name: 'Hayyam Ameer',
-          email: 'hayyam.ameer@icloud.com',
+          name: 'John',
+          email: 'john.apple@icloud.com',
           isVerified: true,
           provider: 'apple',
-          avatar: 'HA',
-          country: 'Pakistan',
-          city: 'Faisalabad',
-          isp: 'Nayatel Private Limited'
+          avatar: 'JD',
+          country: 'United States',
+          city: 'New York',
+          isp: 'Global Internet'
         };
 
         session = aUser;
@@ -1640,12 +1640,12 @@ $('#authForm').onsubmit = async e => {
       }
 
       session = {
-        name: user.name || 'Hayyam Ameer',
+        name: user.name || 'John',
         email: user.email,
         isVerified: true,
-        country: 'Pakistan',
-        city: 'Faisalabad',
-        isp: 'Nayatel Private Limited'
+        country: 'United States',
+        city: 'New York',
+        isp: 'Global Internet'
       };
       store.set('hea_session', session);
       if (window.appShell && typeof window.appShell.setAppUser === 'function') {
@@ -1735,12 +1735,12 @@ if (verifyForm) {
         user.isVerified = true;
         store.set('hea_users', users);
         session = {
-          name: user.name || 'Hayyam Ameer',
+          name: user.name || 'John',
           email: user.email,
           isVerified: true,
-          country: 'Pakistan',
-          city: 'Faisalabad',
-          isp: 'Nayatel Private Limited'
+          country: 'United States',
+          city: 'New York',
+          isp: 'Global Internet'
         };
         store.set('hea_session', session);
         if (window.appShell && typeof window.appShell.setAppUser === 'function') {
@@ -1970,12 +1970,12 @@ if (forgotStep2Form) {
         store.set('hea_users', users);
 
         session = {
-          name: (user && user.name) || 'Hayyam Ameer',
+          name: (user && user.name) || 'John',
           email: pendingForgotEmail,
           isVerified: true,
-          country: 'Pakistan',
-          city: 'Faisalabad',
-          isp: 'Nayatel Private Limited'
+          country: 'United States',
+          city: 'New York',
+          isp: 'Global Internet'
         };
         store.set('hea_session', session);
       }
@@ -2583,8 +2583,8 @@ function openCheckoutModal(plan = 'pro') {
     if (sess.name && $('#payName')) $('#payName').value = sess.name;
     if (sess.email && $('#payEmail')) $('#payEmail').value = sess.email;
   } else {
-    if ($('#payName') && !$('#payName').value) $('#payName').value = 'Hayyam Ameer';
-    if ($('#payEmail') && !$('#payEmail').value) $('#payEmail').value = 'hayyamameer3030@gmail.com';
+    if ($('#payName') && !$('#payName').value) $('#payName').value = 'John';
+    if ($('#payEmail') && !$('#payEmail').value) $('#payEmail').value = 'john@example.com';
   }
 
   modal.hidden = false;
@@ -2697,8 +2697,8 @@ function setupCheckoutModal() {
       let s = store.get('hea_session', null);
       if (!s) {
         s = {
-          name: $('#payName')?.value.trim() || 'Hayyam Ameer',
-          email: $('#payEmail')?.value.trim() || 'hayyamameer3030@gmail.com',
+          name: $('#payName')?.value.trim() || 'John',
+          email: $('#payEmail')?.value.trim() || 'john@example.com',
           isVerified: true
         };
       }
