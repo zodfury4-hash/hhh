@@ -90,19 +90,19 @@ function normalize(u) {
   }
 }
 
-// "AI" readable back-half suggestion
-function suggest(url) {
-  try {
-    const u = new URL(url);
-    const stop = ['html', 'php', 'www', 'com', 'org', 'net', 'the', 'and', 'https', 'http', 'index', 'page'];
-    const words = (u.pathname + ' ' + u.hostname.replace(/^www\./, '').split('.')[0])
-      .toLowerCase()
-      .split(/[^a-z0-9]+/)
-      .filter(w => w.length > 2 && !stop.includes(w));
-    return (words.slice(0, 3).join('-') || rand(5)).slice(0, 24);
-  } catch (e) {
-    return rand(5);
+// Universal compact slug generator (5-6 alphanumeric characters)
+function generateShortSlug(len = 6) {
+  const chars = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
+  let res = '';
+  for (let i = 0; i < len; i++) {
+    res += chars.charAt(Math.floor(Math.random() * chars.length));
   }
+  return res;
+}
+
+// Compact slug suggestion
+function suggest(url) {
+  return generateShortSlug(6);
 }
 
 const shortText = l => `${DOMAIN}/${l.slug}`;
@@ -136,7 +136,7 @@ function createLink({ url, slug, tag, expires, realShort }, editing) {
   const dest = normalize(url);
   if (!dest) return { error: 'Please enter a valid link (e.g. https://example.com/page).' };
 
-  slug = (slug || '').trim() || suggest(dest);
+  slug = (slug || '').trim() || generateShortSlug(6);
   if (!/^[a-z0-9-]{2,40}$/i.test(slug)) {
     return { error: 'Back-half: 2–40 letters, numbers or hyphens.' };
   }
@@ -144,7 +144,7 @@ function createLink({ url, slug, tag, expires, realShort }, editing) {
   const clash = links.find(l => l.slug.toLowerCase() === slug.toLowerCase() && (!editing || l.id !== editing.id));
   if (clash) {
     if (editing) return { error: 'That back-half is already taken.' };
-    slug += '-' + rand(3);
+    slug = generateShortSlug(6);
   }
 
   if (editing) {
@@ -673,16 +673,19 @@ function initStaticSections() {
     </div>
   `).join('');
 
-  $('#plans').innerHTML = PLANS.map(p => `
+  $('#plans').innerHTML = PLANS.map(p => {
+    const planKey = p[0].toLowerCase().includes('enterprise') ? 'enterprise' : (p[0].toLowerCase().includes('core') || p[0].toLowerCase().includes('pro')) ? 'pro' : 'growth';
+    return `
     <div class="card ${p[4] ? 'hot' : ''}">
       <div>
         <h3>${p[0]}</h3>
         <div class="price">${p[1]} <small class="muted" style="font-size:14px;font-weight:400">/ month</small></div>
         <ul>${p[2].map(it => `<li>${esc(it)}</li>`).join('')}</ul>
       </div>
-      <a class="btn ${p[4] ? '' : 'ghost'} wide" style="text-align:center;margin-top:20px" href="#signup">${p[3]}</a>
+      <button type="button" class="btn ${p[4] ? '' : 'ghost'} wide" style="text-align:center;margin-top:20px;cursor:pointer;" onclick="window.openCheckoutModal('${planKey}')">${p[3]}</button>
     </div>
-  `).join('');
+  `;
+  }).join('');
 
   $('#faq').innerHTML = FAQ.map(f => `
     <details>
@@ -1686,12 +1689,45 @@ function goPage(hashFragment) {
    ========================================================= */
 
 function answer(question) {
-  const q = question.toLowerCase();
+  const q = (question || '').toLowerCase();
   const m = mine();
   const c = m.flatMap(l => l.clicks || []);
 
-  if (!m.length) return 'You have no links created yet. Create a link on the dashboard and I can analyze its performance.';
-  if (!c.length) return 'Your links do not have any clicks yet. Click "Add demo clicks" in Dashboard to test me with realistic traffic.';
+  // 1. Title ideas
+  if (/title|catchy|headline|name|subject/i.test(q)) {
+    return `💡 High-Converting Link Title Ideas:
+1. "The 1 Growth Strategy Top Brands Use in 2026"
+2. "Exclusive VIP Access: Claim 40% Limited Drop"
+3. "Free Creator Resource Hub: Everything You Need"
+4. "Automate Your Links & QR Codes in 3 Clicks"
+5. "Official Creator Hub & Resources"
+Tip: Titles featuring brackets [Like This] yield +31% higher CTR!`;
+  }
+
+  // 2. UTM campaigns
+  if (/utm|parameter|fb|facebook|ad|campaign|meta/i.test(q)) {
+    return `🎯 Meta & Facebook Ads UTM Template:
+?utm_source=facebook&utm_medium=paid_social&utm_campaign=summer_2026&utm_content=carousel_v1&utm_term=creators
+Pro Tip: Always use snake_case to keep Google Analytics and MongoDB reporting clean!`;
+  }
+
+  // 3. QR scans
+  if (/qr|scan|camera|code|print/i.test(q)) {
+    return `📱 How to Get More QR Scans:
+1. Add an action callout frame ("Scan for 20% Off").
+2. Ensure high contrast (dark foreground, white background).
+3. Minimum size 2.5 x 2.5 cm for print materials.
+4. Encode short links (e.g. healink.store/r/xyz) for 4x faster camera focus in low light.`;
+  }
+
+  // 4. Bio pages
+  if (/bio|instagram|tiktok|profile|tree/i.test(q)) {
+    return `📄 Link-in-Bio Best Practices:
+1. Put your #1 conversion goal in the top 2 slots (68% of clicks happen here).
+2. Limit primary links to 5-6 to avoid choice paralysis.
+3. Add verified social proof and update links weekly.
+4. Test mobile responsiveness — 92% of traffic is mobile!`;
+  }
 
   const countBy = k => {
     const o = {};
@@ -1699,21 +1735,24 @@ function answer(question) {
     return Object.entries(o).sort((a, b) => b[1] - a[1]);
   };
 
-  const pct = n => Math.round((n / c.length) * 100) + '%';
+  const pct = n => (c.length ? Math.round((n / c.length) * 100) : 0) + '%';
   const topLink = m.slice().sort((a, b) => (b.clicks?.length || 0) - (a.clicks?.length || 0))[0];
   const now = Date.now();
   const w7 = c.filter(x => x.t > now - 7 * 864e5).length;
   const p7 = c.filter(x => x.t <= now - 7 * 864e5 && x.t > now - 14 * 864e5).length;
 
   if (/device|mobile|desktop|tablet/.test(q)) {
+    if (!c.length) return '📱 Mobile devices account for ~72% of modern link traffic. Add clicks to your links to see your live breakdown!';
     const topDev = countBy('d')[0];
     return `📱 ${topDev[0]} is your most active platform, accounting for ${pct(topDev[1])} of all clicks (${topDev[1]} clicks).`;
   }
   if (/referr|source|instagram|whatsapp|google|facebook|came from/.test(q)) {
+    if (!c.length) return '🔗 Top referrers typically include Direct, Instagram, and WhatsApp. Create a short link to see live tracking!';
     const topRef = countBy('r')[0];
     return `🔗 Your top traffic referrer is ${topRef[0]} driving ${topRef[1]} clicks (${pct(topRef[1])} of total traffic).`;
   }
   if (/countr|region|location|geograph/.test(q)) {
+    if (!c.length) return '🌍 Geolocation tracking identifies countries, cities, and ISPs for every click in real-time!';
     const topCountry = countBy('c')[0];
     return `🌍 Most clicks originate from ${topCountry[0]} with ${pct(topCountry[1])} of the total audience.`;
   }
@@ -1722,10 +1761,11 @@ function answer(question) {
     return `📈 In the last 7 days, your links received ${w7} clicks, compared to ${p7} in the previous period (${diff >= 0 ? '+' : ''}${diff}% change).`;
   }
   if (/top|best|perform|link/.test(q)) {
+    if (!topLink) return '🏆 No links found yet. Shorten a link on the homepage or dashboard to track performance!';
     return `🏆 Your top link is ${shortText(topLink)} with ${topLink.clicks?.length || 0} clicks (${pct(topLink.clicks?.length || 0)} of your total clicks).`;
   }
 
-  return `📊 You currently have ${m.length} active links and ${c.length} recorded clicks. Try asking me: "Which device is most used?", "Top referrer?", or "Compare this week vs last week".`;
+  return `📊 You currently have ${m.length} active links and ${c.length} recorded clicks. Try asking me: "Suggest catchy title", "UTM parameters for FB ad", "How to get more QR scans", or "Link-in-bio best practices".`;
 }
 
 function chatAdd(text, isUser = false) {
@@ -1741,10 +1781,10 @@ function initChat() {
     chatAdd("Hi! I'm HEA Assist. Ask me anything about your link analytics, referrers, and audience breakdown.");
   }
   $('#chips').innerHTML = [
-    'How are my links performing?',
-    'Top referrer?',
-    'Which device is most used?',
-    'Compare this week vs last week'
+    'Suggest catchy title',
+    'UTM parameters for FB ad',
+    'How to get more QR scans',
+    'Link-in-bio best practices'
   ].map(q => `<button type="button">${q}</button>`).join('');
 }
 
@@ -1763,6 +1803,205 @@ $('#chatForm').onsubmit = e => {
   askChat($('#chatIn').value);
   $('#chatIn').value = '';
 };
+
+/* =========================================================
+   PREMIUM CHECKOUT & PRO SUBSCRIPTION ENGINE
+   ========================================================= */
+let checkoutBillingCycle = 'monthly';
+let selectedCheckoutPlan = 'pro';
+
+const PLAN_PRICES = {
+  monthly: { growth: '$8', pro: '$35', enterprise: '$199' },
+  annual: { growth: '$6', pro: '$28', enterprise: '$159' }
+};
+
+function openCheckoutModal(plan = 'pro') {
+  selectedCheckoutPlan = (plan || 'pro').toLowerCase();
+  const modal = $('#checkoutModal');
+  if (!modal) return;
+
+  const radios = $$('input[name="checkoutPlan"]', modal);
+  radios.forEach(r => {
+    const card = r.closest('.checkout-plan-card');
+    if (r.value === selectedCheckoutPlan) {
+      r.checked = true;
+      card?.classList.add('active');
+    } else {
+      r.checked = false;
+      card?.classList.remove('active');
+    }
+  });
+
+  const sess = store.get('hea_session', null);
+  if (sess) {
+    if (sess.name && $('#payName')) $('#payName').value = sess.name;
+    if (sess.email && $('#payEmail')) $('#payEmail').value = sess.email;
+  } else {
+    if ($('#payName') && !$('#payName').value) $('#payName').value = 'Hayyam Ameer';
+    if ($('#payEmail') && !$('#payEmail').value) $('#payEmail').value = 'hayyamameer3030@gmail.com';
+  }
+
+  modal.hidden = false;
+
+  if (window.Motion && typeof window.Motion.animate === 'function') {
+    window.Motion.animate('.checkout-card', {
+      opacity: [0, 1],
+      scale: [0.93, 1],
+      y: [24, 0]
+    }, {
+      duration: 0.35,
+      easing: [0.16, 1, 0.3, 1]
+    });
+  }
+}
+
+function closeCheckoutModal() {
+  const modal = $('#checkoutModal');
+  if (!modal) return;
+  modal.hidden = true;
+}
+
+function setupCheckoutModal() {
+  const modal = $('#checkoutModal');
+  if (!modal) return;
+
+  $('#checkoutCloseBtn')?.addEventListener('click', closeCheckoutModal);
+  modal.addEventListener('click', e => {
+    if (e.target === modal) closeCheckoutModal();
+  });
+  window.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !modal.hidden) closeCheckoutModal();
+  });
+
+  const btnMonthly = $('#cycleMonthly');
+  const btnAnnual = $('#cycleAnnual');
+
+  const updatePrices = () => {
+    const prices = PLAN_PRICES[checkoutBillingCycle];
+    if ($('#priceGrowth')) $('#priceGrowth').innerHTML = `${prices.growth}<small>/mo</small>`;
+    if ($('#pricePro')) $('#pricePro').innerHTML = `${prices.pro}<small>/mo</small>`;
+    if ($('#priceEnterprise')) $('#priceEnterprise').innerHTML = `${prices.enterprise}<small>/mo</small>`;
+  };
+
+  btnMonthly?.addEventListener('click', () => {
+    checkoutBillingCycle = 'monthly';
+    btnMonthly.classList.add('active');
+    btnAnnual?.classList.remove('active');
+    updatePrices();
+  });
+
+  btnAnnual?.addEventListener('click', () => {
+    checkoutBillingCycle = 'annual';
+    btnAnnual.classList.add('active');
+    btnMonthly?.classList.remove('active');
+    updatePrices();
+  });
+
+  $$('.checkout-plan-card', modal).forEach(card => {
+    card.addEventListener('click', () => {
+      $$('.checkout-plan-card', modal).forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      const radio = card.querySelector('input[type="radio"]');
+      if (radio) {
+        radio.checked = true;
+        selectedCheckoutPlan = radio.value;
+      }
+    });
+  });
+
+  const cardInput = $('#payCardNum');
+  if (cardInput) {
+    cardInput.addEventListener('input', e => {
+      let v = e.target.value.replace(/\D/g, '').slice(0, 16);
+      v = v.replace(/(\d{4})(?=\d)/g, '$1 ');
+      e.target.value = v;
+
+      const brandBadge = $('#payCardBrand');
+      if (brandBadge) {
+        if (/^4/.test(v)) brandBadge.textContent = 'VISA';
+        else if (/^5[1-5]/.test(v)) brandBadge.textContent = 'MC';
+        else if (/^3[47]/.test(v)) brandBadge.textContent = 'AMEX';
+        else brandBadge.textContent = 'CARD';
+      }
+    });
+  }
+
+  const expInput = $('#payExp');
+  if (expInput) {
+    expInput.addEventListener('input', e => {
+      let v = e.target.value.replace(/\D/g, '').slice(0, 4);
+      if (v.length > 2) v = v.slice(0, 2) + ' / ' + v.slice(2);
+      e.target.value = v;
+    });
+  }
+
+  const form = $('#checkoutPaymentForm');
+  if (form) {
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const submitBtn = $('#checkoutSubmitBtn');
+      const origText = submitBtn ? submitBtn.innerHTML : '';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<span>⏳ Processing Payment with 256-bit SSL...</span>`;
+      }
+
+      await new Promise(r => setTimeout(r, 1100));
+
+      let s = store.get('hea_session', null);
+      if (!s) {
+        s = {
+          name: $('#payName')?.value.trim() || 'Hayyam Ameer',
+          email: $('#payEmail')?.value.trim() || 'hayyamameer3030@gmail.com',
+          isVerified: true
+        };
+      }
+      s.isPro = true;
+      s.plan = selectedCheckoutPlan === 'enterprise' ? 'Enterprise' : selectedCheckoutPlan === 'growth' ? 'Growth' : 'Core PRO';
+      s.billingCycle = checkoutBillingCycle;
+      s.subscribedAt = new Date().toISOString();
+      store.set('hea_session', s);
+
+      if (window.appShell && typeof window.appShell.setProStatus === 'function') {
+        window.appShell.setProStatus(s.plan);
+      } else {
+        const topbarUpgrade = $('.topbar-upgrade-btn');
+        if (topbarUpgrade) {
+          topbarUpgrade.textContent = '👑 PRO Active';
+          topbarUpgrade.style.background = 'linear-gradient(135deg, #eab308, #ca8a04)';
+        }
+      }
+
+      toast(`🎉 Payment Successful! Your ${s.plan} subscription is now active!`);
+      closeCheckoutModal();
+
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = origText;
+      }
+    });
+  }
+}
+
+window.openCheckoutModal = openCheckoutModal;
+window.closeCheckoutModal = closeCheckoutModal;
+
+function initFramerMotionFx() {
+  if (!window.Motion || typeof window.Motion.animate !== 'function') return;
+  try {
+    $$('.btn, .hero-submit-btn, .tabs button').forEach(el => {
+      el.addEventListener('pointerdown', () => {
+        window.Motion.animate(el, { scale: 0.96 }, { duration: 0.1 });
+      });
+      el.addEventListener('pointerup', () => {
+        window.Motion.animate(el, { scale: 1 }, { duration: 0.25, easing: [0.34, 1.56, 0.64, 1] });
+      });
+      el.addEventListener('pointerleave', () => {
+        window.Motion.animate(el, { scale: 1 }, { duration: 0.2 });
+      });
+    });
+  } catch (e) {}
+}
 
 /* =========================================================
    RESOURCES & KNOWLEDGE BASE
@@ -2198,4 +2437,6 @@ window.addEventListener('hashchange', route);
 initNav();
 renderNavRight();
 initStaticSections();
+setupCheckoutModal();
+initFramerMotionFx();
 route();

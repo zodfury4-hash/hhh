@@ -21,6 +21,7 @@
     initGsapAnimations();
     initSkipprSlider();
     initInteractive3DTilt();
+    initFramerMotionEngine();
   }
 
   /* ---------------------------------------------------------
@@ -774,5 +775,42 @@
       renderer.render(scene, camera);
     }
     animate();
+  }
+
+  /* ---------------------------------------------------------
+     5. FRAMER MOTION (Motion One) SPRING MICRO-INTERACTIONS
+     --------------------------------------------------------- */
+  function initFramerMotionEngine() {
+    if (typeof window.Motion === 'undefined' || typeof window.Motion.animate !== 'function') return;
+
+    const { animate } = window.Motion;
+
+    // 1. Tactile spring physics on all interactive buttons
+    document.querySelectorAll('.btn, .hero-submit-btn, .tabs button, .hero-features-strip .feat-item, .plans .card, .cycle-tab, .checkout-submit-btn').forEach(el => {
+      el.addEventListener('pointerdown', () => {
+        animate(el, { scale: 0.96 }, { duration: 0.1 });
+      });
+      el.addEventListener('pointerup', () => {
+        animate(el, { scale: 1 }, { duration: 0.25, easing: [0.34, 1.56, 0.64, 1] });
+      });
+      el.addEventListener('pointerleave', () => {
+        animate(el, { scale: 1 }, { duration: 0.2 });
+      });
+    });
+
+    // 2. Smooth floating spring on floating glass stat badges
+    const statCards = document.querySelectorAll('.cyber-float-card');
+    statCards.forEach((card, idx) => {
+      const delay = idx * 0.4;
+      animate(card, {
+        y: [-4, 6, -4],
+        rotate: [idx === 0 ? -1 : 1, idx === 0 ? 1 : -1, idx === 0 ? -1 : 1]
+      }, {
+        duration: 4.5 + idx * 0.8,
+        delay: delay,
+        repeat: Infinity,
+        easing: 'ease-in-out'
+      });
+    });
   }
 })();

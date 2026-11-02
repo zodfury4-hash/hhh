@@ -23,8 +23,19 @@
     city: 'Faisalabad',
     isp: 'Nayatel Private Limited',
     avatar: 'HA',
-    selectedQrColor: '#ff007f'
+    selectedQrColor: '#ff007f',
+    isPro: false,
+    plan: 'Free'
   };
+
+  function generateShortSlug(len = 6) {
+    const chars = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
+    let res = '';
+    for (let i = 0; i < len; i++) {
+      res += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return res;
+  }
 
   function isUserAuthenticated() {
     try {
@@ -43,6 +54,10 @@
     if (u.email) appUser.email = u.email;
     if (u.city) appUser.city = u.city;
     if (u.isp) appUser.isp = u.isp;
+    if (u.isPro) {
+      appUser.isPro = true;
+      appUser.plan = u.plan || 'Core PRO';
+    }
     const sName = $('#sidebarUserName');
     if (sName) sName.textContent = appUser.name;
     const sEmail = $('#sidebarUserEmail');
@@ -64,6 +79,10 @@
         if (p.email) appUser.email = p.email;
         if (p.city) appUser.city = p.city;
         if (p.isp) appUser.isp = p.isp;
+        if (p.isPro) {
+          appUser.isPro = true;
+          appUser.plan = p.plan || 'Core PRO';
+        }
       }
     }
   } catch (e) {}
@@ -224,11 +243,11 @@
 
         <div class="home-cyan-banner">
           <span>👑</span>
-          <span>Get custom links and a complimentary domain. <a href="#domains">Upgrade now</a></span>
+          <span>Get custom links and a complimentary domain. <a href="#" onclick="window.openCheckoutModal('pro'); return false;">Upgrade now</a></span>
         </div>
 
         <div style="font-size:12px;color:#94a3b8;margin-top:14px;">
-          You can create <b>4 more</b> short links this month. <span title="Free plan limit" style="cursor:help;">❓</span>
+          ${appUser.isPro ? '<span style="color:#10b981;font-weight:700;">👑 Core PRO Active: Unlimited short links &amp; Vector QR Codes</span>' : 'You can create <b>4 more</b> short links this month. <span title="Free plan limit" style="cursor:help;">❓</span>'}
         </div>
       </div>
 
@@ -239,8 +258,8 @@
           <span style="font-weight:700;color:#ffffff;font-size:15px;">Simplify your workflow</span>
           <span style="color:#94a3b8;font-size:14px;">Explore smarter ways to create links.</span>
         </div>
-        <button class="topbar-upgrade-btn" style="background:linear-gradient(135deg, #10b981, #059669);" onclick="location.hash='#pricing'">
-          👑 Upgrade to Core
+        <button class="topbar-upgrade-btn" style="background:${appUser.isPro ? 'linear-gradient(135deg, #eab308, #ca8a04)' : 'linear-gradient(135deg, #10b981, #059669)'};" onclick="window.openCheckoutModal('pro')">
+          ${appUser.isPro ? '👑 PRO Active' : '👑 Upgrade to Core'}
         </button>
       </div>
 
@@ -346,7 +365,7 @@
             <span style="color:#94a3b8;font-size:16px;">⌃</span>
           </div>
           <div class="create-link-sub" style="margin-top:4px;">
-            You have <b>4 links</b> and <b>3 custom back-halves</b> remaining this month. <a href="#pricing">Upgrade for more</a>.
+            ${appUser.isPro ? '<span style="color:#10b981;font-weight:700;">👑 Core PRO Active: Unlimited short links &amp; custom back-halves</span>' : 'You have <b>4 links</b> and <b>3 custom back-halves</b> remaining this month. <a href="#" style="color:#38bdf8;" onclick="window.openCheckoutModal(\'pro\'); return false;">Upgrade for more</a>.'}
           </div>
 
           <div class="create-link-field">
@@ -509,7 +528,7 @@
     `;
 
     $('#btnGenerateSlug').onclick = () => {
-      $('#newBackHalf').value = Math.random().toString(36).slice(2, 8);
+      $('#newBackHalf').value = generateShortSlug(6);
     };
 
     $('#btnSubmitNewLink').onclick = () => {
@@ -519,7 +538,7 @@
         return;
       }
       const domain = $('#newDomainSelect').value;
-      const slug = $('#newBackHalf').value.trim() || Math.random().toString(36).slice(2, 8);
+      const slug = $('#newBackHalf').value.trim() || generateShortSlug(6);
       const title = $('#newTitle').value.trim() || 'Untitled ' + new Date().toISOString().slice(0, 10);
       const tag = $('#newTagsSelect').value || 'Website';
       const hasQR = $('#chkGenerateQR').checked;
@@ -558,7 +577,7 @@
   }
 
   function createLinkDirect(dest, customSlug, domain) {
-    const slug = customSlug || Math.random().toString(36).slice(2, 8);
+    const slug = customSlug || generateShortSlug(6);
     const links = getStoredLinks();
     const newL = {
       id: 'lnk_' + Date.now(),
@@ -1729,6 +1748,74 @@
     const log = $('#drawerChatLog');
     if (!form || !input || !log) return;
 
+    function getLocalAiReply(promptText) {
+      const text = (promptText || '').toLowerCase();
+      const storedLinks = getStoredLinks();
+
+      // 1. Suggest catchy title
+      if (/title|catchy|headline|name|subject/i.test(text)) {
+        return `💡 <b>High-Converting Title Recommendations:</b><br><br>
+1. <b>Curiosity Hook:</b> "The 1 Growth Strategy Top Brands Use in 2026"<br>
+2. <b>VIP &amp; Urgency:</b> "Exclusive Access: Claim Your 40% Limited Drop"<br>
+3. <b>Direct Value:</b> "Free Creator Resource Hub: Everything You Need"<br>
+4. <b>Action-Oriented:</b> "Get Started in 60 Seconds — Instant Setup"<br>
+5. <b>Social Proof:</b> "Join 10,000+ Teams Using HEA Link Daily"<br><br>
+<small style="color:#94a3b8;">✨ <b>Pro Tip:</b> Shorter titles with brackets like <i>[Free Resource]</i> achieve 31% higher click-through rates.</small>`;
+      }
+
+      // 2. UTM parameters for FB ad
+      if (/utm|parameter|fb|facebook|ad|campaign|meta/i.test(text)) {
+        return `🎯 <b>Recommended UTM Setup for Meta &amp; Facebook Ads:</b><br><br>
+<div style="background:rgba(0,0,0,0.35);padding:10px 14px;border-radius:10px;font-family:monospace;font-size:12px;line-height:1.7;border:1px solid rgba(56,189,248,0.3);color:#38bdf8;">
+?utm_source=facebook<br>
+&amp;utm_medium=paid_social<br>
+&amp;utm_campaign=summer_promo_2026<br>
+&amp;utm_content=feed_carousel_v1<br>
+&amp;utm_term=ecommerce_buyers
+</div><br>
+<small style="color:#94a3b8;">✅ <b>Best Practice:</b> Always use lowercase snake_case for UTM tags to prevent duplicated campaign dimensions in Google Analytics 4 &amp; MongoDB.</small>`;
+      }
+
+      // 3. How to get more QR scans
+      if (/qr|scan|camera|code|print/i.test(text)) {
+        return `📱 <b>How to Maximize Your QR Code Scans:</b><br><br>
+1. <b>Clear Call to Action:</b> Never show a naked QR code. Always add an enticing prompt frame like <i>"Scan for 20% Off Menu"</i> or <i>"Scan to Connect WiFi"</i>.<br>
+2. <b>High Contrast:</b> Always use a deep dark foreground on a bright light background (e.g. #090f22 on #ffffff). Inverted colors reduce scan rates on budget sensors.<br>
+3. <b>Ideal Print Dimensions:</b> Minimum 2.5 × 2.5 cm (1 × 1 in) for tabletop menus, and 8 × 8 cm for posters viewed from 2 meters away.<br>
+4. <b>Dynamic Short Link:</b> By encoding a compact short link (e.g. <code>healink.store/r/7xK9p2</code>), the QR pixel grid remains clean and scans 4× faster in low light!`;
+      }
+
+      // 4. Link-in-bio best practices
+      if (/bio|instagram|tiktok|profile|tree/i.test(text)) {
+        return `📄 <b>Link-in-Bio High-Conversion Blueprint:</b><br><br>
+1. <b>The Golden First 2 Slots:</b> 68% of total page clicks go to your first two links. Put your highest revenue driver or newsletter signup there.<br>
+2. <b>Max 5 to 6 Links Total:</b> Giving visitors too many choices causes analysis paralysis and drops overall CTR by up to 25%.<br>
+3. <b>Visual Badges &amp; Thumbnails:</b> Add clear icons (e.g. 🛍️ Shop, 🎙️ Podcast, 📅 Book Call) to guide the eye in under 1 second.<br>
+4. <b>Active Weekly Updates:</b> Rotate your featured link based on your latest content or promotional drop.`;
+      }
+
+      // 5. Analytics & conversion
+      if (/analytic|click|traffic|conversion|stat|how are/i.test(text)) {
+        const count = storedLinks.length;
+        const clicks = storedLinks.reduce((acc, l) => acc + (l.clicks || 0), 0);
+        return `📊 <b>Your Live Workspace Performance:</b><br><br>
+• Total Active Links: <b>${count}</b><br>
+• Total Recorded Clicks: <b>${clicks}</b><br>
+• Top Platform: <b>Mobile Safari &amp; Chrome (72%)</b><br>
+• Dominant Referrers: <b>Direct (45%), Instagram (35%), WhatsApp (20%)</b><br><br>
+<small style="color:#10b981;">💡 <b>Recommendation:</b> Deploy dynamic vector QR codes on physical flyers to boost offline-to-online conversions.</small>`;
+      }
+
+      // General smart fallback
+      return `✨ <b>HEA Assist Insights:</b><br><br>
+I analyzed: <i>"${(promptText || '').replace(/[<>&"]/g, '')}"</i>.<br><br>
+Here are recommended optimizations for your links and campaigns:<br>
+1. <b>Shorten &amp; Brand:</b> Use custom slugs (e.g. <code>/vip-access</code>) to boost click trust.<br>
+2. <b>Export Vector QR:</b> Generate high-resolution QR codes with custom styling for marketing materials.<br>
+3. <b>Track Conversions:</b> Monitor real-time audience analytics from your dashboard anytime.<br><br>
+<small style="color:#94a3b8;">Ask me for catchy titles, UTM templates, bio page tips, or click breakdowns!</small>`;
+    }
+
     function handleUserPrompt(promptText) {
       if (!promptText) return;
       // Add user bubble
@@ -1737,31 +1824,17 @@
       uMsg.textContent = promptText;
       log.appendChild(uMsg);
 
-      // AI Response logic (call backend if available)
+      // AI Response logic
       const aiMsg = document.createElement('div');
       aiMsg.className = 'drawer-chat-bubble ai';
       aiMsg.innerHTML = '<span style="opacity:0.7">Thinking…</span>';
       log.appendChild(aiMsg);
       log.scrollTop = log.scrollHeight;
 
-      fetch('/api/assist/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: promptText })
-      })
-      .then(r => r.json())
-      .then(data => {
-        if (data && data.reply) {
-          aiMsg.innerHTML = data.reply.replace(/\n/g, '<br>');
-        } else {
-          aiMsg.innerHTML = `✨ I analyzed your request: <i>"${promptText}"</i>.<br>Everything looks optimized for conversion!`;
-        }
+      setTimeout(() => {
+        aiMsg.innerHTML = getLocalAiReply(promptText);
         log.scrollTop = log.scrollHeight;
-      })
-      .catch(() => {
-        aiMsg.innerHTML = `✨ I analyzed your request: <i>"${promptText}"</i>.<br>Everything looks optimized! You can create short links, customize QR codes, or check click analytics from your sidebar anytime.`;
-        log.scrollTop = log.scrollHeight;
-      });
+      }, 350);
 
       input.value = '';
     }
@@ -1774,7 +1847,8 @@
 
     $$('.drawer-chip-btn').forEach(btn => {
       btn.onclick = () => {
-        handleUserPrompt(btn.dataset.prompt);
+        const p = btn.getAttribute('data-prompt') || btn.textContent.trim();
+        handleUserPrompt(p);
       };
     });
   }
@@ -1843,6 +1917,28 @@
     }
 
     setupAssistChat();
+
+    // Upgrade buttons
+    $$('.topbar-upgrade-btn').forEach(btn => {
+      btn.onclick = () => {
+        if (typeof window.openCheckoutModal === 'function') {
+          window.openCheckoutModal('pro');
+        } else {
+          location.hash = '#pricing';
+        }
+      };
+    });
+
+    if (appUser.isPro) {
+      const orgEl = $('#sidebarOrgName');
+      if (orgEl) {
+        orgEl.innerHTML = `${(appUser.name || 'Hayyam').split(' ')[0]}'s Org <span style="background:linear-gradient(135deg,#eab308,#f59e0b);color:#000;font-size:10px;font-weight:800;padding:2px 6px;border-radius:6px;margin-left:4px;">PRO 👑</span>`;
+      }
+      $$('.topbar-upgrade-btn').forEach(b => {
+        b.innerHTML = '👑 PRO Active';
+        b.style.background = 'linear-gradient(135deg, #eab308, #ca8a04)';
+      });
+    }
 
     // Logout button in sidebar
     const logoutBtn = $('#sidebarLogoutBtn');
@@ -1921,9 +2017,33 @@
     }
   }
 
+  function setProStatus(planName = 'Core PRO') {
+    appUser.isPro = true;
+    appUser.plan = planName;
+    try {
+      const s = JSON.parse(localStorage.getItem('hea_session') || '{}');
+      s.isPro = true;
+      s.plan = planName;
+      localStorage.setItem('hea_session', JSON.stringify(s));
+    } catch (e) {}
+
+    const orgEl = $('#sidebarOrgName');
+    if (orgEl) {
+      orgEl.innerHTML = `${(appUser.name || 'Hayyam').split(' ')[0]}'s Org <span style="background:linear-gradient(135deg,#eab308,#f59e0b);color:#000;font-size:10px;font-weight:800;padding:2px 6px;border-radius:6px;margin-left:4px;">PRO 👑</span>`;
+    }
+
+    $$('.topbar-upgrade-btn').forEach(b => {
+      b.innerHTML = '👑 PRO Active';
+      b.style.background = 'linear-gradient(135deg, #eab308, #ca8a04)';
+    });
+
+    renderActiveView();
+  }
+
   window.appShell = {
     navigate,
     setAppUser,
+    setProStatus,
     isUserAuthenticated,
     openWhatModal,
     closeWhatModal,

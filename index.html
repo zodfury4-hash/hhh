@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="logo.png">
-  <link rel="stylesheet" href="style.css?v=22">
+  <link rel="stylesheet" href="style.css?v=23">
   <link rel="stylesheet" href="app-shell.css?v=3">
 </head>
 <body>
@@ -602,7 +602,7 @@
           </div>
         </div>
         <div class="topbar-actions">
-          <button class="topbar-upgrade-btn" onclick="location.hash='#pricing'">Upgrade</button>
+          <button class="topbar-upgrade-btn" onclick="window.openCheckoutModal('pro')">Upgrade</button>
           <button class="topbar-icon-btn" id="assistToggleBtn" title="HEA Assist AI" style="color:#38bdf8;font-weight:600;display:flex;align-items:center;gap:6px;background:rgba(56,189,248,0.1);padding:6px 12px;border-radius:8px;">
             <span>✨</span> HEA Assist
           </button>
@@ -639,7 +639,7 @@
 
             <div class="home-cyan-banner">
               <span>👑</span>
-              <span>Get custom links and a complimentary domain. <a href="#domains">Upgrade now</a></span>
+              <span>Get custom links and a complimentary domain. <a href="#" onclick="window.openCheckoutModal('pro'); return false;">Upgrade now</a></span>
             </div>
 
             <div style="font-size:12px;color:#94a3b8;margin-top:14px;">
@@ -654,7 +654,7 @@
               <span style="font-weight:700;color:#ffffff;font-size:15px;">Simplify your workflow</span>
               <span style="color:#94a3b8;font-size:14px;">Explore smarter ways to create links.</span>
             </div>
-            <button class="topbar-upgrade-btn" style="background:linear-gradient(135deg, #10b981, #059669);" onclick="location.hash='#pricing'">
+            <button class="topbar-upgrade-btn" style="background:linear-gradient(135deg, #10b981, #059669);" onclick="window.openCheckoutModal('pro')">
               👑 Upgrade to Core
             </button>
           </div>
@@ -1082,14 +1082,114 @@
   </div>
 </div>
 
-<!-- High-End Visuals & Motion Engines: Three.js (WebGL Shader), Lenis (Smooth Scroll), GSAP + ScrollTrigger -->
+<!-- PREMIUM UPGRADE & SUBSCRIPTION MODAL (Checkout Flow) -->
+<div class="checkout-modal-overlay" id="checkoutModal" hidden>
+  <div class="checkout-card">
+    <div class="checkout-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="checkout-crown-icon">👑</div>
+        <div>
+          <h3 class="checkout-title" id="checkoutModalTitle">Upgrade to HEA Link PRO</h3>
+          <p class="checkout-sub">Unlock unlimited short links, custom domains, and 4K vector QR codes.</p>
+        </div>
+      </div>
+      <button type="button" class="checkout-close" id="checkoutCloseBtn" aria-label="Close modal">✕</button>
+    </div>
+
+    <div class="checkout-body">
+      <!-- Billing Cycle Toggle -->
+      <div class="billing-cycle-toggle">
+        <button type="button" class="cycle-tab active" id="cycleMonthly">Monthly Billing</button>
+        <button type="button" class="cycle-tab" id="cycleAnnual">Annual Billing <span class="save-badge">Save 20%</span></button>
+      </div>
+
+      <!-- Plan Selector Cards -->
+      <div class="checkout-plans-grid">
+        <label class="checkout-plan-card" data-plan="growth">
+          <input type="radio" name="checkoutPlan" value="growth">
+          <div class="plan-card-inner">
+            <div class="plan-card-top">
+              <span class="plan-name">Growth</span>
+              <span class="plan-price" id="priceGrowth">$8<small>/mo</small></span>
+            </div>
+            <p class="plan-desc">For growing creators &amp; social marketers</p>
+          </div>
+        </label>
+
+        <label class="checkout-plan-card active" data-plan="pro">
+          <input type="radio" name="checkoutPlan" value="pro" checked>
+          <div class="plan-card-inner">
+            <div class="plan-card-badge">RECOMMENDED</div>
+            <div class="plan-card-top">
+              <span class="plan-name">Core PRO</span>
+              <span class="plan-price" id="pricePro">$35<small>/mo</small></span>
+            </div>
+            <p class="plan-desc">Everything unlimited + Custom Branded Domains</p>
+          </div>
+        </label>
+
+        <label class="checkout-plan-card" data-plan="enterprise">
+          <input type="radio" name="checkoutPlan" value="enterprise">
+          <div class="plan-card-inner">
+            <div class="plan-card-top">
+              <span class="plan-name">Enterprise</span>
+              <span class="plan-price" id="priceEnterprise">$199<small>/mo</small></span>
+            </div>
+            <p class="plan-desc">Full API access, 99.99% SLA &amp; dedicated team</p>
+          </div>
+        </label>
+      </div>
+
+      <!-- Payment Details Form -->
+      <form id="checkoutPaymentForm" class="checkout-form">
+        <div class="checkout-form-row">
+          <label style="flex:1">Name on Card
+            <input type="text" id="payName" placeholder="Hayyam Ameer" required>
+          </label>
+          <label style="flex:1">Billing Email
+            <input type="email" id="payEmail" placeholder="hayyamameer3030@gmail.com" required>
+          </label>
+        </div>
+
+        <label>Card Number
+          <div class="card-input-wrap">
+            <span class="card-icon">💳</span>
+            <input type="text" id="payCardNum" placeholder="4242 •••• •••• 4242" maxlength="19" required>
+            <span class="card-brand" id="payCardBrand">VISA</span>
+          </div>
+        </label>
+
+        <div class="checkout-form-row">
+          <label style="flex:1">Expiration Date
+            <input type="text" id="payExp" placeholder="MM / YY" maxlength="5" required>
+          </label>
+          <label style="flex:1">Security Code (CVC)
+            <input type="password" id="payCvc" placeholder="123" maxlength="4" required>
+          </label>
+        </div>
+
+        <div class="checkout-guarantee">
+          <span>🛡️</span>
+          <span>256-bit SSL encrypted checkout · 14-day money-back guarantee · Cancel anytime.</span>
+        </div>
+
+        <button type="submit" class="checkout-submit-btn" id="checkoutSubmitBtn">
+          <span>👑 Confirm &amp; Activate Subscription</span>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- High-End Visuals & Motion Engines: Three.js, Lenis, GSAP, Framer Motion (Motion One) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/motion@10.18.0/dist/motion.umd.js"></script>
 <script src="qrcode.js"></script>
-<script src="heavy-fx.js?v=5"></script>
-<script src="app-shell.js?v=4"></script>
-<script src="app.js?v=14"></script>
+<script src="heavy-fx.js?v=6"></script>
+<script src="app-shell.js?v=5"></script>
+<script src="app.js?v=15"></script>
 </body>
 </html>
