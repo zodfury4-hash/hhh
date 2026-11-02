@@ -905,19 +905,9 @@ input[type=color] {
   margin: 16px auto 36px;
   line-height: 1.6;
 }
-.pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(0, 180, 255, 0.08);
-  color: #00e5ff;
-  border: 1px solid rgba(0, 210, 255, 0.35);
-  font-size: 13px;
-  font-weight: 500;
-  padding: 8px 22px;
-  border-radius: 99px;
-  margin-bottom: 22px;
-  box-shadow: 0 0 20px rgba(0, 210, 255, 0.15);
+.pill,
+.hero-col-left .pill {
+  display: none !important;
 }
 
 .card {
