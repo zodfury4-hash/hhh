@@ -118,6 +118,64 @@ async function sendVerificationEmail(email, name, code) {
   }
 }
 
+async function sendPasswordResetEmail(email, name, code) {
+  console.log(`\n======================================================`);
+  console.log(`🔑 [PASSWORD RESET] Sent to: ${email}`);
+  console.log(`🔑 Reset Code: [ ${code} ]`);
+  console.log(`⏱️  Valid for 15 minutes`);
+  console.log(`======================================================\n`);
+
+  if (!mailTransporter) return { simulated: true, code };
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #060b18; color: #f8fafc; margin: 0; padding: 40px 20px; }
+        .box { max-width: 520px; margin: 0 auto; background: #090f22; border: 1px solid rgba(212, 255, 36, 0.3); border-radius: 16px; padding: 36px 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .logo { font-size: 24px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; margin-bottom: 24px; text-align: center; }
+        .logo span { color: #D4FF24; }
+        h1 { font-size: 22px; font-weight: 700; color: #ffffff; margin-top: 0; text-align: center; }
+        p { color: #94a3b8; font-size: 15px; line-height: 1.6; }
+        .code-box { background: rgba(212, 255, 36, 0.08); border: 2px dashed #D4FF24; border-radius: 12px; padding: 18px; text-align: center; margin: 28px 0; }
+        .code { font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #D4FF24; font-family: monospace; }
+        .meta { font-size: 12px; color: #64748b; text-align: center; margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px; }
+      </style>
+    </head>
+    <body>
+      <div class="box">
+        <div class="logo">HEA <span>Link</span></div>
+        <h1>Reset your password</h1>
+        <p>Hi ${name || 'there'},</p>
+        <p>We received a request to reset the password for your HEA Link account. Use this 6-digit verification code to choose a new password:</p>
+        <div class="code-box">
+          <div class="code">${code}</div>
+        </div>
+        <p>This code will expire in 15 minutes. If you did not make this request, your account is safe and you can ignore this message.</p>
+        <div class="meta">
+          HEA Link Security System · Faisalabad, Pakistan
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  try {
+    const info = await mailTransporter.sendMail({
+      from: process.env.EMAIL_FROM || '"HEA Link Security" <noreply@healink.store>',
+      to: email,
+      subject: `${code} is your HEA Link password reset code`,
+      html
+    });
+    return { success: true, messageId: info.messageId };
+  } catch (err) {
+    console.error('Failed to send reset email via SMTP:', err.message);
+    return { error: err.message, simulated: true, code };
+  }
+}
+
 // In-Memory Fallback Store (active if MongoDB is momentarily unreachable)
 const memStore = {
   users: [],
@@ -423,6 +481,122 @@ app.post('/api/auth/resend-code', async (req, res) => {
     });
   } catch (err) {
     return res.status(500).json({ error: err.message });
+  }
+});
+
+// 3b. Forgot Password - Request 6-digit Reset Code
+app.post('/api/auth/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email address is required' });
+    const cleanEmail = email.toLowerCase().trim();
+
+    let user = null;
+    if (isDbConnected) {
+      user = await User.findOne({ email: cleanEmail });
+    } else {
+      user = memStore.users.find(u => u.email === cleanEmail);
+    }
+
+    if (!user) {
+      return res.status(404).json({ error: 'No account found with this email address' });
+    }
+
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const resetExpires = new Date(Date.now() + 15 * 60 * 1000);
+
+    user.resetPasswordCode = resetCode;
+    user.resetPasswordExpires = resetExpires;
+    user.verificationCode = resetCode;
+    user.verificationCodeExpires = resetExpires;
+
+    if (isDbConnected) {
+      await user.save();
+    }
+
+    await sendPasswordResetEmail(cleanEmail, user.name, resetCode);
+
+    return res.json({
+      success: true,
+      message: 'Password reset code has been sent to your email address.',
+      email: cleanEmail,
+      devCode: resetCode
+    });
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    return res.status(500).json({ error: 'Internal server error: ' + err.message });
+  }
+});
+
+// 3c. Reset Password - Verify Code and Set New Password
+app.post('/api/auth/reset-password', async (req, res) => {
+  try {
+    const { email, code, newPassword } = req.body;
+    if (!email || !code || !newPassword) {
+      return res.status(400).json({ error: 'Email, reset code, and new password are required' });
+    }
+    if (newPassword.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters long' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const cleanCode = code.toString().trim();
+
+    let user = null;
+    if (isDbConnected) {
+      user = await User.findOne({ email: cleanEmail });
+    } else {
+      user = memStore.users.find(u => u.email === cleanEmail);
+    }
+
+    if (!user) {
+      return res.status(404).json({ error: 'No account found with this email' });
+    }
+
+    const validCode = user.resetPasswordCode || user.verificationCode;
+    const expiry = user.resetPasswordExpires || user.verificationCodeExpires;
+
+    if (!validCode || validCode !== cleanCode) {
+      return res.status(400).json({ error: 'Invalid verification code. Please check your email or request a new code.' });
+    }
+
+    if (expiry && new Date() > new Date(expiry)) {
+      return res.status(400).json({ error: 'This reset code has expired. Please request a new one.' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    user.resetPasswordCode = null;
+    user.resetPasswordExpires = null;
+    user.verificationCode = null;
+    user.verificationCodeExpires = null;
+    user.isVerified = true;
+
+    if (isDbConnected) {
+      await user.save();
+    }
+
+    const token = jwt.sign(
+      { id: user._id || user.id, email: user.email, name: user.name },
+      JWT_SECRET,
+      { expiresIn: '30d' }
+    );
+
+    return res.json({
+      success: true,
+      message: 'Password reset successfully! You are now logged in.',
+      token,
+      user: {
+        name: user.name,
+        email: user.email,
+        isVerified: true,
+        city: user.city || 'Faisalabad',
+        isp: user.isp || 'Nayatel Private Limited'
+      }
+    });
+  } catch (err) {
+    console.error('Reset password error:', err);
+    return res.status(500).json({ error: 'Internal server error: ' + err.message });
   }
 });
 
@@ -1323,6 +1497,75 @@ const handleRedirect = async (req, res, next) => {
     return next();
   }
 };
+
+/* =========================================================
+   9. HEA ASSIST & REAL-TIME AI ENDPOINTS
+   ========================================================= */
+app.post('/api/ai/ask', async (req, res) => {
+  try {
+    const { prompt, email } = req.body;
+    if (!prompt) return res.status(400).json({ error: 'Prompt is required' });
+
+    const q = prompt.toLowerCase();
+    const urlMatch = prompt.match(/https?:\/\/[^\s]+/i);
+
+    if (urlMatch) {
+      const dest = urlMatch[0];
+      const chars = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
+      let slug = '';
+      for (let i = 0; i < 6; i++) slug += chars.charAt(Math.floor(Math.random() * chars.length));
+
+      const host = req.get('host') || 'healink.store';
+      const shortUrl = `https://${host}/r/${slug}`;
+
+      if (isDbConnected) {
+        const newLink = new Link({
+          title: 'AI Quick Shortened',
+          dest,
+          slug,
+          ownerEmail: email || 'hayyamameer3030@gmail.com',
+          tag: 'AI Assist'
+        });
+        await newLink.save();
+      } else {
+        memStore.links.unshift({
+          id: 'lnk_' + Date.now(),
+          ownerEmail: email || 'hayyamameer3030@gmail.com',
+          title: 'AI Quick Shortened',
+          dest,
+          slug,
+          tag: 'AI Assist',
+          clicks: [],
+          scans: 0,
+          createdAt: new Date()
+        });
+      }
+
+      return res.json({
+        success: true,
+        reply: `🎉 <b>Link Shortened Successfully!</b><br><br>Short Link: <a href="${shortUrl}" target="_blank" style="color:#D4FF24;font-weight:700;">${shortUrl}</a><br>Original: <span style="color:#94a3b8;">${dest}</span>`,
+        shortUrl,
+        slug,
+        dest
+      });
+    }
+
+    let reply = '';
+    if (q.includes('title') || q.includes('headline')) {
+      reply = `✨ <b>High-Converting Title Recommendations:</b><br>1. 🎯 "The 1 Growth Strategy Top Brands Use in 2026"<br>2. 🔥 "Exclusive Access: Claim Your 40% Limited Drop"<br>3. ⚡ "Free Creator Resource Hub: Everything You Need"<br>4. 🚀 "Get Started in 60 Seconds - Instant Setup"`;
+    } else if (q.includes('utm') || q.includes('campaign') || q.includes('fb')) {
+      reply = `🏷️ <b>Recommended UTM Tag Parameters:</b><br><code style="color:#38bdf8;">?utm_source=facebook&utm_medium=paid_social&utm_campaign=summer_promo_2026&utm_content=carousel_v1</code>`;
+    } else if (q.includes('qr') || q.includes('scan')) {
+      reply = `📱 <b>How to Maximize QR Code Scans:</b><br>1. Add a clear call-to-action frame (e.g. "Scan for 20% Off").<br>2. Use a high-contrast palette (#090f22 on #ffffff).<br>3. Keep your short link under 20 chars for rapid autofocus!`;
+    } else {
+      reply = `🤖 <b>HEA Assist AI:</b> Real-time intelligence online. You can ask me to shorten links, generate QR codes, build UTM tracking links, or optimize conversion rates!`;
+    }
+
+    return res.json({ success: true, reply });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
 
 // Explicit redirect paths
 app.get('/r/:slug', handleRedirect);

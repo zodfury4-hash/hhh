@@ -1831,6 +1831,48 @@ Here are recommended optimizations for your links and campaigns:<br>
       log.appendChild(aiMsg);
       log.scrollTop = log.scrollHeight;
 
+      // Real-time URL shortener inside drawer
+      const urlMatch = promptText.match(/https?:\/\/[^\s]+/i);
+      if (urlMatch) {
+        const dest = urlMatch[0];
+        const chars = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
+        let slug = '';
+        for (let i = 0; i < 6; i++) slug += chars.charAt(Math.floor(Math.random() * chars.length));
+        const shortUrl = `https://healink.store/r/${slug}`;
+
+        const links = getStoredLinks();
+        links.unshift({
+          id: 'l_' + Date.now(),
+          slug,
+          dest,
+          url: dest,
+          title: 'AI Shortened Link',
+          tag: 'AI Assist',
+          clicks: 0,
+          scans: 0,
+          createdAt: new Date().toISOString()
+        });
+        saveStoredLinks(links);
+        try {
+          localStorage.setItem('hea_slug_' + slug.toLowerCase(), dest);
+        } catch (e) {}
+
+        setTimeout(() => {
+          aiMsg.innerHTML = `
+            🎉 <b>Link Shortened in Real-Time!</b><br><br>
+            <div style="background:rgba(56,189,248,0.12);padding:10px 12px;border-radius:10px;margin-bottom:8px;border:1px solid #38bdf8;">
+              <div style="font-size:10px;color:#94a3b8;">SHORT LINK</div>
+              <a href="${shortUrl}" target="_blank" style="color:#D4FF24;font-weight:700;word-break:break-all;">${shortUrl}</a>
+            </div>
+            <button class="sso-btn" style="width:auto;padding:5px 12px;font-size:12px;" onclick="window.appShell.copy('${shortUrl}')">📋 Copy Short Link</button>
+          `;
+          log.scrollTop = log.scrollHeight;
+          renderActiveView();
+        }, 300);
+        input.value = '';
+        return;
+      }
+
       setTimeout(() => {
         aiMsg.innerHTML = getLocalAiReply(promptText);
         log.scrollTop = log.scrollHeight;
