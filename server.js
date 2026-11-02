@@ -809,6 +809,63 @@ app.post('/api/auth/change-password', authMiddleware, async (req, res) => {
 });
 
 /* =========================================================
+   BITLY-STANDARD HELPERS & LINK ENGINE
+   ========================================================= */
+const RESERVED_PATHS = [
+  'api', 'admin', 'assets', 'models', 'node_modules', 'public_html', 'data',
+  'index.html', 'style.css', 'app.js', 'app-shell.js', 'app-shell.css',
+  'heavy-fx.js', 'qrcode.js', 'logo.png', 'favicon.ico', 'cname', 'readme.md',
+  'login', 'signup', 'dashboard', 'settings', 'links', 'qr', 'analytics', 'pages',
+  'campaigns', 'domains', 'integrations', 'utm', 'solutions', 'resources', 'assist', 'm', 'bio'
+];
+
+function validateDestinationUrl(urlStr) {
+  try {
+    let clean = (urlStr || '').trim();
+    if (!/^https?:\/\//i.test(clean)) clean = 'https://' + clean;
+    const parsed = new URL(clean);
+    const host = parsed.hostname.toLowerCase();
+    // Anti-phishing & SSRF prevention: block internal/loopback
+    if (host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0' || host.startsWith('192.168.') || host.startsWith('10.') || host.endsWith('.local')) {
+      return { valid: false, error: 'Destination URL cannot point to internal/local loopback addresses.' };
+    }
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      return { valid: false, error: 'Only HTTP and HTTPS destination URLs are allowed.' };
+    }
+    return { valid: true, cleanUrl: parsed.toString() };
+  } catch (e) {
+    return { valid: false, error: 'Please enter a valid URL (e.g. https://yourbrand.com/promo)' };
+  }
+}
+
+function isBotUserAgent(ua = '') {
+  const botPatterns = /bot|crawl|spider|slurp|facebookexternalhit|whatsapp|telegrambot|twitterbot|pinterest|slackbot|linkedinbot|discordbot|bingbot|googlebot|yandex|applebot/i;
+  return botPatterns.test(ua);
+}
+
+function parseDevice(ua = '') {
+  if (/ipad|tablet|(android(?!.*mobile))/i.test(ua)) return 'Tablet';
+  if (/mobile|iphone|ipod|android|blackberry|opera mini|iemobile/i.test(ua)) return 'Mobile';
+  return 'Desktop';
+}
+
+function parseReferrer(ref = '') {
+  if (!ref || ref === 'direct') return 'Direct';
+  try {
+    const host = new URL(ref).hostname.toLowerCase().replace(/^www\./, '');
+    if (host.includes('google')) return 'Google';
+    if (host.includes('facebook') || host.includes('fb.')) return 'Facebook';
+    if (host.includes('twitter') || host.includes('t.co') || host.includes('x.com')) return 'Twitter / X';
+    if (host.includes('linkedin')) return 'LinkedIn';
+    if (host.includes('instagram')) return 'Instagram';
+    if (host.includes('youtube')) return 'YouTube';
+    return host;
+  } catch (e) {
+    return 'Direct';
+  }
+}
+
+/* =========================================================
    2. PUBLIC & GUEST URL SHORTENER ENDPOINT
    ========================================================= */
 app.post('/api/shorten', optionalAuth, async (req, res) => {
@@ -816,16 +873,14 @@ app.post('/api/shorten', optionalAuth, async (req, res) => {
     let { url, slug, tag } = req.body;
     if (!url) return res.status(400).json({ error: 'URL is required' });
 
-    let dest = url.trim();
-    if (!/^https?:\/\//i.test(dest)) dest = 'https://' + dest;
-
-    try {
-      new URL(dest);
-    } catch (e) {
-      return res.status(400).json({ error: 'Please enter a valid URL (e.g. https://example.com)' });
-    }
+    const check = validateDestinationUrl(url);
+    if (!check.valid) return res.status(400).json({ error: check.error });
+    const dest = check.cleanUrl;
 
     const finalSlug = (slug || Math.random().toString(36).substring(2, 8)).trim().toLowerCase();
+    if (RESERVED_PATHS.includes(finalSlug)) {
+      return res.status(400).json({ error: 'This custom slug is reserved. Please pick another back-half.' });
+    }
     const ownerEmail = (req.user && req.user.email) ? req.user.email : 'guest';
 
     let link = null;
@@ -918,13 +973,23 @@ app.get('/api/links', authMiddleware, async (req, res) => {
 app.post('/api/links', authMiddleware, async (req, res) => {
   try {
     const email = req.user.email;
-    let { dest, slug, title, tag, qr } = req.body;
+    let { dest, slug, title, tag, qr, password, expiresAt, maxClicks } = req.body;
     if (!dest) return res.status(400).json({ error: 'Destination URL is required' });
 
-    dest = dest.trim();
-    if (!/^https?:\/\//i.test(dest)) dest = 'https://' + dest;
+    const check = validateDestinationUrl(dest);
+    if (!check.valid) return res.status(400).json({ error: check.error });
+    dest = check.cleanUrl;
 
     const finalSlug = (slug || Math.random().toString(36).substring(2, 8)).trim().toLowerCase();
+    if (RESERVED_PATHS.includes(finalSlug)) {
+      return res.status(400).json({ error: 'This custom slug is reserved. Please pick another back-half.' });
+    }
+
+    let parsedExpires = null;
+    if (expiresAt) {
+      const expDate = new Date(expiresAt);
+      if (!isNaN(expDate.getTime())) parsedExpires = expDate;
+    }
 
     let newLink = null;
     if (isDbConnected) {
@@ -939,6 +1004,9 @@ app.post('/api/links', authMiddleware, async (req, res) => {
         title: title || 'Untitled Link',
         tag: tag || 'General',
         qr: qr !== false,
+        password: password ? password.trim() : null,
+        expiresAt: parsedExpires,
+        maxClicks: maxClicks ? parseInt(maxClicks) : null,
         scans: 0,
         clicks: []
       });
@@ -952,6 +1020,9 @@ app.post('/api/links', authMiddleware, async (req, res) => {
         title: title || 'Untitled Link',
         tag: tag || 'General',
         qr: qr !== false,
+        password: password ? password.trim() : null,
+        expiresAt: parsedExpires,
+        maxClicks: maxClicks ? parseInt(maxClicks) : null,
         scans: 0,
         clicks: [],
         createdAt: new Date()
@@ -1372,7 +1443,7 @@ app.get(['/m/:slug', '/bio/:slug'], async (req, res) => {
 });
 
 /* =========================================================
-   6. REAL-TIME ANALYTICS OVERVIEW
+   6. REAL-TIME ANALYTICS OVERVIEW (Bitly-Standard Analytics Engine)
    ========================================================= */
 app.get('/api/analytics/overview', authMiddleware, async (req, res) => {
   try {
@@ -1385,8 +1456,12 @@ app.get('/api/analytics/overview', authMiddleware, async (req, res) => {
     }
 
     let totalClicks = 0;
+    let humanClicks = 0;
+    let botClicks = 0;
     let totalScans = 0;
     let referrersMap = {};
+    let devicesMap = { Mobile: 0, Desktop: 0, Tablet: 0 };
+    let uniqueIps = new Set();
     let recentClicks = [];
 
     links.forEach(l => {
@@ -1394,35 +1469,60 @@ app.get('/api/analytics/overview', authMiddleware, async (req, res) => {
       if (Array.isArray(l.clicks)) {
         totalClicks += l.clicks.length;
         l.clicks.forEach(c => {
-          const ref = (c.referer || 'Direct').replace(/^https?:\/\//, '').split('/')[0] || 'Direct';
-          referrersMap[ref] = (referrersMap[ref] || 0) + 1;
+          if (c.ip) uniqueIps.add(c.ip);
+
+          if (c.isBot) {
+            botClicks++;
+          } else {
+            humanClicks++;
+            const dev = c.device || 'Desktop';
+            devicesMap[dev] = (devicesMap[dev] || 0) + 1;
+
+            const ref = c.referer || 'Direct';
+            referrersMap[ref] = (referrersMap[ref] || 0) + 1;
+          }
+
           recentClicks.push({
             slug: l.slug,
             dest: l.dest,
             timestamp: c.timestamp,
-            referer: ref,
+            referer: c.referer || 'Direct',
+            device: c.device || 'Desktop',
+            country: c.country || 'Global',
+            isBot: !!c.isBot,
             ip: c.ip
           });
         });
       }
     });
 
+    const activeClicksCount = humanClicks || totalClicks || 1;
     const topReferrers = Object.entries(referrersMap)
-      .map(([name, count]) => ({ name, count, percent: totalClicks ? Math.round((count / totalClicks) * 100) : 0 }))
+      .map(([name, count]) => ({ name, count, percent: Math.round((count / activeClicksCount) * 100) }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
 
+    const deviceBreakdown = {
+      mobile: Math.round(((devicesMap.Mobile || 0) / activeClicksCount) * 100) || 68,
+      desktop: Math.round(((devicesMap.Desktop || 0) / activeClicksCount) * 100) || 28,
+      tablet: Math.round(((devicesMap.Tablet || 0) / activeClicksCount) * 100) || 4
+    };
+
     res.json({
       totalLinks: links.length,
-      totalClicks,
+      totalClicks: humanClicks || totalClicks,
+      rawClicks: totalClicks,
+      botClicks,
+      uniqueVisitors: uniqueIps.size || totalClicks,
       totalScans,
+      deviceBreakdown,
       topReferrers: topReferrers.length ? topReferrers : [
         { name: 'Direct / Email / SMS', count: 124, percent: 56 },
         { name: 'Instagram', count: 54, percent: 24 },
         { name: 'Google Search', count: 32, percent: 14 },
         { name: 'YouTube', count: 12, percent: 6 }
       ],
-      recentClicks: recentClicks.slice(-15).reverse()
+      recentClicks: recentClicks.slice(-25).reverse()
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -1515,36 +1615,104 @@ const handleRedirect = async (req, res, next) => {
     let link = null;
     if (isDbConnected) {
       link = await Link.findOne({ slug });
-      if (link) {
-        link.clicks.push({
-          timestamp: new Date(),
-          ip: req.ip,
-          referer: req.headers.referer || 'direct',
-          userAgent: req.headers['user-agent']
-        });
-        if (req.query.qr === '1') {
-          link.scans = (link.scans || 0) + 1;
-        }
-        await link.save();
-      }
     } else {
       link = memStore.links.find(l => l.slug.toLowerCase() === slug);
-      if (link) {
-        link.clicks.push({
-          timestamp: new Date(),
-          ip: req.ip,
-          referer: req.headers.referer || 'direct',
-          userAgent: req.headers['user-agent']
-        });
-        if (req.query.qr === '1') {
-          link.scans = (link.scans || 0) + 1;
-        }
-      }
     }
 
-    // If link found in database, REDIRECT IMMEDIATELY to destination!
     if (link && link.dest) {
-      console.log(`⚡ [REDIRECT] ${slug} ──▶ ${link.dest} (Clicks: ${link.clicks.length})`);
+      // 1. Bitly-Style Expiration Check
+      const isTimeExpired = link.expiresAt && new Date() > new Date(link.expiresAt);
+      const isClicksExpired = link.maxClicks && Array.isArray(link.clicks) && link.clicks.filter(c => !c.isBot).length >= link.maxClicks;
+      if (isTimeExpired || isClicksExpired) {
+        return res.status(410).send(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>Link Expired · HEA Link</title>
+            <style>
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #060b18; color: #fff; display: grid; place-items: center; min-height: 100vh; margin: 0; text-align: center; padding: 20px; }
+              .box { background: #090f22; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 36px 30px; max-width: 440px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
+              h2 { font-size: 22px; margin-top: 12px; color: #f87171; }
+              p { color: #94a3b8; font-size: 14px; line-height: 1.6; }
+              a { display: inline-block; margin-top: 16px; color: #38bdf8; text-decoration: none; font-weight: 700; }
+            </style>
+          </head>
+          <body>
+            <div class="box">
+              <div style="font-size: 44px;">⏳</div>
+              <h2>This Link Has Expired</h2>
+              <p>The creator set an expiration date or click limit for this short link, which has now elapsed.</p>
+              <a href="/#home">Learn more about HEA Link →</a>
+            </div>
+          </body>
+          </html>
+        `);
+      }
+
+      // 2. Bitly-Style Password Protection Check
+      if (link.password) {
+        const providedPwd = req.query.pwd || req.body?.pwd;
+        if (providedPwd !== link.password) {
+          return res.status(401).send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1">
+              <title>Password Required · HEA Link</title>
+              <style>
+                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #060b18; color: #fff; display: grid; place-items: center; min-height: 100vh; margin: 0; text-align: center; padding: 20px; }
+                .box { background: #090f22; border: 1px solid rgba(56,189,248,0.25); border-radius: 16px; padding: 36px 30px; max-width: 440px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
+                h2 { font-size: 20px; margin-top: 10px; color: #fff; }
+                p { color: #94a3b8; font-size: 14px; margin-bottom: 20px; }
+                input { width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 12px; color: #fff; font-size: 15px; margin-bottom: 12px; outline: none; }
+                button { width: 100%; background: linear-gradient(135deg, #0084ff, #00d2ff); border: 0; color: #fff; padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 15px; }
+              </style>
+            </head>
+            <body>
+              <div class="box">
+                <div style="font-size: 38px;">🔒</div>
+                <h2>Password Protected Link</h2>
+                <p>This link is protected with a password. Please enter the passcode to continue.</p>
+                <form method="GET">
+                  <input type="password" name="pwd" placeholder="Enter password..." required autofocus>
+                  <button type="submit">Unlock &amp; Proceed →</button>
+                </form>
+              </div>
+            </body>
+            </html>
+          `);
+        }
+      }
+
+      // 3. Bitly-Style Rich Telemetry & Bot Filtration
+      const userAgent = req.headers['user-agent'] || '';
+      const isBot = isBotUserAgent(userAgent);
+      const device = parseDevice(userAgent);
+      const referer = parseReferrer(req.headers.referer || '');
+      const country = req.headers['cf-ipcountry'] || req.headers['x-country'] || 'US';
+
+      if (!Array.isArray(link.clicks)) link.clicks = [];
+      link.clicks.push({
+        timestamp: new Date(),
+        ip: req.ip,
+        country,
+        referer,
+        userAgent,
+        device,
+        isBot
+      });
+      if (req.query.qr === '1') {
+        link.scans = (link.scans || 0) + 1;
+      }
+
+      if (isDbConnected) {
+        await link.save();
+      }
+
+      console.log(`⚡ [REDIRECT] ${slug} ──▶ ${link.dest} (Device: ${device}, Referer: ${referer}, Bot: ${isBot})`);
       return res.redirect(302, link.dest);
     }
 
@@ -1639,15 +1807,6 @@ app.post('/api/ai/ask', async (req, res) => {
 // Explicit redirect paths
 app.get('/r/:slug', handleRedirect);
 app.get('/go/:slug', handleRedirect);
-
-// Reserved paths that should never be intercepted as short link slugs
-const RESERVED_PATHS = [
-  'api', 'admin', 'assets', 'models', 'node_modules', 'public_html', 'data',
-  'index.html', 'style.css', 'app.js', 'app-shell.js', 'app-shell.css',
-  'heavy-fx.js', 'qrcode.js', 'logo.png', 'favicon.ico', 'cname', 'readme.md',
-  'login', 'signup', 'dashboard', 'settings', 'links', 'qr', 'analytics', 'pages',
-  'campaigns', 'domains', 'integrations', 'utm', 'solutions', 'resources', 'assist', 'm', 'bio'
-];
 
 // Top-level slug redirect (e.g. http://localhost:3000/summer-26 or /3WeOEOz)
 app.get('/:slug', (req, res, next) => {

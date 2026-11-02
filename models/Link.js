@@ -39,13 +39,27 @@ const linkSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  password: {
+    type: String,
+    default: null
+  },
+  expiresAt: {
+    type: Date,
+    default: null
+  },
+  maxClicks: {
+    type: Number,
+    default: null
+  },
   clicks: [
     {
       timestamp: { type: Date, default: Date.now },
       ip: String,
       country: String,
       referer: String,
-      userAgent: String
+      userAgent: String,
+      device: String,
+      isBot: { type: Boolean, default: false }
     }
   ],
   createdAt: {

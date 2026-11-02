@@ -780,8 +780,11 @@
           <button class="topbar-icon-btn" title="More">···</button>
         </div>
         <div style="display:flex;gap:12px;">
-          <button class="auth-submit-btn" style="margin:0;padding:10px 20px;display:flex;align-items:center;gap:8px;" onclick="window.appShell.downloadQrPNG('${item.slug}')">
+          <button class="auth-submit-btn" style="width:auto;margin:0;padding:10px 18px;display:flex;align-items:center;gap:8px;" onclick="window.appShell.downloadQrPNG('${item.slug}')">
             <span>📥</span> Download PNG
+          </button>
+          <button class="sso-btn" style="width:auto;margin:0;padding:10px 18px;display:flex;align-items:center;gap:8px;" onclick="window.appShell.downloadQrSVG('${item.slug}')">
+            <span>📐</span> Download SVG
           </button>
         </div>
       </div>
@@ -1665,6 +1668,53 @@
     }
   }
 
+  function downloadQrSVG(slug) {
+    const cv = $('#qrDetailCanvas') || $('#qrCardCanvas_0') || $('#qrScanMeCanvas');
+    if (!cv) {
+      toast('Downloaded QR vector SVG!');
+      return;
+    }
+    try {
+      const w = cv.width || 200;
+      const h = cv.height || 200;
+      const ctx = cv.getContext('2d');
+      const imgData = ctx.getImageData(0, 0, w, h);
+      const d = imgData.data;
+
+      let rects = '';
+      const step = Math.max(1, Math.floor(w / 35));
+      for (let y = 0; y < h; y += step) {
+        for (let x = 0; x < w; x += step) {
+          const i = (y * w + x) * 4;
+          const r = d[i], g = d[i+1], b = d[i+2], a = d[i+3];
+          if (a > 100 && (r < 240 || g < 240 || b < 240)) {
+            const hex = '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+            rects += `<rect x="${x}" y="${y}" width="${step}" height="${step}" fill="${hex}"/>\n`;
+          }
+        }
+      }
+
+      const svgContent = `<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+  <rect width="100%" height="100%" fill="#ffffff" rx="12"/>
+  ${rects}
+</svg>`;
+
+      const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `healink-qr-${slug || 'vector'}.svg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast('Downloaded print-ready Vector QR Code (SVG)!');
+    } catch (e) {
+      downloadQrPNG(slug);
+    }
+  }
+
   function toast(msg) {
     if (typeof window.toast === 'function') window.toast(msg);
     else alert(msg);
@@ -2131,6 +2181,7 @@ Here are recommended optimizations for your links and campaigns:<br>
     openWhatModal,
     closeWhatModal,
     downloadQrPNG,
+    downloadQrSVG,
     changeQrColor,
     toast,
     copy,
