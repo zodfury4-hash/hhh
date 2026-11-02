@@ -1708,8 +1708,8 @@ $('#authForm').onsubmit = async e => {
             email: backendRes.data.user.email,
             isVerified: true,
             token: backendRes.data.token,
-            city: backendRes.data.user.city || 'Faisalabad',
-            isp: backendRes.data.user.isp || 'Nayatel Private Limited'
+            city: backendRes.data.user.city || 'New York',
+            isp: backendRes.data.user.isp || 'Global Internet'
           };
           store.set('hea_session', session);
           if (window.appShell && typeof window.appShell.setAppUser === 'function') {
@@ -1819,8 +1819,8 @@ if (verifyForm) {
             email: backendRes.data.user.email,
             isVerified: true,
             token: backendRes.data.token,
-            city: backendRes.data.user.city || 'Faisalabad',
-            isp: backendRes.data.user.isp || 'Nayatel Private Limited'
+            city: backendRes.data.user.city || 'New York',
+            isp: backendRes.data.user.isp || 'Global Internet'
           };
           store.set('hea_session', session);
           if (window.appShell && typeof window.appShell.setAppUser === 'function') {

@@ -204,7 +204,7 @@ async function sendPasswordResetEmail(email, name, code) {
         </div>
         <p>This code will expire in 15 minutes. If you did not make this request, your account is safe and you can ignore this message.</p>
         <div class="meta">
-          HEA Link Security System · Faisalabad, Pakistan
+          HEA Link Security System · Global
         </div>
       </div>
     </body>
@@ -392,8 +392,8 @@ app.post('/api/auth/register', async (req, res) => {
           isVerified: false,
           verificationCode,
           verificationCodeExpires,
-          city: 'Faisalabad',
-          isp: 'Nayatel Private Limited'
+          city: 'New York',
+          isp: 'Global Internet'
         });
       }
     }
@@ -453,8 +453,8 @@ app.post('/api/auth/verify-email', async (req, res) => {
           name: user.name,
           email: user.email,
           isVerified: true,
-          city: user.city || 'Faisalabad',
-          isp: user.isp || 'Nayatel Private Limited'
+          city: user.city || 'New York',
+          isp: user.isp || 'Global Internet'
         }
       });
     }
@@ -493,8 +493,8 @@ app.post('/api/auth/verify-email', async (req, res) => {
         name: user.name,
         email: user.email,
         isVerified: true,
-        city: user.city || 'Faisalabad',
-        isp: user.isp || 'Nayatel Private Limited'
+        city: user.city || 'New York',
+        isp: user.isp || 'Global Internet'
       }
     });
   } catch (err) {
@@ -659,8 +659,8 @@ app.post('/api/auth/reset-password', async (req, res) => {
         name: user.name,
         email: user.email,
         isVerified: true,
-        city: user.city || 'Faisalabad',
-        isp: user.isp || 'Nayatel Private Limited'
+        city: user.city || 'New York',
+        isp: user.isp || 'Global Internet'
       }
     });
   } catch (err) {
@@ -728,8 +728,8 @@ app.post('/api/auth/login', async (req, res) => {
         name: user.name,
         email: user.email,
         isVerified: true,
-        city: user.city || 'Faisalabad',
-        isp: user.isp || 'Nayatel Private Limited'
+        city: user.city || 'New York',
+        isp: user.isp || 'Global Internet'
       }
     });
   } catch (err) {
@@ -754,8 +754,8 @@ app.get('/api/auth/me', authMiddleware, async (req, res) => {
         name: user.name,
         email: user.email,
         isVerified: user.isVerified,
-        city: user.city || 'Faisalabad',
-        isp: user.isp || 'Nayatel Private Limited'
+        city: user.city || 'New York',
+        isp: user.isp || 'Global Internet'
       }
     });
   } catch (err) {

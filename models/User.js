@@ -40,15 +40,15 @@ const userSchema = new mongoose.Schema({
   },
   city: {
     type: String,
-    default: 'Faisalabad'
+    default: 'New York'
   },
   country: {
     type: String,
-    default: 'Pakistan'
+    default: 'United States'
   },
   isp: {
     type: String,
-    default: 'Nayatel Private Limited'
+    default: 'Global Internet'
   },
   createdAt: {
     type: Date,
