@@ -6,6 +6,7 @@ const path = require('path');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 
 const User = require('./models/User');
 const Link = require('./models/Link');
@@ -17,6 +18,41 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'healink_jwt_super_secret_key_2026_xyz';
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/healink';
+
+// Security Environment Flags
+const IS_PROD = process.env.NODE_ENV === 'production';
+// Code sirf tab expose ho jab production na ho AND SMTP configured na ho
+const EXPOSE_DEV_CODE = !IS_PROD && !process.env.SMTP_HOST;
+
+function devCodeField(code) {
+  return EXPOSE_DEV_CODE ? { devCode: code } : {};
+}
+
+function generateSecureOTP() {
+  return crypto.randomInt(100000, 1000000).toString();
+}
+
+// Rate limiting map for OTP attempts: key = email -> { count: number, lockedUntil: timestamp }
+const otpAttempts = new Map();
+function checkOtpRateLimit(email) {
+  const rec = otpAttempts.get(email);
+  if (rec && rec.lockedUntil && Date.now() < rec.lockedUntil) {
+    const minsLeft = Math.ceil((rec.lockedUntil - Date.now()) / 60000);
+    return `Too many failed attempts. Account temporarily locked for security. Please try again in ${minsLeft} minute(s).`;
+  }
+  return null;
+}
+function recordOtpFailure(email) {
+  const rec = otpAttempts.get(email) || { count: 0, lockedUntil: 0 };
+  rec.count += 1;
+  if (rec.count >= 5) {
+    rec.lockedUntil = Date.now() + 15 * 60 * 1000; // 15 mins lockout
+  }
+  otpAttempts.set(email, rec);
+}
+function clearOtpRateLimit(email) {
+  otpAttempts.delete(email);
+}
 
 // Middleware
 app.use(cors());
@@ -30,7 +66,8 @@ mongoose.connect(MONGODB_URI, {
 })
 .then(() => {
   isDbConnected = true;
-  console.log('✅ [MongoDB] Connected successfully to:', MONGODB_URI);
+  const sanitizedUri = (MONGODB_URI || '').replace(/:([^@]+)@/, ':****@');
+  console.log('✅ [MongoDB] Connected successfully to:', sanitizedUri);
 })
 .catch(err => {
   isDbConnected = false;
@@ -52,16 +89,26 @@ if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
   });
   console.log('📧 [Email Service] Configured with SMTP:', process.env.SMTP_HOST);
 } else {
-  console.log('ℹ️ [Email Service] SMTP not configured in .env. Verification codes will be logged to console and returned for instant testing.');
+  if (IS_PROD) {
+    console.error('⚠️ [CRITICAL CONFIG] SMTP is not configured in production mode. Verification & reset emails cannot be delivered.');
+    if (process.env.ENFORCE_PROD_SMTP === 'true') {
+      console.error('FATAL: SMTP must be configured in production.');
+      process.exit(1);
+    }
+  } else {
+    console.log('ℹ️ [Email Service] SMTP not configured in .env. Verification codes will be logged to console and returned for instant testing.');
+  }
 }
 
 // Helper: Send Verification Email
 async function sendVerificationEmail(email, name, code) {
-  console.log(`\n======================================================`);
-  console.log(`📧 [EMAIL VERIFICATION] Sent to: ${email}`);
-  console.log(`🔑 Verification Code: [ ${code} ]`);
-  console.log(`⏱️  Valid for 15 minutes`);
-  console.log(`======================================================\n`);
+  if (!IS_PROD) {
+    console.log(`\n======================================================`);
+    console.log(`📧 [EMAIL VERIFICATION] Sent to: ${email}`);
+    console.log(`🔑 Verification Code: [ ${code} ]`);
+    console.log(`⏱️  Valid for 15 minutes`);
+    console.log(`======================================================\n`);
+  }
 
   if (!mailTransporter) return { simulated: true, code };
 
@@ -119,11 +166,13 @@ async function sendVerificationEmail(email, name, code) {
 }
 
 async function sendPasswordResetEmail(email, name, code) {
-  console.log(`\n======================================================`);
-  console.log(`🔑 [PASSWORD RESET] Sent to: ${email}`);
-  console.log(`🔑 Reset Code: [ ${code} ]`);
-  console.log(`⏱️  Valid for 15 minutes`);
-  console.log(`======================================================\n`);
+  if (!IS_PROD) {
+    console.log(`\n======================================================`);
+    console.log(`🔑 [PASSWORD RESET] Sent to: ${email}`);
+    console.log(`🔑 Reset Code: [ ${code} ]`);
+    console.log(`⏱️  Valid for 15 minutes`);
+    console.log(`======================================================\n`);
+  }
 
   if (!mailTransporter) return { simulated: true, code };
 
@@ -288,7 +337,7 @@ app.post('/api/auth/register', async (req, res) => {
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
 
-    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verificationCode = generateSecureOTP();
     const verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -311,7 +360,7 @@ app.post('/api/auth/register', async (req, res) => {
           success: true,
           message: 'Verification code resent to your email address.',
           email: cleanEmail,
-          devCode: verificationCode
+          ...devCodeField(verificationCode)
         });
       }
 
@@ -355,7 +404,7 @@ app.post('/api/auth/register', async (req, res) => {
       success: true,
       message: 'Account created! Please enter the 6-digit verification code sent to your email.',
       email: cleanEmail,
-      devCode: verificationCode
+      ...devCodeField(verificationCode)
     });
   } catch (err) {
     console.error('Registration error:', err);
@@ -372,6 +421,12 @@ app.post('/api/auth/verify-email', async (req, res) => {
     }
     const cleanEmail = email.toLowerCase().trim();
     const cleanCode = code.toString().trim();
+
+    // Rate limiting check
+    const lockError = checkOtpRateLimit(cleanEmail);
+    if (lockError) {
+      return res.status(429).json({ error: lockError });
+    }
 
     let user = null;
     if (isDbConnected) {
@@ -405,12 +460,16 @@ app.post('/api/auth/verify-email', async (req, res) => {
     }
 
     if (!user.verificationCode || user.verificationCode !== cleanCode) {
+      recordOtpFailure(cleanEmail);
       return res.status(400).json({ error: 'Invalid verification code. Please check your email and try again.' });
     }
 
     if (user.verificationCodeExpires && new Date() > new Date(user.verificationCodeExpires)) {
       return res.status(400).json({ error: 'Verification code has expired. Please request a new one.' });
     }
+
+    // Success - clear lockout counter
+    clearOtpRateLimit(cleanEmail);
 
     // Mark as verified
     user.isVerified = true;
@@ -465,7 +524,7 @@ app.post('/api/auth/resend-code', async (req, res) => {
       return res.json({ success: true, message: 'Your email is already verified. Please log in.' });
     }
 
-    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verificationCode = generateSecureOTP();
     const verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
 
     user.verificationCode = verificationCode;
@@ -477,7 +536,7 @@ app.post('/api/auth/resend-code', async (req, res) => {
     return res.json({
       success: true,
       message: 'New verification code sent to your email.',
-      devCode: verificationCode
+      ...devCodeField(verificationCode)
     });
   } catch (err) {
     return res.status(500).json({ error: err.message });
@@ -502,7 +561,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
       return res.status(404).json({ error: 'No account found with this email address' });
     }
 
-    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const resetCode = generateSecureOTP();
     const resetExpires = new Date(Date.now() + 15 * 60 * 1000);
 
     user.resetPasswordCode = resetCode;
@@ -518,9 +577,9 @@ app.post('/api/auth/forgot-password', async (req, res) => {
 
     return res.json({
       success: true,
-      message: 'Password reset code has been sent to your email address.',
+      message: 'If an account exists for this email, a reset code has been sent.',
       email: cleanEmail,
-      devCode: resetCode
+      ...devCodeField(resetCode)
     });
   } catch (err) {
     console.error('Forgot password error:', err);
@@ -542,6 +601,12 @@ app.post('/api/auth/reset-password', async (req, res) => {
     const cleanEmail = email.toLowerCase().trim();
     const cleanCode = code.toString().trim();
 
+    // Rate limiting check
+    const lockError = checkOtpRateLimit(cleanEmail);
+    if (lockError) {
+      return res.status(429).json({ error: lockError });
+    }
+
     let user = null;
     if (isDbConnected) {
       user = await User.findOne({ email: cleanEmail });
@@ -557,12 +622,16 @@ app.post('/api/auth/reset-password', async (req, res) => {
     const expiry = user.resetPasswordExpires || user.verificationCodeExpires;
 
     if (!validCode || validCode !== cleanCode) {
+      recordOtpFailure(cleanEmail);
       return res.status(400).json({ error: 'Invalid verification code. Please check your email or request a new code.' });
     }
 
     if (expiry && new Date() > new Date(expiry)) {
       return res.status(400).json({ error: 'This reset code has expired. Please request a new one.' });
     }
+
+    // Success - clear lockout counter
+    clearOtpRateLimit(cleanEmail);
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
@@ -630,7 +699,7 @@ app.post('/api/auth/login', async (req, res) => {
       let codeToUse = user.verificationCode;
       const isExpired = !user.verificationCodeExpires || new Date() > new Date(user.verificationCodeExpires);
       if (!codeToUse || isExpired) {
-        codeToUse = Math.floor(100000 + Math.random() * 900000).toString();
+        codeToUse = generateSecureOTP();
         user.verificationCode = codeToUse;
         user.verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
         if (isDbConnected) await user.save();
@@ -641,7 +710,7 @@ app.post('/api/auth/login', async (req, res) => {
         error: 'email_not_verified',
         message: 'Your email address is not verified yet. We have sent a verification code to ' + cleanEmail,
         email: cleanEmail,
-        devCode: codeToUse
+        ...devCodeField(codeToUse)
       });
     }
 
@@ -1592,7 +1661,26 @@ app.get('/:slug', (req, res, next) => {
 /* =========================================================
    10. STATIC CLIENT FILES & SPA FALLBACK
    ========================================================= */
-app.use(express.static(path.join(__dirname)));
+// Security Shield: Prevent leakage of source code, environment variables, models, and databases
+app.use((req, res, next) => {
+  const blockedPatterns = [
+    /^\/\.env/i,
+    /^\/\.git/i,
+    /^\/server\.js/i,
+    /^\/package.*\.json/i,
+    /^\/models(\/|$)/i,
+    /^\/data(\/|$)/i,
+    /^\/node_modules(\/|$)/i,
+    /^\/\.htaccess/i,
+    /\.db$/i
+  ];
+  if (blockedPatterns.some(pattern => pattern.test(req.path))) {
+    return res.status(403).json({ error: 'Access Denied: Sensitive file access is blocked for security.' });
+  }
+  next();
+});
+
+app.use(express.static(path.join(__dirname), { dotfiles: 'ignore' }));
 
 app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));

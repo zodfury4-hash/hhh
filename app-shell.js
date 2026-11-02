@@ -1897,10 +1897,25 @@ Here are recommended optimizations for your links and campaigns:<br>
 
   // ---------------- INITIALIZATION ---------------- //
   function init() {
+    const sidebar = $('#appSidebar') || $('.app-sidebar');
+    const toggleBtn = $('#sidebarToggleBtn');
+    if (toggleBtn && sidebar) {
+      toggleBtn.onclick = (e) => {
+        e.stopPropagation();
+        sidebar.classList.toggle('open');
+      };
+      document.addEventListener('click', (e) => {
+        if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== toggleBtn) {
+          sidebar.classList.remove('open');
+        }
+      });
+    }
+
     // Sidebar nav clicks
     $$('#sidebarNav .sidebar-nav-item').forEach(btn => {
       btn.onclick = e => {
         e.preventDefault();
+        if (sidebar) sidebar.classList.remove('open');
         const tab = btn.dataset.tab;
         location.hash = (tab === 'home') ? '#dashboard' : '#' + tab;
         navigate(tab);
@@ -1909,7 +1924,6 @@ Here are recommended optimizations for your links and campaigns:<br>
 
     // Sidebar collapse toggle (Screenshot 12.02.42 AM 1)
     const collapseBtn = $('#sidebarCollapseBtn');
-    const sidebar = $('#appSidebar');
     if (collapseBtn && sidebar) {
       collapseBtn.onclick = () => {
         sidebar.classList.toggle('collapsed');

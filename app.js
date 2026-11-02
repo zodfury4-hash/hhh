@@ -1318,6 +1318,7 @@ function showAuth(mode) {
     if (authSwap) authSwap.hidden = true;
     if (verifyWrap) verifyWrap.hidden = true;
     if (forgotWrap) forgotWrap.hidden = false;
+    if ($('#forgotDevAlert')) $('#forgotDevAlert').hidden = true;
 
     $('#authTitle').textContent = 'Reset Your Password';
     $('#authSub').textContent = 'Enter your account email to receive a 6-digit recovery code.';
@@ -1341,6 +1342,7 @@ function showAuth(mode) {
     if (authSwap) authSwap.hidden = true;
     if (verifyWrap) verifyWrap.hidden = false;
     if (forgotWrap) forgotWrap.hidden = true;
+    if ($('#verifyDevAlert')) $('#verifyDevAlert').hidden = true;
 
     $('#authTitle').textContent = 'Verify Your Email';
     $('#authSub').textContent = 'Enter the 6-digit confirmation code we sent to your inbox.';
@@ -1515,13 +1517,15 @@ $('#authForm').onsubmit = async e => {
       if (backendRes && backendRes.ok) {
         pendingVerificationEmail = email;
         showAuth('verify');
+        const devAlert = $('#verifyDevAlert');
+        const devText = $('#verifyDevText');
         if (backendRes.data.devCode) {
-          const devAlert = $('#verifyDevAlert');
-          const devText = $('#verifyDevText');
           if (devAlert && devText) {
             devAlert.hidden = false;
             devText.textContent = `Verification Code: ${backendRes.data.devCode}`;
           }
+        } else if (devAlert) {
+          devAlert.hidden = true;
         }
         toast('Verification code sent to ' + email);
         return;
@@ -1576,13 +1580,15 @@ $('#authForm').onsubmit = async e => {
         if (backendRes.status === 403 && backendRes.data.error === 'email_not_verified') {
           pendingVerificationEmail = email;
           showAuth('verify');
+          const devAlert = $('#verifyDevAlert');
+          const devText = $('#verifyDevText');
           if (backendRes.data.devCode) {
-            const devAlert = $('#verifyDevAlert');
-            const devText = $('#verifyDevText');
             if (devAlert && devText) {
               devAlert.hidden = false;
               devText.textContent = `Verification Code: ${backendRes.data.devCode}`;
             }
+          } else if (devAlert) {
+            devAlert.hidden = true;
           }
           toast('Your email is not verified yet. Verification code resent.');
           return;
@@ -1874,8 +1880,8 @@ if (forgotStep1Form) {
       let devCode = '';
       if (backendRes && backendRes.ok && backendRes.data.success) {
         devCode = backendRes.data.devCode || '';
-      } else {
-        // Resilient fallback code for offline/client mode
+      } else if (!backendRes) {
+        // Resilient fallback code for offline/client-only demo mode
         devCode = Math.floor(100000 + Math.random() * 900000).toString();
       }
       pendingForgotCode = devCode;
@@ -1888,8 +1894,12 @@ if (forgotStep1Form) {
       const devAlert = $('#forgotDevAlert');
       const devText = $('#forgotDevText');
       if (devAlert && devText) {
-        devText.textContent = `Reset Code: ${devCode}`;
-        devAlert.hidden = false;
+        if (devCode) {
+          devText.textContent = `Reset Code: ${devCode}`;
+          devAlert.hidden = false;
+        } else {
+          devAlert.hidden = true;
+        }
       }
 
       const codeIn = $('#forgotCodeInput');
