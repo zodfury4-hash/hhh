@@ -689,44 +689,228 @@ function initStaticSections() {
    ========================================================= */
 
 let heroMode = 'link';
+let activeHeroQrColor = '#00d2ff';
 
+function morphHeroCard(targetMode) {
+  heroMode = targetMode;
+  const wrap = $('#heroMorphWrap');
+  if (!wrap) return;
+
+  // Update tabs
+  $$('#heroTabs button').forEach(b => {
+    b.classList.toggle('on', b.dataset.t === targetMode);
+  });
+
+  const panes = {
+    link: $('#paneShortLink'),
+    qr: $('#paneQrCode'),
+    bulk: $('#paneBulkShorten')
+  };
+
+  const startHeight = wrap.offsetHeight;
+  wrap.style.height = `${startHeight}px`;
+
+  // Switch visibility
+  Object.keys(panes).forEach(k => {
+    const p = panes[k];
+    if (!p) return;
+    if (k === targetMode) {
+      p.hidden = false;
+      p.classList.add('active');
+    } else {
+      p.hidden = true;
+      p.classList.remove('active');
+    }
+  });
+
+  // If QR mode, immediately render live preview
+  if (targetMode === 'qr') {
+    const qIn = $('#heroQrInput');
+    if (qIn && !qIn.value) {
+      qIn.value = ($('#heroUrl') ? $('#heroUrl').value.trim() : '') || 'https://healink.store';
+    }
+    updateHeroQrPreview();
+  }
+
+  // Measure target height
+  wrap.style.height = 'auto';
+  const targetHeight = wrap.offsetHeight;
+  wrap.style.height = `${startHeight}px`;
+
+  // Force reflow
+  void wrap.offsetHeight;
+
+  wrap.style.transition = 'height 0.36s cubic-bezier(0.16, 1, 0.3, 1)';
+  wrap.style.height = `${targetHeight}px`;
+
+  setTimeout(() => {
+    wrap.style.height = 'auto';
+  }, 380);
+}
+
+function updateHeroQrPreview() {
+  const canvas = $('#heroQrCanvas');
+  const text = ($('#heroQrInput') ? $('#heroQrInput').value.trim() : '') || 'https://healink.store';
+  if (canvas && typeof drawQR === 'function') {
+    drawQR(canvas, text, activeHeroQrColor, '#ffffff', 96);
+  }
+}
+
+// Hero tab click handlers
 $$('#heroTabs button').forEach(btn => {
   btn.onclick = () => {
-    heroMode = btn.dataset.t;
-    $$('#heroTabs button').forEach(b => b.classList.toggle('on', b === btn));
-    $('#heroErr').textContent = '';
-    $('#heroRes').hidden = true;
-    $('#heroQr').hidden = true;
-    $('#heroBulk').hidden = heroMode !== 'bulk';
-    $('#heroForm').hidden = heroMode === 'bulk';
-
-    if (heroMode === 'link') {
-      $('#heroBtn').textContent = 'Shorten link →';
-      $('#heroUrl').placeholder = 'https://example.com/a-very-long-page-address';
-    } else if (heroMode === 'qr') {
-      $('#heroBtn').textContent = 'Create QR code →';
-      $('#heroUrl').placeholder = 'https://example.com or any text';
+    const t = btn.dataset.t;
+    if (t !== heroMode) {
+      morphHeroCard(t);
     }
   };
 });
 
+// Color chips for QR Studio
+$$('#heroQrColorChips .qr-chip').forEach(chip => {
+  chip.onclick = () => {
+    $$('#heroQrColorChips .qr-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    activeHeroQrColor = chip.dataset.color || '#00d2ff';
+    updateHeroQrPreview();
+  };
+});
+
+// Real-time typing in QR Input
+const heroQrInputEl = $('#heroQrInput');
+if (heroQrInputEl) {
+  heroQrInputEl.oninput = () => {
+    updateHeroQrPreview();
+  };
+}
+
+// QR Form Submit
+const heroQrFormEl = $('#heroQrForm');
+if (heroQrFormEl) {
+  heroQrFormEl.onsubmit = e => {
+    e.preventDefault();
+    updateHeroQrPreview();
+    toast('Dynamic Vector QR Code Generated!');
+  };
+}
+
+// QR Download & Copy Buttons
+const heroQrDlBtn = $('#heroQrDlBtn');
+if (heroQrDlBtn) {
+  heroQrDlBtn.onclick = () => {
+    const canvas = $('#heroQrCanvas');
+    if (!canvas) return;
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = `healink-qr-${Date.now()}.png`;
+    a.click();
+    toast('QR Code downloaded as PNG!');
+  };
+}
+
+const heroQrCopyBtn = $('#heroQrCopyBtn');
+if (heroQrCopyBtn) {
+  heroQrCopyBtn.onclick = () => {
+    const text = ($('#heroQrInput') ? $('#heroQrInput').value.trim() : '') || 'https://healink.store';
+    copy(text);
+  };
+}
+
+// Bulk Shortener Textarea Counter & Sample Fill
+const bulkTextareaEl = $('#heroBulkTextarea');
+const bulkCounterEl = $('#bulkLinkCounter');
+function updateBulkCounter() {
+  if (!bulkTextareaEl || !bulkCounterEl) return;
+  const lines = bulkTextareaEl.value.split('\n').map(l => l.trim()).filter(Boolean);
+  if (lines.length === 0) {
+    bulkCounterEl.textContent = '⚡ 0 links detected';
+    bulkCounterEl.style.color = '#94a3b8';
+  } else if (lines.length === 1) {
+    bulkCounterEl.textContent = '⚡ 1 valid link ready to shorten';
+    bulkCounterEl.style.color = '#38bdf8';
+  } else {
+    bulkCounterEl.textContent = `⚡ ${lines.length} valid links ready to shorten`;
+    bulkCounterEl.style.color = '#38bdf8';
+  }
+}
+if (bulkTextareaEl) {
+  bulkTextareaEl.oninput = updateBulkCounter;
+}
+
+const bulkSampleBtn = $('#bulkFillSampleBtn');
+if (bulkSampleBtn && bulkTextareaEl) {
+  bulkSampleBtn.onclick = () => {
+    bulkTextareaEl.value = 'https://example.com/summer-sale\nhttps://example.com/black-friday\nhttps://example.com/new-collection-2026';
+    updateBulkCounter();
+  };
+}
+
+// Bulk Form Submit
+const heroBulkFormEl = $('#heroBulkForm');
+if (heroBulkFormEl) {
+  heroBulkFormEl.onsubmit = async e => {
+    e.preventDefault();
+    const text = bulkTextareaEl ? bulkTextareaEl.value.trim() : '';
+    const errBox = $('#heroBulkErr');
+    const resBox = $('#heroBulkResults');
+    if (errBox) errBox.textContent = '';
+    if (!text) {
+      if (errBox) errBox.textContent = 'Please paste at least one URL.';
+      return;
+    }
+
+    const lines = text.split('\n').map(x => x.trim()).filter(Boolean);
+    const subBtn = $('#heroBulkSubmitBtn');
+    if (subBtn) {
+      subBtn.disabled = true;
+      subBtn.textContent = 'Shortening links...';
+    }
+
+    try {
+      const outputs = [];
+      for (const raw of lines) {
+        const r = createLink({ url: raw });
+        if (r.link) {
+          const v = visitUrl(r.link);
+          outputs.push(`
+            <div class="bulk-res-item">
+              <div>
+                <span class="bulk-res-orig">${esc(r.link.url)}</span>
+                <a href="${esc(v)}" target="_blank" rel="noopener" class="bulk-res-link">${esc(v)}</a>
+              </div>
+              <button type="button" class="btn ghost sm" onclick="window.copy('${esc(v)}')">Copy</button>
+            </div>
+          `);
+
+          // Sync to MongoDB backend
+          fetch('/api/shorten', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: r.link.url, slug: r.link.slug })
+          }).catch(() => {});
+        }
+      }
+
+      if (resBox) {
+        resBox.hidden = false;
+        resBox.innerHTML = outputs.join('') || '<p class="err">No valid URLs provided.</p>';
+      }
+      toast(`Successfully shortened ${outputs.length} links!`);
+    } finally {
+      if (subBtn) {
+        subBtn.disabled = false;
+        subBtn.textContent = 'Bulk shorten links →';
+      }
+    }
+  };
+}
+
+// 1. Single Short Link Form Submit
 $('#heroForm').onsubmit = async e => {
   e.preventDefault();
   const inputVal = $('#heroUrl').value;
   const errBox = $('#heroErr');
   errBox.textContent = '';
-
-  if (heroMode === 'qr') {
-    const norm = normalize(inputVal) || inputVal.trim();
-    if (!norm) {
-      errBox.textContent = 'Please enter a valid link or text.';
-      return;
-    }
-    $('#heroQr').hidden = false;
-    drawQR($('#heroQr'), norm, '#0e1a33', '#ffffff', 256);
-    $('#heroRes').hidden = true;
-    return;
-  }
 
   // Create link
   const res = createLink({ url: inputVal });
@@ -766,42 +950,6 @@ $('#heroForm').onsubmit = async e => {
       body: JSON.stringify({ url: l.url, slug: l.slug, tag: l.tag || 'General' })
     }).catch(() => {});
   } catch (e) {}
-};
-
-// Bulk shortener button
-$('#bulkBtn').onclick = async () => {
-  const text = $('#bulkUrls').value.trim();
-  const resBox = $('#bulkRes');
-  if (!text) {
-    toast('Please paste at least one URL');
-    return;
-  }
-  const lines = text.split('\n').map(x => x.trim()).filter(Boolean);
-  resBox.innerHTML = '<p class="muted">Shortening links & saving to database…</p>';
-
-  const outputs = [];
-  for (const raw of lines) {
-    const r = createLink({ url: raw });
-    if (r.link) {
-      const v = visitUrl(r.link);
-      outputs.push(`<div class="res" style="margin:4px 0;padding:10px 14px;background:rgba(255,255,255,0.04);border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
-        <div>
-          <span style="color:#94a3b8;font-size:12px;display:block;">${esc(r.link.url.slice(0, 45))}…</span>
-          <a href="${esc(v)}" target="_blank" rel="noopener" style="color:#38bdf8;font-weight:700;">${esc(v)}</a>
-        </div>
-        <button class="btn ghost sm" onclick="window.copy('${esc(v)}')">Copy</button>
-      </div>`);
-
-      // Sync to MongoDB
-      fetch('/api/shorten', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: r.link.url, slug: r.link.slug })
-      }).catch(() => {});
-    }
-  }
-  resBox.innerHTML = outputs.join('') || '<p class="err">No valid URLs provided.</p>';
-  toast(`Shortened ${outputs.length} links and persisted to database!`);
 };
 
 // AI Suggest back-half button

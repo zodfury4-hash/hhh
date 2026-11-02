@@ -933,104 +933,324 @@ input[type=color] {
 .hero-card {
   max-width: 860px;
   margin: 0 auto;
-  padding: 32px 36px;
+  padding: 28px 32px;
   text-align: left;
-  border-radius: 24px;
-  background: rgba(9, 17, 36, 0.72);
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
-  border: 1px solid rgba(0, 180, 255, 0.28);
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 35px rgba(0, 120, 255, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  border-radius: 28px;
+  background: rgba(10, 18, 38, 0.78);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 35px rgba(0, 140, 255, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-#heroTabs {
+/* Tabs Pill Row */
+.hero-tabs-wrap {
   display: flex;
-  gap: 12px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+#heroTabs {
+  display: inline-flex;
+  gap: 6px;
+  background: rgba(4, 9, 22, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 5px;
+  border-radius: 999px;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 #heroTabs button {
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 99px;
-  padding: 10px 22px;
-  font: 500 14px inherit;
+  border: 0;
+  background: transparent;
+  border-radius: 999px;
+  padding: 9px 22px;
+  font: 600 13.5px inherit;
   cursor: pointer;
-  color: #8fa0b5;
+  color: #94a3b8;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
 }
 #heroTabs button:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.22);
   color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
 }
 #heroTabs button.on {
   background: linear-gradient(135deg, #0070f3, #00c6ff) !important;
   color: #ffffff !important;
-  border: 0 !important;
-  font-weight: 600;
-  box-shadow: 0 4px 20px rgba(0, 180, 255, 0.45) !important;
+  font-weight: 700;
+  box-shadow: 0 4px 20px rgba(0, 180, 255, 0.5) !important;
 }
 
-/* Form Row inside Hero Card */
-.hero-form-row {
-  display: flex;
-  gap: 14px;
-  align-items: center;
+/* Morphing Container for Smooth Height Adjustments */
+.hero-card-morph-wrap {
   position: relative;
+  transition: height 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.hero-form-row .input-wrap {
-  position: relative;
-  flex: 1;
+.hero-pane {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.hero-pane.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+.hero-pane[hidden] {
+  display: none !important;
+}
+
+/* Single Unified Dark Capsule Pill Input */
+.hero-pill-input {
   display: flex;
   align-items: center;
-}
-.hero-form-row .input-icon {
-  position: absolute;
-  left: 20px;
-  color: #64748b;
-  font-size: 16px;
-  pointer-events: none;
-}
-.hero-form-row input {
+  background: rgba(4, 9, 24, 0.88);
+  border: 1.5px solid rgba(56, 189, 248, 0.25);
+  border-radius: 999px;
+  padding: 6px 8px 6px 20px;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 140, 255, 0.08);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
   width: 100%;
-  border-radius: 99px;
-  padding: 15px 24px 15px 50px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+.hero-pill-input:focus-within {
+  border-color: #00d2ff;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4), 0 0 24px rgba(0, 210, 255, 0.35);
+}
+.pill-input-icon {
+  color: #38bdf8;
+  font-size: 18px;
+  margin-right: 12px;
+  display: inline-flex;
+  align-items: center;
+  user-select: none;
+}
+.hero-pill-input input {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  outline: none;
   color: #ffffff;
   font-size: 15px;
-  transition: all 0.2s ease;
+  font-family: inherit;
+  min-width: 0;
 }
-.hero-form-row input::placeholder {
+.hero-pill-input input::placeholder {
   color: #526075;
 }
-.hero-form-row input:focus {
-  border-color: #00c6ff;
-  outline: none;
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 16px rgba(0, 198, 255, 0.25);
-}
+
+/* Gradient Action Button (Matches Reference) */
 .hero-submit-btn {
-  border-radius: 99px !important;
-  padding: 15px 34px !important;
-  background: linear-gradient(135deg, #0066ff, #00d2ff) !important;
+  border-radius: 999px !important;
+  padding: 13px 30px !important;
+  background: linear-gradient(90deg, #0084ff 0%, #00d2ff 62%, #10b981 100%) !important;
   color: #ffffff !important;
-  font-weight: 600 !important;
-  font-size: 15px !important;
-  box-shadow: 0 8px 25px rgba(0, 150, 255, 0.5) !important;
+  font-weight: 700 !important;
+  font-size: 14.5px !important;
+  letter-spacing: -0.01em !important;
+  box-shadow: 0 4px 22px rgba(0, 180, 255, 0.45) !important;
   white-space: nowrap !important;
   border: 0 !important;
   cursor: pointer !important;
-  transition: all 0.2s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 .hero-submit-btn:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 12px 30px rgba(0, 180, 255, 0.7) !important;
-  filter: brightness(1.08) !important;
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 8px 28px rgba(0, 210, 255, 0.65) !important;
+  filter: brightness(1.1) !important;
+}
+
+/* 2. QR Code Studio Dynamic Flow */
+.hero-qr-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.hero-qr-adjust-row {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  background: rgba(4, 9, 22, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 16px 20px;
+}
+.qr-chip-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.qr-col-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.qr-color-chips {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.qr-chip {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--chip-c);
+  border: 2px solid transparent;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.qr-chip:hover {
+  transform: scale(1.15);
+}
+.qr-chip.active {
+  border-color: #ffffff;
+  transform: scale(1.2);
+  box-shadow: 0 0 16px var(--chip-c);
+}
+.hero-qr-preview-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: auto;
+  background: rgba(13, 23, 46, 0.7);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 14px;
+  padding: 10px 16px;
+}
+.qr-canvas-holder {
+  background: #ffffff;
+  padding: 6px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+.qr-canvas-holder canvas {
+  display: block;
+}
+.qr-meta-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.qr-badge-pill {
+  font-size: 11px;
+  font-weight: 700;
+  color: #38bdf8;
+  letter-spacing: 0.04em;
+}
+.qr-action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+/* 3. Bulk Shorten Studio Flow */
+.hero-bulk-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.bulk-textarea-box {
+  background: rgba(4, 9, 24, 0.88);
+  border: 1.5px solid rgba(56, 189, 248, 0.25);
+  border-radius: 18px;
+  padding: 14px 16px;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
+  transition: border-color 0.2s;
+}
+.bulk-textarea-box:focus-within {
+  border-color: #00d2ff;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 210, 255, 0.25);
+}
+.bulk-textarea-box textarea {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  outline: none;
+  color: #ffffff;
+  font-size: 13.5px;
+  font-family: inherit;
+  resize: vertical;
+  line-height: 1.6;
+}
+.bulk-textarea-box textarea::placeholder {
+  color: #526075;
+}
+.bulk-info-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 10px;
+  margin-top: 6px;
+}
+.bulk-counter-tag {
+  font-size: 12px;
+  font-weight: 600;
+  color: #38bdf8;
+}
+.bulk-sample-btn {
+  background: none;
+  border: 0;
+  color: #94a3b8;
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.bulk-sample-btn:hover {
+  color: #ffffff;
+}
+.bulk-submit-row {
+  display: flex;
+}
+.bulk-results-box {
+  background: rgba(4, 9, 22, 0.7);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 14px;
+  padding: 14px;
+  max-height: 220px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bulk-res-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(13, 23, 46, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+.bulk-res-link {
+  color: #38bdf8;
+  font-weight: 700;
+  text-decoration: none;
+}
+.bulk-res-orig {
+  color: #64748b;
+  font-size: 11px;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Result Box for Short Link */
+.hero-card .res {
+  margin-top: 16px;
+  padding: 16px 20px;
+  background: rgba(4, 9, 22, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 /* 4 Feature Badges below Hero Card */

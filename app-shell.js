@@ -288,6 +288,34 @@
           </div>
         </div>
       </div>
+
+      <!-- Recent Links Quick Section -->
+      <div class="dash-white-card" style="margin-top:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div>
+            <h4 style="margin:0;color:#ffffff;font-size:16px;">Recent links</h4>
+            <p style="color:#94a3b8;font-size:12px;margin:2px 0 0;">Your active links and real-time performance</p>
+          </div>
+          <button class="topbar-icon-btn" type="button" onclick="window.appShell.navigate('links')" style="color:#38bdf8;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:4px;">View all links →</button>
+        </div>
+        <div class="home-recent-links-list">
+          ${getStoredLinks().slice(0, 3).map(l => `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;margin-bottom:10px;">
+              <div style="min-width:0;flex:1;margin-right:16px;">
+                <a href="${l.url}" target="_blank" rel="noopener" style="font-weight:700;color:#38bdf8;font-size:14px;text-decoration:none;">${l.url}</a>
+                <div style="font-size:12px;color:#94a3b8;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.title || 'Untitled'} · <span style="color:#64748b;">${l.dest}</span></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:16px;flex-shrink:0;">
+                <div style="text-align:right;">
+                  <b style="color:#10b981;font-size:14px;">${l.clicks || 0}</b>
+                  <span style="font-size:11px;color:#94a3b8;display:block;">clicks</span>
+                </div>
+                <button class="sso-btn" style="width:auto;padding:6px 12px;font-size:12px;" onclick="window.appShell.copy('${l.url}')">📋 Copy</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
     `;
 
     const form = $('#homeShortenForm');
