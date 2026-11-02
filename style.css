@@ -641,12 +641,13 @@ input[type=color] {
 }
 
 .hero-title {
-  font-size: 52px;
-  line-height: 1.12;
+  font-size: clamp(34px, 4.2vw, 50px);
+  line-height: 1.18;
   font-weight: 800;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.025em;
   color: #ffffff;
   margin: 0 0 16px;
+  white-space: normal;
 }
 
 .lime-text {

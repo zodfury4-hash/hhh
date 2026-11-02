@@ -2,22 +2,83 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Redirecting to destination…</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Redirecting — HEA Link</title>
+  <link rel="icon" type="image/png" href="/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <script>
-    (function() {
-      const p = new URLSearchParams(location.search);
-      const c = p.get('c') || p.get('slug') || location.hash.replace('#', '');
-      const u = p.get('u');
-      let target = 'index.html';
-      if (c) {
-        target += '#go-' + encodeURIComponent(c);
-        if (u) target += '?u=' + encodeURIComponent(u);
+    (function () {
+      const path = window.location.pathname || '';
+      const search = window.location.search || '';
+      const params = new URLSearchParams(search);
+
+      // Direct target in query param
+      const uParam = params.get('u') || params.get('url') || params.get('dest');
+      if (uParam) {
+        try {
+          const decoded = decodeURIComponent(uParam);
+          if (/^https?:\/\//i.test(decoded)) {
+            window.location.replace(decoded);
+            return;
+          }
+        } catch (e) {}
       }
-      location.replace(target);
+
+      let slug = params.get('c') || params.get('slug') || '';
+      if (!slug) {
+        const rMatch = path.match(/^\/r\/([^\/?#]+)/i);
+        if (rMatch && rMatch[1] !== 'index.html') slug = rMatch[1];
+      }
+
+      if (slug) {
+        const cleanSlug = slug.toLowerCase();
+        let targetUrl = null;
+
+        try {
+          targetUrl = localStorage.getItem('hea_slug_' + cleanSlug) || localStorage.getItem('hea_slug_' + slug);
+        } catch (e) {}
+
+        if (!targetUrl) {
+          try {
+            const raw = localStorage.getItem('hea_links');
+            if (raw) {
+              const list = JSON.parse(raw);
+              if (Array.isArray(list)) {
+                const found = list.find(x => (x.slug && x.slug.toLowerCase() === cleanSlug) || x.id === slug || x.slug === slug);
+                if (found) targetUrl = found.url || found.dest;
+              }
+            }
+          } catch (e) {}
+        }
+
+        if (targetUrl) {
+          if (!/^https?:\/\//i.test(targetUrl)) targetUrl = 'https://' + targetUrl;
+          window.location.replace(targetUrl);
+          return;
+        }
+
+        fetch('/api/links/' + encodeURIComponent(slug))
+          .then(res => res.json())
+          .then(data => {
+            const dest = data.url || data.dest || (data.link && (data.link.url || data.link.dest));
+            if (dest) {
+              window.location.replace(dest);
+            } else {
+              window.location.replace('/#' + slug);
+            }
+          })
+          .catch(() => {
+            window.location.replace('/');
+          });
+      } else {
+        window.location.replace('/');
+      }
     })();
   </script>
 </head>
-<body style="font-family:sans-serif;text-align:center;padding:50px">
-  <p>Safely redirecting…</p>
+<body style="font-family:'Poppins',sans-serif;background:#040816;color:#ffffff;display:grid;place-items:center;height:100vh;margin:0;">
+  <p style="color:#38bdf8;">Connecting to destination…</p>
 </body>
 </html>

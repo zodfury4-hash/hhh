@@ -33,7 +33,19 @@ if (session && !session.isVerified) {
   store.set('hea_session', null);
 }
 let bios = store.get('hea_bios', []);
-const saveLinks = () => store.set('hea_links', links);
+const saveLinks = () => {
+  store.set('hea_links', links);
+  try {
+    const map = {};
+    links.forEach(l => {
+      if (l.slug && l.url) {
+        map[l.slug.toLowerCase()] = l.url;
+        localStorage.setItem('hea_slug_' + l.slug.toLowerCase(), l.url);
+      }
+    });
+    localStorage.setItem('hea_slug_map', JSON.stringify(map));
+  } catch (e) {}
+};
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'

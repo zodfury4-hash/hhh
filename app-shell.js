@@ -574,6 +574,13 @@
     };
     links.unshift(newL);
     localStorage.setItem('hea_links', JSON.stringify(links));
+    try {
+      localStorage.setItem('hea_slug_' + slug.toLowerCase(), dest);
+      const mapRaw = localStorage.getItem('hea_slug_map') || '{}';
+      const map = JSON.parse(mapRaw);
+      map[slug.toLowerCase()] = dest;
+      localStorage.setItem('hea_slug_map', JSON.stringify(map));
+    } catch (e) {}
 
     // Sync to MongoDB backend
     try {
