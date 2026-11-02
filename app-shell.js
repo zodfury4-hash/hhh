@@ -2006,11 +2006,14 @@ Here are recommended optimizations for your links and campaigns:<br>
         name: 'Hayyam Ameer',
         email: 'hayyamameer3030@gmail.com',
         isVerified: true,
+        provider: 'google',
+        avatar: 'HA',
         country: 'Pakistan',
         city: 'Faisalabad',
         isp: 'Nayatel Private Limited'
       };
       localStorage.setItem('hea_session', JSON.stringify(gUser));
+      if (typeof session !== 'undefined') session = gUser;
       setAppUser(gUser);
       document.body.classList.add('app-mode');
       const as = $('#appShell');
@@ -2018,7 +2021,31 @@ Here are recommended optimizations for your links and campaigns:<br>
       location.hash = '#dashboard';
       navigate('home');
       if (typeof renderNavRight === 'function') renderNavRight();
-      toast('Signed in with Google');
+      toast('✅ Successfully signed in with Google as Hayyam Ameer!');
+    };
+
+    const ssoA = $('#ssoAppleBtn');
+    if (ssoA) ssoA.onclick = () => {
+      const aUser = {
+        name: 'Hayyam Ameer',
+        email: 'hayyam.ameer@icloud.com',
+        isVerified: true,
+        provider: 'apple',
+        avatar: 'HA',
+        country: 'Pakistan',
+        city: 'Faisalabad',
+        isp: 'Nayatel Private Limited'
+      };
+      localStorage.setItem('hea_session', JSON.stringify(aUser));
+      if (typeof session !== 'undefined') session = aUser;
+      setAppUser(aUser);
+      document.body.classList.add('app-mode');
+      const as = $('#appShell');
+      if (as) as.hidden = false;
+      location.hash = '#dashboard';
+      navigate('home');
+      if (typeof renderNavRight === 'function') renderNavRight();
+      toast('✅ Successfully signed in with Apple ID!');
     };
 
     // Route sync on hashchange

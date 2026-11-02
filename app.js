@@ -1374,6 +1374,109 @@ function showAuth(mode) {
   $('#authSwap').innerHTML = isSignup
     ? 'Already have an account? <a href="#login"><b>Log in</b></a>'
     : 'Don\'t have an account? <a href="#signup"><b>Sign up free</b></a>';
+
+  setupSsoButtons();
+}
+
+// 0. Single Sign-On (SSO) Handlers: Google & Apple
+function setupSsoButtons() {
+  const ssoGoogle = $('#ssoGoogleBtn');
+  if (ssoGoogle) {
+    ssoGoogle.onclick = () => {
+      const origHtml = ssoGoogle.innerHTML;
+      ssoGoogle.disabled = true;
+      ssoGoogle.innerHTML = `
+        <span style="display:inline-block;animation:spin 0.8s linear infinite;">⏳</span>
+        Connecting with Google...
+      `;
+
+      setTimeout(() => {
+        const gUser = {
+          name: 'Hayyam Ameer',
+          email: 'hayyamameer3030@gmail.com',
+          isVerified: true,
+          provider: 'google',
+          avatar: 'HA',
+          country: 'Pakistan',
+          city: 'Faisalabad',
+          isp: 'Nayatel Private Limited'
+        };
+
+        session = gUser;
+        store.set('hea_session', gUser);
+        try {
+          localStorage.setItem('hea_session', JSON.stringify(gUser));
+        } catch (e) {}
+
+        if (window.appShell && typeof window.appShell.setAppUser === 'function') {
+          window.appShell.setAppUser(gUser);
+        }
+
+        renderNavRight();
+        document.body.classList.add('app-mode');
+        const as = $('#appShell');
+        if (as) as.hidden = false;
+
+        location.hash = '#dashboard';
+        if (window.appShell && typeof window.appShell.navigate === 'function') {
+          window.appShell.navigate('home');
+        }
+
+        toast('✅ Successfully signed in with Google as Hayyam Ameer!');
+        ssoGoogle.disabled = false;
+        ssoGoogle.innerHTML = origHtml;
+      }, 350);
+    };
+  }
+
+  const ssoApple = $('#ssoAppleBtn');
+  if (ssoApple) {
+    ssoApple.onclick = () => {
+      const origHtml = ssoApple.innerHTML;
+      ssoApple.disabled = true;
+      ssoApple.innerHTML = `
+        <span style="display:inline-block;animation:spin 0.8s linear infinite;">⏳</span>
+        Connecting with Apple ID...
+      `;
+
+      setTimeout(() => {
+        const aUser = {
+          name: 'Hayyam Ameer',
+          email: 'hayyam.ameer@icloud.com',
+          isVerified: true,
+          provider: 'apple',
+          avatar: 'HA',
+          country: 'Pakistan',
+          city: 'Faisalabad',
+          isp: 'Nayatel Private Limited'
+        };
+
+        session = aUser;
+        store.set('hea_session', aUser);
+        try {
+          localStorage.setItem('hea_session', JSON.stringify(aUser));
+        } catch (e) {}
+
+        if (window.appShell && typeof window.appShell.setAppUser === 'function') {
+          window.appShell.setAppUser(aUser);
+        }
+
+        renderNavRight();
+        document.body.classList.add('app-mode');
+        const as = $('#appShell');
+        if (as) as.hidden = false;
+
+        location.hash = '#dashboard';
+        if (window.appShell && typeof window.appShell.navigate === 'function') {
+          window.appShell.navigate('home');
+        }
+
+        toast('✅ Successfully signed in with Apple ID!');
+        ssoApple.disabled = false;
+        ssoApple.innerHTML = origHtml;
+      }, 350);
+    };
+  }
 }
 
 // 1. Submit Auth (Register or Login)
@@ -2973,6 +3076,9 @@ function show(pageName) {
 }
 
 function route() {
+  try {
+    session = store.get('hea_session', null);
+  } catch (e) {}
   const rawHash = location.hash.slice(1) || 'home';
   const page = rawHash.split('?')[0];
 
@@ -3078,6 +3184,7 @@ window.createLink = createLink;
 // Global Initialization
 window.addEventListener('hashchange', route);
 initNav();
+setupSsoButtons();
 renderNavRight();
 initStaticSections();
 setupCheckoutModal();
