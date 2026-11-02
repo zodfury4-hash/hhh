@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="logo.png">
-  <link rel="stylesheet" href="style.css?v=21">
+  <link rel="stylesheet" href="style.css?v=22">
   <link rel="stylesheet" href="app-shell.css?v=3">
 </head>
 <body>
@@ -164,31 +164,89 @@
       </div>
     </div>
 
-    <!-- 4 Hero Feature Badges (Spanning below the split hero) -->
+    <!-- 4 Hero Feature Badges (Expanded Width & Vector Images) -->
     <div class="hero-badges wrap">
       <div class="badge-item">
-        <div class="badge-icon">⚡</div>
+        <div class="badge-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="boltGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#00d2ff"/>
+                <stop offset="100%" stop-color="#D4FF24"/>
+              </linearGradient>
+            </defs>
+            <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="url(#boltGrad)" stroke="#00d2ff" stroke-width="0.8" stroke-linejoin="round"/>
+          </svg>
+        </div>
         <div>
           <b>Instant &amp; Reliable</b>
           <span>Shorten in milliseconds</span>
         </div>
       </div>
       <div class="badge-item">
-        <div class="badge-icon">📊</div>
+        <div class="badge-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="chartGrad1" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#38bdf8"/>
+                <stop offset="100%" stop-color="#0066ff"/>
+              </linearGradient>
+              <linearGradient id="chartGrad2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#D4FF24"/>
+                <stop offset="100%" stop-color="#10b981"/>
+              </linearGradient>
+              <linearGradient id="chartGrad3" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#00d2ff"/>
+                <stop offset="100%" stop-color="#3b82f6"/>
+              </linearGradient>
+            </defs>
+            <rect x="3" y="13" width="4" height="8" rx="1.5" fill="url(#chartGrad1)"/>
+            <rect x="10" y="8" width="4" height="13" rx="1.5" fill="url(#chartGrad2)"/>
+            <rect x="17" y="4" width="4" height="17" rx="1.5" fill="url(#chartGrad3)"/>
+            <path d="M4 11L11 6L18 3" stroke="#D4FF24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="18" cy="3" r="1.8" fill="#D4FF24"/>
+          </svg>
+        </div>
         <div>
           <b>Powerful Analytics</b>
           <span>Track every click</span>
         </div>
       </div>
       <div class="badge-item">
-        <div class="badge-icon">🛡️</div>
+        <div class="badge-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="shieldGrad" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#00d2ff"/>
+                <stop offset="50%" stop-color="#10b981"/>
+                <stop offset="100%" stop-color="#0055ff"/>
+              </linearGradient>
+            </defs>
+            <path d="M12 2L4 5V11C4 16.5 7.4 21.6 12 22.8C16.6 21.6 20 16.5 20 11V5L12 2Z" fill="url(#shieldGrad)" fill-opacity="0.25" stroke="url(#shieldGrad)" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M9 12L11 14L15 9.5" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
         <div>
           <b>Branded Experience</b>
           <span>Build trust with your brand</span>
         </div>
       </div>
       <div class="badge-item">
-        <div class="badge-icon">🌐</div>
+        <div class="badge-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="globeGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#00d2ff"/>
+                <stop offset="100%" stop-color="#3b82f6"/>
+              </linearGradient>
+            </defs>
+            <circle cx="12" cy="12" r="9.5" stroke="url(#globeGrad)" stroke-width="1.6"/>
+            <ellipse cx="12" cy="12" rx="4.5" ry="9.5" stroke="url(#globeGrad)" stroke-width="1.4"/>
+            <path d="M3 12H21" stroke="url(#globeGrad)" stroke-width="1.4"/>
+            <path d="M4.5 7H19.5" stroke="url(#globeGrad)" stroke-width="1.2" stroke-dasharray="0.5 2.5"/>
+            <path d="M4.5 17H19.5" stroke="url(#globeGrad)" stroke-width="1.2" stroke-dasharray="0.5 2.5"/>
+          </svg>
+        </div>
         <div>
           <b>Global Reach</b>
           <span>Share anywhere</span>
