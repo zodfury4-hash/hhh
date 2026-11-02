@@ -214,6 +214,11 @@
       console.error('Error rendering dashboard view:', tab, err);
       try { renderHome(pane); } catch (e) {}
     }
+
+    // Trigger universal text entrance animation for the newly rendered view
+    if (typeof window.animatePageText === 'function') {
+      setTimeout(() => window.animatePageText(pane), 40);
+    }
   }
 
   // ---------------- 1. HOME SCREEN (Screenshot 12.02.37 AM) ---------------- //

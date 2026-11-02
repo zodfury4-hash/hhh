@@ -300,21 +300,52 @@
       });
     });
 
-    gsap.utils.toArray('h2').forEach((h2) => {
-      // Exclude hero card or headers inside hidden sections
-      if (h2.closest('.hero')) return;
-      gsap.from(h2, {
-        scrollTrigger: {
-          trigger: h2,
-          start: 'top 88%',
-          toggleActions: 'play none none none'
-        },
-        opacity: 0,
-        y: 35,
-        duration: 0.9,
-        ease: 'power3.out'
-      });
+    // Universal Text Reveal on Scroll Across Every Page Section
+    const allTextTargets = document.querySelectorAll('section:not([hidden]) h2, section:not([hidden]) h3, section:not([hidden]) h4, section:not([hidden]) .lead, section:not([hidden]) .auth-title, section:not([hidden]) .auth-sub, section:not([hidden]) .dash-hero-title, section:not([hidden]) .stat-num, section:not([hidden]) .plan-title');
+    allTextTargets.forEach((target) => {
+      if (target.closest('.hero')) return;
+      gsap.fromTo(target,
+        { opacity: 0, y: 32, filter: 'blur(6px)' },
+        {
+          scrollTrigger: {
+            trigger: target,
+            start: 'top 90%',
+            toggleActions: 'play none none none'
+          },
+          opacity: 1,
+          y: 0,
+          filter: 'blur(0px)',
+          duration: 0.85,
+          ease: 'power3.out',
+          clearProps: 'filter'
+        }
+      );
     });
+
+    // Universal Text Animation Helper for Dynamic Pages & SPA views
+    window.animatePageText = function (container, options = {}) {
+      if (typeof gsap === 'undefined') return;
+      const root = container || document.querySelector('#appShell:not([hidden]) #appMainPane') || document.querySelector('section:not([hidden])') || document;
+      const selector = options.selector || 'h1, h2, h3, h4, .lead, .eyebrow, .auth-title, .auth-sub, .dash-header h2, .dash-hero-title, .dash-white-card h3, .dash-white-card h4, .stat-val, .card-title, .page-header-title';
+      const nodes = Array.from(root.querySelectorAll(selector)).filter(el => {
+        return el.offsetParent !== null;
+      });
+
+      if (!nodes.length) return;
+
+      gsap.fromTo(nodes,
+        { opacity: 0, y: 22, filter: 'blur(5px)' },
+        {
+          opacity: 1,
+          y: 0,
+          filter: 'blur(0px)',
+          duration: 0.7,
+          stagger: 0.05,
+          ease: 'power3.out',
+          clearProps: 'filter'
+        }
+      );
+    };
 
     // 3. Features Cards Stagger
     ScrollTrigger.batch('#features .fc', {

@@ -1934,6 +1934,30 @@ body.hc { --bg: #000000; --ink: #ffffff; --mut: #cccccc; --line: #ffffff; }
 body.hc .card, body.hc .item, body.hc .stat { border-color: #ffffff; }
 body.mo * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
 
+/* ---------------- LUXURY TYPOGRAPHY ANIMATIONS ---------------- */
+@keyframes textGlider {
+  from { opacity: 0; transform: translateY(20px); filter: blur(4px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+h1, h2, h3, .dash-header h2, .auth-title {
+  letter-spacing: -0.02em;
+}
+
+.hero h1 span, .auth-brand-logo span, .dash-hero-title span {
+  background: linear-gradient(135deg, #ffffff 0%, #D4FF24 45%, #38bdf8 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: cyberTextShimmer 8s ease infinite;
+}
+
+@keyframes cyberTextShimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
 /* ---------------- RESPONSIVE BREAKPOINTS ---------------- */
 @media (max-width: 960px) {
   .mega-grid { flex-direction: column; gap: 16px; }

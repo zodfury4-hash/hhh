@@ -1378,6 +1378,10 @@ function showAuth(mode) {
     : 'Don\'t have an account? <a href="#signup"><b>Sign up free</b></a>';
 
   setupSsoButtons();
+
+  if (typeof window.animatePageText === 'function') {
+    setTimeout(() => window.animatePageText(document.querySelector('.auth-left-col')), 30);
+  }
 }
 
 // 0. Single Sign-On (SSO) Handlers: Google & Apple
