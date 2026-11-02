@@ -567,6 +567,7 @@
     camera.lookAt(0, 0.12, 0);
 
     const stageGroup = new THREE.Group();
+    stageGroup.scale.set(0.9, 0.9, 0.9); // Reduce visual dominance by 10% to prevent competing with headline
     scene.add(stageGroup);
 
     // 1. Pedestal Base (Concentric Cyber Rings & Complete Platform)

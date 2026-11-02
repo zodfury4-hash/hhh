@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="logo.png">
-  <link rel="stylesheet" href="style.css?v=23">
+  <link rel="stylesheet" href="style.css?v=24">
   <link rel="stylesheet" href="app-shell.css?v=3">
 </head>
 <body>
@@ -35,7 +35,7 @@
         <span class="pill" hidden style="display:none !important;">
           <span class="pill-sparkle">✨</span> Now: AI-suggested short links &amp; universal redirect <span class="pill-green-dot"></span>
         </span>
-        <h1 class="hero-title">Short links, QR codes &amp; bio pages — <span class="lime-text">all in one place</span></h1>
+        <h1 class="hero-title">Short links, QR codes &amp; bio pages —<br class="hero-br"><span class="lime-text">all in one place</span></h1>
         <p class="lead">Create branded short links and scalable QR codes, then see exactly who clicks.</p>
         
         <div class="card hero-card" id="heroShortenCard">
@@ -54,7 +54,7 @@
               <form id="heroForm" class="hero-form-row">
                 <div class="hero-pill-input">
                   <span class="pill-input-icon">🔗</span>
-                  <input id="heroUrl" type="url" placeholder="Paste your long URL here..." aria-label="Long URL" autocomplete="off" required>
+                  <input id="heroUrl" type="url" placeholder="Enter or paste your destination link (e.g. https://yourbrand.com/summer-sale)..." aria-label="Long URL" autocomplete="off" required>
                   <button class="btn hero-submit-btn" id="heroBtn" type="submit">Shorten link →</button>
                 </div>
               </form>
@@ -67,7 +67,7 @@
               <form id="heroQrForm" class="hero-qr-flow">
                 <div class="hero-pill-input">
                   <span class="pill-input-icon">🌐</span>
-                  <input id="heroQrInput" type="text" placeholder="Paste URL or type text for QR code..." autocomplete="off">
+                  <input id="heroQrInput" type="text" placeholder="Enter URL, Wi-Fi credentials, or text for vector QR..." autocomplete="off">
                   <button class="btn hero-submit-btn" id="heroQrBtn" type="submit">Generate QR code →</button>
                 </div>
 
@@ -103,7 +103,7 @@
             <div class="hero-pane hero-pane-bulk" id="paneBulkShorten" hidden>
               <form id="heroBulkForm" class="hero-bulk-flow">
                 <div class="bulk-textarea-box">
-                  <textarea id="heroBulkTextarea" rows="4" placeholder="Paste multiple links (one per line, up to 20):&#10;https://example.com/summer-sale&#10;https://example.com/black-friday&#10;https://example.com/new-collection"></textarea>
+                  <textarea id="heroBulkTextarea" rows="4" placeholder="Paste multiple URLs (one per line, up to 20 links):&#10;https://healink.store/products&#10;https://instagram.com/mybrand&#10;https://youtube.com/@creativehub"></textarea>
                   <div class="bulk-info-strip">
                     <span id="bulkLinkCounter" class="bulk-counter-tag">⚡ 0 links detected</span>
                     <button type="button" class="bulk-sample-btn" id="bulkFillSampleBtn">+ Load sample URLs</button>
@@ -399,7 +399,7 @@
         <h2>Smarter links with advanced controls</h2>
         <p class="lead2">Protect links, expire them, and let AI suggest a readable back-half. Try it now:</p>
         <div class="row">
-          <input id="aiUrl" placeholder="Paste any destination URL" aria-label="URL for AI suggestion">
+          <input id="aiUrl" placeholder="Enter long destination link (e.g. https://example.com/docs)..." aria-label="URL for AI suggestion">
           <button class="btn dark" id="aiBtn" type="button">Suggest</button>
         </div>
         <p id="aiOut" class="aiout"></p>
@@ -469,13 +469,13 @@
 
         <form id="authForm" class="auth-form-card">
           <label id="nameWrap" hidden>Full name
-            <input id="aName" autocomplete="name" placeholder="Hayyam Ameer">
+            <input id="aName" autocomplete="name" placeholder="Enter your full name (e.g. Hayyam Ameer)">
           </label>
           <label>Email address
-            <input id="aEmail" type="email" autocomplete="email" placeholder="hayyamameer3030@gmail.com" required>
+            <input id="aEmail" type="email" autocomplete="email" placeholder="name@company.com" required>
           </label>
           <label>Password
-            <input id="aPass" type="password" autocomplete="current-password" placeholder="At least 6 characters" required>
+            <input id="aPass" type="password" autocomplete="current-password" placeholder="Enter password (min. 8 characters)" required>
           </label>
           <p class="err" id="authErr"></p>
           <button class="auth-submit-btn" id="authBtn" type="submit">Log In</button>
@@ -490,7 +490,7 @@
           </p>
           
           <form id="verifyForm">
-            <input type="text" id="verifyCodeInput" class="verify-code-input" maxlength="6" placeholder="000000" autocomplete="one-time-code" required>
+            <input type="text" id="verifyCodeInput" class="verify-code-input" maxlength="6" placeholder="Enter 6-digit code (e.g. 582194)" autocomplete="one-time-code" required>
             <p class="err" id="verifyErr"></p>
             <button class="auth-submit-btn" id="verifySubmitBtn" type="submit">Verify Code &amp; Open Dashboard →</button>
           </form>
@@ -598,7 +598,7 @@
           <button id="sidebarToggleBtn" class="topbar-icon-btn" style="display:none;" aria-label="Toggle sidebar">☰</button>
           <div class="topbar-search-box">
             <span class="topbar-search-icon">🔍</span>
-            <input type="text" class="topbar-search-input" id="appGlobalSearch" placeholder="Search your links, QR codes, pages... (Ctrl + K)">
+            <input type="text" class="topbar-search-input" id="appGlobalSearch" placeholder="Search links, QR codes, bio pages, campaigns... (Ctrl + K)">
           </div>
         </div>
         <div class="topbar-actions">
@@ -629,7 +629,7 @@
 
             <form id="homeShortenForm" class="home-shorten-box">
               <span style="color:#94a3b8;font-size:16px;">🔗</span>
-              <input type="url" id="homeShortenInput" class="home-shorten-input" placeholder="Paste a long URL to shorten it..." required>
+              <input type="url" id="homeShortenInput" class="home-shorten-input" placeholder="Enter long destination link (e.g. https://shopify.com/promo)..." required>
               <select class="home-domain-select" id="homeDomainSelect">
                 <option value="healink.store" selected>healink.store</option>
                 <option value="bit.ly">bit.ly</option>
@@ -756,7 +756,7 @@
             </div>
           </div>
           <form class="drawer-input-row" id="drawerChatForm">
-            <input type="text" id="drawerChatInput" placeholder="Ask HEA Assist..." autocomplete="off">
+            <input type="text" id="drawerChatInput" placeholder="Ask HEA Assist anything (e.g. 'Suggest high-CTR title', 'UTM tags')..." autocomplete="off">
             <button type="submit">→</button>
           </form>
         </aside>
@@ -804,7 +804,7 @@
           <button class="btn" id="newBtn" type="button">+ Create link</button>
         </div>
       </div>
-      <input id="search" class="search" placeholder="Search links by slug, destination, or tag…" aria-label="Search links">
+      <input id="search" class="search" placeholder="Filter links by title, slug, tag, or destination URL..." aria-label="Search links">
       <div id="list" class="list"></div>
     </div>
   </section>
@@ -816,7 +816,7 @@
         <h2 class="left">QR Code Studio</h2>
         <p class="muted">Generate scannable, dynamic QR codes with custom styling.</p>
         <label>Destination link or text
-          <input id="qText" value="https://example.com" placeholder="https://…">
+          <input id="qText" value="https://example.com" placeholder="https://yourwebsite.com/landing-page">
         </label>
         <div class="row">
           <label>Code Colour
@@ -867,7 +867,7 @@
         <div id="chatLog" class="log" aria-live="polite"></div>
         <div class="chips" id="chips"></div>
         <form id="chatForm" class="row">
-          <input id="chatIn" placeholder="Ask HEA Assist anything about your links…" aria-label="Ask HEA Assist" autocomplete="off">
+          <input id="chatIn" placeholder="Ask about clicks, top referrers, device breakdown, or CTR advice..." aria-label="Ask HEA Assist" autocomplete="off">
           <button class="btn" type="submit">Send</button>
         </form>
       </div>
@@ -881,7 +881,7 @@
       <p class="muted">Guides, playbooks and ebooks to maximize your audience engagement.</p>
       <div class="row" style="margin:20px 0">
         <div id="resTabs" class="tabs"></div>
-        <input id="resSearch" placeholder="Search guides…" aria-label="Search guides" style="max-width:280px">
+        <input id="resSearch" placeholder="Search knowledge base, tutorials, and API docs..." aria-label="Search guides" style="max-width:280px">
       </div>
       <div class="grid3" id="resGrid"></div>
     </div>
@@ -894,13 +894,13 @@
         <h2 class="left">Link-in-Bio Page Builder</h2>
         <p class="muted" id="bioSub">Pick a look, add your links, and publish your mobile landing page.</p>
         <label>Display Name
-          <input id="bName" placeholder="Your brand or creator name">
+          <input id="bName" placeholder="e.g. Acme Studio or Sarah Jenkins">
         </label>
         <label>Bio Headline
-          <input id="bBio" placeholder="One punchy line about what you do">
+          <input id="bBio" placeholder="e.g. Digital Designer &amp; Educator helping creators scale">
         </label>
         <label>Page URL Handle <small>(#bio-handle)</small>
-          <input id="bSlug" placeholder="mybrand">
+          <input id="bSlug" placeholder="e.g. acme-studio">
         </label>
         <label>Theme Style
           <select id="bTheme">
@@ -910,7 +910,7 @@
           </select>
         </label>
         <label>Links <small>(Format: Title | https://destination)</small>
-          <textarea id="bLinks" rows="5" placeholder="My Website | https://example.com&#10;YouTube Channel | https://youtube.com/@example&#10;Instagram | https://instagram.com/example"></textarea>
+          <textarea id="bLinks" rows="5" placeholder="Official Store | https://healink.store/shop&#10;Portfolio | https://mybrand.design&#10;Instagram | https://instagram.com/mybrand"></textarea>
         </label>
         <p class="err" id="bErr"></p>
         <div class="row">
@@ -964,22 +964,22 @@
         <h2 class="left">UTM Campaign Builder</h2>
         <p class="muted">Add tracking parameters to your URLs and track marketing campaigns accurately in analytics.</p>
         <label>Website URL *
-          <input id="utmUrl" placeholder="https://example.com/summer-sale" required>
+          <input id="utmUrl" placeholder="https://yourbrand.com/black-friday-sale" required>
         </label>
         <div class="row">
           <label style="flex:1">Campaign Source *
-            <input id="utmSource" placeholder="google, facebook, newsletter">
+            <input id="utmSource" placeholder="e.g. meta, tiktok, google, newsletter">
           </label>
           <label style="flex:1">Campaign Medium *
-            <input id="utmMedium" placeholder="cpc, banner, email, sms">
+            <input id="utmMedium" placeholder="e.g. paid_social, cpc, email_blast, reel">
           </label>
         </div>
         <div class="row">
           <label style="flex:1">Campaign Name
-            <input id="utmCampaign" placeholder="summer_launch">
+            <input id="utmCampaign" placeholder="e.g. black_friday_2026, q4_boost">
           </label>
           <label style="flex:1">Campaign Term
-            <input id="utmTerm" placeholder="running+shoes">
+            <input id="utmTerm" placeholder="e.g. sneakers, discounts, vip_creators">
           </label>
         </div>
         <label>Generated URL
@@ -1144,27 +1144,27 @@
       <form id="checkoutPaymentForm" class="checkout-form">
         <div class="checkout-form-row">
           <label style="flex:1">Name on Card
-            <input type="text" id="payName" placeholder="Hayyam Ameer" required>
+            <input type="text" id="payName" placeholder="Cardholder Name (e.g. Hayyam Ameer)" required>
           </label>
           <label style="flex:1">Billing Email
-            <input type="email" id="payEmail" placeholder="hayyamameer3030@gmail.com" required>
+            <input type="email" id="payEmail" placeholder="billing@yourdomain.com" required>
           </label>
         </div>
 
         <label>Card Number
           <div class="card-input-wrap">
             <span class="card-icon">💳</span>
-            <input type="text" id="payCardNum" placeholder="4242 •••• •••• 4242" maxlength="19" required>
+            <input type="text" id="payCardNum" placeholder="4242 •••• •••• 4242 (16 digits)" maxlength="19" required>
             <span class="card-brand" id="payCardBrand">VISA</span>
           </div>
         </label>
 
         <div class="checkout-form-row">
           <label style="flex:1">Expiration Date
-            <input type="text" id="payExp" placeholder="MM / YY" maxlength="5" required>
+            <input type="text" id="payExp" placeholder="MM / YY (e.g. 12/28)" maxlength="7" required>
           </label>
           <label style="flex:1">Security Code (CVC)
-            <input type="password" id="payCvc" placeholder="123" maxlength="4" required>
+            <input type="password" id="payCvc" placeholder="CVC (3 or 4 digits)" maxlength="4" required>
           </label>
         </div>
 
@@ -1188,8 +1188,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/motion@10.18.0/dist/motion.umd.js"></script>
 <script src="qrcode.js"></script>
-<script src="heavy-fx.js?v=6"></script>
-<script src="app-shell.js?v=5"></script>
-<script src="app.js?v=15"></script>
+<script src="heavy-fx.js?v=7"></script>
+<script src="app-shell.js?v=6"></script>
+<script src="app.js?v=16"></script>
 </body>
 </html>

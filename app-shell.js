@@ -233,7 +233,7 @@
 
         <form id="homeShortenForm" class="home-shorten-box">
           <span style="color:#94a3b8;font-size:16px;">🔗</span>
-          <input type="url" id="homeShortenInput" class="home-shorten-input" placeholder="Paste a long URL to shorten it..." required>
+          <input type="url" id="homeShortenInput" class="home-shorten-input" placeholder="Enter long destination link (e.g. https://shopify.com/promo)..." required>
           <select class="home-domain-select" id="homeDomainSelect">
             <option value="healink.store" selected>healink.store</option>
             <option value="bit.ly">bit.ly</option>
@@ -370,7 +370,7 @@
 
           <div class="create-link-field">
             <label>Destination URL</label>
-            <input type="url" id="newDestUrl" placeholder="https://example.com/my-long-url" required>
+            <input type="url" id="newDestUrl" placeholder="https://yourcompany.com/new-product-launch" required>
           </div>
 
           <!-- Dynamic routing alert banner (Screenshot 12.02.38 AM) -->
@@ -402,13 +402,13 @@
                   ✨ Generate
                 </button>
               </div>
-              <input type="text" id="newBackHalf" placeholder="custom-slug">
+              <input type="text" id="newBackHalf" placeholder="e.g. vip-drop26 (or leave empty for auto 6-char slug)">
             </div>
           </div>
 
           <div class="create-link-field">
             <label>Title (optional)</label>
-            <input type="text" id="newTitle" placeholder="e.g. Summer Launch Campaign">
+            <input type="text" id="newTitle" placeholder="e.g. Q4 Global Brand Campaign Launch">
           </div>
 
           <div class="create-link-field" style="margin-bottom:0;">
@@ -631,7 +631,7 @@
       </div>
 
       <div class="qr-filter-bar">
-        <input type="text" class="topbar-search-input" id="linksSearchInput" style="flex:1;" placeholder="Search links by title, slug, or destination...">
+        <input type="text" class="topbar-search-input" id="linksSearchInput" style="flex:1;" placeholder="Search links by title, slug, tag, or destination...">
         <select class="home-domain-select" id="linksTagSelect"><option value="">All tags</option><option value="Website">Website</option><option value="Social">Social</option><option value="Campaign">Campaign</option></select>
       </div>
 
@@ -693,7 +693,7 @@
       </div>
 
       <div class="qr-filter-bar">
-        <input type="text" class="topbar-search-input" style="flex:1;" placeholder="Search codes">
+        <input type="text" class="topbar-search-input" style="flex:1;" placeholder="Search QR codes by label, destination, or color...">
         <button class="sso-btn" style="width:auto;padding:8px 14px;font-size:13px;">📅 Filter by created date</button>
         <button class="sso-btn" style="width:auto;padding:8px 14px;font-size:13px;">⊞ Add filters</button>
       </div>
@@ -945,7 +945,7 @@
       </div>
 
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <input type="text" class="topbar-search-input" style="max-width:320px;" placeholder="🔍 Search bio pages">
+        <input type="text" class="topbar-search-input" style="max-width:320px;" placeholder="Search bio pages by title, handle, or bio...">
         <span style="font-size:13px;color:#94a3b8;">Unlimited custom bio pages available</span>
       </div>
 
@@ -985,17 +985,17 @@
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
           <div class="create-link-field" style="margin:0;">
             <label>Bio Page Slug (e.g. yourname)</label>
-            <input type="text" id="newBioSlug" placeholder="e.g. hayyam" required>
+            <input type="text" id="newBioSlug" placeholder="e.g. alex-creative" required>
           </div>
           <div class="create-link-field" style="margin:0;">
             <label>Display Title</label>
-            <input type="text" id="newBioTitle" placeholder="e.g. Hayyam Ameer" required>
+            <input type="text" id="newBioTitle" placeholder="e.g. Alex Rivera • Creative Studio" required>
           </div>
         </div>
 
         <div class="create-link-field">
           <label>Bio Tagline</label>
-          <input type="text" id="newBioTagline" placeholder="e.g. Content Creator &amp; Brand Strategist">
+          <input type="text" id="newBioTagline" placeholder="e.g. Design Systems &amp; Visual Architecture for Web3">
         </div>
 
         <div style="display:flex;gap:12px;margin-top:20px;">
@@ -1219,11 +1219,11 @@
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
           <div class="create-link-field" style="margin:0;">
             <label>Destination Website URL</label>
-            <input type="url" id="campDestUrl" placeholder="https://mywebsite.com/landing-page" value="https://myshopify.com/drop">
+            <input type="url" id="campDestUrl" placeholder="https://yourstore.com/summer-collection" value="https://myshopify.com/drop">
           </div>
           <div class="create-link-field" style="margin:0;">
             <label>Campaign Name (utm_campaign)</label>
-            <input type="text" id="campName" placeholder="e.g. summer_launch_2026" value="summer_launch_2026">
+            <input type="text" id="campName" placeholder="e.g. summer_collection_meta_2026" value="summer_launch_2026">
           </div>
         </div>
 
@@ -1323,7 +1323,7 @@
         <p style="color:#94a3b8;font-size:13px;margin-bottom:16px;">Point a CNAME record from your DNS registrar (GoDaddy, Cloudflare, Namecheap) to <code style="color:#38bdf8;">cname.healink.store</code>.</p>
 
         <div style="display:flex;gap:12px;max-width:540px;">
-          <input type="text" id="customDomainInput" class="home-shorten-input" style="flex:1;" placeholder="e.g. links.mybrand.com" value="go.hayyamameer.com">
+          <input type="text" id="customDomainInput" class="home-shorten-input" style="flex:1;" placeholder="e.g. links.yourbrand.com or go.domain.io" value="go.hayyamameer.com">
           <button class="auth-submit-btn" id="btnAddDomain" style="width:auto;margin:0;padding:10px 22px;">
             + Connect Domain
           </button>
@@ -1423,7 +1423,7 @@
 
       <!-- Search & Filters -->
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <input type="text" class="topbar-search-input" style="max-width:320px;" placeholder="🔍 Search by name or category">
+        <input type="text" class="topbar-search-input" style="max-width:320px;" placeholder="Search 50+ native apps &amp; webhooks...">
         <span style="font-size:13px;color:#94a3b8;cursor:pointer;">A - Z ⇅</span>
       </div>
 
@@ -1543,9 +1543,9 @@
           <h4 style="font-size:16px;font-weight:700;color:#ffffff;margin:16px 0 6px;">Change password</h4>
           <div style="font-size:13px;color:#94a3b8;margin-bottom:14px;">You will be required to login after changing your password</div>
 
-          <div class="create-link-field"><label>Current password</label><input type="password" id="setCurPass" placeholder="••••••••"></div>
-          <div class="create-link-field"><label>New password</label><input type="password" id="setNewPass" placeholder="••••••••"></div>
-          <div class="create-link-field"><label>Confirm new password</label><input type="password" id="setConfPass" placeholder="••••••••"></div>
+          <div class="create-link-field"><label>Current password</label><input type="password" id="setCurPass" placeholder="Enter your current password"></div>
+          <div class="create-link-field"><label>New password</label><input type="password" id="setNewPass" placeholder="Create a strong new password (min. 8 characters)"></div>
+          <div class="create-link-field"><label>Confirm new password</label><input type="password" id="setConfPass" placeholder="Re-enter your new password"></div>
           <button class="auth-submit-btn" id="btnUpdatePass" style="width:max-content;padding:10px 24px;margin-bottom:32px;">
             Change password
           </button>

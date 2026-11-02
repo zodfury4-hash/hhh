@@ -249,13 +249,13 @@ $('#modal').onclick = e => { if (e.target.id === 'modal') closeModal(); };
 function linkForm(l) {
   return `
     <label>Destination URL
-      <input id="fUrl" value="${esc(l ? l.url : '')}" placeholder="https://example.com/page" required>
+      <input id="fUrl" value="${esc(l ? l.url : '')}" placeholder="https://yourdomain.com/landing-page" required>
     </label>
     <label>Custom back-half <small>(${DOMAIN}/…)</small>
-      <input id="fSlug" value="${esc(l ? l.slug : '')}" placeholder="leave empty for AI suggestion">
+      <input id="fSlug" value="${esc(l ? l.slug : '')}" placeholder="e.g. promo-26 (leave empty for auto 6-char slug)">
     </label>
     <label>Campaign Tag
-      <input id="fTag" value="${esc(l ? l.tag : '')}" placeholder="marketing, twitter, promo">
+      <input id="fTag" value="${esc(l ? l.tag : '')}" placeholder="e.g. marketing, instagram, launch26">
     </label>
     <label>Expiry Date (Optional)
       <input id="fExp" type="date" value="${l ? l.expires : ''}">
