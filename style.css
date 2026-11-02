@@ -708,11 +708,12 @@ input[type=color] {
 .cyber-stage-container {
   position: relative;
   width: 100%;
-  max-width: 540px;
-  height: 480px;
+  max-width: 580px;
+  height: 560px;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: visible;
 }
 
 .cyber-canvas-wrap {
@@ -720,6 +721,7 @@ input[type=color] {
   height: 100%;
   position: relative;
   z-index: 2;
+  overflow: visible;
 }
 
 #chain3dCanvas {

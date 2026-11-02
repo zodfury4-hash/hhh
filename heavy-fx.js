@@ -548,8 +548,8 @@
       return;
     }
 
-    const width = wrap.clientWidth || 500;
-    const height = wrap.clientHeight || 460;
+    const width = wrap.clientWidth || 540;
+    const height = wrap.clientHeight || 540;
 
     const renderer = new THREE.WebGLRenderer({
       canvas: canvas,
@@ -561,15 +561,16 @@
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100);
-    camera.position.set(0, 0.9, 8.2);
+    const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
+    camera.position.set(0, 0.35, 9.5);
+    camera.lookAt(0, 0.12, 0);
 
     const stageGroup = new THREE.Group();
     scene.add(stageGroup);
 
-    // 1. Pedestal Base (Concentric Cyber Rings)
+    // 1. Pedestal Base (Concentric Cyber Rings & Complete Platform)
     const pedestalGroup = new THREE.Group();
-    pedestalGroup.position.y = -2.1;
+    pedestalGroup.position.y = -1.6;
     stageGroup.add(pedestalGroup);
 
     const baseMat = new THREE.MeshStandardMaterial({
@@ -578,18 +579,37 @@
       roughness: 0.25
     });
 
+    // Outer Ground Disc / Foundation (Prevents any clipping)
+    const groundMat = new THREE.MeshStandardMaterial({
+      color: 0x040a18,
+      metalness: 0.9,
+      roughness: 0.2
+    });
+    const groundBase = new THREE.Mesh(new THREE.CylinderGeometry(3.6, 3.85, 0.2, 48), groundMat);
+    groundBase.position.y = -0.12;
+    pedestalGroup.add(groundBase);
+
+    const groundGlowRing = new THREE.Mesh(
+      new THREE.TorusGeometry(3.7, 0.04, 16, 64),
+      new THREE.MeshBasicMaterial({ color: 0x0084ff, transparent: true, opacity: 0.75 })
+    );
+    groundGlowRing.rotation.x = Math.PI / 2;
+    groundGlowRing.position.y = -0.02;
+    pedestalGroup.add(groundGlowRing);
+
     // Tier 1
     const tier1 = new THREE.Mesh(new THREE.CylinderGeometry(2.9, 3.3, 0.45, 48), baseMat);
+    tier1.position.y = 0.18;
     pedestalGroup.add(tier1);
 
     // Tier 2
     const tier2 = new THREE.Mesh(new THREE.CylinderGeometry(2.35, 2.65, 0.4, 48), baseMat);
-    tier2.position.y = 0.38;
+    tier2.position.y = 0.55;
     pedestalGroup.add(tier2);
 
     // Tier 3
     const tier3 = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 2.05, 0.35, 48), baseMat);
-    tier3.position.y = 0.72;
+    tier3.position.y = 0.88;
     pedestalGroup.add(tier3);
 
     // Neon Glow Rings on Pedestal Tiers
@@ -598,17 +618,17 @@
 
     const ring1 = new THREE.Mesh(new THREE.TorusGeometry(2.95, 0.045, 16, 64), ringMatCyan);
     ring1.rotation.x = Math.PI / 2;
-    ring1.position.y = 0.22;
+    ring1.position.y = 0.38;
     pedestalGroup.add(ring1);
 
     const ring2 = new THREE.Mesh(new THREE.TorusGeometry(2.4, 0.055, 16, 64), ringMatCyan);
     ring2.rotation.x = Math.PI / 2;
-    ring2.position.y = 0.56;
+    ring2.position.y = 0.72;
     pedestalGroup.add(ring2);
 
     const ring3 = new THREE.Mesh(new THREE.TorusGeometry(1.85, 0.065, 16, 64), ringMatLime);
     ring3.rotation.x = Math.PI / 2;
-    ring3.position.y = 0.88;
+    ring3.position.y = 1.04;
     pedestalGroup.add(ring3);
 
     // Central Core Disc
@@ -616,12 +636,12 @@
       new THREE.CylinderGeometry(1.4, 1.4, 0.06, 32),
       new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
     );
-    coreDisc.position.y = 0.9;
+    coreDisc.position.y = 1.06;
     pedestalGroup.add(coreDisc);
 
     // 2. Interlocking 3D Chain Links
     const chainGroup = new THREE.Group();
-    chainGroup.position.y = 0.4;
+    chainGroup.position.y = 0.55;
     stageGroup.add(chainGroup);
 
     function createChainLink(color, emissive, scaleY) {
@@ -718,8 +738,8 @@
     // Resize handler
     window.addEventListener('resize', () => {
       if (!wrap) return;
-      const w = wrap.clientWidth || 500;
-      const h = wrap.clientHeight || 460;
+      const w = wrap.clientWidth || 540;
+      const h = wrap.clientHeight || 540;
       renderer.setSize(w, h);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
@@ -732,7 +752,7 @@
       const elapsed = clock.getElapsedTime();
 
       // Smooth floating and gentle oscillation
-      chainGroup.position.y = 0.4 + Math.sin(elapsed * 1.5) * 0.12;
+      chainGroup.position.y = 0.55 + Math.sin(elapsed * 1.5) * 0.1;
       chainGroup.rotation.y = Math.sin(elapsed * 0.6) * 0.1;
 
       // Orbit rings rotation
