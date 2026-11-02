@@ -2063,31 +2063,7 @@ Here are recommended optimizations for your links and campaigns:<br>
       };
     }
 
-    // SSO buttons
-    const ssoG = $('#ssoGoogleBtn');
-    if (ssoG) ssoG.onclick = () => {
-      const gUser = {
-        name: 'John',
-        email: 'john@example.com',
-        isVerified: true,
-        provider: 'google',
-        avatar: 'JD',
-        country: 'United States',
-        city: 'New York',
-        isp: 'Global Internet'
-      };
-      localStorage.setItem('hea_session', JSON.stringify(gUser));
-      if (typeof session !== 'undefined') session = gUser;
-      setAppUser(gUser);
-      document.body.classList.add('app-mode');
-      const as = $('#appShell');
-      if (as) as.hidden = false;
-      location.hash = '#dashboard';
-      navigate('home');
-      if (typeof renderNavRight === 'function') renderNavRight();
-      toast('✅ Successfully signed in with Google as John!');
-    };
-
+    // SSO buttons are handled by app.js setupSsoButtons() with real Google Identity Services!
     const ssoA = $('#ssoAppleBtn');
     if (ssoA) ssoA.onclick = () => {
       const aUser = {

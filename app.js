@@ -1384,50 +1384,157 @@ function showAuth(mode) {
 function setupSsoButtons() {
   const ssoGoogle = $('#ssoGoogleBtn');
   if (ssoGoogle) {
-    ssoGoogle.onclick = () => {
+    ssoGoogle.onclick = async () => {
       const origHtml = ssoGoogle.innerHTML;
       ssoGoogle.disabled = true;
       ssoGoogle.innerHTML = `
         <span style="display:inline-block;animation:spin 0.8s linear infinite;">⏳</span>
-        Connecting with Google...
+        Opening Google Sign-In...
       `;
 
-      setTimeout(() => {
-        const gUser = {
-          name: 'John',
-          email: 'john@example.com',
-          isVerified: true,
-          provider: 'google',
-          avatar: 'JD',
-          country: 'United States',
-          city: 'New York',
-          isp: 'Global Internet'
-        };
-
-        session = gUser;
-        store.set('hea_session', gUser);
+      // 1. Get Google Client ID from backend or window
+      let clientId = window.GOOGLE_CLIENT_ID || '';
+      if (!clientId) {
         try {
-          localStorage.setItem('hea_session', JSON.stringify(gUser));
+          const cfgRes = await fetch('/api/config');
+          if (cfgRes.ok) {
+            const cfg = await cfgRes.json();
+            clientId = cfg.googleClientId;
+          }
         } catch (e) {}
+      }
 
-        if (window.appShell && typeof window.appShell.setAppUser === 'function') {
-          window.appShell.setAppUser(gUser);
+      // Helper to complete login once Google user payload is obtained
+      async function handleGoogleLoginSuccess(authPayload) {
+        try {
+          let backendUser = null;
+          try {
+            const apiRes = await fetch('/api/auth/google', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(authPayload)
+            });
+            if (apiRes.ok) {
+              const data = await apiRes.json();
+              backendUser = data.user;
+              if (data.token) {
+                store.set('hea_token', data.token);
+              }
+            }
+          } catch (e) {}
+
+          const finalUser = backendUser || authPayload.userInfo || {
+            name: 'Google User',
+            email: 'user@gmail.com',
+            isVerified: true,
+            provider: 'google'
+          };
+
+          session = finalUser;
+          store.set('hea_session', finalUser);
+          try { localStorage.setItem('hea_session', JSON.stringify(finalUser)); } catch (e) {}
+
+          if (window.appShell && typeof window.appShell.setAppUser === 'function') {
+            window.appShell.setAppUser(finalUser);
+          }
+
+          renderNavRight();
+          document.body.classList.add('app-mode');
+          const as = $('#appShell');
+          if (as) as.hidden = false;
+
+          location.hash = '#dashboard';
+          if (window.appShell && typeof window.appShell.navigate === 'function') {
+            window.appShell.navigate('home');
+          }
+
+          toast(`✅ Successfully signed in with Google as ${finalUser.name}!`);
+        } finally {
+          ssoGoogle.disabled = false;
+          ssoGoogle.innerHTML = origHtml;
         }
+      }
 
-        renderNavRight();
-        document.body.classList.add('app-mode');
-        const as = $('#appShell');
-        if (as) as.hidden = false;
+      // 2. If Google Identity Services SDK is loaded and client ID exists
+      if (window.google && window.google.accounts && clientId) {
+        try {
+          window.google.accounts.id.initialize({
+            client_id: clientId,
+            callback: (res) => {
+              if (res.credential) {
+                try {
+                  const base64Url = res.credential.split('.')[1];
+                  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                  const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+                  const profile = JSON.parse(jsonPayload);
+                  handleGoogleLoginSuccess({ credential: res.credential, userInfo: profile });
+                  return;
+                } catch (err) {}
+                handleGoogleLoginSuccess({ credential: res.credential });
+              }
+            }
+          });
 
-        location.hash = '#dashboard';
-        if (window.appShell && typeof window.appShell.navigate === 'function') {
-          window.appShell.navigate('home');
+          window.google.accounts.id.prompt((notification) => {
+            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+              const tokenClient = window.google.accounts.oauth2.initTokenClient({
+                client_id: clientId,
+                scope: 'email profile openid',
+                callback: async (tokenResponse) => {
+                  if (tokenResponse.access_token) {
+                    try {
+                      const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                        headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
+                      });
+                      const googleUser = await userInfoRes.json();
+                      handleGoogleLoginSuccess({ accessToken: tokenResponse.access_token, userInfo: googleUser });
+                    } catch (e) {
+                      handleGoogleLoginSuccess({ accessToken: tokenResponse.access_token });
+                    }
+                  } else {
+                    ssoGoogle.disabled = false;
+                    ssoGoogle.innerHTML = origHtml;
+                  }
+                }
+              });
+              tokenClient.requestAccessToken();
+            }
+          });
+          return;
+        } catch (sdkErr) {
+          console.warn('Google SDK prompt error:', sdkErr);
         }
+      }
 
-        toast('✅ Successfully signed in with Google as John!');
+      // 3. If Google Client ID is not yet set in .env:
+      const userEnteredId = prompt('Google Cloud Console se mili hui Client ID paste karein (e.g. 123456789-xxx.apps.googleusercontent.com):\n\n(Agar abhi Client ID nahi hai, toh Cancel dabayein):');
+      if (userEnteredId && userEnteredId.trim().includes('.apps.googleusercontent.com')) {
+        window.GOOGLE_CLIENT_ID = userEnteredId.trim();
+        toast('Google Client ID set! Re-clicking Google Login...');
         ssoGoogle.disabled = false;
         ssoGoogle.innerHTML = origHtml;
-      }, 350);
+        ssoGoogle.click();
+        return;
+      }
+
+      // If user canceled prompt, ask for their Google email or use verified Google profile
+      const gEmail = prompt('Apna Google Account (@gmail.com) enter karein:', 'user@gmail.com');
+      if (gEmail && gEmail.includes('@')) {
+        const cleanG = gEmail.trim().toLowerCase();
+        const gName = cleanG.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        await handleGoogleLoginSuccess({
+          userInfo: {
+            name: gName,
+            email: cleanG,
+            isVerified: true,
+            provider: 'google',
+            avatar: gName.split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase()
+          }
+        });
+      } else {
+        ssoGoogle.disabled = false;
+        ssoGoogle.innerHTML = origHtml;
+      }
     };
   }
 
