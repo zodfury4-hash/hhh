@@ -1631,12 +1631,7 @@ $('#authForm').onsubmit = async e => {
         showAuth('verify');
         const devAlert = $('#verifyDevAlert');
         const devText = $('#verifyDevText');
-        if (backendRes.data.devCode) {
-          if (devAlert && devText) {
-            devAlert.hidden = false;
-            devText.textContent = `Verification Code: ${backendRes.data.devCode}`;
-          }
-        } else if (devAlert) {
+        if (devAlert) {
           devAlert.hidden = true;
         }
         toast('Verification code sent to ' + email);
@@ -1666,13 +1661,10 @@ $('#authForm').onsubmit = async e => {
 
       pendingVerificationEmail = email;
       showAuth('verify');
-      const devAlert = $('#verifyDevAlert');
-      const devText = $('#verifyDevText');
-      if (devAlert && devText) {
-        devAlert.hidden = false;
-        devText.textContent = `Simulated Email Code: ${clientCode}`;
+      if (devAlert) {
+        devAlert.hidden = true;
       }
-      toast('Verification code generated for ' + email);
+      toast('Verification code sent to ' + email);
       return;
     }
 
@@ -1747,11 +1739,8 @@ $('#authForm').onsubmit = async e => {
       if (!user.isVerified) {
         pendingVerificationEmail = email;
         showAuth('verify');
-        const devAlert = $('#verifyDevAlert');
-        const devText = $('#verifyDevText');
-        if (devAlert && devText) {
-          devAlert.hidden = false;
-          devText.textContent = `Email Code: ${user.code || '123456'}`;
+        if (devAlert) {
+          devAlert.hidden = true;
         }
         toast('Please verify your email address to continue.');
         return;
@@ -1904,10 +1893,8 @@ if (verifyResendBtn) {
 
       if (resData && resData.devCode) {
         const devAlert = $('#verifyDevAlert');
-        const devText = $('#verifyDevText');
-        if (devAlert && devText) {
-          devAlert.hidden = false;
-          devText.textContent = `New Code: ${resData.devCode}`;
+        if (devAlert) {
+          devAlert.hidden = true;
         }
       }
 
