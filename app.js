@@ -1458,48 +1458,49 @@ function setupSsoButtons() {
       // 2. If Google Identity Services SDK is loaded and client ID exists
       if (window.google && window.google.accounts && clientId) {
         try {
-          window.google.accounts.id.initialize({
+          // Initialize Google Token Client for custom button click (reliable popup with account picker)
+          const tokenClient = window.google.accounts.oauth2.initTokenClient({
             client_id: clientId,
-            callback: (res) => {
-              if (res.credential) {
+            scope: 'email profile openid',
+            callback: async (tokenResponse) => {
+              if (tokenResponse.error) {
+                console.warn('Google Auth Error:', tokenResponse.error);
+                ssoGoogle.disabled = false;
+                ssoGoogle.innerHTML = origHtml;
+                if (tokenResponse.error === 'popup_closed_by_user') {
+                  toast('Google Sign-In window was closed.');
+                } else {
+                  toast('Google Sign-In: ' + (tokenResponse.error_description || tokenResponse.error));
+                }
+                return;
+              }
+              if (tokenResponse.access_token) {
                 try {
-                  const base64Url = res.credential.split('.')[1];
-                  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                  const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
-                  const profile = JSON.parse(jsonPayload);
-                  handleGoogleLoginSuccess({ credential: res.credential, userInfo: profile });
-                  return;
-                } catch (err) {}
-                handleGoogleLoginSuccess({ credential: res.credential });
+                  const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                    headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
+                  });
+                  const googleUser = await userInfoRes.json();
+                  await handleGoogleLoginSuccess({
+                    accessToken: tokenResponse.access_token,
+                    userInfo: {
+                      name: googleUser.name,
+                      email: googleUser.email,
+                      picture: googleUser.picture,
+                      provider: 'google'
+                    }
+                  });
+                } catch (e) {
+                  await handleGoogleLoginSuccess({ accessToken: tokenResponse.access_token });
+                }
+              } else {
+                ssoGoogle.disabled = false;
+                ssoGoogle.innerHTML = origHtml;
               }
             }
           });
 
-          window.google.accounts.id.prompt((notification) => {
-            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-              const tokenClient = window.google.accounts.oauth2.initTokenClient({
-                client_id: clientId,
-                scope: 'email profile openid',
-                callback: async (tokenResponse) => {
-                  if (tokenResponse.access_token) {
-                    try {
-                      const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-                        headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
-                      });
-                      const googleUser = await userInfoRes.json();
-                      handleGoogleLoginSuccess({ accessToken: tokenResponse.access_token, userInfo: googleUser });
-                    } catch (e) {
-                      handleGoogleLoginSuccess({ accessToken: tokenResponse.access_token });
-                    }
-                  } else {
-                    ssoGoogle.disabled = false;
-                    ssoGoogle.innerHTML = origHtml;
-                  }
-                }
-              });
-              tokenClient.requestAccessToken();
-            }
-          });
+          // Trigger real Google OAuth popup with account selection
+          tokenClient.requestAccessToken({ prompt: 'select_account' });
           return;
         } catch (sdkErr) {
           console.warn('Google SDK prompt error:', sdkErr);
