@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="logo.png">
-  <link rel="stylesheet" href="style.css?v=30">
-  <link rel="stylesheet" href="app-shell.css?v=8">
+  <link rel="stylesheet" href="style.css?v=31">
+  <link rel="stylesheet" href="app-shell.css?v=9">
 </head>
 <body>
 <div class="bg-glow-curves"></div>
@@ -19,8 +19,10 @@
 <header class="nav">
   <div class="wrap nav-in">
     <a class="logo" href="#home"><img src="logo.png" alt="HEA Link" class="logo-img"><b style="color:#ffffff !important;font-style:italic">HEA</b> <span style="color:#D4FF24 !important;font-weight:700">Link</span></a>
-    <nav id="menu" aria-label="Main Navigation"></nav>
-    <div class="nav-r" id="navR"></div>
+    <div class="nav-collapse" id="navCollapse">
+      <nav id="menu" aria-label="Main Navigation"></nav>
+      <div class="nav-r" id="navR"></div>
+    </div>
     <button id="burger" aria-label="Toggle menu">☰</button>
   </div>
 </header>
@@ -32,16 +34,13 @@
     <div class="hero-split-wrap wrap">
       <!-- LEFT COLUMN -->
       <div class="hero-col-left">
-        <span class="pill" hidden style="display:none !important;">
-          <span class="pill-sparkle">✨</span> Now: AI-suggested short links &amp; universal redirect <span class="pill-green-dot"></span>
-        </span>
         <h1 class="hero-title">Short links, QR codes &amp; bio pages —<br class="hero-br"><span class="lime-text">all in one place</span></h1>
         <p class="lead">Create branded short links and scalable QR codes, then see exactly who clicks.</p>
         
         <div class="card hero-card" id="heroShortenCard">
           <div class="hero-tabs-wrap">
             <div class="tabs" id="heroTabs">
-              <button class="on" data-t="link" id="tabShortLink" type="button">🔗 Short link</button>
+              <button class="on" data-t="link" id="tabShortLink" type="button">🔗 Short link / Short URL</button>
               <button data-t="qr" id="tabQrCode" type="button">▦ QR code</button>
               <button data-t="bulk" id="tabBulkShorten" type="button">⚡ Bulk shorten</button>
             </div>
@@ -661,7 +660,7 @@
             <h3>What do you want to create?</h3>
             <div class="home-type-tabs">
               <button class="home-type-tab active" type="button" id="tabShortLinkOpt">
-                <span>🔗</span> Short link
+                <span>🔗</span> Short link / Short URL
               </button>
               <button class="home-type-tab" type="button" onclick="window.appShell &amp;&amp; window.appShell.navigate('qr')">
                 <span>▦</span> QR Code

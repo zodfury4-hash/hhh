@@ -231,7 +231,7 @@
         <h3>What do you want to create?</h3>
         <div class="home-type-tabs">
           <button class="home-type-tab active" type="button" id="tabShortLinkOpt">
-            <span>🔗</span> Short link
+            <span>🔗</span> Short link / Short URL
           </button>
           <button class="home-type-tab" type="button" id="tabQrCodeOpt">
             <span>▦</span> QR Code
