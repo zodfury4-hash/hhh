@@ -1789,7 +1789,6 @@ footer .muted, footer p { color: #94a3b8; }
   border-top: 1px solid var(--line);
   margin-top: 45px;
   padding-top: 22px;
-  padding-left: 60px;
   padding-bottom: 24px;
   font-size: 13px;
   color: #94a3b8;
@@ -1846,7 +1845,7 @@ footer .muted, footer p { color: #94a3b8; }
 }
 
 /* Accessibility */
-.a11y { position: fixed; left: 18px; bottom: 18px; z-index: 100; }
+.a11y { display: none !important; }
 .a11y > button {
   width: 50px;
   height: 50px;

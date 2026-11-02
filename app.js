@@ -3043,24 +3043,31 @@ function applyA11y() {
   document.documentElement.classList.toggle('big', !!A11Y_PREFS.big);
   document.body.classList.toggle('hc', !!A11Y_PREFS.hc);
   document.body.classList.toggle('mo', !!A11Y_PREFS.mo);
-  $('#aBig').checked = !!A11Y_PREFS.big;
-  $('#aHc').checked = !!A11Y_PREFS.hc;
-  $('#aMo').checked = !!A11Y_PREFS.mo;
+  if ($('#aBig')) $('#aBig').checked = !!A11Y_PREFS.big;
+  if ($('#aHc')) $('#aHc').checked = !!A11Y_PREFS.hc;
+  if ($('#aMo')) $('#aMo').checked = !!A11Y_PREFS.mo;
 }
 
-$('#a11yBtn').onclick = e => {
-  e.stopPropagation();
-  const panel = $('#a11yPanel');
-  panel.hidden = !panel.hidden;
-  $('#a11yBtn').setAttribute('aria-expanded', !panel.hidden);
-};
+if ($('#a11yBtn')) {
+  $('#a11yBtn').onclick = e => {
+    e.stopPropagation();
+    const panel = $('#a11yPanel');
+    if (panel) {
+      panel.hidden = !panel.hidden;
+      $('#a11yBtn').setAttribute('aria-expanded', !panel.hidden);
+    }
+  };
+}
 
 [['aBig', 'big'], ['aHc', 'hc'], ['aMo', 'mo']].forEach(([id, key]) => {
-  $('#' + id).onchange = e => {
-    A11Y_PREFS[key] = e.target.checked;
-    store.set('hea_a11y', A11Y_PREFS);
-    applyA11y();
-  };
+  const el = $('#' + id);
+  if (el) {
+    el.onchange = e => {
+      A11Y_PREFS[key] = e.target.checked;
+      store.set('hea_a11y', A11Y_PREFS);
+      applyA11y();
+    };
+  }
 });
 applyA11y();
 

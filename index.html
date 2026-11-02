@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="logo.png">
-  <link rel="stylesheet" href="style.css?v=26">
+  <link rel="stylesheet" href="style.css?v=27">
   <link rel="stylesheet" href="app-shell.css?v=4">
 </head>
 <body>
@@ -1096,10 +1096,10 @@
   </div>
 </footer>
 
-<!-- ACCESSIBILITY FLOATING WIDGET -->
-<div class="a11y">
-  <button id="a11yBtn" aria-label="Accessibility options" aria-expanded="false">♿</button>
-  <div id="a11yPanel" hidden>
+<!-- ACCESSIBILITY FLOATING WIDGET (HIDDEN) -->
+<div class="a11y" style="display: none !important;">
+  <button id="a11yBtn" aria-label="Accessibility options" aria-expanded="false" style="display: none !important;">♿</button>
+  <div id="a11yPanel" hidden style="display: none !important;">
     <label><input type="checkbox" id="aBig"> Larger Text</label>
     <label><input type="checkbox" id="aHc"> High Contrast</label>
     <label><input type="checkbox" id="aMo"> Reduce Motion</label>
@@ -1564,6 +1564,6 @@
 <script src="qrcode.js"></script>
 <script src="heavy-fx.js?v=9"></script>
 <script src="app-shell.js?v=9"></script>
-<script src="app.js?v=19"></script>
+<script src="app.js?v=20"></script>
 </body>
 </html>
