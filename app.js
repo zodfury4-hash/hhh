@@ -3635,7 +3635,13 @@ applyA11y();
 
 function show(pageName) {
   $$('section[data-page]').forEach(sec => {
-    sec.hidden = sec.dataset.page !== pageName;
+    const isTarget = sec.dataset.page === pageName;
+    sec.hidden = !isTarget;
+    if (isTarget) {
+      if (typeof window.animatePageText === 'function') {
+        setTimeout(() => window.animatePageText(sec), 40);
+      }
+    }
   });
   $('.nav')?.classList.remove('open');
 }
@@ -3759,3 +3765,6 @@ initStaticSections();
 setupCheckoutModal();
 initFramerMotionFx();
 route();
+if (typeof window.animatePageText === 'function') {
+  setTimeout(() => window.animatePageText(), 100);
+}

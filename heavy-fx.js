@@ -7,6 +7,74 @@
    ========================================================= */
 
 (function () {
+  // Universal Text & Page Entrance Animation Engine (Global & Instant)
+  window.animatePageText = function (container, options = {}) {
+    try {
+      const root = container || document.querySelector('#appShell:not([hidden]) #appMainPane') || document.querySelector('section:not([hidden])') || document;
+      if (!root) return;
+
+      // Animate container entrance
+      if (root.classList) {
+        root.classList.remove('hea-page-animating');
+        void root.offsetWidth; // force reflow
+        root.classList.add('hea-page-animating');
+      }
+
+      const selector = options.selector || 'h1, h2, h3, h4, .lead, .hero-title, .lime-text, .eyebrow, .auth-title, .auth-sub, .dash-header h2, .dash-hero-title, .dash-white-card h3, .dash-white-card h4, .stat-val, .stat-num, .card-title, .page-header-title, .view-header h2, .view-header p, .configure-card h3, .template-card h4, .btn-use-template';
+      
+      let nodes = [];
+      try {
+        nodes = Array.from(root.querySelectorAll(selector)).filter(el => {
+          return el.offsetParent !== null || (window.getComputedStyle && window.getComputedStyle(el).display !== 'none');
+        });
+      } catch (e) {
+        return;
+      }
+
+      if (!nodes.length) return;
+
+      // 1. If GSAP is loaded, use smooth fluid GSAP animation
+      if (typeof gsap !== 'undefined') {
+        gsap.killTweensOf(nodes);
+        gsap.fromTo(nodes,
+          { opacity: 0, y: 14, filter: 'blur(4px)' },
+          {
+            opacity: 1,
+            y: 0,
+            filter: 'blur(0px)',
+            duration: 0.62,
+            stagger: 0.035,
+            ease: 'power3.out',
+            clearProps: 'filter,transform,opacity'
+          }
+        );
+        return;
+      }
+
+      // 2. High-performance Web Animations API (Native in all modern browsers & mobile)
+      if (typeof Element.prototype.animate === 'function') {
+        nodes.forEach((el, idx) => {
+          const delay = Math.min(idx * 35, 350);
+          el.animate([
+            { opacity: 0, transform: 'translateY(14px)', filter: 'blur(4px)' },
+            { opacity: 1, transform: 'translateY(0)', filter: 'blur(0px)' }
+          ], {
+            duration: 600,
+            delay: delay,
+            easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+            fill: 'both'
+          });
+        });
+        return;
+      }
+
+      // 3. CSS animation fallback
+      nodes.forEach(el => el.classList.add('hea-text-animating'));
+    } catch (err) {
+      console.warn('animatePageText notice:', err);
+    }
+  };
+
   // Wait until DOM is fully loaded
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initAll);
@@ -227,13 +295,15 @@
       const link = e.target.closest('a[href^="#"]');
       if (!link) return;
       const href = link.getAttribute('href');
-      if (!href || href === '#' || href.startsWith('#go-')) return;
+      if (!href || href === '#' || href.startsWith('#go-') || href.startsWith('#bio-') || href.includes('/')) return;
 
-      const targetEl = document.querySelector(href);
-      if (targetEl) {
-        e.preventDefault();
-        lenis.scrollTo(targetEl, { offset: -80, duration: 1.2 });
-      }
+      try {
+        const targetEl = document.querySelector(href);
+        if (targetEl && !targetEl.closest('#appShell')) {
+          e.preventDefault();
+          lenis.scrollTo(targetEl, { offset: -80, duration: 1.2 });
+        }
+      } catch (err) {}
     });
   }
 
@@ -321,31 +391,6 @@
         }
       );
     });
-
-    // Universal Text Animation Helper for Dynamic Pages & SPA views
-    window.animatePageText = function (container, options = {}) {
-      if (typeof gsap === 'undefined') return;
-      const root = container || document.querySelector('#appShell:not([hidden]) #appMainPane') || document.querySelector('section:not([hidden])') || document;
-      const selector = options.selector || 'h1, h2, h3, h4, .lead, .eyebrow, .auth-title, .auth-sub, .dash-header h2, .dash-hero-title, .dash-white-card h3, .dash-white-card h4, .stat-val, .card-title, .page-header-title';
-      const nodes = Array.from(root.querySelectorAll(selector)).filter(el => {
-        return el.offsetParent !== null;
-      });
-
-      if (!nodes.length) return;
-
-      gsap.fromTo(nodes,
-        { opacity: 0, y: 22, filter: 'blur(5px)' },
-        {
-          opacity: 1,
-          y: 0,
-          filter: 'blur(0px)',
-          duration: 0.7,
-          stagger: 0.05,
-          ease: 'power3.out',
-          clearProps: 'filter'
-        }
-      );
-    };
 
     // 3. Features Cards Stagger (Unified Row Trigger with Full Props Cleanup)
     if (document.querySelector('#features')) {

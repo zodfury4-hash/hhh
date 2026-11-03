@@ -191,6 +191,10 @@
       return;
     }
 
+    document.body.classList.add('app-mode');
+    const as = $('#appShell');
+    if (as) as.hidden = false;
+
     if (!tab) tab = 'home';
     if (tab === 'dashboard' || tab === 'app') tab = 'home';
     activeTab = tab;
@@ -1836,9 +1840,14 @@
             </div>
           </div>
 
+          <div class="configure-mobile-toggle-bar">
+            <button type="button" class="cfg-tab-btn active" id="btnCfgTabSettings">⚙️ Configure Settings</button>
+            <button type="button" class="cfg-tab-btn" id="btnCfgTabPreview">📱 Live Mobile Preview</button>
+          </div>
+
           <div class="configure-grid">
             <!-- Left Column: Settings Cards (Website Cyber Glass Theme) -->
-            <div>
+            <div class="configure-col-settings" id="cfgColSettings">
               <!-- 1. Page URL Card -->
               <div class="configure-card">
                 <h3 style="color:#ffffff;font-size:17px;font-weight:700;margin:0 0 14px;display:flex;align-items:center;gap:8px;">
@@ -1848,6 +1857,8 @@
                   <select id="configBioDomain" class="home-domain-select" style="min-width:140px;">
                     <option value="healink.store" selected>healink.store</option>
                     <option value="hea.link">hea.link</option>
+                    <option value="tinyurl.com">tinyurl.com</option>
+                    <option value="da.gd">da.gd</option>
                     <option value="bit.ly">bit.ly</option>
                   </select>
                   <span style="color:#ffffff;font-size:15px;font-weight:800;padding:0 4px;">/m/</span>
@@ -1947,7 +1958,7 @@
             </div>
 
             <!-- Right Column: Live Mobile Preview (Matching Image 2 in Cyber Phone Mockup) -->
-            <div style="position:sticky;top:20px;">
+            <div class="configure-col-preview" id="cfgColPreview" style="position:sticky;top:20px;">
               <div style="text-align:center;font-size:13px;font-weight:700;color:#38bdf8;margin-bottom:12px;letter-spacing:0.5px;text-transform:uppercase;">
                 Live Mobile Preview
               </div>
@@ -2042,6 +2053,30 @@
             updateLiveQR();
           };
         });
+
+        // Mobile View Switcher between Settings & Live Phone Mockup
+        const tabSettings = $('#btnCfgTabSettings');
+        const tabPreview = $('#btnCfgTabPreview');
+        const colSettings = $('#cfgColSettings');
+        const colPreview = $('#cfgColPreview');
+
+        if (tabSettings && tabPreview && colSettings && colPreview) {
+          tabSettings.onclick = () => {
+            tabSettings.classList.add('active');
+            tabPreview.classList.remove('active');
+            colSettings.classList.remove('hidden-mobile');
+            colPreview.classList.add('hidden-mobile');
+          };
+          tabPreview.onclick = () => {
+            tabPreview.classList.add('active');
+            tabSettings.classList.remove('active');
+            colPreview.classList.remove('hidden-mobile');
+            colSettings.classList.add('hidden-mobile');
+          };
+          if (window.innerWidth <= 768) {
+            colPreview.classList.add('hidden-mobile');
+          }
+        }
 
         $('#btnBackToTemplates').onclick = () => { mode = 'catalog'; renderView(); };
         $('#btnCancelConfig').onclick = () => { mode = 'catalog'; renderView(); };
@@ -2180,6 +2215,9 @@
     }
 
     renderView();
+    if (typeof window.animatePageText === 'function') {
+      setTimeout(() => window.animatePageText(container), 35);
+    }
   }
 
   // ---------------- 7. ANALYTICS SCREEN (Frame 17 Bitly Flow) ---------------- //
