@@ -3537,7 +3537,7 @@ function route() {
       toast('Please log in with your verified email to access your dashboard');
       return;
     }
-    if (window.lenis && typeof window.lenis.stop === 'function') window.lenis.stop();
+    if (window.lenis && typeof window.lenis.start === 'function') window.lenis.start();
     document.body.classList.add('app-mode');
     const as = $('#appShell');
     if (as) as.hidden = false;

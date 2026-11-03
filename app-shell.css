@@ -13,8 +13,11 @@ body.app-mode {
   background-color: #060b18 !important;
   background-image: none !important;
   color: #f8fafc !important;
-  overflow-x: hidden;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
   font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  min-height: 100vh !important;
 }
 
 body.app-mode > header.nav,
@@ -704,28 +707,46 @@ section[data-page="app"][hidden] {
   margin: 0 auto 16px;
   background: #0f1b36;
   border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 6px 8px 6px 14px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 .home-shorten-box:focus-within {
   border-color: #38bdf8;
   box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
 }
+.home-shorten-left-grp {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
 .home-shorten-input {
   flex: 1;
+  min-width: 140px;
   border: 0;
   outline: none;
   font-size: 14px;
   color: #ffffff;
   background: none;
+  padding: 8px 0;
+}
+.home-shorten-right-grp {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 }
 .home-domain-select {
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: #090f22;
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 8px 12px;
   font-size: 13px;
   font-weight: 600;
@@ -743,10 +764,12 @@ section[data-page="app"][hidden] {
   display: grid;
   place-items: center;
   font-size: 18px;
-  transition: background 0.15s;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
 }
 .home-shorten-btn:hover {
-  background: #0052cc;
+  background: #2563eb;
+  transform: scale(1.04);
 }
 
 .home-cyan-banner {
@@ -1610,8 +1633,9 @@ section[data-page="app"][hidden] {
   /* 2. Dashboard Shell & Mobile Sidebar Drawer */
   #appShell {
     flex-direction: column !important;
-    height: 100vh !important;
-    overflow-y: auto !important;
+    min-height: 100vh !important;
+    height: auto !important;
+    overflow: visible !important;
     max-width: 100vw !important;
     overflow-x: hidden !important;
   }
@@ -1622,6 +1646,7 @@ section[data-page="app"][hidden] {
     bottom: 0 !important;
     width: 270px !important;
     max-width: 82vw !important;
+    height: 100vh !important;
     transform: translateX(-100%) !important;
     transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
     z-index: 1000 !important;
@@ -1629,6 +1654,21 @@ section[data-page="app"][hidden] {
   }
   .app-sidebar.open {
     transform: translateX(0) !important;
+  }
+  .app-body-wrap {
+    min-height: 100vh !important;
+    height: auto !important;
+    width: 100% !important;
+  }
+  .app-content-row {
+    flex-direction: column !important;
+    height: auto !important;
+    min-height: calc(100vh - 60px) !important;
+  }
+  .app-main-pane {
+    padding: 16px 14px 40px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
   .app-main {
     width: 100% !important;
@@ -1652,7 +1692,74 @@ section[data-page="app"][hidden] {
     font-size: 12px !important;
   }
 
-  /* 3. Dashboard layouts & cards */
+  /* 3. Dashboard layouts & cards on Mobile */
+  .home-create-card {
+    padding: 20px 14px !important;
+    border-radius: 12px !important;
+  }
+  .home-create-card h3 {
+    font-size: 22px !important;
+    margin-bottom: 14px !important;
+  }
+  .home-type-tabs {
+    width: 100% !important;
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    margin-bottom: 16px !important;
+  }
+  .home-type-tab {
+    padding: 6px 14px !important;
+    font-size: 12px !important;
+  }
+  .home-shorten-box {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    padding: 12px !important;
+    border-radius: 12px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .home-shorten-left-grp {
+    width: 100% !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 8px !important;
+    padding: 2px 10px !important;
+    box-sizing: border-box !important;
+  }
+  .home-shorten-input {
+    width: 100% !important;
+    height: 40px !important;
+    font-size: 13.5px !important;
+    box-sizing: border-box !important;
+  }
+  .home-shorten-right-grp {
+    width: 100% !important;
+    display: flex !important;
+    gap: 8px !important;
+  }
+  .home-domain-select {
+    flex: 1 !important;
+    height: 42px !important;
+    box-sizing: border-box !important;
+  }
+  .home-shorten-btn {
+    width: 48px !important;
+    height: 42px !important;
+    border-radius: 8px !important;
+    flex-shrink: 0 !important;
+  }
+  .home-cyan-banner {
+    flex-direction: column !important;
+    text-align: center !important;
+    gap: 4px !important;
+    padding: 10px 12px !important;
+    font-size: 12px !important;
+  }
+
   .dash-row-2, .dash-grid-2 {
     grid-template-columns: 1fr !important;
     display: flex !important;
@@ -1664,23 +1771,6 @@ section[data-page="app"][hidden] {
   }
   .settings-2col-layout {
     grid-template-columns: 1fr !important;
-  }
-  .home-shorten-box {
-    flex-wrap: wrap !important;
-    padding: 10px !important;
-  }
-  .home-shorten-input {
-    width: 100% !important;
-    flex: none !important;
-    margin-bottom: 8px !important;
-  }
-  .home-domain-select {
-    flex: 1 !important;
-  }
-  .home-shorten-btn {
-    width: auto !important;
-    padding: 0 16px !important;
-    flex-shrink: 0 !important;
   }
 }
 

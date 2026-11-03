@@ -218,7 +218,7 @@
         <h3>What do you want to create?</h3>
         <div class="home-type-tabs">
           <button class="home-type-tab active" type="button" id="tabShortLinkOpt">
-            <span>🔗</span> Short link / Short URL
+            <span>🔗</span> Short link &amp; URL
           </button>
           <button class="home-type-tab" type="button" id="tabQrCodeOpt">
             <span>▦</span> QR Code
@@ -226,13 +226,17 @@
         </div>
 
         <form id="homeShortenForm" class="home-shorten-box">
-          <span id="homeInputIcon" style="color:#94a3b8;font-size:16px;">🔗</span>
-          <input type="url" id="homeShortenInput" class="home-shorten-input" placeholder="Paste a long URL to shorten it..." required>
-          <select class="home-domain-select" id="homeDomainSelect">
-            <option value="healink.store" selected>healink.store</option>
-            <option value="bit.ly">bit.ly</option>
-          </select>
-          <button type="submit" class="home-shorten-btn" id="homeSubmitBtn">→</button>
+          <div class="home-shorten-left-grp">
+            <span id="homeInputIcon" style="color:#94a3b8;font-size:16px;flex-shrink:0;">🔗</span>
+            <input type="url" id="homeShortenInput" class="home-shorten-input" placeholder="Paste a long URL to shorten it..." required>
+          </div>
+          <div class="home-shorten-right-grp">
+            <select class="home-domain-select" id="homeDomainSelect">
+              <option value="healink.store" selected>healink.store</option>
+              <option value="bit.ly">bit.ly</option>
+            </select>
+            <button type="submit" class="home-shorten-btn" id="homeSubmitBtn">→</button>
+          </div>
         </form>
 
         <div class="home-cyan-banner">
