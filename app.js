@@ -305,6 +305,31 @@ function qrModal(text) {
    Matching the Bitly interface screenshots
    ========================================================= */
 
+const MEGA_ICONS = {
+  link: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`,
+  qr: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>`,
+  mobile: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"></rect><circle cx="12" cy="18" r="1"></circle></svg>`,
+  analytics: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>`,
+  bio: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>`,
+  sparkle: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg>`,
+  message: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>`,
+  tag: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><circle cx="7" cy="7" r="1.5"></circle></svg>`,
+  card: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"></rect><circle cx="8" cy="10" r="2"></circle><line x1="13" y1="9" x2="18" y2="9"></line><line x1="13" y1="12" x2="16" y2="12"></line></svg>`,
+  box: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>`,
+  ai: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`,
+  gear: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>`,
+  cpu: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="15" x2="23" y2="15"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="15" x2="4" y2="15"></line></svg>`,
+  help: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`,
+  code: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>`,
+  shield: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>`,
+  plug: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"></path></svg>`,
+  book: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`,
+  edit: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`,
+  bot: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"></rect><circle cx="12" cy="5" r="2"></circle><path d="M12 7v4"></path><line x1="8" y1="16" x2="8.01" y2="16"></line><line x1="16" y1="16" x2="16.01" y2="16"></line></svg>`,
+  pricing: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>`,
+  handshake: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17 2 2a1 1 0 0 0 1.4 0l4.6-4.6a1 1 0 0 0 0-1.4l-2-2"></path><path d="m18 10 1.4-1.4a1 1 0 0 0 0-1.4L17 5a1 1 0 0 0-1.4 0L14 6.6"></path><path d="m2 14 3-3a1 1 0 0 1 1.4 0l2 2a1 1 0 0 0 1.4 0l3.6-3.6a1 1 0 0 0 0-1.4L11 5.6a1 1 0 0 0-1.4 0L7 8.2"></path></svg>`
+};
+
 const MEGA = {
   Platform: `
     <div class="mega-grid">
@@ -312,19 +337,19 @@ const MEGA = {
       <div class="mega-col">
         <h4>PRODUCTS</h4>
         <a class="mega-item" href="#dashboard">
-          <div class="icon-box">🔗</div>
+          <div class="icon-box">${MEGA_ICONS.link}</div>
           <div><b>URL SHORTENER</b><span>Customize, share and track links</span></div>
         </a>
         <a class="mega-item" href="#qr">
-          <div class="icon-box">▦</div>
+          <div class="icon-box">${MEGA_ICONS.qr}</div>
           <div><b>QR CODE GENERATOR</b><span>Dynamic solutions to fit every business need</span></div>
         </a>
         <a class="mega-item" href="#pages">
-          <div class="icon-box">📱</div>
+          <div class="icon-box">${MEGA_ICONS.mobile}</div>
           <div><b>PAGES &amp; BIO</b><span>Curate and track links for social media profiles</span></div>
         </a>
         <a class="mega-item" href="#analytics">
-          <div class="icon-box">📊</div>
+          <div class="icon-box">${MEGA_ICONS.analytics}</div>
           <div><b>ANALYTICS</b><span>A central place to track performance of all links</span></div>
         </a>
       </div>
@@ -333,48 +358,79 @@ const MEGA = {
       <div class="mega-col">
         <h4>FEATURES</h4>
         <a class="mega-item" href="#pages">
-          <div class="icon-box">📄</div>
+          <div class="icon-box">${MEGA_ICONS.bio}</div>
           <div><b>LINK-IN-BIO</b><span>Curate and track content for social profiles</span></div>
         </a>
         <a class="mega-item" href="#dashboard">
-          <div class="icon-box">✨</div>
+          <div class="icon-box">${MEGA_ICONS.sparkle}</div>
           <div><b>BRANDED LINKS</b><span>Customize links with your brand's URL</span></div>
         </a>
         <a class="mega-item" href="#dashboard">
-          <div class="icon-box">💬</div>
+          <div class="icon-box">${MEGA_ICONS.message}</div>
           <div><b>MOBILE LINKS</b><span>Short links optimized for SMS messages</span></div>
         </a>
         <a class="mega-item" href="#utm">
-          <div class="icon-box">🏷️</div>
+          <div class="icon-box">${MEGA_ICONS.tag}</div>
           <div><b>UTM CAMPAIGNS</b><span>Track links with custom UTM parameters</span></div>
         </a>
         <a class="mega-item" href="#pages">
-          <div class="icon-box">🪪</div>
+          <div class="icon-box">${MEGA_ICONS.card}</div>
           <div><b>DIGITAL BUSINESS CARDS</b><span>Grow your network with virtual cards</span></div>
         </a>
         <a class="mega-item" href="#qr">
-          <div class="icon-box">📦</div>
+          <div class="icon-box">${MEGA_ICONS.box}</div>
           <div><b>2D BARCODES</b><span>Add GTIN to packaging QR codes</span></div>
         </a>
       </div>
 
       <!-- Col 3: Integrations & Discover -->
       <div class="mega-side-card">
-        <h4>INTEGRATIONS</h4>
-        <div class="integrations-row">
-          <div class="integration-pill">
-            <span>🛍️</span><b>Shopify</b>
-          </div>
-          <div class="integration-pill">
-            <span>🎨</span><b>Canva</b>
-          </div>
-          <div class="integration-pill">
-            <span>🟠</span><b>HubSpot</b>
-          </div>
+        <h4>FEATURED ECOSYSTEM</h4>
+        <div style="border-radius:12px;overflow:hidden;background:#081021;border:1px solid rgba(56,189,248,0.25);position:relative;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
+          <svg viewBox="0 0 240 85" width="100%" height="85" style="display:block;">
+            <defs>
+              <linearGradient id="platBg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#0b172e"/>
+                <stop offset="100%" stop-color="#07101f"/>
+              </linearGradient>
+              <linearGradient id="cyanLimeLine" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#38bdf8"/>
+                <stop offset="100%" stop-color="#D4FF24"/>
+              </linearGradient>
+              <filter id="platGlow">
+                <feGaussianBlur stdDeviation="3" result="glow"/>
+                <feMerge>
+                  <feMergeNode in="glow"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+            <rect width="240" height="85" fill="url(#platBg)"/>
+            <line x1="0" y1="28" x2="240" y2="28" stroke="rgba(56,189,248,0.08)" stroke-width="1"/>
+            <line x1="0" y1="56" x2="240" y2="56" stroke="rgba(56,189,248,0.08)" stroke-width="1"/>
+            <line x1="60" y1="0" x2="60" y2="85" stroke="rgba(56,189,248,0.08)" stroke-width="1"/>
+            <line x1="120" y1="0" x2="120" y2="85" stroke="rgba(56,189,248,0.08)" stroke-width="1"/>
+            <line x1="180" y1="0" x2="180" y2="85" stroke="rgba(56,189,248,0.08)" stroke-width="1"/>
+            <path d="M 45 42 C 80 42, 90 42, 120 42 C 150 42, 160 42, 195 42" stroke="url(#cyanLimeLine)" stroke-width="2" stroke-dasharray="4,4" opacity="0.8"/>
+            <circle cx="45" cy="42" r="16" fill="rgba(15,23,42,0.9)" stroke="rgba(56,189,248,0.5)" stroke-width="1.5"/>
+            <text x="45" y="47" font-size="13" text-anchor="middle">🛍️</text>
+            <circle cx="120" cy="42" r="20" fill="rgba(8,14,30,0.95)" stroke="#D4FF24" stroke-width="2" filter="url(#platGlow)"/>
+            <text x="120" y="47" font-size="14" font-weight="900" text-anchor="middle" fill="#D4FF24">∞</text>
+            <circle cx="195" cy="42" r="16" fill="rgba(15,23,42,0.9)" stroke="rgba(56,189,248,0.5)" stroke-width="1.5"/>
+            <text x="195" y="47" font-size="13" text-anchor="middle">🎨</text>
+            <rect x="8" y="7" width="82" height="15" rx="7.5" fill="rgba(56,189,248,0.18)" stroke="rgba(56,189,248,0.35)" stroke-width="1"/>
+            <circle cx="15" cy="14.5" r="2.5" fill="#D4FF24"/>
+            <text x="22" y="17.5" font-size="8" font-weight="700" fill="#38bdf8" letter-spacing="0.5">CONNECTED</text>
+          </svg>
         </div>
-        <a class="mega-side-link" href="#integrations">See more integrations →</a>
+        <div class="integrations-row" style="margin-top:2px;">
+          <div class="integration-pill"><b>Shopify</b></div>
+          <div class="integration-pill"><b>Canva</b></div>
+          <div class="integration-pill"><b>HubSpot</b></div>
+        </div>
+        <a class="mega-side-link" href="#integrations">See 100+ integrations →</a>
 
-        <div style="border-top:1px solid #fed7aa;margin-top:6px;padding-top:10px;">
+        <div style="border-top:1px solid rgba(56,189,248,0.15);margin-top:4px;padding-top:8px;">
           <h4>DISCOVER MORE</h4>
           <a class="mega-side-link" href="#resources" style="margin-bottom:6px">API &amp; DOCUMENTATION</a>
           <a class="mega-side-link" href="#resources">TRUST CENTER</a>
@@ -389,15 +445,15 @@ const MEGA = {
       <div class="mega-col">
         <h4>AI FEATURES</h4>
         <a class="mega-item" href="#assist">
-          <div class="icon-box">✦</div>
+          <div class="icon-box">${MEGA_ICONS.ai}</div>
           <div><b>HEA ASSIST</b><span>AI-Powered link and QR Code analysis</span></div>
         </a>
         <a class="mega-item" href="#assist">
-          <div class="icon-box">⚙️</div>
+          <div class="icon-box">${MEGA_ICONS.gear}</div>
           <div><b>HEA MCP</b><span>Connect to AI agents with Model Context Protocol</span></div>
         </a>
         <a class="mega-item" href="#assist">
-          <div class="icon-box">🧩</div>
+          <div class="icon-box">${MEGA_ICONS.cpu}</div>
           <div><b>LLM INTEGRATIONS</b><span>Bring link management to your AI assistants</span></div>
         </a>
       </div>
@@ -406,30 +462,74 @@ const MEGA = {
       <div class="mega-col">
         <h4>AI RESOURCES</h4>
         <a class="mega-item" href="#faq">
-          <div class="icon-box">❓</div>
+          <div class="icon-box">${MEGA_ICONS.help}</div>
           <div><b>HELP CENTER</b><span>Step-by-step guides &amp; documentation</span></div>
         </a>
         <a class="mega-item" href="#resources">
-          <div class="icon-box">💻</div>
+          <div class="icon-box">${MEGA_ICONS.code}</div>
           <div><b>DEVELOPERS</b><span>API endpoints &amp; SDK references</span></div>
         </a>
         <a class="mega-item" href="#resources">
-          <div class="icon-box">🛡️</div>
+          <div class="icon-box">${MEGA_ICONS.shield}</div>
           <div><b>TRUST CENTER</b><span>Security, privacy &amp; compliance</span></div>
         </a>
         <a class="mega-item" href="#integrations">
-          <div class="icon-box">🔌</div>
+          <div class="icon-box">${MEGA_ICONS.plug}</div>
           <div><b>INTEGRATIONS MARKETPLACE</b><span>Plug into 100+ platforms</span></div>
         </a>
       </div>
 
-      <!-- Col 3: Featured Card -->
+      <!-- Col 3: Featured Card with Image Illustration -->
       <div class="mega-side-card">
-        <h4>FEATURED</h4>
-        <div style="border-radius:10px;background:rgba(251,146,60,0.12);border:1px solid rgba(251,146,60,0.25);height:90px;display:grid;place-items:center;font-size:32px;">📈</div>
+        <h4>FEATURED REPORT</h4>
+        <div style="border-radius:12px;overflow:hidden;background:#081021;border:1px solid rgba(56,189,248,0.3);position:relative;box-shadow:0 8px 25px rgba(0,0,0,0.6);">
+          <svg viewBox="0 0 240 95" width="100%" height="95" style="display:block;">
+            <defs>
+              <linearGradient id="aiCardBg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#0b172e"/>
+                <stop offset="100%" stop-color="#060c18"/>
+              </linearGradient>
+              <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.45"/>
+                <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.0"/>
+              </linearGradient>
+              <linearGradient id="chartLine" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#2563eb"/>
+                <stop offset="50%" stop-color="#38bdf8"/>
+                <stop offset="100%" stop-color="#D4FF24"/>
+              </linearGradient>
+              <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3" result="glow"/>
+                <feMerge>
+                  <feMergeNode in="glow"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+            <rect width="240" height="95" fill="url(#aiCardBg)"/>
+            <line x1="0" y1="24" x2="240" y2="24" stroke="rgba(56,189,248,0.08)" stroke-width="1"/>
+            <line x1="0" y1="48" x2="240" y2="48" stroke="rgba(56,189,248,0.08)" stroke-width="1"/>
+            <line x1="0" y1="72" x2="240" y2="72" stroke="rgba(56,189,248,0.08)" stroke-width="1"/>
+            <line x1="60" y1="0" x2="60" y2="95" stroke="rgba(56,189,248,0.06)" stroke-width="1"/>
+            <line x1="120" y1="0" x2="120" y2="95" stroke="rgba(56,189,248,0.06)" stroke-width="1"/>
+            <line x1="180" y1="0" x2="180" y2="95" stroke="rgba(56,189,248,0.06)" stroke-width="1"/>
+
+            <path d="M 15 76 Q 55 70, 85 48 T 150 38 T 225 15 L 225 80 L 15 80 Z" fill="url(#chartGrad)"/>
+            <path d="M 15 76 Q 55 70, 85 48 T 150 38 T 225 15" fill="none" stroke="url(#chartLine)" stroke-width="3" filter="url(#neonGlow)"/>
+
+            <circle cx="85" cy="48" r="3" fill="#38bdf8" stroke="#ffffff" stroke-width="1.5"/>
+            <circle cx="150" cy="38" r="3" fill="#38bdf8" stroke="#ffffff" stroke-width="1.5"/>
+            <circle cx="225" cy="15" r="4" fill="#D4FF24" stroke="#ffffff" stroke-width="2" filter="url(#neonGlow)"/>
+
+            <rect x="12" y="8" width="84" height="18" rx="9" fill="rgba(8,14,30,0.9)" stroke="#38bdf8" stroke-width="1.2"/>
+            <text x="21" y="21" font-size="9" font-weight="700" fill="#D4FF24">↗ +245%</text>
+            <text x="66" y="21" font-size="8.5" fill="#94a3b8">CTR</text>
+            <text x="12" y="89" font-size="8" fill="#64748b" font-weight="600" letter-spacing="0.5">CLICK EXPECTATION 2026</text>
+          </svg>
+        </div>
         <div>
-          <span class="pill" style="font-size:10px;padding:3px 8px;background:#ea580c;color:#fff">RESEARCH REPORT</span>
-          <b style="display:block;font-size:13px;margin-top:6px;color:var(--ink)">The Click Expectation Report</b>
+          <span class="pill" style="font-size:10px;padding:3px 10px;background:rgba(56,189,248,0.15);color:#38bdf8;border:1px solid rgba(56,189,248,0.3);border-radius:20px;font-weight:700;">RESEARCH REPORT</span>
+          <b style="display:block;font-size:13px;margin-top:6px;color:#ffffff">The Click Expectation Report</b>
           <span style="font-size:12px;color:var(--mut)">What makes links worth clicking in 2026.</span>
         </div>
         <a class="mega-side-link" href="#resources">Read Report →</a>
@@ -461,7 +561,7 @@ const MEGA = {
         <a href="#solutions">DIGITAL ADVERTISING</a>
         <a href="#solutions">CONTENT SHARING</a>
 
-        <div style="border-top:1px solid var(--line);margin-top:10px;padding-top:8px">
+        <div style="border-top:1px solid rgba(56,189,248,0.15);margin-top:10px;padding-top:8px">
           <h4>WHY HEA?</h4>
           <a href="#solutions">INTEGRATE WITH HEA</a>
           <a href="#pricing">COMPARE HEA</a>
@@ -475,38 +575,66 @@ const MEGA = {
       <div class="mega-col">
         <h4>LEARN MORE</h4>
         <a class="mega-item" href="#resources">
-          <div class="icon-box">📚</div>
+          <div class="icon-box">${MEGA_ICONS.book}</div>
           <div><b>GUIDES &amp; EBOOKS</b><span>Practical tactics to increase CTR</span></div>
         </a>
         <a class="mega-item" href="#resources">
-          <div class="icon-box">✍️</div>
+          <div class="icon-box">${MEGA_ICONS.edit}</div>
           <div><b>BLOG &amp; INSIGHTS</b><span>Latest trends in short link branding</span></div>
         </a>
         <a class="mega-item" href="#assist">
-          <div class="icon-box">🤖</div>
+          <div class="icon-box">${MEGA_ICONS.bot}</div>
           <div><b>HEA ASSIST AI</b><span>Ask questions about your data</span></div>
         </a>
       </div>
       <div class="mega-col">
         <h4>FIND ANSWERS</h4>
         <a class="mega-item" href="#faq">
-          <div class="icon-box">❓</div>
+          <div class="icon-box">${MEGA_ICONS.help}</div>
           <div><b>HELP CENTER</b><span>FAQs and setup troubleshooting</span></div>
         </a>
         <a class="mega-item" href="#pricing">
-          <div class="icon-box">🏷️</div>
+          <div class="icon-box">${MEGA_ICONS.pricing}</div>
           <div><b>PRICING</b><span>Transparent plans for all teams</span></div>
         </a>
         <a class="mega-item" href="#solutions">
-          <div class="icon-box">🤝</div>
+          <div class="icon-box">${MEGA_ICONS.handshake}</div>
           <div><b>CONTACT SALES</b><span>Custom enterprise plans &amp; SLAs</span></div>
         </a>
       </div>
       <div class="mega-side-card">
         <h4>WHAT'S NEW</h4>
-        <div class="pill" style="background:#dbeafe;color:var(--blue)">VERSION 2.4</div>
-        <p style="font-size:13px;color:var(--ink);font-weight:600">Mobile Link-in-Bio Pages</p>
-        <p style="font-size:12px;color:var(--mut)">Build a gorgeous social profile landing page in under 60 seconds.</p>
+        <div style="border-radius:12px;overflow:hidden;background:#081021;border:1px solid rgba(56,189,248,0.25);position:relative;box-shadow:0 8px 25px rgba(0,0,0,0.6);">
+          <svg viewBox="0 0 240 90" width="100%" height="90" style="display:block;">
+            <defs>
+              <linearGradient id="resBg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#0b172e"/>
+                <stop offset="100%" stop-color="#060c18"/>
+              </linearGradient>
+              <linearGradient id="bioBtn1" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#2563eb"/>
+                <stop offset="100%" stop-color="#38bdf8"/>
+              </linearGradient>
+            </defs>
+            <rect width="240" height="90" fill="url(#resBg)"/>
+            <rect x="75" y="5" width="90" height="80" rx="12" fill="rgba(15,23,42,0.95)" stroke="rgba(56,189,248,0.4)" stroke-width="1.5"/>
+            <rect x="105" y="8" width="30" height="2.5" rx="1.2" fill="rgba(255,255,255,0.2)"/>
+            <circle cx="120" cy="24" r="8" fill="url(#bioBtn1)" stroke="#D4FF24" stroke-width="1.5"/>
+            <text x="120" y="27" font-size="7.5" text-anchor="middle" fill="#ffffff" font-weight="700">H</text>
+            <text x="120" y="38" font-size="7" text-anchor="middle" fill="#ffffff" font-weight="600">@yourbrand</text>
+            <rect x="85" y="44" width="70" height="10" rx="5" fill="url(#bioBtn1)"/>
+            <text x="120" y="51.5" font-size="6" text-anchor="middle" fill="#ffffff" font-weight="600">My Website ↗</text>
+            <rect x="85" y="58" width="70" height="10" rx="5" fill="rgba(255,255,255,0.08)" stroke="rgba(212,255,36,0.5)" stroke-width="1"/>
+            <text x="120" y="65.5" font-size="6" text-anchor="middle" fill="#D4FF24" font-weight="600">Special Offer ✨</text>
+            <circle cx="148" cy="16" r="6" fill="#38bdf8"/>
+            <path d="M146 16 L147.5 17.5 L150.5 14.5" stroke="#ffffff" stroke-width="1.2" fill="none"/>
+          </svg>
+        </div>
+        <div>
+          <span class="pill" style="font-size:10px;padding:3px 10px;background:rgba(212,255,36,0.15);color:#D4FF24;border:1px solid rgba(212,255,36,0.35);border-radius:20px;font-weight:700;">VERSION 2.4</span>
+          <b style="display:block;font-size:13px;margin-top:6px;color:#ffffff">Mobile Link-in-Bio Pages</b>
+          <span style="font-size:12px;color:var(--mut)">Build a gorgeous social profile landing page in under 60 seconds.</span>
+        </div>
         <a class="mega-side-link" href="#pages">Build My Bio Page →</a>
       </div>
     </div>
@@ -515,26 +643,26 @@ const MEGA = {
 
 const SOL_ITEMS = {
   industry: [
-    { icon: '🛍️', title: 'RETAIL', href: '#solutions' },
-    { icon: '🛒', title: 'CONSUMER PACKAGED GOODS', href: '#solutions' },
-    { icon: '🏨', title: 'HOSPITALITY', href: '#solutions' },
-    { icon: '🎬', title: 'MEDIA &amp; ENTERTAINMENT', href: '#solutions' },
-    { icon: '💻', title: 'TECHNOLOGY &amp; HARDWARE', href: '#solutions' },
-    { icon: '🏥', title: 'HEALTHCARE', href: '#solutions' },
-    { icon: '☂️', title: 'INSURANCE', href: '#solutions' },
-    { icon: '🪙', title: 'FINANCIAL SERVICES', href: '#solutions' },
-    { icon: '💼', title: 'PROFESSIONAL SERVICES', href: '#solutions' },
-    { icon: '🎓', title: 'EDUCATION', href: '#solutions' }
+    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>`, title: 'RETAIL', href: '#solutions' },
+    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>`, title: 'CONSUMER PACKAGED GOODS', href: '#solutions' },
+    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"></path><path d="M19 21v-4"></path><path d="M19 13V3a1 1 0 0 0-1-1H6a1 1 0 0 0-1 1v18"></path><rect x="9" y="6" width="6" height="4"></rect></svg>`, title: 'HOSPITALITY', href: '#solutions' },
+    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>`, title: 'MEDIA &amp; ENTERTAINMENT', href: '#solutions' },
+    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="2" y1="20" x2="22" y2="20"></line></svg>`, title: 'TECHNOLOGY &amp; HARDWARE', href: '#solutions' },
+    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>`, title: 'HEALTHCARE', href: '#solutions' },
+    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>`, title: 'INSURANCE', href: '#solutions' },
+    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 18V6"></path></svg>`, title: 'FINANCIAL SERVICES', href: '#solutions' },
+    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>`, title: 'PROFESSIONAL SERVICES', href: '#solutions' },
+    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>`, title: 'EDUCATION', href: '#solutions' }
   ],
   team: [
-    { icon: '&lt;/&gt;', title: 'DEVELOPERS', href: '#solutions' },
-    { icon: '📢', title: 'MARKETING', href: '#solutions' },
-    { icon: '🎧', title: 'CUSTOMER SERVICE', href: '#solutions' }
+    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>`, title: 'DEVELOPERS', href: '#solutions' },
+    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 11 18-5v12L3 14v-3z"></path><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path></svg>`, title: 'MARKETING', href: '#solutions' },
+    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>`, title: 'CUSTOMER SERVICE', href: '#solutions' }
   ],
   business: [
-    { icon: '🏪', title: 'SMALL BUSINESS', href: '#solutions' },
-    { icon: '🏢', title: 'MIDMARKET', href: '#solutions' },
-    { icon: '🏙️', title: 'ENTERPRISE', href: '#solutions' }
+    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"></path><rect x="4" y="8" width="7" height="13"></rect><rect x="13" y="4" width="7" height="17"></rect></svg>`, title: 'SMALL BUSINESS', href: '#solutions' },
+    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"></path><rect x="4" y="6" width="16" height="15"></rect><line x1="8" y1="10" x2="8" y2="10.01"></line><line x1="16" y1="10" x2="16" y2="10.01"></line><line x1="8" y1="14" x2="8" y2="14.01"></line><line x1="16" y1="14" x2="16" y2="14.01"></line></svg>`, title: 'MIDMARKET', href: '#solutions' },
+    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 2 7l10 5 10-5-10-5z"></path><path d="m2 17 10 5 10-5"></path><path d="m2 12 10 5 10-5"></path></svg>`, title: 'ENTERPRISE', href: '#solutions' }
   ]
 };
 
@@ -924,14 +1052,42 @@ function initNav() {
       e.stopPropagation();
       const parent = btn.parentNode;
       const wasOpen = parent.classList.contains('open');
-      $$('.mi').forEach(m => m.classList.remove('open'));
-      if (!wasOpen) parent.classList.add('open');
-      btn.setAttribute('aria-expanded', !wasOpen);
+      $$('.mi').forEach(m => {
+        m.classList.remove('open');
+        m.querySelector('button')?.setAttribute('aria-expanded', 'false');
+      });
+      if (!wasOpen) {
+        parent.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
     };
   });
 
+  // Desktop hover safety: entering any menu item clears .open from siblings
+  $$('.mi').forEach(m => {
+    m.addEventListener('mouseenter', () => {
+      $$('.mi').forEach(other => {
+        if (other !== m) {
+          other.classList.remove('open');
+          other.querySelector('button')?.setAttribute('aria-expanded', 'false');
+        }
+      });
+    });
+  });
+
+  // Leaving menu bar completely clears all open sheets
+  $('#menu')?.addEventListener('mouseleave', () => {
+    $$('.mi').forEach(m => {
+      m.classList.remove('open');
+      m.querySelector('button')?.setAttribute('aria-expanded', 'false');
+    });
+  });
+
   document.addEventListener('click', () => {
-    $$('.mi').forEach(m => m.classList.remove('open'));
+    $$('.mi').forEach(m => {
+      m.classList.remove('open');
+      m.querySelector('button')?.setAttribute('aria-expanded', 'false');
+    });
   });
 
   $('#burger').onclick = () => $('.nav').classList.toggle('open');
