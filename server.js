@@ -21,11 +21,10 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/healin
 
 // Security Environment Flags
 const IS_PROD = process.env.NODE_ENV === 'production';
-// Code sirf tab expose ho jab production na ho AND SMTP configured na ho
-const EXPOSE_DEV_CODE = !IS_PROD && !process.env.SMTP_HOST;
+const isSmtpReady = !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
 
-function devCodeField(code) {
-  return EXPOSE_DEV_CODE ? { devCode: code } : {};
+function devCodeField(code, emailSent) {
+  return emailSent ? { emailSent: true } : { emailSent: false, devCode: code };
 }
 
 function generateSecureOTP() {
@@ -77,40 +76,43 @@ mongoose.connect(MONGODB_URI, {
 
 // Nodemailer Transporter Setup
 let mailTransporter = null;
-if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
-  mailTransporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: process.env.SMTP_SECURE === 'true',
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS
-    }
-  });
-  console.log('📧 [Email Service] Configured with SMTP:', process.env.SMTP_HOST);
-} else {
-  if (IS_PROD) {
-    console.error('⚠️ [CRITICAL CONFIG] SMTP is not configured in production mode. Verification & reset emails cannot be delivered.');
-    if (process.env.ENFORCE_PROD_SMTP === 'true') {
-      console.error('FATAL: SMTP must be configured in production.');
-      process.exit(1);
-    }
+if (isSmtpReady) {
+  const cleanPass = (process.env.SMTP_PASS || '').replace(/\s+/g, '');
+  if ((process.env.SMTP_HOST || '').includes('gmail')) {
+    mailTransporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: cleanPass
+      }
+    });
   } else {
-    console.log('ℹ️ [Email Service] SMTP not configured in .env. Verification codes will be logged to console and returned for instant testing.');
+    mailTransporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: process.env.SMTP_SECURE === 'true' || process.env.SMTP_PORT === '465',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: cleanPass
+      }
+    });
   }
+  console.log('📧 [Email Service] Real SMTP Configured:', process.env.SMTP_HOST, 'Account:', process.env.SMTP_USER);
+} else {
+  console.log('ℹ️ [Email Service] Real SMTP not yet configured in .env (SMTP_USER or SMTP_PASS missing). Real emails cannot be dispatched.');
 }
 
 // Helper: Send Verification Email
 async function sendVerificationEmail(email, name, code) {
-  if (!IS_PROD) {
-    console.log(`\n======================================================`);
-    console.log(`📧 [EMAIL VERIFICATION] Sent to: ${email}`);
-    console.log(`🔑 Verification Code: [ ${code} ]`);
-    console.log(`⏱️  Valid for 15 minutes`);
-    console.log(`======================================================\n`);
-  }
+  console.log(`\n======================================================`);
+  console.log(`📧 [EMAIL VERIFICATION] Target: ${email}`);
+  console.log(`🔑 Verification Code: [ ${code} ]`);
+  console.log(`⏱️  Valid for 15 minutes`);
+  console.log(`======================================================\n`);
 
-  if (!mailTransporter) return { simulated: true, code };
+  if (!mailTransporter) {
+    return { success: false, simulated: true, code, reason: 'SMTP credentials missing in .env' };
+  }
 
   const html = `
     <!DOCTYPE html>
@@ -152,29 +154,31 @@ async function sendVerificationEmail(email, name, code) {
   `;
 
   try {
+    const fromAddr = process.env.EMAIL_FROM || `"HEA Link" <${process.env.SMTP_USER || 'noreply@healink.store'}>`;
     const info = await mailTransporter.sendMail({
-      from: process.env.EMAIL_FROM || '"HEA Link" <noreply@healink.store>',
+      from: fromAddr,
       to: email,
       subject: `${code} is your HEA Link verification code`,
       html
     });
+    console.log(`✅ [Email Service] Real email dispatched to ${email}! MessageId: ${info.messageId}`);
     return { success: true, messageId: info.messageId };
   } catch (err) {
-    console.error('Failed to send verification email via SMTP:', err.message);
-    return { error: err.message, simulated: true, code };
+    console.error('❌ Failed to send verification email via SMTP:', err.message);
+    return { success: false, error: err.message, simulated: true, code };
   }
 }
 
 async function sendPasswordResetEmail(email, name, code) {
-  if (!IS_PROD) {
-    console.log(`\n======================================================`);
-    console.log(`🔑 [PASSWORD RESET] Sent to: ${email}`);
-    console.log(`🔑 Reset Code: [ ${code} ]`);
-    console.log(`⏱️  Valid for 15 minutes`);
-    console.log(`======================================================\n`);
-  }
+  console.log(`\n======================================================`);
+  console.log(`🔑 [PASSWORD RESET] Target: ${email}`);
+  console.log(`🔑 Reset Code: [ ${code} ]`);
+  console.log(`⏱️  Valid for 15 minutes`);
+  console.log(`======================================================\n`);
 
-  if (!mailTransporter) return { simulated: true, code };
+  if (!mailTransporter) {
+    return { success: false, simulated: true, code, reason: 'SMTP credentials missing in .env' };
+  }
 
   const html = `
     <!DOCTYPE html>
@@ -212,16 +216,18 @@ async function sendPasswordResetEmail(email, name, code) {
   `;
 
   try {
+    const fromAddr = process.env.EMAIL_FROM || `"HEA Link Security" <${process.env.SMTP_USER || 'noreply@healink.store'}>`;
     const info = await mailTransporter.sendMail({
-      from: process.env.EMAIL_FROM || '"HEA Link Security" <noreply@healink.store>',
+      from: fromAddr,
       to: email,
       subject: `${code} is your HEA Link password reset code`,
       html
     });
+    console.log(`✅ [Email Service] Real reset email dispatched to ${email}! MessageId: ${info.messageId}`);
     return { success: true, messageId: info.messageId };
   } catch (err) {
-    console.error('Failed to send reset email via SMTP:', err.message);
-    return { error: err.message, simulated: true, code };
+    console.error('❌ Failed to send reset email via SMTP:', err.message);
+    return { success: false, error: err.message, simulated: true, code };
   }
 }
 
@@ -355,12 +361,14 @@ app.post('/api/auth/register', async (req, res) => {
         existingUser.verificationCodeExpires = verificationCodeExpires;
         await existingUser.save();
 
-        await sendVerificationEmail(cleanEmail, displayName, verificationCode);
+        const mailRes = await sendVerificationEmail(cleanEmail, displayName, verificationCode);
         return res.json({
           success: true,
-          message: 'Verification code resent to your email address.',
+          message: mailRes.success
+            ? 'Verification code resent to your email address.'
+            : 'Verification code generated! Real email requires SMTP in .env.',
           email: cleanEmail,
-          ...devCodeField(verificationCode)
+          ...devCodeField(verificationCode, mailRes.success)
         });
       }
 
@@ -398,13 +406,15 @@ app.post('/api/auth/register', async (req, res) => {
       }
     }
 
-    await sendVerificationEmail(cleanEmail, displayName, verificationCode);
+    const mailRes = await sendVerificationEmail(cleanEmail, displayName, verificationCode);
 
     return res.json({
       success: true,
-      message: 'Account created! Please enter the 6-digit verification code sent to your email.',
+      message: mailRes.success
+        ? 'Account created! Please enter the 6-digit verification code sent to your email.'
+        : 'Account created! Real email requires SMTP in .env. Test code provided.',
       email: cleanEmail,
-      ...devCodeField(verificationCode)
+      ...devCodeField(verificationCode, mailRes.success)
     });
   } catch (err) {
     console.error('Registration error:', err);
@@ -531,12 +541,14 @@ app.post('/api/auth/resend-code', async (req, res) => {
     user.verificationCodeExpires = verificationCodeExpires;
     if (isDbConnected) await user.save();
 
-    await sendVerificationEmail(cleanEmail, user.name, verificationCode);
+    const mailRes = await sendVerificationEmail(cleanEmail, user.name, verificationCode);
 
     return res.json({
       success: true,
-      message: 'New verification code sent to your email.',
-      ...devCodeField(verificationCode)
+      message: mailRes.success
+        ? 'New verification code sent to your email.'
+        : 'New verification code generated! Real email requires SMTP in .env.',
+      ...devCodeField(verificationCode, mailRes.success)
     });
   } catch (err) {
     return res.status(500).json({ error: err.message });
@@ -573,13 +585,15 @@ app.post('/api/auth/forgot-password', async (req, res) => {
       await user.save();
     }
 
-    await sendPasswordResetEmail(cleanEmail, user.name, resetCode);
+    const mailRes = await sendPasswordResetEmail(cleanEmail, user.name, resetCode);
 
     return res.json({
       success: true,
-      message: 'If an account exists for this email, a reset code has been sent.',
+      message: mailRes.success
+        ? 'If an account exists for this email, a reset code has been sent.'
+        : 'Password reset code generated. Real email requires SMTP in .env.',
       email: cleanEmail,
-      ...devCodeField(resetCode)
+      ...devCodeField(resetCode, mailRes.success)
     });
   } catch (err) {
     console.error('Forgot password error:', err);

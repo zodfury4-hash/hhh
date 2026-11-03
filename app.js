@@ -1697,10 +1697,24 @@ $('#authForm').onsubmit = async e => {
         showAuth('verify');
         const devAlert = $('#verifyDevAlert');
         const devText = $('#verifyDevText');
-        if (devAlert) {
-          devAlert.hidden = true;
+        const d = backendRes.data;
+        if (d.emailSent) {
+          if (devAlert) devAlert.hidden = true;
+          toast('✅ Verification code sent to ' + email + '! Check your Gmail inbox.');
+        } else {
+          if (devAlert && devText) {
+            devAlert.hidden = false;
+            devText.innerHTML = `<span>⚠️ Server SMTP is not yet configured in .env. For testing, your verification code is: <b style="color:#ffffff;font-size:15px;letter-spacing:3px;margin:0 4px;">${d.devCode || ''}</b></span> <button type="button" class="btn sm" id="devAutofillBtn" style="margin-left:auto;padding:3px 10px;font-size:12px;background:#38bdf8;color:#060b18;font-weight:700;">Auto-fill</button>`;
+            const ab = $('#devAutofillBtn');
+            if (ab) {
+              ab.onclick = () => {
+                const ci = $('#verifyCodeInput');
+                if (ci) { ci.value = d.devCode || ''; ci.focus(); }
+              };
+            }
+          }
+          toast('⚠️ Real email requires Gmail App Password in .env. Test code provided below.');
         }
-        toast('Verification code sent to ' + email);
         return;
       } else if (backendRes && !backendRes.ok) {
         errBox.textContent = backendRes.data.error || 'Failed to create account.';
@@ -1727,10 +1741,20 @@ $('#authForm').onsubmit = async e => {
 
       pendingVerificationEmail = email;
       showAuth('verify');
-      if (devAlert) {
-        devAlert.hidden = true;
+      const devAlertFallback = $('#verifyDevAlert');
+      const devTextFallback = $('#verifyDevText');
+      if (devAlertFallback && devTextFallback) {
+        devAlertFallback.hidden = false;
+        devTextFallback.innerHTML = `<span>⚠️ Static / Offline mode. Test verification code: <b style="color:#ffffff;font-size:15px;letter-spacing:3px;margin:0 4px;">${clientCode}</b></span> <button type="button" class="btn sm" id="devAutofillFallbackBtn" style="margin-left:auto;padding:3px 10px;font-size:12px;background:#38bdf8;color:#060b18;font-weight:700;">Auto-fill</button>`;
+        const abF = $('#devAutofillFallbackBtn');
+        if (abF) {
+          abF.onclick = () => {
+            const ci = $('#verifyCodeInput');
+            if (ci) { ci.value = clientCode; ci.focus(); }
+          };
+        }
       }
-      toast('Verification code sent to ' + email);
+      toast('Verification code generated for ' + email);
       return;
     }
 
@@ -1957,14 +1981,29 @@ if (verifyResendBtn) {
         resData = await res.json();
       } catch (e) {}
 
-      if (resData && resData.devCode) {
+      if (resData) {
         const devAlert = $('#verifyDevAlert');
-        if (devAlert) {
-          devAlert.hidden = true;
+        const devText = $('#verifyDevText');
+        if (resData.emailSent) {
+          if (devAlert) devAlert.hidden = true;
+          toast('✅ New verification code sent to ' + pendingVerificationEmail + '! Check your Gmail inbox.');
+        } else if (resData.devCode) {
+          if (devAlert && devText) {
+            devAlert.hidden = false;
+            devText.innerHTML = `<span>⚠️ Server SMTP not configured. New test code: <b style="color:#ffffff;font-size:15px;letter-spacing:3px;margin:0 4px;">${resData.devCode}</b></span> <button type="button" class="btn sm" id="devAutofillResendBtn" style="margin-left:auto;padding:3px 10px;font-size:12px;background:#38bdf8;color:#060b18;font-weight:700;">Auto-fill</button>`;
+            const abR = $('#devAutofillResendBtn');
+            if (abR) {
+              abR.onclick = () => {
+                const ci = $('#verifyCodeInput');
+                if (ci) { ci.value = resData.devCode; ci.focus(); }
+              };
+            }
+          }
+          toast('⚠️ Real email requires Gmail App Password in .env. Test code updated.');
         }
+      } else {
+        toast('New verification code requested for ' + pendingVerificationEmail);
       }
-
-      toast('New verification code sent to ' + pendingVerificationEmail);
 
       let countdown = 30;
       const interval = setInterval(() => {
@@ -2059,21 +2098,27 @@ if (forgotStep1Form) {
       const devAlert = $('#forgotDevAlert');
       const devText = $('#forgotDevText');
       if (devAlert && devText) {
-        if (devCode) {
-          devText.textContent = `Reset Code: ${devCode}`;
+        if (backendRes && backendRes.data && backendRes.data.emailSent) {
+          devAlert.hidden = true;
+          toast('✅ Reset code sent to ' + email + '! Check your Gmail inbox.');
+        } else if (devCode) {
+          devText.innerHTML = `<span>Reset Code: <b style="color:#ffffff;font-size:15px;letter-spacing:3px;margin:0 4px;">${devCode}</b></span> <button type="button" class="btn sm" id="devAutofillForgotBtn" style="margin-left:auto;padding:3px 10px;font-size:12px;background:#38bdf8;color:#060b18;font-weight:700;">Auto-fill</button>`;
           devAlert.hidden = false;
+          const abFo = $('#devAutofillForgotBtn');
+          if (abFo) {
+            abFo.onclick = () => {
+              const ci = $('#forgotCodeInput');
+              if (ci) { ci.value = devCode; ci.focus(); }
+            };
+          }
+          toast('⚠️ Real email requires Gmail App Password in .env. Test code provided.');
         } else {
           devAlert.hidden = true;
+          toast('Reset code sent! Check your email.');
         }
+      } else {
+        toast('Reset code sent! Check your email.');
       }
-
-      const codeIn = $('#forgotCodeInput');
-      if (codeIn) {
-        codeIn.value = '';
-        setTimeout(() => codeIn.focus(), 100);
-      }
-
-      toast('Reset code sent! Check your email or security alert.');
     } catch (err) {
       errBox.textContent = err.message || 'Failed to dispatch reset code.';
     } finally {
