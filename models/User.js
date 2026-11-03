@@ -50,6 +50,22 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'Global Internet'
   },
+  isPro: {
+    type: Boolean,
+    default: false
+  },
+  plan: {
+    type: String,
+    default: 'Free'
+  },
+  subscriptionDate: {
+    type: Date,
+    default: null
+  },
+  stripeCustomerId: {
+    type: String,
+    default: null
+  },
   createdAt: {
     type: Date,
     default: Date.now

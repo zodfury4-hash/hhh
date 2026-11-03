@@ -1186,6 +1186,20 @@
 
       <!-- Payment Details Form -->
       <form id="checkoutPaymentForm" class="checkout-form">
+        <!-- 1. Stripe Hosted Checkout (Official PCI-DSS Level 1 Encrypted) -->
+        <button type="button" class="checkout-submit-btn" id="btnStripeCheckout" style="background:linear-gradient(135deg,#6366f1,#4f46e5);margin-bottom:14px;box-shadow:0 4px 20px rgba(99,102,241,0.4);border:1px solid rgba(255,255,255,0.2);">
+          <span style="display:flex;align-items:center;justify-content:center;gap:10px;font-weight:700;">
+            <svg width="22" height="22" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="8" fill="#4f46e5"/><path d="M19.7 14.8c0-1.2 1-1.7 2.6-1.7 2.3 0 5.2.7 7.5 2V9.6c-2.5-1-5.1-1.4-7.5-1.4-6.3 0-10.5 3.3-10.5 8.9 0 8.7 12 7.3 12 11 0 1.4-1.2 1.9-2.9 1.9-2.6 0-5.9-1.1-8.5-2.6v5.7c2.8 1.2 5.7 1.7 8.5 1.7 6.5 0 10.9-3.2 10.9-9 0-9.4-12.1-7.8-12.1-11z" fill="#fff"/></svg>
+            Pay with Stripe ↗ (Visa, MasterCard, Apple Pay)
+          </span>
+        </button>
+
+        <div style="display:flex;align-items:center;gap:12px;margin:10px 0 16px;">
+          <div style="flex:1;height:1px;background:rgba(255,255,255,0.1);"></div>
+          <span style="font-size:11px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">or enter card on-site</span>
+          <div style="flex:1;height:1px;background:rgba(255,255,255,0.1);"></div>
+        </div>
+
         <div class="checkout-form-row">
           <label style="flex:1">Name on Card
             <input type="text" id="payName" placeholder="Cardholder Full Name" required>
@@ -1214,7 +1228,7 @@
 
         <div class="checkout-guarantee">
           <span>🛡️</span>
-          <span>256-bit SSL encrypted checkout · 14-day money-back guarantee · Cancel anytime.</span>
+          <span>Powered by Stripe · 256-bit SSL encrypted · 14-day money-back guarantee · Cancel anytime.</span>
         </div>
 
         <button type="submit" class="checkout-submit-btn" id="checkoutSubmitBtn">
@@ -1574,6 +1588,6 @@
 <script src="firebase-config.js"></script>
 <script src="heavy-fx.js?v=11"></script>
 <script src="app-shell.js?v=21"></script>
-<script src="app.js?v=34"></script>
+<script src="app.js?v=35"></script>
 </body>
 </html>

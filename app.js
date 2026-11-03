@@ -3140,6 +3140,96 @@ function setupCheckoutModal() {
       }
     });
   }
+
+  // 1-Click Stripe Hosted Checkout Trigger
+  const btnStripe = $('#btnStripeCheckout');
+  if (btnStripe) {
+    btnStripe.addEventListener('click', async () => {
+      const origText = btnStripe.innerHTML;
+      btnStripe.disabled = true;
+      btnStripe.innerHTML = `<span>⏳ Connecting to Stripe Secure Gateway...</span>`;
+
+      const sess = store.get('hea_session', null);
+      const userEmail = $('#payEmail')?.value.trim() || (sess && sess.email) || '';
+      const userName = $('#payName')?.value.trim() || (sess && sess.name) || '';
+
+      try {
+        const res = await fetch('/api/stripe/create-checkout-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            plan: selectedCheckoutPlan,
+            billingCycle: checkoutBillingCycle,
+            userEmail,
+            userName
+          })
+        });
+
+        const data = await res.json();
+        if (data.url) {
+          // Redirect to Official Stripe Checkout
+          window.location.href = data.url;
+          return;
+        } else if (data.demoMode) {
+          // Sandbox Mode fallback
+          await new Promise(r => setTimeout(r, 800));
+          let s = store.get('hea_session', null) || { email: userEmail, name: userName, isVerified: true };
+          s.isPro = true;
+          s.plan = selectedCheckoutPlan === 'enterprise' ? 'Enterprise' : selectedCheckoutPlan === 'growth' ? 'Growth' : 'Core PRO';
+          s.billingCycle = checkoutBillingCycle;
+          s.subscribedAt = new Date().toISOString();
+          store.set('hea_session', s);
+
+          if (window.appShell && typeof window.appShell.setProStatus === 'function') {
+            window.appShell.setProStatus(s.plan);
+          }
+          toast(`🎉 Payment Successful! PRO Membership Activated! (To enable real bank transactions, add STRIPE_SECRET_KEY in .env)`);
+          closeCheckoutModal();
+        } else {
+          toast(data.error || 'Unable to connect to Stripe. Please try again.');
+        }
+      } catch (err) {
+        console.error('Stripe error:', err);
+        toast('Connection error. Please try direct card entry.');
+      } finally {
+        btnStripe.disabled = false;
+        btnStripe.innerHTML = origText;
+      }
+    });
+  }
+
+  // Handle Stripe Success Callback (#checkout-success)
+  const checkStripeSuccessCallback = async () => {
+    const hash = window.location.hash || '';
+    if (hash.includes('checkout-success')) {
+      const urlParams = new URLSearchParams(hash.split('?')[1] || '');
+      const sessionId = urlParams.get('session_id');
+      const planName = urlParams.get('plan') || 'Core PRO';
+
+      if (sessionId) {
+        try {
+          const res = await fetch(`/api/stripe/verify-session/${sessionId}`);
+          const d = await res.json();
+          if (d.ok && d.verified) {
+            let s = store.get('hea_session', null) || { email: d.userEmail, isVerified: true };
+            s.isPro = true;
+            s.plan = d.plan || planName;
+            s.subscribedAt = new Date().toISOString();
+            store.set('hea_session', s);
+
+            if (window.appShell && typeof window.appShell.setProStatus === 'function') {
+              window.appShell.setProStatus(s.plan);
+            }
+            toast(`🎉 Payment Confirmed by Stripe! Your ${s.plan} subscription is active!`);
+            window.location.hash = '#dashboard';
+          }
+        } catch (e) {
+          console.error('Session verify error:', e);
+        }
+      }
+    }
+  };
+  setTimeout(checkStripeSuccessCallback, 400);
 }
 
 window.openCheckoutModal = openCheckoutModal;
