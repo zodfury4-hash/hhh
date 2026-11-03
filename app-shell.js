@@ -2468,6 +2468,22 @@
     const log = $('#drawerChatLog');
     if (!form || !input || !log) return;
 
+    const scrollChatToBottom = () => {
+      const scroller = log.closest('.drawer-body') || log;
+      scroller.scrollTop = scroller.scrollHeight;
+    };
+
+    const drawerBody = log.closest('.drawer-body');
+    if (drawerBody) {
+      drawerBody.setAttribute('data-lenis-prevent', 'true');
+      drawerBody.addEventListener('wheel', e => e.stopPropagation(), { passive: true });
+    }
+    const sidebarEl = $('#appSidebar');
+    if (sidebarEl) {
+      sidebarEl.setAttribute('data-lenis-prevent', 'true');
+      sidebarEl.addEventListener('wheel', e => e.stopPropagation(), { passive: true });
+    }
+
     function getLocalAiReply(promptText) {
       const text = (promptText || '').toLowerCase();
       const storedLinks = getStoredLinks();
@@ -2549,7 +2565,7 @@ Here are recommended optimizations for your links and campaigns:<br>
       aiMsg.className = 'drawer-chat-bubble ai';
       aiMsg.innerHTML = '<span style="opacity:0.7">Thinking…</span>';
       log.appendChild(aiMsg);
-      log.scrollTop = log.scrollHeight;
+      scrollChatToBottom();
 
       // Real-time URL shortener inside drawer
       const urlMatch = promptText.match(/https?:\/\/[^\s]+/i);
@@ -2586,7 +2602,7 @@ Here are recommended optimizations for your links and campaigns:<br>
             </div>
             <button class="sso-btn" style="width:auto;padding:5px 12px;font-size:12px;" onclick="window.appShell.copy('${shortUrl}')">📋 Copy Short Link</button>
           `;
-          log.scrollTop = log.scrollHeight;
+          scrollChatToBottom();
           renderActiveView();
         }, 300);
         input.value = '';
@@ -2595,7 +2611,7 @@ Here are recommended optimizations for your links and campaigns:<br>
 
       setTimeout(() => {
         aiMsg.innerHTML = getLocalAiReply(promptText);
-        log.scrollTop = log.scrollHeight;
+        scrollChatToBottom();
       }, 350);
 
       input.value = '';

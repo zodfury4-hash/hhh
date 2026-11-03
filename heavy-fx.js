@@ -347,82 +347,90 @@
       );
     };
 
-    // 3. Features Cards Stagger
-    ScrollTrigger.batch('#features .fc', {
-      start: 'top 85%',
-      onEnter: (batch) => {
-        gsap.from(batch, {
-          opacity: 0,
-          y: 50,
-          scale: 0.92,
-          stagger: 0.12,
-          duration: 0.85,
-          ease: 'power3.out'
-        });
-      },
-      once: true
-    });
+    // 3. Features Cards Stagger (Unified Row Trigger with Full Props Cleanup)
+    if (document.querySelector('#features')) {
+      gsap.from('#features .fc', {
+        scrollTrigger: {
+          trigger: '#features',
+          start: 'top 88%',
+          once: true
+        },
+        opacity: 0,
+        y: 35,
+        stagger: 0.08,
+        duration: 0.7,
+        ease: 'power2.out',
+        clearProps: 'all'
+      });
+    }
 
     // 4. Advanced Split Section Cards
-    ScrollTrigger.batch('#adv .fc', {
-      start: 'top 85%',
-      onEnter: (batch) => {
-        gsap.from(batch, {
-          opacity: 0,
-          x: 40,
-          stagger: 0.12,
-          duration: 0.85,
-          ease: 'power3.out'
-        });
-      },
-      once: true
-    });
+    if (document.querySelector('#adv')) {
+      gsap.from('#adv .fc', {
+        scrollTrigger: {
+          trigger: '#adv',
+          start: 'top 88%',
+          once: true
+        },
+        opacity: 0,
+        x: 35,
+        stagger: 0.08,
+        duration: 0.7,
+        ease: 'power2.out',
+        clearProps: 'all'
+      });
+    }
 
-    // 5. Steps Cards Sequential Cascade
-    ScrollTrigger.batch('#steps .fc', {
-      start: 'top 85%',
-      onEnter: (batch) => {
-        gsap.from(batch, {
-          opacity: 0,
-          y: 45,
-          stagger: 0.15,
-          duration: 0.9,
-          ease: 'power3.out'
-        });
-      },
-      once: true
-    });
+    // 5. Steps Cards Sequential Cascade (Unified Row Trigger with Full Props Cleanup)
+    if (document.querySelector('#steps')) {
+      gsap.from('#steps .fc', {
+        scrollTrigger: {
+          trigger: '#steps',
+          start: 'top 88%',
+          once: true
+        },
+        opacity: 0,
+        y: 35,
+        stagger: 0.1,
+        duration: 0.7,
+        ease: 'power2.out',
+        clearProps: 'all'
+      });
+    }
 
-    // 6. Pricing Plans Cards Scale-in
-    ScrollTrigger.batch('#plans .card', {
-      start: 'top 85%',
-      onEnter: (batch) => {
-        gsap.from(batch, {
-          opacity: 0,
-          y: 55,
-          scale: 0.92,
-          stagger: 0.15,
-          duration: 0.9,
-          ease: 'back.out(1.4)'
-        });
-      },
-      once: true
-    });
+    // 6. Pricing Plans Cards Scale-in (Unified Row Trigger with Full Props Cleanup)
+    if (document.querySelector('#plans')) {
+      gsap.from('#plans .card', {
+        scrollTrigger: {
+          trigger: '#plans',
+          start: 'top 88%',
+          once: true
+        },
+        opacity: 0,
+        y: 40,
+        stagger: 0.1,
+        duration: 0.7,
+        ease: 'power2.out',
+        clearProps: 'all'
+      });
+    }
 
     // 7. FAQ Accordion Items
-    ScrollTrigger.batch('#faq details', {
-      start: 'top 90%',
-      onEnter: (batch) => {
-        gsap.from(batch, {
-          opacity: 0,
-          y: 25,
-          stagger: 0.08,
-          duration: 0.6,
-          ease: 'power2.out'
-        });
-      },
-      once: true
-    });
+    if (document.querySelector('#faq')) {
+      gsap.from('#faq details', {
+        scrollTrigger: {
+          trigger: '#faq',
+          start: 'top 90%',
+          once: true
+        },
+        opacity: 0,
+        y: 20,
+        stagger: 0.06,
+        duration: 0.5,
+        ease: 'power2.out',
+        clearProps: 'all'
+      });
+    }
 
     // Refresh ScrollTrigger when dynamic DOM content renders
     window.addEventListener('load', () => ScrollTrigger.refresh());

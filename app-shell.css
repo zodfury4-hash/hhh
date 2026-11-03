@@ -274,8 +274,11 @@ section[data-page="app"][hidden] {
   flex-shrink: 0;
   position: sticky;
   top: 0;
-  height: 100vh;
-  overflow-y: auto;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch;
   z-index: 50;
   transition: width 0.2s ease;
 }
@@ -343,6 +346,10 @@ section[data-page="app"][hidden] {
   flex-direction: column;
   gap: 2px;
   flex: 1;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch;
 }
 .sidebar-nav-item {
   display: flex;
@@ -495,9 +502,11 @@ section[data-page="app"][hidden] {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 60px) !important;
+  max-height: calc(100vh - 60px) !important;
   position: sticky;
   top: 60px;
+  overflow: hidden !important;
 }
 .app-assist-drawer[hidden] {
   display: none !important;
@@ -508,6 +517,7 @@ section[data-page="app"][hidden] {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-shrink: 0;
 }
 .drawer-title {
   display: flex;
@@ -527,12 +537,37 @@ section[data-page="app"][hidden] {
 .drawer-body {
   padding: 20px;
   flex: 1;
-  overflow-y: auto;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
   gap: 16px;
   align-items: center;
   text-align: center;
+}
+
+.app-sidebar::-webkit-scrollbar,
+.sidebar-nav::-webkit-scrollbar,
+.drawer-body::-webkit-scrollbar {
+  width: 6px;
+}
+.app-sidebar::-webkit-scrollbar-track,
+.sidebar-nav::-webkit-scrollbar-track,
+.drawer-body::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+.app-sidebar::-webkit-scrollbar-thumb,
+.sidebar-nav::-webkit-scrollbar-thumb,
+.drawer-body::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.3);
+  border-radius: 99px;
+}
+.app-sidebar::-webkit-scrollbar-thumb:hover,
+.sidebar-nav::-webkit-scrollbar-thumb:hover,
+.drawer-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.6);
 }
 .drawer-illus-box {
   width: 100px;

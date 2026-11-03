@@ -959,9 +959,32 @@ function renderNavRight() {
       const as = $('#appShell');
       if (as) as.hidden = true;
       renderNavRight();
+      updateHomeCtaForAuth();
       location.hash = '#home';
       toast('Logged out successfully');
     };
+  }
+
+  updateHomeCtaForAuth();
+}
+
+function updateHomeCtaForAuth() {
+  const isAuth = !!(session && session.isVerified);
+  const ctaBtn = $('#homeCtaBtn');
+  const ctaHeading = $('#homeCtaHeading');
+  const ctaSub = $('#homeCtaSub');
+  if (ctaBtn) {
+    if (isAuth) {
+      ctaBtn.textContent = 'Go to Dashboard →';
+      ctaBtn.href = '#dashboard';
+      if (ctaHeading) ctaHeading.textContent = 'Ready to manage your links?';
+      if (ctaSub) ctaSub.textContent = 'Open your dashboard to create short links, dynamic QR codes, and bio pages.';
+    } else {
+      ctaBtn.textContent = 'Sign up free';
+      ctaBtn.href = '#signup';
+      if (ctaHeading) ctaHeading.textContent = 'Ready to share smarter links?';
+      if (ctaSub) ctaSub.textContent = 'Create your free HEA Link account in under a minute.';
+    }
   }
 }
 
@@ -3320,6 +3343,7 @@ function route() {
   try {
     session = store.get('hea_session', null);
   } catch (e) {}
+  updateHomeCtaForAuth();
   const rawHash = location.hash.slice(1) || 'home';
   const page = rawHash.split('?')[0];
 
@@ -3336,6 +3360,7 @@ function route() {
       location.hash = '#dashboard';
       return;
     }
+    if (window.lenis && typeof window.lenis.start === 'function') window.lenis.start();
     document.body.classList.remove('app-mode');
     const as = $('#appShell');
     if (as) as.hidden = true;
@@ -3356,6 +3381,7 @@ function route() {
       toast('Please log in with your verified email to access your dashboard');
       return;
     }
+    if (window.lenis && typeof window.lenis.stop === 'function') window.lenis.stop();
     document.body.classList.add('app-mode');
     const as = $('#appShell');
     if (as) as.hidden = false;
@@ -3369,6 +3395,7 @@ function route() {
   }
 
   // 3. Public Landing / Marketing Site (Default for guest visitors or #home)
+  if (window.lenis && typeof window.lenis.start === 'function') window.lenis.start();
   document.body.classList.remove('app-mode');
   const as = $('#appShell');
   if (as) as.hidden = true;
