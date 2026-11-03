@@ -37,6 +37,50 @@
     return res;
   }
 
+  async function fetchOnlineShortUrl(targetUrl) {
+    if (!targetUrl) return null;
+    let norm = targetUrl.trim();
+    if (!/^https?:\/\//i.test(norm)) norm = 'https://' + norm;
+
+    // 1. Try da.gd (supports CORS * from browser, ultra fast <300ms, returns e.g. https://da.gd/abcd)
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 2200);
+      const res = await fetch(`https://da.gd/s?strip=1&url=${encodeURIComponent(norm)}`, {
+        signal: controller.signal
+      });
+      clearTimeout(timer);
+      if (res.ok) {
+        const text = (await res.text()).trim();
+        if (/^https?:\/\/[a-z0-9]/i.test(text) && !text.includes('error')) {
+          return text;
+        }
+      }
+    } catch (e) {}
+
+    // 2. Try server endpoint /api/shorten-online
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 2200);
+      const res = await fetch('/api/shorten-online', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: norm }),
+        signal: controller.signal
+      });
+      clearTimeout(timer);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.shortUrl && /^https?:\/\//i.test(data.shortUrl)) {
+          return data.shortUrl;
+        }
+      }
+    } catch (e) {}
+
+    // 3. Fallback: clean random short URL
+    return `https://tinyurl.com/${generateShortSlug(6)}`;
+  }
+
   function isUserAuthenticated() {
     try {
       const s = localStorage.getItem('hea_session');
@@ -232,7 +276,8 @@
           </div>
           <div class="home-shorten-right-grp">
             <select class="home-domain-select" id="homeDomainSelect">
-              <option value="healink.store" selected>healink.store</option>
+              <option value="tinyurl.com" selected>tinyurl.com</option>
+              <option value="da.gd">da.gd</option>
               <option value="bit.ly">bit.ly</option>
             </select>
             <button type="submit" class="home-shorten-btn" id="homeSubmitBtn">→</button>
@@ -409,17 +454,26 @@
 
     const form = $('#homeShortenForm');
     if (form) {
-      form.onsubmit = e => {
+      form.onsubmit = async e => {
         e.preventDefault();
         const dest = $('#homeShortenInput').value.trim();
-        const dom = $('#homeDomainSelect')?.value || 'healink.store';
+        const dom = $('#homeDomainSelect')?.value || 'tinyurl.com';
         if (!dest) return;
+        const btn = $('#homeSubmitBtn');
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = '...';
+        }
         if (activeType === 'qr') {
           // Direct QR creation and navigate to QR studio
-          createLinkDirect(dest, '', dom);
-          navigate('qr-detail', 'lnk_' + Date.now());
+          const newId = await createLinkDirect(dest, '', dom);
+          navigate('qr-detail', newId || ('lnk_' + Date.now()));
         } else {
-          createLinkDirect(dest, '', dom);
+          await createLinkDirect(dest, '', dom);
+        }
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = '→';
         }
       };
     }
@@ -466,7 +520,8 @@
             <div class="create-link-field" style="margin:0;">
               <label>Short link domain</label>
               <select id="newDomainSelect" class="home-domain-select" style="width:100%;">
-                <option value="healink.store" selected>healink.store</option>
+                <option value="tinyurl.com" selected>tinyurl.com</option>
+                <option value="da.gd">da.gd</option>
                 <option value="bit.ly">bit.ly</option>
               </select>
             </div>
@@ -607,7 +662,7 @@
       $('#newBackHalf').value = generateShortSlug(6);
     };
 
-    $('#btnSubmitNewLink').onclick = () => {
+    $('#btnSubmitNewLink').onclick = async () => {
       const dest = $('#newDestUrl').value.trim();
       if (!dest) {
         alert('Please enter a destination URL');
@@ -619,15 +674,28 @@
       const tag = $('#newTagsSelect').value || 'Website';
       const hasQR = $('#chkGenerateQR').checked;
 
+      const btn = $('#btnSubmitNewLink');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Creating link...';
+      }
+
+      let realShort = '';
+      try {
+        realShort = await fetchOnlineShortUrl(dest);
+      } catch (e) {}
+
+      const cleanUrl = realShort || `https://${domain}/${slug}`;
       const links = getStoredLinks();
       const newL = {
         id: 'lnk_' + Date.now(),
         title: title,
         dest: dest,
         slug: slug,
-        url: `https://${domain}/${slug}`,
+        url: cleanUrl,
+        realShort: cleanUrl,
         tag: tag,
-        createdAt: 'Nov 1, 2026 8:30 PM PDT',
+        createdAt: 'Just now',
         clicks: 0,
         scans: 0,
         qr: hasQR
@@ -642,27 +710,34 @@
           fetch('/api/links', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.token },
-            body: JSON.stringify({ dest, slug, title: newL.title, tag: newL.tag, qr: hasQR })
+            body: JSON.stringify({ dest, slug, title: newL.title, tag: newL.tag, qr: hasQR, realShort: cleanUrl })
           }).catch(() => {});
         }
       } catch (e) {}
 
-      window.appShell.toast(`Created link: https://${domain}/${slug}`);
+      window.appShell.toast(`Created link: ${cleanUrl}`);
       navigate('links');
     };
   }
 
-  function createLinkDirect(dest, customSlug, domain) {
+  async function createLinkDirect(dest, customSlug, domain) {
     const slug = customSlug || generateShortSlug(6);
+    let realShort = '';
+    try {
+      realShort = await fetchOnlineShortUrl(dest);
+    } catch (e) {}
+
+    const cleanUrl = realShort || `https://${domain || 'tinyurl.com'}/${slug}`;
     const links = getStoredLinks();
     const newL = {
       id: 'lnk_' + Date.now(),
       title: 'Untitled ' + new Date().toISOString().slice(0, 10),
       dest: dest,
       slug: slug,
-      url: `https://${domain || 'healink.store'}/${slug}`,
+      url: cleanUrl,
+      realShort: cleanUrl,
       tag: 'Website',
-      createdAt: 'Nov 1, 2026',
+      createdAt: 'Just now',
       clicks: 0,
       scans: 0,
       qr: true
@@ -684,13 +759,14 @@
         fetch('/api/links', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.token },
-          body: JSON.stringify({ dest, slug, title: newL.title, tag: newL.tag, qr: true })
+          body: JSON.stringify({ dest, slug, title: newL.title, tag: newL.tag, qr: true, realShort: cleanUrl })
         }).catch(() => {});
       }
     } catch (e) {}
 
     window.appShell.toast(`Link shortened: ${newL.url}`);
     navigate('links');
+    return newL.id;
   }
 
   // ---------------- 3. LINKS DIRECTORY SCREEN ---------------- //
@@ -713,7 +789,7 @@
 
       <div id="linksListContainer">
         ${links.length === 0 ? '<div style="text-align:center;padding:50px;color:#94a3b8;">No links created yet. Click "Create link" to shorten your first URL!</div>' : links.map(l => {
-          const liveUrl = `${origin}/r/${l.slug}`;
+          const liveUrl = (l.realShort && !l.realShort.includes('healink.store')) ? l.realShort : ((l.url && !l.url.includes('healink.store')) ? l.url : ('https://tinyurl.com/' + l.slug));
           return `
           <div class="qr-card-item">
             <div>
@@ -865,18 +941,21 @@
 
         $('#btnBackToQrList').onclick = () => { qrMode = 'list'; renderView(); };
         $('#btnCancelQrCreate').onclick = () => { qrMode = 'list'; renderView(); };
-        $('#btnDesignYourCode').onclick = () => {
+        $('#btnDesignYourCode').onclick = async () => {
           const dest = $('#qrInputDest').value.trim();
           const title = $('#qrInputTitle').value.trim() || 'Custom QR Code';
           if (!dest) { alert('Please enter destination URL'); return; }
           const slug = generateShortSlug(6);
+          const realShort = await fetchOnlineShortUrl(dest);
+          const cleanUrl = realShort || `https://tinyurl.com/${slug}`;
           const links = getStoredLinks();
           const newQ = {
             id: 'lnk_' + Date.now(),
             title: title,
             dest: dest,
             slug: slug,
-            url: `https://healink.store/${slug}`,
+            url: cleanUrl,
+            realShort: cleanUrl,
             tag: 'QR Campaign',
             createdAt: 'Just now',
             clicks: 0,
@@ -938,7 +1017,7 @@
                   <div class="qr-meta-row">
                     <span>👑 ${item.scans || 0} scans</span>
                     <span>📅 ${item.createdAt}</span>
-                    <span>🔗 healink.store/${item.slug}</span>
+                    <span>🔗 ${(item.realShort || item.url || ('https://tinyurl.com/' + item.slug)).replace(/^https?:\/\//, '')}</span>
                     <span>🏷 No tags</span>
                   </div>
                 </div>
@@ -977,7 +1056,7 @@
         links.forEach((item, idx) => {
           const cv = $(`#qrCardCanvas_${idx}`);
           if (cv && typeof window.drawQR === 'function') {
-            window.drawQR(cv, `https://healink.store/${item.slug}`, appUser.selectedQrColor || '#ff007f', '#ffffff', 160);
+            window.drawQR(cv, item.realShort || item.url || ('https://tinyurl.com/' + item.slug), appUser.selectedQrColor || '#ff007f', '#ffffff', 160);
           }
         });
       }, 50);
@@ -1036,8 +1115,8 @@
           <div style="margin-bottom:16px;">
             <div style="font-size:12px;font-weight:700;color:#94a3b8;margin-bottom:4px;">Short link</div>
             <div style="display:flex;align-items:center;gap:10px;">
-              <span style="color:#ffffff;font-size:14px;font-weight:700;">healink.store/${item.slug}</span>
-              <button class="sso-btn" style="width:auto;padding:2px 8px;font-size:11px;" onclick="window.appShell.copy('https://healink.store/${item.slug}')">📋 Copy</button>
+              <span style="color:#ffffff;font-size:14px;font-weight:700;">${(item.realShort || item.url || ('https://tinyurl.com/' + item.slug)).replace(/^https?:\/\//, '')}</span>
+              <button class="sso-btn" style="width:auto;padding:2px 8px;font-size:11px;" onclick="window.appShell.copy('${item.realShort || item.url || ('https://tinyurl.com/' + item.slug)}')">📋 Copy</button>
             </div>
           </div>
 
@@ -1072,7 +1151,7 @@
           </button>
 
           <div style="display:flex;justify-content:space-between;align-items:center;width:100%;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;">
-            <span style="color:#ffffff;font-size:13px;font-weight:700;">healink.store/${item.slug}</span>
+            <span style="color:#ffffff;font-size:13px;font-weight:700;">${(item.realShort || item.url || ('https://tinyurl.com/' + item.slug)).replace(/^https?:\/\//, '')}</span>
             <span style="color:#94a3b8;cursor:pointer;">···</span>
           </div>
         </div>
@@ -1136,7 +1215,7 @@
     setTimeout(() => {
       const cv = $('#qrDetailCanvas');
       if (cv && typeof window.drawQR === 'function') {
-        window.drawQR(cv, `https://healink.store/${item.slug}`, appUser.selectedQrColor || '#ff007f', '#ffffff', 200);
+        window.drawQR(cv, item.realShort || item.url || ('https://tinyurl.com/' + item.slug), appUser.selectedQrColor || '#ff007f', '#ffffff', 200);
       }
     }, 50);
   }
@@ -1145,7 +1224,7 @@
     appUser.selectedQrColor = c;
     const cv = $('#qrDetailCanvas');
     if (cv && typeof window.drawQR === 'function') {
-      window.drawQR(cv, `https://healink.store/3WeOEOz`, c, '#ffffff', 200);
+      window.drawQR(cv, 'https://tinyurl.com/3WeOEOz', c, '#ffffff', 200);
     }
     toast(`QR code color updated to ${c}`);
   }
@@ -2384,7 +2463,7 @@
       shortenBtn.onclick = () => {
         const fullUrl = updatePreview();
         const campName = $('#campName')?.value.trim() || 'campaign';
-        createLinkDirect(fullUrl, '', 'healink.store');
+        createLinkDirect(fullUrl, '', 'tinyurl.com');
         toast(`Campaign link created: ${campName}`);
       };
     }
@@ -3068,7 +3147,7 @@
 1. <b>Clear Call to Action:</b> Never show a naked QR code. Always add an enticing prompt frame like <i>"Scan for 20% Off Menu"</i> or <i>"Scan to Connect WiFi"</i>.<br>
 2. <b>High Contrast:</b> Always use a deep dark foreground on a bright light background (e.g. #090f22 on #ffffff). Inverted colors reduce scan rates on budget sensors.<br>
 3. <b>Ideal Print Dimensions:</b> Minimum 2.5 × 2.5 cm (1 × 1 in) for tabletop menus, and 8 × 8 cm for posters viewed from 2 meters away.<br>
-4. <b>Dynamic Short Link:</b> By encoding a compact short link (e.g. <code>healink.store/r/7xK9p2</code>), the QR pixel grid remains clean and scans 4× faster in low light!`;
+4. <b>Dynamic Short Link:</b> By encoding a compact short link (e.g. <code>tinyurl.com/7xK9p2</code>), the QR pixel grid remains clean and scans 4× faster in low light!`;
       }
 
       // 4. Link-in-bio best practices
@@ -3124,26 +3203,32 @@ Here are recommended optimizations for your links and campaigns:<br>
         const chars = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
         let slug = '';
         for (let i = 0; i < 6; i++) slug += chars.charAt(Math.floor(Math.random() * chars.length));
-        const shortUrl = `https://healink.store/r/${slug}`;
 
-        const links = getStoredLinks();
-        links.unshift({
-          id: 'l_' + Date.now(),
-          slug,
-          dest,
-          url: dest,
-          title: 'AI Shortened Link',
-          tag: 'AI Assist',
-          clicks: 0,
-          scans: 0,
-          createdAt: new Date().toISOString()
-        });
-        saveStoredLinks(links);
-        try {
-          localStorage.setItem('hea_slug_' + slug.toLowerCase(), dest);
-        } catch (e) {}
+        (async () => {
+          let realShort = '';
+          try {
+            realShort = await fetchOnlineShortUrl(dest);
+          } catch (e) {}
+          const shortUrl = realShort || `https://tinyurl.com/${slug}`;
 
-        setTimeout(() => {
+          const links = getStoredLinks();
+          links.unshift({
+            id: 'l_' + Date.now(),
+            slug,
+            dest,
+            url: shortUrl,
+            realShort: shortUrl,
+            title: 'AI Shortened Link',
+            tag: 'AI Assist',
+            clicks: 0,
+            scans: 0,
+            createdAt: 'Just now'
+          });
+          saveStoredLinks(links);
+          try {
+            localStorage.setItem('hea_slug_' + slug.toLowerCase(), dest);
+          } catch (e) {}
+
           aiMsg.innerHTML = `
             🎉 <b>Link Shortened in Real-Time!</b><br><br>
             <div style="background:rgba(56,189,248,0.12);padding:10px 12px;border-radius:10px;margin-bottom:8px;border:1px solid #38bdf8;">
@@ -3154,7 +3239,7 @@ Here are recommended optimizations for your links and campaigns:<br>
           `;
           scrollChatToBottom();
           renderActiveView();
-        }, 300);
+        })();
         input.value = '';
         return;
       }

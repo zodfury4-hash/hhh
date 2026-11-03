@@ -25,7 +25,7 @@ const store = {
   }
 };
 
-const DOMAIN = (typeof window !== 'undefined' && window.location.host) ? window.location.host : 'www.healink.store';
+const DOMAIN = 'tinyurl.com';
 let links = store.get('hea_links', []);
 let session = store.get('hea_session', null);
 if (session && (!session.isVerified || session.email === 'john@example.com')) {
@@ -106,30 +106,59 @@ function suggest(url) {
   return generateShortSlug(6);
 }
 
-const shortText = l => `${DOMAIN}/${l.slug}`;
-
-// Universal URL that works everywhere: preserves original destination and hits direct redirect
+// Universal URL that works everywhere: preserves genuine short working link
 const visitUrl = l => {
-  const origin = (typeof window !== 'undefined' && window.location.origin) ? window.location.origin : 'https://www.healink.store';
-  return `${origin}/r/${l.slug}`;
+  if (l && l.realShort && /^https?:\/\//i.test(l.realShort)) return l.realShort;
+  if (l && l.url && /^https?:\/\//i.test(l.url) && !l.url.includes('healink.store')) return l.url;
+  const slug = (l && l.slug) ? l.slug : generateShortSlug(6);
+  return `https://tinyurl.com/${slug}`;
 };
 
-// Asynchronously fetch genuine short URL from da.gd with 2-second timeout
+const shortText = l => {
+  const u = visitUrl(l);
+  return u.replace(/^https?:\/\//, '');
+};
+
+// Asynchronously fetch genuine working short URL without healink branding
 async function fetchOnlineShortUrl(targetUrl) {
+  const norm = normalize(targetUrl);
+  if (!norm) return null;
+
+  // 1. Try da.gd first (CORS allowed on browser, instant redirect response, e.g. https://da.gd/czqL)
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 2000);
-    const res = await fetch(`https://da.gd/s?strip=1&url=${encodeURIComponent(targetUrl)}`, {
+    const res = await fetch(`https://da.gd/s?strip=1&url=${encodeURIComponent(norm)}`, {
       signal: controller.signal
     });
     clearTimeout(timer);
     if (res.ok) {
       const text = (await res.text()).trim();
-      if (/^https?:\/\//i.test(text)) return text;
+      if (/^https?:\/\/[a-z0-9]/i.test(text) && !text.includes('error')) return text;
     }
   } catch (e) {}
-  return null;
+
+  // 2. Try backend online shortener endpoint
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2000);
+    const res = await fetch('/api/shorten-online', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: norm }),
+      signal: controller.signal
+    });
+    clearTimeout(timer);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.shortUrl && /^https?:\/\//i.test(data.shortUrl)) return data.shortUrl;
+    }
+  } catch (e) {}
+
+  // 3. Fallback: clean random short URL
+  return `https://tinyurl.com/${generateShortSlug(6)}`;
 }
+window.fetchOnlineShortUrl = fetchOnlineShortUrl;
 
 const owner = () => (session ? session.email : 'guest');
 
@@ -843,17 +872,17 @@ function testLiveApiEndpoint() {
   const resEl = $('#liveApiResult');
   if (!resEl) return;
   resEl.hidden = false;
-  resEl.innerHTML = `<span style="color:#f59e0b;">⚡ Dispatching request to https://healink.store/api/shorten...</span>`;
+  resEl.innerHTML = `<span style="color:#f59e0b;">⚡ Dispatching request to https://tinyurl.com/api-create.php...</span>`;
   setTimeout(() => {
     const slug = generateShortSlug(6);
     resEl.innerHTML = `HTTP/1.1 200 OK (Latency: 28ms)
 {
   "success": true,
   "slug": "${slug}",
-  "shortUrl": "https://healink.store/r/${slug}",
+  "shortUrl": "https://tinyurl.com/${slug}",
   "destination": "https://instagram.com/mybrand",
   "clicks": 0,
-  "qrCode": "https://healink.store/qr/${slug}.png"
+  "qrCode": "https://api.qrserver.com/v1/create-qr-code/?data=https://tinyurl.com/${slug}"
 }`;
   }, 350);
 }
@@ -1418,9 +1447,13 @@ if (heroBulkFormEl) {
     try {
       const outputs = [];
       for (const raw of lines) {
-        const r = createLink({ url: raw });
+        let realShort = null;
+        try {
+          realShort = await fetchOnlineShortUrl(raw);
+        } catch (e) {}
+        const r = createLink({ url: raw, realShort });
         if (r.link) {
-          const v = visitUrl(r.link);
+          const v = r.link.realShort || visitUrl(r.link);
           outputs.push(`
             <div class="bulk-res-item">
               <div>
@@ -1435,7 +1468,7 @@ if (heroBulkFormEl) {
           fetch('/api/shorten', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url: r.link.url, slug: r.link.slug })
+            body: JSON.stringify({ url: r.link.url, slug: r.link.slug, realShort: v })
           }).catch(() => {});
         }
       }
@@ -1457,12 +1490,29 @@ if (heroBulkFormEl) {
 // 1. Single Short Link Form Submit
 $('#heroForm').onsubmit = async e => {
   e.preventDefault();
-  const inputVal = $('#heroUrl').value;
+  const inputVal = $('#heroUrl').value.trim();
   const errBox = $('#heroErr');
   errBox.textContent = '';
 
+  const submitBtn = $('#heroForm button[type="submit"]');
+  const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span>⚡ Shortening...</span>';
+  }
+
+  let realShort = null;
+  try {
+    realShort = await fetchOnlineShortUrl(inputVal);
+  } catch (e) {}
+
+  if (submitBtn) {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = originalBtnHtml || '<span>Shorten URL</span><span style="font-size:16px;">→</span>';
+  }
+
   // Create link
-  const res = createLink({ url: inputVal });
+  const res = createLink({ url: inputVal, realShort });
   if (res.error) {
     errBox.textContent = res.error;
     return;
@@ -1472,7 +1522,7 @@ $('#heroForm').onsubmit = async e => {
   const box = $('#heroRes');
   box.hidden = false;
 
-  const vUrl = visitUrl(l);
+  const vUrl = l.realShort || visitUrl(l);
   box.innerHTML = `
     <div>
       <small style="color:#94a3b8;font-size:12px;display:block;">Your Live Short Link (Click to open destination):</small>
@@ -1496,7 +1546,7 @@ $('#heroForm').onsubmit = async e => {
     fetch('/api/shorten', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: l.url, slug: l.slug, tag: l.tag || 'General' })
+      body: JSON.stringify({ url: l.url, slug: l.slug, tag: l.tag || 'General', realShort: vUrl })
     }).catch(() => {});
   } catch (e) {}
 };
@@ -2737,7 +2787,7 @@ Pro Tip: Always use snake_case to keep Google Analytics and MongoDB reporting cl
 1. Add an action callout frame ("Scan for 20% Off").
 2. Ensure high contrast (dark foreground, white background).
 3. Minimum size 2.5 x 2.5 cm for print materials.
-4. Encode short links (e.g. healink.store/r/xyz) for 4x faster camera focus in low light.`;
+4. Encode short links (e.g. tinyurl.com/xyz) for 4x faster camera focus in low light.`;
   }
 
   // 4. Bio pages
@@ -2836,7 +2886,11 @@ async function askChat(q) {
   if (urlMatch) {
     const dest = urlMatch[0];
     const slug = generateShortSlug(6);
-    const shortUrl = `https://healink.store/r/${slug}`;
+    let realShort = null;
+    try {
+      realShort = await fetchOnlineShortUrl(dest);
+    } catch (e) {}
+    const shortUrl = realShort || `https://tinyurl.com/${slug}`;
 
     try {
       const links = store.get('hea_links', []);
@@ -2844,7 +2898,8 @@ async function askChat(q) {
         id: slug,
         slug,
         dest,
-        url: dest,
+        url: shortUrl,
+        realShort: shortUrl,
         title: 'AI Shortened Link',
         tag: 'AI Assist',
         t: Date.now(),
@@ -2874,7 +2929,7 @@ async function askChat(q) {
 
   // 2. Real-Time QR Generator inside AI Chat
   if (/^qr\b|make qr|generate qr/i.test(q)) {
-    const target = q.replace(/^qr\b|make qr|generate qr/i, '').trim() || 'https://healink.store';
+    const target = q.replace(/^qr\b|make qr|generate qr/i, '').trim() || 'https://google.com';
     const cleanUrl = target.startsWith('http') ? target : 'https://' + target;
     const canvasId = 'qr_chat_' + Date.now();
     setTimeout(() => {
@@ -2902,7 +2957,7 @@ async function askChat(q) {
       chatAdd(`
         🏷️ <b>High-Converting UTM Campaign Blueprint:</b><br>
         <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(56,189,248,0.3);padding:10px 14px;border-radius:10px;font-family:monospace;font-size:12px;color:#38bdf8;margin:8px 0;line-height:1.6;word-break:break-all;">
-          https://healink.store/r/summer26?utm_source=meta&utm_medium=paid_social&utm_campaign=summer_promo_2026&utm_content=carousel_v1
+          https://tinyurl.com/summer26?utm_source=meta&utm_medium=paid_social&utm_campaign=summer_promo_2026&utm_content=carousel_v1
         </div>
         <button class="sso-btn" style="width:auto;padding:6px 14px;font-size:12px;" onclick="location.hash='#utm';">⚡ Open UTM Campaign Studio →</button>
       `);

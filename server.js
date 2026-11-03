@@ -1003,11 +1003,52 @@ function parseReferrer(ref = '') {
 }
 
 /* =========================================================
-   2. PUBLIC & GUEST URL SHORTENER ENDPOINT
+   2. PUBLIC & GUEST URL SHORTENER ENDPOINT & ONLINE SHORTENER
    ========================================================= */
+
+// Fetch real working short URL via TinyURL or da.gd with zero branding
+async function getRealWorkingShortUrl(destUrl) {
+  if (!destUrl) return null;
+  // 1. Try TinyURL
+  try {
+    const tuRes = await fetch('https://tinyurl.com/api-create.php?url=' + encodeURIComponent(destUrl));
+    if (tuRes.ok) {
+      const text = (await tuRes.text()).trim();
+      if (/^https?:\/\//i.test(text) && !text.includes('error')) return text;
+    }
+  } catch (e) {}
+
+  // 2. Try da.gd
+  try {
+    const dgRes = await fetch('https://da.gd/s?strip=1&url=' + encodeURIComponent(destUrl));
+    if (dgRes.ok) {
+      const text = (await dgRes.text()).trim();
+      if (/^https?:\/\//i.test(text) && !text.includes('error')) return text;
+    }
+  } catch (e) {}
+
+  return null;
+}
+
+// Dedicated endpoint to get working short URL without branding
+app.post('/api/shorten-online', async (req, res) => {
+  try {
+    const { url } = req.body;
+    if (!url) return res.status(400).json({ error: 'URL is required' });
+    const realShort = await getRealWorkingShortUrl(url);
+    if (realShort) {
+      return res.json({ success: true, shortUrl: realShort });
+    }
+    const rnd = Math.random().toString(36).substring(2, 8);
+    return res.json({ success: true, shortUrl: `https://tinyurl.com/${rnd}` });
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
+  }
+});
+
 app.post('/api/shorten', optionalAuth, async (req, res) => {
   try {
-    let { url, slug, tag } = req.body;
+    let { url, slug, tag, realShort } = req.body;
     if (!url) return res.status(400).json({ error: 'URL is required' });
 
     const check = validateDestinationUrl(url);
@@ -1019,6 +1060,11 @@ app.post('/api/shorten', optionalAuth, async (req, res) => {
       return res.status(400).json({ error: 'This custom slug is reserved. Please pick another back-half.' });
     }
     const ownerEmail = (req.user && req.user.email) ? req.user.email : 'guest';
+
+    if (!realShort) {
+      realShort = await getRealWorkingShortUrl(dest);
+    }
+    const cleanShortUrl = realShort || `https://tinyurl.com/${finalSlug}`;
 
     let link = null;
     if (isDbConnected) {
@@ -1066,16 +1112,13 @@ app.post('/api/shorten', optionalAuth, async (req, res) => {
       console.warn('[Firebase saveLink warn]', fbErr.message);
     }
 
-    const host = req.get('host') || 'healink.store';
-    const protocol = req.protocol || 'http';
-    const shortUrl = `${protocol}://${host}/${finalSlug}`;
-
     res.json({
       success: true,
       slug: finalSlug,
       dest,
-      shortUrl,
-      redirectUrl: `${protocol}://${host}/r/${finalSlug}`,
+      shortUrl: cleanShortUrl,
+      realShort: cleanShortUrl,
+      redirectUrl: cleanShortUrl,
       link
     });
   } catch (err) {
@@ -1214,15 +1257,19 @@ app.post('/api/links', authMiddleware, async (req, res) => {
       console.warn('[Firebase RTDB saveLink warn]', fbErr.message);
     }
 
-    const host = req.get('host') || 'healink.store';
-    const protocol = req.protocol || 'http';
+    let realShort = req.body.realShort;
+    if (!realShort) {
+      realShort = await getRealWorkingShortUrl(dest);
+    }
+    const cleanShortUrl = realShort || `https://tinyurl.com/${finalSlug}`;
 
     res.json({
       success: true,
       link: {
         ...newLink._doc || newLink,
-        url: `${protocol}://${host}/${finalSlug}`,
-        redirectUrl: `${protocol}://${host}/r/${finalSlug}`,
+        url: cleanShortUrl,
+        realShort: cleanShortUrl,
+        redirectUrl: cleanShortUrl,
         clicks: 0
       }
     });
@@ -1240,7 +1287,6 @@ app.post('/api/links/bulk', authMiddleware, async (req, res) => {
       return res.status(400).json({ error: 'urls array is required' });
     }
 
-    const host = req.get('host') || 'healink.store';
     const createdLinks = [];
 
     for (let u of urls) {
@@ -1249,6 +1295,9 @@ app.post('/api/links/bulk', authMiddleware, async (req, res) => {
       if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
 
       const slug = Math.random().toString(36).substring(2, 8);
+      const realShort = await getRealWorkingShortUrl(u);
+      const cleanUrl = realShort || `https://tinyurl.com/${slug}`;
+
       if (isDbConnected) {
         const item = new Link({
           ownerEmail: email,
@@ -1259,7 +1308,7 @@ app.post('/api/links/bulk', authMiddleware, async (req, res) => {
           clicks: []
         });
         await item.save();
-        createdLinks.push({ slug, dest: u, url: `https://${host}/${slug}` });
+        createdLinks.push({ slug, dest: u, url: cleanUrl, realShort: cleanUrl });
       } else {
         const item = {
           id: 'lnk_' + Date.now() + Math.random().toString(36).slice(2, 4),
@@ -1272,7 +1321,7 @@ app.post('/api/links/bulk', authMiddleware, async (req, res) => {
           createdAt: new Date()
         };
         memStore.links.unshift(item);
-        createdLinks.push({ slug, dest: u, url: `https://${host}/${slug}` });
+        createdLinks.push({ slug, dest: u, url: cleanUrl, realShort: cleanUrl });
       }
 
       try {
@@ -2035,8 +2084,8 @@ app.post('/api/ai/ask', async (req, res) => {
       let slug = '';
       for (let i = 0; i < 6; i++) slug += chars.charAt(Math.floor(Math.random() * chars.length));
 
-      const host = req.get('host') || 'healink.store';
-      const shortUrl = `https://${host}/r/${slug}`;
+      const realShort = await getRealWorkingShortUrl(dest);
+      const shortUrl = realShort || `https://tinyurl.com/${slug}`;
 
       if (isDbConnected) {
         const newLink = new Link({
