@@ -1,0 +1,18 @@
+{
+  "rules": {
+    ".read": true,
+    ".write": true,
+    "users": {
+      "$userEmail": {
+        ".read": true,
+        ".write": true,
+        ".indexOn": ["email", "createdAt"]
+      }
+    },
+    "slugs": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["ownerEmail", "dest", "createdAt"]
+    }
+  }
+}

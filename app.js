@@ -28,9 +28,10 @@ const store = {
 const DOMAIN = (typeof window !== 'undefined' && window.location.host) ? window.location.host : 'www.healink.store';
 let links = store.get('hea_links', []);
 let session = store.get('hea_session', null);
-if (session && !session.isVerified) {
+if (session && (!session.isVerified || session.email === 'john@example.com')) {
   session = null;
   store.set('hea_session', null);
+  try { localStorage.removeItem('hea_session'); } catch (e) {}
 }
 let bios = store.get('hea_bios', []);
 const saveLinks = () => {
@@ -2799,7 +2800,7 @@ function openCheckoutModal(plan = 'pro') {
   });
 
   const sess = store.get('hea_session', null);
-  if (sess) {
+  if (sess && sess.email && sess.email !== 'john@example.com') {
     if (sess.name && $('#payName')) $('#payName').value = sess.name;
     if (sess.email && $('#payEmail')) $('#payEmail').value = sess.email;
   } else {

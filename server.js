@@ -13,6 +13,7 @@ const Link = require('./models/Link');
 const QRCode = require('./models/QRCode');
 const BioPage = require('./models/BioPage');
 const CustomDomain = require('./models/CustomDomain');
+const firebaseRtdb = require('./firebase-service');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -347,6 +348,20 @@ app.post('/api/auth/register', async (req, res) => {
       }
     }
 
+    // Persist new user account to Firebase Realtime Database under their email
+    try {
+      await firebaseRtdb.saveUser(cleanEmail, {
+        name: displayName,
+        email: cleanEmail,
+        password: hashedPassword,
+        isVerified: false,
+        verificationCode,
+        verificationCodeExpires: verificationCodeExpires.toISOString()
+      });
+    } catch (fbErr) {
+      console.warn('[Firebase RTDB register warn]', fbErr.message);
+    }
+
     const mailRes = await sendVerificationEmail(cleanEmail, displayName, verificationCode);
 
     return res.json({
@@ -428,6 +443,17 @@ app.post('/api/auth/verify-email', async (req, res) => {
     user.verificationCodeExpires = null;
     if (isDbConnected) {
       await user.save();
+    }
+
+    // Mark as verified in Firebase Realtime Database
+    try {
+      await firebaseRtdb.saveUser(cleanEmail, {
+        isVerified: true,
+        verificationCode: null,
+        verificationCodeExpires: null
+      });
+    } catch (fbErr) {
+      console.warn('[Firebase RTDB verify warn]', fbErr.message);
     }
 
     const token = jwt.sign(
@@ -526,6 +552,16 @@ app.post('/api/auth/forgot-password', async (req, res) => {
       await user.save();
     }
 
+    // Save reset code in Firebase Realtime Database
+    try {
+      await firebaseRtdb.saveUser(cleanEmail, {
+        verificationCode: resetCode,
+        verificationCodeExpires: resetExpires.toISOString()
+      });
+    } catch (fbErr) {
+      console.warn('[Firebase RTDB forgot-pass warn]', fbErr.message);
+    }
+
     const mailRes = await sendPasswordResetEmail(cleanEmail, user.name, resetCode);
 
     return res.json({
@@ -600,6 +636,18 @@ app.post('/api/auth/reset-password', async (req, res) => {
       await user.save();
     }
 
+    // Update password in Firebase Realtime Database
+    try {
+      await firebaseRtdb.saveUser(cleanEmail, {
+        password: hashedPassword,
+        isVerified: true,
+        verificationCode: null,
+        verificationCodeExpires: null
+      });
+    } catch (fbErr) {
+      console.warn('[Firebase RTDB reset-pass warn]', fbErr.message);
+    }
+
     const token = jwt.sign(
       { id: user._id || user.id, email: user.email, name: user.name },
       JWT_SECRET,
@@ -638,6 +686,10 @@ app.post('/api/auth/login', async (req, res) => {
       user = await User.findOne({ email: cleanEmail });
     } else {
       user = memStore.users.find(u => u.email === cleanEmail);
+    }
+
+    if (!user) {
+      user = await firebaseRtdb.getUser(cleanEmail);
     }
 
     if (!user) {
@@ -857,6 +909,19 @@ app.post('/api/auth/google', async (req, res) => {
       }
     }
 
+    // Sync Google user to Firebase Realtime Database under their email
+    try {
+      await firebaseRtdb.saveUser(cleanEmail, {
+        name: displayName,
+        email: cleanEmail,
+        isVerified: true,
+        avatar: avatar || user.avatar || '',
+        provider: 'google'
+      });
+    } catch (fbErr) {
+      console.warn('[Firebase Google sync warn]', fbErr.message);
+    }
+
     const token = jwt.sign(
       { id: user._id || user.id, email: user.email, name: user.name },
       JWT_SECRET,
@@ -988,6 +1053,19 @@ app.post('/api/shorten', optionalAuth, async (req, res) => {
       memStore.links.unshift(link);
     }
 
+    // Persist to Firebase Realtime Database
+    try {
+      await firebaseRtdb.saveLink(ownerEmail, {
+        slug: finalSlug,
+        dest,
+        title: req.body.title || 'Untitled Link',
+        tag: tag || 'General',
+        qr: true
+      });
+    } catch (fbErr) {
+      console.warn('[Firebase saveLink warn]', fbErr.message);
+    }
+
     const host = req.get('host') || 'healink.store';
     const protocol = req.protocol || 'http';
     const shortUrl = `${protocol}://${host}/${finalSlug}`;
@@ -1018,6 +1096,22 @@ app.get('/api/links', authMiddleware, async (req, res) => {
       list = await Link.find({ ownerEmail: email }).sort({ createdAt: -1 });
     } else {
       list = memStore.links.filter(l => l.ownerEmail === email);
+    }
+
+    // Also pull from Firebase Realtime Database
+    try {
+      const fbLinks = await firebaseRtdb.getUserLinks(email);
+      if (Array.isArray(fbLinks) && fbLinks.length > 0) {
+        const existingSlugs = new Set(list.map(l => l.slug));
+        for (const fl of fbLinks) {
+          if (!existingSlugs.has(fl.slug)) {
+            list.push(fl);
+            existingSlugs.add(fl.slug);
+          }
+        }
+      }
+    } catch (fbErr) {
+      console.warn('[Firebase RTDB getUserLinks warn]', fbErr.message);
     }
 
     // Format links with friendly click count
@@ -1102,6 +1196,24 @@ app.post('/api/links', authMiddleware, async (req, res) => {
       memStore.links.unshift(newLink);
     }
 
+    // Persist to Firebase Realtime Database
+    try {
+      await firebaseRtdb.saveLink(email, {
+        slug: finalSlug,
+        dest,
+        title: title || 'Untitled Link',
+        tag: tag || 'General',
+        qr: qr !== false,
+        password: password ? password.trim() : null,
+        expiresAt: parsedExpires ? parsedExpires.toISOString() : null,
+        maxClicks: maxClicks ? parseInt(maxClicks) : null,
+        scans: 0,
+        clicks: []
+      });
+    } catch (fbErr) {
+      console.warn('[Firebase RTDB saveLink warn]', fbErr.message);
+    }
+
     const host = req.get('host') || 'healink.store';
     const protocol = req.protocol || 'http';
 
@@ -1162,6 +1274,16 @@ app.post('/api/links/bulk', authMiddleware, async (req, res) => {
         memStore.links.unshift(item);
         createdLinks.push({ slug, dest: u, url: `https://${host}/${slug}` });
       }
+
+      try {
+        await firebaseRtdb.saveLink(email, {
+          slug,
+          dest: u,
+          title: 'Bulk Link ' + slug,
+          tag: 'Bulk',
+          clicks: []
+        });
+      } catch (fbErr) {}
     }
 
     res.json({ success: true, links: createdLinks });
@@ -1184,6 +1306,9 @@ app.put('/api/links/:slug', authMiddleware, async (req, res) => {
       if (title) link.title = title;
       if (tag) link.tag = tag;
       await link.save();
+      try {
+        await firebaseRtdb.saveLink(email, { slug, dest: link.dest, title: link.title, tag: link.tag });
+      } catch (e) {}
       return res.json({ success: true, link });
     } else {
       const link = memStore.links.find(l => l.ownerEmail === email && l.slug === slug);
@@ -1191,6 +1316,9 @@ app.put('/api/links/:slug', authMiddleware, async (req, res) => {
       if (dest) link.dest = dest;
       if (title) link.title = title;
       if (tag) link.tag = tag;
+      try {
+        await firebaseRtdb.saveLink(email, { slug, dest: link.dest, title: link.title, tag: link.tag });
+      } catch (e) {}
       return res.json({ success: true, link });
     }
   } catch (err) {
@@ -1207,6 +1335,11 @@ app.delete('/api/links/:slug', authMiddleware, async (req, res) => {
       await Link.deleteOne({ ownerEmail: email, slug });
     } else {
       memStore.links = memStore.links.filter(l => !(l.ownerEmail === email && l.slug === slug));
+    }
+    try {
+      await firebaseRtdb.deleteLink(email, slug);
+    } catch (fbErr) {
+      console.warn('[Firebase RTDB deleteLink warn]', fbErr.message);
     }
     res.json({ success: true, message: 'Link deleted successfully' });
   } catch (err) {
@@ -1225,6 +1358,12 @@ app.get('/api/qrs', authMiddleware, async (req, res) => {
       list = await QRCode.find({ ownerEmail: email }).sort({ createdAt: -1 });
     } else {
       list = memStore.qrs.filter(q => q.ownerEmail === email);
+    }
+    if (list.length === 0) {
+      try {
+        const fbQrs = await firebaseRtdb.getUserQrs(email);
+        if (fbQrs && fbQrs.length > 0) list = fbQrs;
+      } catch (fbErr) {}
     }
     res.json({ qrs: list });
   } catch (err) {
@@ -1260,6 +1399,19 @@ app.post('/api/qrs', authMiddleware, async (req, res) => {
       };
       memStore.qrs.unshift(qr);
     }
+
+    try {
+      await firebaseRtdb.saveQr(email, {
+        id: qr._id || qr.id,
+        title: qr.title,
+        dest: qr.dest,
+        color: qr.color,
+        scans: 0
+      });
+    } catch (fbErr) {
+      console.warn('[Firebase RTDB saveQr warn]', fbErr.message);
+    }
+
     res.json({ success: true, qr });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -1275,6 +1427,9 @@ app.delete('/api/qrs/:id', authMiddleware, async (req, res) => {
     } else {
       memStore.qrs = memStore.qrs.filter(q => !(q.ownerEmail === email && q.id === id));
     }
+    try {
+      await firebaseRtdb.deleteQr(email, id);
+    } catch (fbErr) {}
     res.json({ success: true, message: 'QR Code deleted' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -1292,6 +1447,12 @@ app.get('/api/bios', authMiddleware, async (req, res) => {
       list = await BioPage.find({ ownerEmail: email }).sort({ createdAt: -1 });
     } else {
       list = memStore.bios.filter(b => b.ownerEmail === email);
+    }
+    if (list.length === 0) {
+      try {
+        const fbBios = await firebaseRtdb.getUserBios(email);
+        if (fbBios && fbBios.length > 0) list = fbBios;
+      } catch (fbErr) {}
     }
     res.json({ bios: list });
   } catch (err) {
@@ -1354,6 +1515,19 @@ app.post('/api/bios', authMiddleware, async (req, res) => {
       }
     }
 
+    try {
+      await firebaseRtdb.saveBio(email, {
+        slug,
+        title: title || (page && page.title) || 'My Bio Page',
+        tagline: tagline || (page && page.tagline) || '',
+        avatar: avatar || (page && page.avatar) || '',
+        theme: theme || (page && page.theme) || 'cyber-dark',
+        links: links || (page && page.links) || []
+      });
+    } catch (fbErr) {
+      console.warn('[Firebase RTDB saveBio warn]', fbErr.message);
+    }
+
     res.json({ success: true, page });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -1374,6 +1548,12 @@ app.get(['/m/:slug', '/bio/:slug'], async (req, res) => {
     } else {
       bio = memStore.bios.find(b => b.slug === slug);
       if (bio) bio.views = (bio.views || 0) + 1;
+    }
+
+    if (!bio) {
+      try {
+        bio = await firebaseRtdb.getBioBySlug(slug);
+      } catch (fbErr) {}
     }
 
     if (!bio) {
@@ -1613,6 +1793,12 @@ app.get('/api/domains', authMiddleware, async (req, res) => {
     } else {
       list = memStore.domains.filter(d => d.ownerEmail === email);
     }
+    if (list.length === 0) {
+      try {
+        const fbDoms = await firebaseRtdb.getUserDomains(email);
+        if (fbDoms && fbDoms.length > 0) list = fbDoms;
+      } catch (fbErr) {}
+    }
     res.json({ domains: list });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -1645,6 +1831,10 @@ app.post('/api/domains', authMiddleware, async (req, res) => {
       };
       memStore.domains.unshift(item);
     }
+
+    try {
+      await firebaseRtdb.saveDomain(email, cleanDomain);
+    } catch (fbErr) {}
 
     res.json({ success: true, domain: item });
   } catch (err) {
@@ -1689,6 +1879,12 @@ const handleRedirect = async (req, res, next) => {
       link = await Link.findOne({ slug });
     } else {
       link = memStore.links.find(l => l.slug.toLowerCase() === slug);
+    }
+
+    if (!link) {
+      try {
+        link = await firebaseRtdb.getLinkBySlug(slug);
+      } catch (fbErr) {}
     }
 
     if (link && link.dest) {
@@ -1784,6 +1980,16 @@ const handleRedirect = async (req, res, next) => {
         await link.save();
       }
 
+      // Also record click in Firebase Realtime Database
+      try {
+        firebaseRtdb.recordClick(slug, {
+          ip: req.ip,
+          referer,
+          userAgent,
+          device
+        });
+      } catch (fbErr) {}
+
       console.log(`⚡ [REDIRECT] ${slug} ──▶ ${link.dest} (Device: ${device}, Referer: ${referer}, Bot: ${isBot})`);
       return res.redirect(302, link.dest);
     }
@@ -1794,6 +2000,11 @@ const handleRedirect = async (req, res, next) => {
       bio = await BioPage.findOne({ slug });
     } else {
       bio = memStore.bios.find(b => b.slug.toLowerCase() === slug);
+    }
+    if (!bio) {
+      try {
+        bio = await firebaseRtdb.getBioBySlug(slug);
+      } catch (fbErr) {}
     }
     if (bio) {
       return res.redirect(302, `/m/${slug}`);
@@ -1849,6 +2060,15 @@ app.post('/api/ai/ask', async (req, res) => {
           createdAt: new Date()
         });
       }
+
+      try {
+        await firebaseRtdb.saveLink(email || 'guest', {
+          slug,
+          dest,
+          title: 'AI Quick Shortened',
+          tag: 'AI Assist'
+        });
+      } catch (fbErr) {}
 
       return res.json({
         success: true,
