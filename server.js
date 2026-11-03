@@ -234,69 +234,10 @@ async function sendPasswordResetEmail(email, name, code) {
 // In-Memory Fallback Store (active if MongoDB is momentarily unreachable)
 const memStore = {
   users: [],
-  links: [
-    {
-      id: 'lnk_1',
-      ownerEmail: 'john@example.com',
-      title: 'Claude AI Workspace',
-      dest: 'https://claude.ai',
-      slug: '3WeOEOz',
-      tag: 'AI Tools',
-      qr: true,
-      clicks: [{ timestamp: new Date(Date.now() - 3600000), referer: 'direct', ip: '127.0.0.1' }],
-      scans: 4,
-      createdAt: new Date(Date.now() - 86400000)
-    },
-    {
-      id: 'lnk_2',
-      ownerEmail: 'john@example.com',
-      title: 'Summer Launch Campaign 2026',
-      dest: 'https://myshopify.com',
-      slug: 'summer-26',
-      tag: 'E-commerce',
-      qr: true,
-      clicks: [{ timestamp: new Date(Date.now() - 7200000), referer: 'facebook.com', ip: '127.0.0.1' }],
-      scans: 98,
-      createdAt: new Date(Date.now() - 172800000)
-    }
-  ],
-  qrs: [
-    {
-      id: 'qr_1',
-      ownerEmail: 'john@example.com',
-      title: 'Summer Drop QR',
-      dest: 'https://myshopify.com',
-      color: '#ff007f',
-      scans: 98,
-      createdAt: new Date()
-    }
-  ],
-  bios: [
-    {
-      slug: 'john',
-      ownerEmail: 'john@example.com',
-      title: 'John',
-      tagline: 'Content Creator & Brand Strategist',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=250&q=80',
-      theme: 'cyber-dark',
-      links: [
-        { label: 'Official YouTube Channel', url: 'https://youtube.com', icon: '▶' },
-        { label: 'Follow on Instagram', url: 'https://instagram.com', icon: '📷' },
-        { label: 'Join Private Discord', url: 'https://discord.com', icon: '💬' }
-      ],
-      views: 312,
-      engagements: 144,
-      createdAt: new Date()
-    }
-  ],
-  domains: [
-    {
-      domain: 'go.johnlinks.com',
-      ownerEmail: 'john@example.com',
-      status: 'active',
-      targetCname: 'cname.healink.store'
-    }
-  ]
+  links: [],
+  qrs: [],
+  bios: [],
+  domains: []
 };
 
 // Auth Middleware
@@ -1891,14 +1832,14 @@ app.post('/api/ai/ask', async (req, res) => {
           title: 'AI Quick Shortened',
           dest,
           slug,
-          ownerEmail: email || 'john@example.com',
+          ownerEmail: email || 'guest',
           tag: 'AI Assist'
         });
         await newLink.save();
       } else {
         memStore.links.unshift({
           id: 'lnk_' + Date.now(),
-          ownerEmail: email || 'john@example.com',
+          ownerEmail: email || 'guest',
           title: 'AI Quick Shortened',
           dest,
           slug,

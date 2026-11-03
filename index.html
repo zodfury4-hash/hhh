@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="logo.png">
-  <link rel="stylesheet" href="style.css?v=31">
-  <link rel="stylesheet" href="app-shell.css?v=9">
+  <link rel="stylesheet" href="style.css?v=32">
+  <link rel="stylesheet" href="app-shell.css?v=10">
 </head>
 <body>
 <div class="bg-glow-curves"></div>
@@ -125,9 +125,9 @@
           <!-- Floating HUD Card 1: Real-time Analytics -->
           <div class="hud-card hud-analytics float-anim-1">
             <div class="hud-icon chart-icon">
-              <span class="bar b1"></span>
-              <span class="bar b2"></span>
-              <span class="bar b3"></span>
+              <span class="chart-bar b1"></span>
+              <span class="chart-bar b2"></span>
+              <span class="chart-bar b3"></span>
             </div>
             <div class="hud-info">
               <div class="hud-label">Real-time Analytics</div>
@@ -613,16 +613,16 @@
       <div class="sidebar-bottom">
         <div style="padding:10px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;margin-bottom:8px;">
           <div style="font-size:11px;color:#94a3b8;margin-bottom:2px;">CURRENT WORKSPACE</div>
-          <div style="font-size:13px;font-weight:700;color:#38bdf8;display:flex;justify-content:space-between;align-items:center;">
-            John's Org <span class="verified-tag" style="font-size:9px;padding:2px 6px;">PRO</span>
+          <div style="font-size:13px;font-weight:700;color:#38bdf8;display:flex;justify-content:space-between;align-items:center;" id="sidebarUserOrg">
+            My Workspace <span class="verified-tag" style="font-size:9px;padding:2px 6px;">FREE</span>
           </div>
         </div>
         <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:rgba(255,255,255,0.02);border-radius:8px;">
           <a href="#settings" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit;">
-            <div class="topbar-avatar" style="width:30px;height:30px;font-size:12px;flex-shrink:0;">JD</div>
+            <div class="topbar-avatar" style="width:30px;height:30px;font-size:12px;flex-shrink:0;" id="sidebarAvatar">HA</div>
             <div style="font-size:12px;line-height:1.2;">
-              <div style="color:#ffffff;font-weight:600;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="sidebarUserName">John</div>
-              <div style="color:#8fa0b5;font-size:10px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="sidebarUserEmail">john@example.com</div>
+              <div style="color:#ffffff;font-weight:600;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="sidebarUserName">Account</div>
+              <div style="color:#8fa0b5;font-size:10px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="sidebarUserEmail"></div>
             </div>
           </a>
           <button id="sidebarLogoutBtn" title="Log out" style="background:none;border:0;color:#ef4444;cursor:pointer;font-size:14px;padding:4px;">🚪</button>
@@ -648,7 +648,7 @@
           </button>
           <button class="topbar-icon-btn" id="topbarNotifBtn" title="Notifications">🔔</button>
           <button class="topbar-icon-btn" id="topbarHelpBtn" title="Help &amp; Guides" onclick="location.hash='#resources'">❓</button>
-          <a href="#settings" class="topbar-avatar" id="topbarAvatar" title="John">JD</a>
+          <a href="#settings" class="topbar-avatar" id="topbarAvatar" title="Account">HA</a>
         </div>
       </header>
 
@@ -724,7 +724,7 @@
             <div class="dash-white-card">
               <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
                 <div>
-                  <h4 style="margin:0 0 2px;color:#94a3b8;font-size:13px;font-weight:500;">Hi John,</h4>
+                  <h4 style="margin:0 0 2px;color:#94a3b8;font-size:13px;font-weight:500;" id="homeGreetingUser">Hi there,</h4>
                   <h4 style="margin:0;color:#ffffff;font-size:18px;font-weight:800;">get started with HEA Link</h4>
                 </div>
                 <div style="display:flex;align-items:center;gap:6px;color:#10b981;font-weight:800;font-size:16px;">
@@ -792,7 +792,7 @@
               <button class="drawer-chip-btn" data-prompt="What should I put on my link-in-bio page?">📄 Link-in-bio best practices</button>
             </div>
             <div class="drawer-chat-log" id="drawerChatLog">
-              <div class="drawer-chat-bubble ai">Hi John! I'm HEA Assist. How can I help you optimize your links and campaigns today?</div>
+              <div class="drawer-chat-bubble ai">Hi there! I'm HEA Assist. How can I help you optimize your links and campaigns today?</div>
             </div>
           </div>
           <form class="drawer-input-row" id="drawerChatForm">
@@ -1184,7 +1184,7 @@
       <form id="checkoutPaymentForm" class="checkout-form">
         <div class="checkout-form-row">
           <label style="flex:1">Name on Card
-            <input type="text" id="payName" placeholder="Cardholder Name (e.g. John)" required>
+            <input type="text" id="payName" placeholder="Cardholder Full Name" required>
           </label>
           <label style="flex:1">Billing Email
             <input type="email" id="payEmail" placeholder="billing@yourdomain.com" required>
@@ -1568,7 +1568,7 @@
 <script src="https://cdn.jsdelivr.net/npm/motion@10.18.0/dist/motion.umd.js"></script>
 <script src="qrcode.js"></script>
 <script src="heavy-fx.js?v=10"></script>
-<script src="app-shell.js?v=17"></script>
-<script src="app.js?v=30"></script>
+<script src="app-shell.js?v=18"></script>
+<script src="app.js?v=31"></script>
 </body>
 </html>

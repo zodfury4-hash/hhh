@@ -779,13 +779,20 @@ input[type=color] {
   gap: 2.5px;
   height: 20px;
   width: 20px;
-  padding-bottom: 2px;
+  padding: 0;
+  margin: 0;
   overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
 }
+.chart-icon .chart-bar,
 .chart-icon .bar {
+  display: block;
   width: 4px;
   background: #38bdf8;
   border-radius: 2px;
+  margin: 0 !important;
+  padding: 0 !important;
   transform-origin: bottom center;
   animation: barAnim 2s ease-in-out infinite alternate;
 }
@@ -978,7 +985,13 @@ input[type=color] {
 }
 .pill,
 .hero-col-left .pill,
-[class*="pill-banner"] {
+[class*="pill-banner"],
+[hidden],
+.res[hidden],
+#heroRes[hidden],
+#heroBulkResults[hidden],
+#mobileResultBox[hidden],
+#heroBulk[hidden] {
   display: none !important;
   width: 0 !important;
   height: 0 !important;
@@ -989,6 +1002,15 @@ input[type=color] {
   padding: 0 !important;
   border: 0 !important;
   pointer-events: none !important;
+}
+
+#heroRes:empty,
+.res:empty,
+.bulk-results-box:empty {
+  display: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
 }
 
 .card {
@@ -1989,59 +2011,66 @@ h1, h2, h3, .dash-header h2, .auth-title {
   .grid4, .grid3, .grid2, .split, .foot { grid-template-columns: 1fr 1fr; }
   .split, .split2 { grid-template-columns: 1fr; }
   #burger { display: block; margin-left: auto; }
-  .nav-collapse { display: none; }
+  .nav-collapse,
+  .nav:not(.open) .nav-collapse,
+  .nav:not(.open) #menu,
+  .nav:not(.open) .nav-r {
+    display: none !important;
+  }
   .nav.open .nav-collapse {
-    display: flex;
-    flex-direction: column;
-    position: absolute;
-    top: 66px;
-    left: 0;
-    right: 0;
-    background: rgba(8, 14, 30, 0.98);
-    backdrop-filter: blur(28px) saturate(180%);
-    -webkit-backdrop-filter: blur(28px) saturate(180%);
-    border-bottom: 1px solid rgba(56, 189, 248, 0.25);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.85);
-    padding: 20px 24px 28px;
-    max-height: calc(100vh - 75px);
-    overflow-y: auto;
-    z-index: 999;
-    margin-left: 0;
-    gap: 16px;
+    display: flex !important;
+    flex-direction: column !important;
+    position: absolute !important;
+    top: 66px !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: rgba(8, 14, 30, 0.98) !important;
+    backdrop-filter: blur(28px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.25) !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.85) !important;
+    padding: 20px 24px 28px !important;
+    max-height: calc(100vh - 75px) !important;
+    overflow-y: auto !important;
+    z-index: 999 !important;
+    margin-left: 0 !important;
+    gap: 16px !important;
   }
   .nav.open #menu {
-    display: flex;
-    flex-direction: column;
-    position: static;
-    background: transparent;
-    padding: 0;
-    box-shadow: none;
-    width: 100%;
-    gap: 8px;
+    display: flex !important;
+    flex-direction: column !important;
+    position: static !important;
+    background: transparent !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    width: 100% !important;
+    gap: 8px !important;
+    order: 1 !important;
   }
   .nav.open #menu > div,
   .nav.open #menu a,
   .nav.open #menu .mi {
-    width: 100%;
+    width: 100% !important;
   }
   .nav.open .nav-r {
-    display: flex;
-    flex-direction: column;
-    position: static;
-    background: transparent;
-    padding: 16px 0 0 0;
-    box-shadow: none;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    width: 100%;
-    gap: 12px;
-    margin-left: 0;
+    display: flex !important;
+    flex-direction: column !important;
+    position: static !important;
+    background: transparent !important;
+    padding: 16px 0 0 0 !important;
+    box-shadow: none !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    width: 100% !important;
+    gap: 12px !important;
+    margin-left: 0 !important;
+    order: 2 !important;
   }
   .nav.open .nav-r a,
   .nav.open .nav-r button {
-    width: 100%;
-    text-align: center;
-    justify-content: center;
-    display: flex;
+    width: 100% !important;
+    text-align: center !important;
+    justify-content: center !important;
+    display: flex !important;
   }
   .drop { position: static; box-shadow: none; border-radius: 14px; }
 }

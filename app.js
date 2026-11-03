@@ -2803,8 +2803,8 @@ function openCheckoutModal(plan = 'pro') {
     if (sess.name && $('#payName')) $('#payName').value = sess.name;
     if (sess.email && $('#payEmail')) $('#payEmail').value = sess.email;
   } else {
-    if ($('#payName') && !$('#payName').value) $('#payName').value = 'John';
-    if ($('#payEmail') && !$('#payEmail').value) $('#payEmail').value = 'john@example.com';
+    if ($('#payName')) $('#payName').value = '';
+    if ($('#payEmail')) $('#payEmail').value = '';
   }
 
   modal.hidden = false;
@@ -2927,9 +2927,11 @@ function setupCheckoutModal() {
 
       let s = store.get('hea_session', null);
       if (!s) {
+        const pName = $('#payName')?.value.trim() || 'Subscriber';
+        const pEmail = $('#payEmail')?.value.trim() || '';
         s = {
-          name: $('#payName')?.value.trim() || 'John',
-          email: $('#payEmail')?.value.trim() || 'john@example.com',
+          name: pName,
+          email: pEmail,
           isVerified: true
         };
       }

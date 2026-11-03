@@ -15,15 +15,15 @@
   const $ = selector => document.querySelector(selector);
   const $$ = selector => document.querySelectorAll(selector);
 
-  // User state matching screenshots
+  // User state matching authenticated session
   let appUser = {
-    name: 'John',
-    email: 'john@example.com',
-    orgId: 'o_6ljsuhe8q5',
-    city: 'New York',
-    isp: 'Global Internet',
-    avatar: 'JD',
-    selectedQrColor: '#ff007f',
+    name: 'Account',
+    email: '',
+    orgId: '',
+    city: '',
+    isp: '',
+    avatar: 'HA',
+    selectedQrColor: '#00d2ff',
     isPro: false,
     plan: 'Free'
   };
@@ -58,15 +58,30 @@
       appUser.isPro = true;
       appUser.plan = u.plan || 'Core PRO';
     }
+    const displayName = appUser.name || 'Account';
     const sName = $('#sidebarUserName');
-    if (sName) sName.textContent = appUser.name;
+    if (sName) sName.textContent = displayName;
     const sEmail = $('#sidebarUserEmail');
-    if (sEmail) sEmail.textContent = appUser.email;
+    if (sEmail) sEmail.textContent = appUser.email || '';
     const topAv = $('#topbarAvatar');
     if (topAv) {
-      const initials = (appUser.name || 'HA').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'HA';
+      const initials = displayName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'HA';
       topAv.textContent = initials;
-      topAv.title = appUser.name;
+      topAv.title = displayName;
+    }
+    const sideAv = $('#sidebarAvatar');
+    if (sideAv) {
+      const initials = displayName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'HA';
+      sideAv.textContent = initials;
+    }
+    const sOrg = $('#sidebarUserOrg');
+    if (sOrg) {
+      const firstName = displayName.split(' ')[0];
+      sOrg.innerHTML = `${firstName}'s Workspace <span class="verified-tag" style="font-size:9px;padding:2px 6px;">${appUser.isPro ? 'PRO' : 'FREE'}</span>`;
+    }
+    const greeting = $('#homeGreetingUser');
+    if (greeting) {
+      greeting.textContent = `Hi ${displayName.split(' ')[0]},`;
     }
   }
 
@@ -88,66 +103,38 @@
   } catch (e) {}
 
   let activeTab = 'home';
-  let activeQrId = 'lnk_1';
+  let activeQrId = '';
 
   function getStoredLinks() {
     try {
       const s = localStorage.getItem('hea_links');
       if (s) {
-        const p = JSON.parse(s);
-        if (Array.isArray(p) && p.length > 0) return p;
+        let p = JSON.parse(s);
+        if (Array.isArray(p)) {
+          // Remove legacy dummy/sample links so dashboard stays 100% clean
+          p = p.filter(l => l && l.id !== 'lnk_1' && l.id !== 'lnk_2' && !(l.dest && l.dest.includes('claude.ai')) && !(l.dest && l.dest.includes('summer-drop-2026')));
+          return p;
+        }
       }
     } catch (e) {}
 
-    return [
-      {
-        id: 'lnk_1',
-        title: 'Untitled 2026-10-30',
-        dest: 'https://claude.ai/chat/7f036851-018e-4d51-a859-3730634bb296',
-        slug: '3WeOEOz',
-        url: 'https://healink.store/3WeOEOz',
-        tag: 'Website',
-        createdAt: 'Oct 30, 2026 7:28 AM PDT',
-        clicks: 14,
-        scans: 4,
-        qr: true
-      },
-      {
-        id: 'lnk_2',
-        title: 'Summer Launch Campaign 2026',
-        dest: 'https://myshopify.store/products/summer-drop-2026',
-        slug: 'summer-26',
-        url: 'https://healink.store/summer-26',
-        tag: 'Website',
-        createdAt: 'Oct 28, 2026 11:15 AM PDT',
-        clicks: 342,
-        scans: 98,
-        qr: true
-      }
-    ];
+    return [];
   }
 
   function getStoredPages() {
     try {
       const s = localStorage.getItem('hea_bios');
       if (s) {
-        const p = JSON.parse(s);
-        if (Array.isArray(p) && p.length > 0) return p;
+        let p = JSON.parse(s);
+        if (Array.isArray(p)) {
+          // Remove legacy dummy pages
+          p = p.filter(page => page && page.slug !== 'hgrgferf' && page.slug !== 'john');
+          return p;
+        }
       }
     } catch (e) {}
 
-    return [
-      {
-        slug: 'hgrgferf',
-        url: 'healink.store/m/hgrgferf',
-        title: 'John',
-        tagline: 'Content Creator & Brand Strategist',
-        createdAt: 'Oct 30, 2026',
-        views: 0,
-        engagements: 0,
-        unpublished: true
-      }
-    ];
+    return [];
   }
 
   // ---------------- ROUTING ENGINE ---------------- //
@@ -358,21 +345,34 @@
           <button class="topbar-icon-btn" type="button" onclick="window.appShell.navigate('links')" style="color:#38bdf8;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:4px;">View all links →</button>
         </div>
         <div class="home-recent-links-list">
-          ${getStoredLinks().slice(0, 3).map(l => `
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;margin-bottom:10px;">
-              <div style="min-width:0;flex:1;margin-right:16px;">
-                <a href="${l.url}" target="_blank" rel="noopener" style="font-weight:700;color:#38bdf8;font-size:14px;text-decoration:none;">${l.url}</a>
-                <div style="font-size:12px;color:#94a3b8;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.title || 'Untitled'} · <span style="color:#64748b;">${l.dest}</span></div>
-              </div>
-              <div style="display:flex;align-items:center;gap:16px;flex-shrink:0;">
-                <div style="text-align:right;">
-                  <b style="color:#10b981;font-size:14px;">${l.clicks || 0}</b>
-                  <span style="font-size:11px;color:#94a3b8;display:block;">clicks</span>
+          ${(() => {
+            const rLinks = getStoredLinks().slice(0, 3);
+            if (rLinks.length === 0) {
+              return `
+                <div style="text-align:center;padding:32px 16px;color:#94a3b8;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.08);border-radius:12px;">
+                  <div style="font-size:26px;margin-bottom:6px;">🔗</div>
+                  <div style="font-weight:700;color:#ffffff;font-size:14px;margin-bottom:4px;">No short links created yet</div>
+                  <p style="font-size:12px;color:#94a3b8;margin:0 0 12px;">Paste a destination URL above to create your first short link &amp; track clicks in real-time.</p>
+                  <button class="sso-btn" style="width:auto;margin:0 auto;padding:6px 14px;font-size:12px;color:#38bdf8;font-weight:700;" onclick="const inp = $('#homeShortenInput'); if (inp) inp.focus();">Create your first link ↑</button>
                 </div>
-                <button class="sso-btn" style="width:auto;padding:6px 12px;font-size:12px;" onclick="window.appShell.copy('${l.url}')">📋 Copy</button>
+              `;
+            }
+            return rLinks.map(l => `
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;margin-bottom:10px;">
+                <div style="min-width:0;flex:1;margin-right:16px;">
+                  <a href="${l.url}" target="_blank" rel="noopener" style="font-weight:700;color:#38bdf8;font-size:14px;text-decoration:none;">${l.url}</a>
+                  <div style="font-size:12px;color:#94a3b8;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.title || 'Untitled'} · <span style="color:#64748b;">${l.dest}</span></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:16px;flex-shrink:0;">
+                  <div style="text-align:right;">
+                    <b style="color:#10b981;font-size:14px;">${l.clicks || 0}</b>
+                    <span style="font-size:11px;color:#94a3b8;display:block;">clicks</span>
+                  </div>
+                  <button class="sso-btn" style="width:auto;padding:6px 12px;font-size:12px;" onclick="window.appShell.copy('${l.url}')">📋 Copy</button>
+                </div>
               </div>
-            </div>
-          `).join('')}
+            `).join('');
+          })()}
         </div>
       </div>
     `;
@@ -808,7 +808,7 @@
               <h3 style="color:#ffffff;margin-top:0;font-size:18px;">QR Code Details</h3>
               <div class="create-link-field">
                 <label>Destination URL</label>
-                <input type="url" id="qrInputDest" placeholder="https://yourstore.com/summer-promo" value="https://myshopify.com/special-drop" required>
+                <input type="url" id="qrInputDest" placeholder="https://yourstore.com/summer-promo" value="" required>
               </div>
 
               <div class="create-link-field">
@@ -855,7 +855,7 @@
         setTimeout(() => {
           const cv = $('#qrCreatePreviewCanvas');
           if (cv && typeof window.drawQR === 'function') {
-            window.drawQR(cv, 'https://healink.store/3WeOEOz', '#ff007f', '#ffffff', 180);
+            window.drawQR(cv, window.location.origin, '#00d2ff', '#ffffff', 180);
           }
         }, 30);
 
@@ -984,17 +984,13 @@
 
   // ---------------- 5. QR CODE DETAILS & STUDIO (Screenshots 12.02.39 AM 1, 2, 3) ---------------- //
   function renderQrDetail(container, linkId) {
-    activeQrId = linkId || 'lnk_1';
+    activeQrId = linkId || '';
     const links = getStoredLinks();
-    const item = links.find(l => l.id === activeQrId) || links[0] || {
-      id: 'lnk_1',
-      title: 'Untitled 2026-10-30',
-      dest: 'https://claude.ai/chat/7f036851-018e-4d51-a859-3730634bb296',
-      slug: '3WeOEOz',
-      tag: 'Website',
-      createdAt: 'October 30, 2026 7:28 AM PDT',
-      scans: 4
-    };
+    const item = links.find(l => l.id === activeQrId || l.slug === activeQrId) || links[0];
+    if (!item) {
+      navigate('qr', 'create');
+      return;
+    }
 
     container.innerHTML = `
       <!-- Header row matching Screenshot 12.02.39 AM 2 -->
@@ -1474,15 +1470,28 @@
       }
 
       // 3. Default: List View (Frame 11 existing pages)
-      const p = pages[0] || {
-        slug: 'john',
-        title: 'John',
-        tagline: 'Content Creator & Brand Strategist',
-        views: 142,
-        engagements: 89,
-        createdAt: 'Oct 30, 2026'
-      };
-      const bioUrl = `${origin}/m/${p.slug}`;
+      if (pages.length === 0) {
+        container.innerHTML = `
+          <div class="view-header">
+            <h2>HEA Pages (Link-in-Bio)</h2>
+            <button class="sidebar-create-btn" id="btnLaunchTemplateCatalog" style="margin:0;">
+              + Create Page
+            </button>
+          </div>
+
+          <div style="text-align:center;padding:50px 24px;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.08);border-radius:16px;max-width:560px;margin:32px auto;">
+            <div style="font-size:36px;margin-bottom:12px;">📱</div>
+            <h3 style="color:#ffffff;font-size:18px;margin:0 0 8px;">No bio pages created yet</h3>
+            <p style="color:#94a3b8;font-size:14px;margin:0 0 20px;line-height:1.6;">Build a single high-converting mobile bio page to showcase all your links, social media profiles, and offers.</p>
+            <button class="auth-submit-btn" id="btnEmptyCreateBio" style="width:auto;margin:0 auto;padding:12px 28px;">+ Create Your First Bio Page</button>
+          </div>
+        `;
+        const openCatalog = () => { mode = 'catalog'; renderView(); };
+        $('#btnLaunchTemplateCatalog').onclick = openCatalog;
+        const emptyBtn = $('#btnEmptyCreateBio');
+        if (emptyBtn) emptyBtn.onclick = openCatalog;
+        return;
+      }
 
       container.innerHTML = `
         <div class="view-header">
@@ -1497,33 +1506,38 @@
           <span style="font-size:13px;color:#94a3b8;">${pages.length} published page${pages.length === 1 ? '' : 's'}</span>
         </div>
 
-        <div class="page-row-card">
-          <div style="display:flex;align-items:center;gap:20px;">
-            <div class="page-wireframe-thumb">
-              <span style="font-weight:700;">${p.title}</span>
-              <div class="wireframe-bar"></div>
-              <div class="wireframe-bar"></div>
-              <div class="wireframe-bar"></div>
-            </div>
-            <div>
-              <h3 style="font-size:20px;font-weight:800;color:#ffffff;margin:0 0 6px;">
-                <a href="${bioUrl}" target="_blank" rel="noopener" style="color:#38bdf8;text-decoration:none;">${bioUrl} ↗</a>
-              </h3>
-              <div style="font-size:13px;color:#94a3b8;margin-bottom:8px;">${p.tagline || 'Custom verified landing page'} • Created ${p.createdAt}</div>
-              <div style="display:flex;gap:16px;font-size:13px;color:#cbd5e1;">
-                <span>📊 <b>${p.views || 0}</b> views</span>
-                <span>🎯 <b>${p.engagements || 0}</b> engagements</span>
+        ${pages.map(p => {
+          const bioUrl = `${origin}/m/${p.slug}`;
+          return `
+            <div class="page-row-card">
+              <div style="display:flex;align-items:center;gap:20px;">
+                <div class="page-wireframe-thumb">
+                  <span style="font-weight:700;">${p.title || 'Page'}</span>
+                  <div class="wireframe-bar"></div>
+                  <div class="wireframe-bar"></div>
+                  <div class="wireframe-bar"></div>
+                </div>
+                <div>
+                  <h3 style="font-size:20px;font-weight:800;color:#ffffff;margin:0 0 6px;">
+                    <a href="${bioUrl}" target="_blank" rel="noopener" style="color:#38bdf8;text-decoration:none;">${bioUrl} ↗</a>
+                  </h3>
+                  <div style="font-size:13px;color:#94a3b8;margin-bottom:8px;">${p.tagline || 'Custom verified landing page'} • Created ${p.createdAt || 'Recent'}</div>
+                  <div style="display:flex;gap:16px;font-size:13px;color:#cbd5e1;">
+                    <span>📊 <b>${p.views || 0}</b> views</span>
+                    <span>🎯 <b>${p.engagements || 0}</b> engagements</span>
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;">
+                <a class="auth-submit-btn" style="width:auto;padding:8px 18px;text-decoration:none;font-size:13px;" href="${bioUrl}" target="_blank" rel="noopener">
+                  🚀 View Live Page
+                </a>
+                <button class="topbar-icon-btn" title="Copy Bio Link" onclick="window.appShell.copy('${bioUrl}')">📋</button>
+                <button class="topbar-icon-btn" title="Share QR" onclick="window.appShell.navigate('qr-detail', '${p.slug}')">▦</button>
               </div>
             </div>
-          </div>
-          <div style="display:flex;align-items:center;gap:12px;">
-            <a class="auth-submit-btn" style="width:auto;padding:8px 18px;text-decoration:none;font-size:13px;" href="${bioUrl}" target="_blank" rel="noopener">
-              🚀 View Live Page
-            </a>
-            <button class="topbar-icon-btn" title="Copy Bio Link" onclick="window.appShell.copy('${bioUrl}')">📋</button>
-            <button class="topbar-icon-btn" title="Share QR" onclick="window.appShell.navigate('qr-detail', 'bio_qr')">▦</button>
-          </div>
-        </div>
+          `;
+        }).join('')}
 
         <div style="text-align:center;color:#64748b;font-size:13px;margin:40px 0;">
           — You've reached the end of your Pages —
@@ -1750,11 +1764,11 @@
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
           <div class="create-link-field" style="margin:0;">
             <label>Destination Website URL</label>
-            <input type="url" id="campDestUrl" placeholder="https://yourstore.com/summer-collection" value="https://myshopify.com/drop">
+            <input type="url" id="campDestUrl" placeholder="https://yourstore.com/summer-collection" value="">
           </div>
           <div class="create-link-field" style="margin:0;">
             <label>Campaign Name (utm_campaign)</label>
-            <input type="text" id="campName" placeholder="e.g. summer_collection_meta_2026" value="summer_launch_2026">
+            <input type="text" id="campName" placeholder="e.g. summer_collection_meta_2026" value="">
           </div>
         </div>
 
@@ -1964,6 +1978,7 @@
         }
       } else {
         // Search & Manual CNAME connection tab
+        const savedDomain = localStorage.getItem('hea_custom_domain') || '';
         content.innerHTML = `
           <!-- Add Domain Card -->
           <div class="dash-white-card" style="margin-bottom:24px;padding:24px;">
@@ -1971,7 +1986,7 @@
             <p style="color:#94a3b8;font-size:13px;margin-bottom:16px;">Point a CNAME record from your DNS registrar (GoDaddy, Cloudflare, Namecheap) to <code style="color:#38bdf8;">cname.healink.store</code>.</p>
 
             <div style="display:flex;gap:12px;max-width:540px;">
-              <input type="text" id="customDomainInput" class="home-shorten-input" style="flex:1;" placeholder="e.g. links.yourbrand.com or go.domain.io" value="go.johnlinks.com">
+              <input type="text" id="customDomainInput" class="home-shorten-input" style="flex:1;" placeholder="e.g. links.yourbrand.com or go.domain.io" value="">
               <button class="auth-submit-btn" id="btnAddDomain" style="width:auto;margin:0;padding:10px 22px;">
                 + Connect Domain
               </button>
@@ -1990,16 +2005,22 @@
                 <span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;font-size:12px;padding:4px 10px;border-radius:6px;">✓ Primary</span>
               </div>
 
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
-                <div>
-                  <b style="color:#38bdf8;font-size:15px;" id="dispCustomDomain">go.johnlinks.com</b>
-                  <div style="font-size:12px;color:#94a3b8;">CNAME: cname.healink.store · Verified</div>
+              ${savedDomain ? `
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
+                  <div>
+                    <b style="color:#38bdf8;font-size:15px;" id="dispCustomDomain">${savedDomain}</b>
+                    <div style="font-size:12px;color:#94a3b8;">CNAME: cname.healink.store · Verified</div>
+                  </div>
+                  <div style="display:flex;gap:8px;align-items:center;">
+                    <span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;font-size:12px;padding:4px 10px;border-radius:6px;">🟢 Active</span>
+                    <button class="sso-btn" style="width:auto;padding:4px 10px;font-size:12px;" onclick="window.appShell.toast('DNS Verified: All checks passed')">Check DNS</button>
+                  </div>
                 </div>
-                <div style="display:flex;gap:8px;align-items:center;">
-                  <span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;font-size:12px;padding:4px 10px;border-radius:6px;">🟢 Active</span>
-                  <button class="sso-btn" style="width:auto;padding:4px 10px;font-size:12px;" onclick="window.appShell.toast('DNS Verified: All checks passed')">Check DNS</button>
+              ` : `
+                <div style="text-align:center;padding:24px 16px;color:#94a3b8;font-size:13px;border:1px dashed rgba(255,255,255,0.06);border-radius:8px;">
+                  No custom domains connected yet. Enter your branded subdomain above to connect.
                 </div>
-              </div>
+              `}
             </div>
           </div>
         `;
@@ -2011,6 +2032,7 @@
             if (!d) return;
 
             try {
+              localStorage.setItem('hea_custom_domain', d);
               const s = JSON.parse(localStorage.getItem('hea_session'));
               if (s && s.token) {
                 await fetch('/api/domains', {
@@ -2021,9 +2043,8 @@
               }
             } catch (e) {}
 
-            const disp = $('#dispCustomDomain');
-            if (disp) disp.textContent = d;
             toast(`Custom domain "${d}" added and verified!`);
+            renderView();
           };
         }
       }
@@ -2687,7 +2708,7 @@ Here are recommended optimizations for your links and campaigns:<br>
     if (appUser.isPro) {
       const orgEl = $('#sidebarOrgName');
       if (orgEl) {
-        orgEl.innerHTML = `${(appUser.name || 'John').split(' ')[0]}'s Org <span style="background:linear-gradient(135deg,#eab308,#f59e0b);color:#000;font-size:10px;font-weight:800;padding:2px 6px;border-radius:6px;margin-left:4px;">PRO 👑</span>`;
+        orgEl.innerHTML = `${(appUser.name || 'User').split(' ')[0]}'s Workspace <span style="background:linear-gradient(135deg,#eab308,#f59e0b);color:#000;font-size:10px;font-weight:800;padding:2px 6px;border-radius:6px;margin-left:4px;">PRO 👑</span>`;
       }
       $$('.topbar-upgrade-btn').forEach(b => {
         b.innerHTML = '👑 PRO Active';
@@ -2716,11 +2737,11 @@ Here are recommended optimizations for your links and campaigns:<br>
     const ssoA = $('#ssoAppleBtn');
     if (ssoA) ssoA.onclick = () => {
       const aUser = {
-        name: 'John',
-        email: 'john.apple@icloud.com',
+        name: 'Apple User',
+        email: 'user.apple@icloud.com',
         isVerified: true,
         provider: 'apple',
-        avatar: 'JD',
+        avatar: 'AU',
         country: 'United States',
         city: 'New York',
         isp: 'Global Internet'
@@ -2787,7 +2808,7 @@ Here are recommended optimizations for your links and campaigns:<br>
 
     const orgEl = $('#sidebarOrgName');
     if (orgEl) {
-      orgEl.innerHTML = `${(appUser.name || 'John').split(' ')[0]}'s Org <span style="background:linear-gradient(135deg,#eab308,#f59e0b);color:#000;font-size:10px;font-weight:800;padding:2px 6px;border-radius:6px;margin-left:4px;">PRO 👑</span>`;
+      orgEl.innerHTML = `${(appUser.name || 'User').split(' ')[0]}'s Workspace <span style="background:linear-gradient(135deg,#eab308,#f59e0b);color:#000;font-size:10px;font-weight:800;padding:2px 6px;border-radius:6px;margin-left:4px;">PRO 👑</span>`;
     }
 
     $$('.topbar-upgrade-btn').forEach(b => {
