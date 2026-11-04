@@ -885,6 +885,20 @@ input[type=color] {
   box-shadow: none !important;
 }
 
+.cyber-stage-container::after {
+  content: '';
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 380px;
+  height: 48px;
+  background: radial-gradient(ellipse at center, rgba(0, 112, 243, 0.20) 0%, rgba(56, 189, 248, 0.08) 45%, transparent 72%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+}
+
 .hero-infinity-img {
   width: 100%;
   max-width: 540px;
@@ -896,7 +910,9 @@ input[type=color] {
   background: transparent !important;
   border: none !important;
   outline: none !important;
-  filter: drop-shadow(0 20px 40px rgba(0, 112, 243, 0.22));
+  filter: none !important;
+  -webkit-mask-image: radial-gradient(ellipse 96% 92% at 50% 50%, black 75%, transparent 100%);
+  mask-image: radial-gradient(ellipse 96% 92% at 50% 50%, black 75%, transparent 100%);
   animation: none !important;
   transition: none !important;
 }
