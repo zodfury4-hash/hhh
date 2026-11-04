@@ -4323,3 +4323,28 @@ input[type="radio"] {
   flex: none !important;
   flex-shrink: 0 !important;
 }
+
+
+/* HEA Assist Input Capsule Zero-Border Guarantee */
+#drawerChatInput,
+.drawer-input-capsule input,
+.drawer-input-row input#drawerChatInput {
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 8px 6px !important;
+}
+
+.drawer-capsule-submit,
+.drawer-input-row button.drawer-capsule-submit {
+  border-radius: 50% !important;
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+  padding: 0 !important;
+}

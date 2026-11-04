@@ -1722,14 +1722,14 @@ input[type="radio"] {
 }
 .drawer-input-row input {
   flex: 1;
-  background: #f8fafc !important;
-  border: 1.5px solid #cbd5e1 !important;
-  color: #000000 !important;
-  padding: 10px 14px !important;
-  border-radius: 10px !important;
+  background: transparent !important;
+  border: none !important;
+  color: #0b132b !important;
+  padding: 8px 8px !important;
+  border-radius: 0 !important;
   font-size: 13.5px !important;
-  outline: none;
-  transition: all 0.15s ease;
+  outline: none !important;
+  box-shadow: none !important;
 }
 .drawer-input-row input:focus {
   border-color: #0070f3 !important;
@@ -1739,14 +1739,22 @@ input[type="radio"] {
 .drawer-input-row button {
   background: #0070f3 !important;
   color: #ffffff !important;
-  border: 0;
-  border-radius: 10px !important;
-  padding: 0 18px !important;
-  font-size: 18px !important;
+  border: none !important;
+  border-radius: 50% !important;
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  font-size: 16px !important;
   font-weight: 700 !important;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 112, 243, 0.28) !important;
-  transition: background 0.15s;
+  display: grid !important;
+  place-items: center !important;
+  box-shadow: 0 3px 10px rgba(0, 112, 243, 0.35) !important;
 }
 .drawer-input-row button:hover {
   background: #005ce6 !important;
@@ -2503,7 +2511,12 @@ body.app-mode label,
   background: #ffffff !important;
   border-top: 1px solid #e2e8f0 !important;
 }
-.drawer-input-row input, .drawer-textarea {
+.drawer-input-row input {
+  background: transparent !important;
+  border: none !important;
+  color: #0b132b !important;
+}
+.drawer-textarea {
   background: #f8fafc !important;
   border: 1px solid #cbd5e1 !important;
   color: #000000 !important;
@@ -3803,4 +3816,94 @@ body.app-mode #appShell,
   border-radius: 99px !important;
   background: #ffffff !important;
   padding: 5px 6px 5px 16px !important;
+}
+
+/* ==========================================================================
+   HEA ASSIST CAPSULE & INPUT CLEAN FIX (ZERO DOUBLE-BORDER, PERFECT CIRCLE BTN)
+   ========================================================================== */
+.drawer-input-row {
+  padding: 14px 18px !important;
+  border-top: 1px solid #e2e8f0 !important;
+  background: #ffffff !important;
+  box-sizing: border-box !important;
+}
+
+.drawer-input-capsule {
+  display: flex !important;
+  align-items: center !important;
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 9999px !important;
+  padding: 4px 5px 4px 16px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.2s ease !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.drawer-input-capsule:focus-within {
+  border-color: #0070f3 !important;
+  box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.15) !important;
+}
+
+#drawerChatInput,
+.drawer-input-capsule input,
+.drawer-input-row input#drawerChatInput,
+.drawer-input-row .drawer-input-capsule input {
+  flex: 1 !important;
+  min-width: 0 !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 8px 6px !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  width: auto !important;
+}
+
+#drawerChatInput::placeholder,
+.drawer-input-capsule input::placeholder {
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+  font-weight: 400 !important;
+}
+
+.drawer-capsule-submit,
+.drawer-input-row button.drawer-capsule-submit,
+.drawer-input-capsule button {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+  border-radius: 50% !important;
+  background: #0070f3 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border: none !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  box-shadow: 0 3px 10px rgba(0, 112, 243, 0.35) !important;
+  transition: all 0.18s ease !important;
+  flex-shrink: 0 !important;
+}
+
+.drawer-capsule-submit:hover,
+.drawer-input-row button.drawer-capsule-submit:hover,
+.drawer-input-capsule button:hover {
+  background: #005ce6 !important;
+  transform: scale(1.06) !important;
+  box-shadow: 0 4px 14px rgba(0, 112, 243, 0.45) !important;
 }
