@@ -3597,6 +3597,9 @@ const handleRedirect = async (req, res, next) => {
     if (isDbConnected) {
 
       link = await Link.findOne({ slug });
+      if (!link) {
+        link = await Link.findOne({ slug: new RegExp('^' + slug + '$', 'i') });
+      }
 
     } else {
 

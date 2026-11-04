@@ -671,13 +671,8 @@
 
     }
 
-    // Trigger universal text entrance animation for the newly rendered view
-
-    if (typeof window.animatePageText === 'function') {
-
-      setTimeout(() => window.animatePageText(pane), 40);
-
-    }
+    // Clean, zero-jitter instant rendering for dashboard views
+    // animatePageText removed here to prevent UI shifts and element bounce
 
   }
 
@@ -4393,11 +4388,7 @@
 
     renderView();
 
-    if (typeof window.animatePageText === 'function') {
-
-      setTimeout(() => window.animatePageText(container), 35);
-
-    }
+    // Clean static rendering for page templates with zero jitter
 
   }
 

@@ -12,6 +12,8 @@
     try {
       const root = container || document.querySelector('#appShell:not([hidden]) #appMainPane') || document.querySelector('section:not([hidden])') || document;
       if (!root) return;
+      // Do not animate inside the app dashboard shell to ensure zero jitter
+      if (root.id === 'appMainPane' || root.id === 'appShell' || (root.closest && root.closest('#appShell'))) return;
 
       // Animate container entrance
       if (root.classList) {

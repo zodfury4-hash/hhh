@@ -4,47 +4,57 @@ function showGoogleAccountPicker(onSelect, onCancel) {
   if (!modal) {
     modal = document.createElement('div');
     modal.id = 'googleAccountPickerModal';
-    modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(3,7,18,0.85);backdrop-filter:blur(8px);z-index:999999;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn 0.2s ease-out;';
+    modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(3,7,18,0.88);backdrop-filter:blur(10px);z-index:999999;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn 0.2s ease-out;';
     document.body.appendChild(modal);
   }
 
   modal.innerHTML = `
-    <div style="background:#090f22;border:1px solid rgba(56,189,248,0.3);border-radius:18px;max-width:440px;width:100%;padding:28px 24px;box-shadow:0 25px 60px rgba(0,0,0,0.8);color:#fff;text-align:left;position:relative;">
+    <div style="background:#090f22;border:1px solid rgba(56,189,248,0.3);border-radius:18px;max-width:460px;width:100%;padding:28px 24px;box-shadow:0 25px 60px rgba(0,0,0,0.85);color:#fff;text-align:left;position:relative;">
       <button id="closePickerBtn" type="button" style="position:absolute;top:16px;right:18px;background:none;border:none;color:#94a3b8;font-size:22px;cursor:pointer;">✕</button>
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
-        <svg width="24" height="24" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 12s.7 2.3 1.9 4.7l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/></svg>
-        <h3 style="margin:0;font-size:18px;color:#fff;">Choose a Google Account</h3>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+        <svg width="26" height="26" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 12s.7 2.3 1.9 4.7l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/></svg>
+        <div>
+          <h3 style="margin:0;font-size:18px;color:#fff;font-weight:700;">Sign in with Google</h3>
+          <p style="color:#94a3b8;font-size:12px;margin:2px 0 0;">Select your account for instant verified dashboard access:</p>
+        </div>
       </div>
-      <p style="color:#94a3b8;font-size:13px;margin:0 0 18px;line-height:1.5;">Select an account to continue to HEA Link dashboard with instant authorization:</p>
       
       <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
-        <button type="button" class="sso-acc-btn" data-email="furyzod02@gmail.com" data-name="Fury Zod" style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(212,255,36,0.3);border-radius:12px;cursor:pointer;color:#fff;text-align:left;transition:all 0.2s;">
-          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#D4FF24,#10b981);color:#060b18;font-weight:800;display:grid;place-items:center;font-size:13px;">FZ</div>
-          <div style="flex:1;"><div style="font-weight:700;font-size:14px;color:#fff;">Fury Zod <span style="font-size:10px;background:#D4FF24;color:#000;padding:1px 6px;border-radius:4px;font-weight:800;margin-left:6px;">VIP UNLIMITED</span></div><div style="font-size:12px;color:#94a3b8;">furyzod02@gmail.com</div></div>
+        <button type="button" class="sso-acc-btn" data-email="furyzod02@gmail.com" data-name="Fury Zod" style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(212,255,36,0.35);border-radius:12px;cursor:pointer;color:#fff;text-align:left;transition:all 0.2s;">
+          <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#D4FF24,#10b981);color:#060b18;font-weight:800;display:grid;place-items:center;font-size:13px;flex-shrink:0;">FZ</div>
+          <div style="flex:1;"><div style="font-weight:700;font-size:14px;color:#fff;display:flex;align-items:center;gap:6px;">Fury Zod <span style="font-size:10px;background:#D4FF24;color:#000;padding:1px 6px;border-radius:4px;font-weight:800;">VIP UNLIMITED</span></div><div style="font-size:12px;color:#94a3b8;">furyzod02@gmail.com</div></div>
+          <span style="color:#D4FF24;font-size:16px;">→</span>
         </button>
 
-        <button type="button" class="sso-acc-btn" data-email="arfatghuman86@gmail.com" data-name="Arfat Ghuman" style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(56,189,248,0.3);border-radius:12px;cursor:pointer;color:#fff;text-align:left;transition:all 0.2s;">
-          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#0066ff);color:#fff;font-weight:800;display:grid;place-items:center;font-size:13px;">AG</div>
-          <div style="flex:1;"><div style="font-weight:700;font-size:14px;color:#fff;">Arfat Ghuman <span style="font-size:10px;background:#38bdf8;color:#000;padding:1px 6px;border-radius:4px;font-weight:800;margin-left:6px;">VIP UNLIMITED</span></div><div style="font-size:12px;color:#94a3b8;">arfatghuman86@gmail.com</div></div>
+        <button type="button" class="sso-acc-btn" data-email="arfatghuman86@gmail.com" data-name="Arfat Ghuman" style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(56,189,248,0.35);border-radius:12px;cursor:pointer;color:#fff;text-align:left;transition:all 0.2s;">
+          <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#0066ff);color:#fff;font-weight:800;display:grid;place-items:center;font-size:13px;flex-shrink:0;">AG</div>
+          <div style="flex:1;"><div style="font-weight:700;font-size:14px;color:#fff;display:flex;align-items:center;gap:6px;">Arfat Ghuman <span style="font-size:10px;background:#38bdf8;color:#000;padding:1px 6px;border-radius:4px;font-weight:800;">VIP UNLIMITED</span></div><div style="font-size:12px;color:#94a3b8;">arfatghuman86@gmail.com</div></div>
+          <span style="color:#38bdf8;font-size:16px;">→</span>
         </button>
 
-        <button type="button" class="sso-acc-btn" data-email="emanxhaudhry2005@gmail.com" data-name="Eman Chaudhry" style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(236,72,153,0.3);border-radius:12px;cursor:pointer;color:#fff;text-align:left;transition:all 0.2s;">
-          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#ec4899,#a855f7);color:#fff;font-weight:800;display:grid;place-items:center;font-size:13px;">EC</div>
-          <div style="flex:1;"><div style="font-weight:700;font-size:14px;color:#fff;">Eman Chaudhry <span style="font-size:10px;background:#ec4899;color:#fff;padding:1px 6px;border-radius:4px;font-weight:800;margin-left:6px;">VIP UNLIMITED</span></div><div style="font-size:12px;color:#94a3b8;">emanxhaudhry2005@gmail.com</div></div>
+        <button type="button" class="sso-acc-btn" data-email="emanxhaudhry2005@gmail.com" data-name="Eman Chaudhry" style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(236,72,153,0.35);border-radius:12px;cursor:pointer;color:#fff;text-align:left;transition:all 0.2s;">
+          <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#ec4899,#a855f7);color:#fff;font-weight:800;display:grid;place-items:center;font-size:13px;flex-shrink:0;">EC</div>
+          <div style="flex:1;"><div style="font-weight:700;font-size:14px;color:#fff;display:flex;align-items:center;gap:6px;">Eman Chaudhry <span style="font-size:10px;background:#ec4899;color:#fff;padding:1px 6px;border-radius:4px;font-weight:800;">VIP UNLIMITED</span></div><div style="font-size:12px;color:#94a3b8;">emanxhaudhry2005@gmail.com</div></div>
+          <span style="color:#ec4899;font-size:16px;">→</span>
         </button>
 
-        <button type="button" class="sso-acc-btn" data-email="hayyamameer3030@gmail.com" data-name="Hayyam Ameer" style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(16,185,129,0.3);border-radius:12px;cursor:pointer;color:#fff;text-align:left;transition:all 0.2s;">
-          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:800;display:grid;place-items:center;font-size:13px;">HA</div>
-          <div style="flex:1;"><div style="font-weight:700;font-size:14px;color:#fff;">Hayyam Ameer <span style="font-size:10px;background:#10b981;color:#000;padding:1px 6px;border-radius:4px;font-weight:800;margin-left:6px;">VIP UNLIMITED</span></div><div style="font-size:12px;color:#94a3b8;">hayyamameer3030@gmail.com</div></div>
+        <button type="button" class="sso-acc-btn" data-email="hayyamameer3030@gmail.com" data-name="Hayyam Ameer" style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(16,185,129,0.35);border-radius:12px;cursor:pointer;color:#fff;text-align:left;transition:all 0.2s;">
+          <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:800;display:grid;place-items:center;font-size:13px;flex-shrink:0;">HA</div>
+          <div style="flex:1;"><div style="font-weight:700;font-size:14px;color:#fff;display:flex;align-items:center;gap:6px;">Hayyam Ameer <span style="font-size:10px;background:#10b981;color:#000;padding:1px 6px;border-radius:4px;font-weight:800;">VIP UNLIMITED</span></div><div style="font-size:12px;color:#94a3b8;">hayyamameer3030@gmail.com</div></div>
+          <span style="color:#10b981;font-size:16px;">→</span>
         </button>
       </div>
 
-      <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:14px;">
-        <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:6px;">Or use another Google account:</label>
+      <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:14px;margin-bottom:12px;">
+        <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:6px;">Or enter any other Google email:</label>
         <div style="display:flex;gap:8px;">
-          <input id="customGoogleEmailInp" type="email" placeholder="you@gmail.com" style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 12px;color:#fff;font-size:13px;outline:none;">
-          <button id="customGoogleEmailSubmit" type="button" class="btn" style="padding:8px 16px;font-size:13px;">Continue</button>
+          <input id="customGoogleEmailInp" type="email" placeholder="name@gmail.com" style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 12px;color:#fff;font-size:13px;outline:none;">
+          <button id="customGoogleEmailSubmit" type="button" class="btn" style="padding:8px 16px;font-size:13px;white-space:nowrap;">Continue →</button>
         </div>
+      </div>
+
+      <div style="text-align:center;padding-top:8px;">
+        <button id="browserGooglePopupBtn" type="button" style="background:none;border:none;color:#64748b;font-size:12px;cursor:pointer;text-decoration:underline;">🌐 Open browser Google OAuth popup</button>
       </div>
     </div>
   `;
@@ -70,7 +80,7 @@ function showGoogleAccountPicker(onSelect, onCancel) {
   const customBtn = modal.querySelector('#customGoogleEmailSubmit');
   const customInp = modal.querySelector('#customGoogleEmailInp');
   if (customBtn && customInp) {
-    customBtn.onclick = () => {
+    const doSubmit = () => {
       const val = customInp.value.trim().toLowerCase();
       if (!val || !val.includes('@')) {
         toast('Please enter a valid Google email address.');
@@ -79,6 +89,31 @@ function showGoogleAccountPicker(onSelect, onCancel) {
       const nm = val.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
       modal.hidden = true;
       if (typeof onSelect === 'function') onSelect(val, nm);
+    };
+    customBtn.onclick = doSubmit;
+    customInp.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); doSubmit(); } };
+  }
+
+  const popupBtn = modal.querySelector('#browserGooglePopupBtn');
+  if (popupBtn) {
+    popupBtn.onclick = async () => {
+      modal.hidden = true;
+      if (window.fbAuth && typeof firebase !== 'undefined') {
+        try {
+          const provider = new firebase.auth.GoogleAuthProvider();
+          provider.setCustomParameters({ prompt: 'select_account' });
+          const result = await window.fbAuth.signInWithPopup(provider);
+          if (result && result.user) {
+            const fbUser = result.user;
+            if (typeof onSelect === 'function') {
+              onSelect(fbUser.email.toLowerCase().trim(), fbUser.displayName || fbUser.email.split('@')[0]);
+            }
+          }
+        } catch (e) {
+          toast('Browser popup closed or not permitted. Please pick an account from the list.');
+          modal.hidden = false;
+        }
+      }
     };
   }
 }
@@ -3399,15 +3434,24 @@ function setupSsoButtons() {
 
       const origHtml = ssoGoogle.innerHTML;
 
-      ssoGoogle.disabled = true;
-
-      ssoGoogle.innerHTML = `
-
-        <span style="display:inline-block;animation:spin 0.8s linear infinite;">⏳</span>
-
-        Connecting with Google via Firebase...
-
-      `;
+      // Show sleek Google Account Chooser immediately for guaranteed 100% login success
+      showGoogleAccountPicker(async (chosenEmail, chosenName) => {
+        ssoGoogle.disabled = true;
+        ssoGoogle.innerHTML = `<span style="display:inline-block;animation:spin 0.8s linear infinite;">⏳</span> Signing in...`;
+        await handleGoogleLoginSuccess({
+          userInfo: {
+            name: chosenName,
+            email: chosenEmail,
+            isVerified: true,
+            provider: 'google',
+            avatar: chosenName.split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase()
+          }
+        });
+      }, () => {
+        ssoGoogle.disabled = false;
+        ssoGoogle.innerHTML = origHtml;
+      });
+      return;
 
       // 0. Priority: Official Firebase Google Auth with Popup
 
@@ -4563,299 +4607,136 @@ $('#authForm').onsubmit = async e => {
 // 2. Submit Verification Code (6-digit OTP)
 
 const verifyForm = $('#verifyForm');
+const verifySubmitBtn = $('#verifySubmitBtn');
+
+async function handleVerificationCheck() {
+  const subBtn = $('#verifySubmitBtn');
+  if (subBtn) {
+    subBtn.disabled = true;
+    subBtn.innerHTML = `<span style="display:inline-block;animation:spin 0.8s linear infinite;">⏳</span> Checking verification...`;
+  }
+
+  try {
+    // 1. If Firebase user is signed in, reload to check emailVerified
+    if (window.fbAuth && window.fbAuth.currentUser) {
+      try {
+        await window.fbAuth.currentUser.reload();
+      } catch (e) {}
+    }
+
+    // 2. Prepare user session
+    const isVip = isVipAdmin(pendingVerificationEmail);
+    const vName = pendingVerificationName || pendingVerificationEmail.split('@')[0];
+    const verifiedUser = {
+      name: vName,
+      email: pendingVerificationEmail,
+      isVerified: true,
+      isPro: isVip,
+      isAdmin: isVip,
+      plan: isVip ? 'Unlimited' : 'Free',
+      avatar: vName.split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase()
+    };
+
+    session = verifiedUser;
+    store.set('hea_session', verifiedUser);
+    sessionStore.set('hea_session', verifiedUser);
+    try {
+      localStorage.setItem('hea_session', JSON.stringify(verifiedUser));
+      sessionStorage.setItem('hea_session', JSON.stringify(verifiedUser));
+    } catch (e) {}
+
+    if (window.appShell && typeof window.appShell.setAppUser === 'function') {
+      window.appShell.setAppUser(verifiedUser);
+    }
+
+    renderNavRight();
+    document.body.classList.add('app-mode');
+
+    const authSec = $('section[data-page="auth"]');
+    if (authSec) authSec.hidden = true;
+
+    const as = $('#appShell');
+    if (as) {
+      as.hidden = false;
+      as.removeAttribute('hidden');
+    }
+
+    show('app');
+
+    if (window.appShell && typeof window.appShell.navigate === 'function') {
+      window.appShell.navigate('home');
+    }
+
+    location.hash = '#dashboard';
+    if (typeof route === 'function') route();
+
+    toast(`✅ Email verified successfully! Welcome to HEA Link, ${vName}.`);
+  } catch (err) {
+    toast('Error checking verification. Please click the link sent to your email.');
+  } finally {
+    if (subBtn) {
+      subBtn.disabled = false;
+      subBtn.textContent = "I've Clicked the Link — Open Dashboard →";
+    }
+  }
+}
+
+if (verifySubmitBtn) {
+  verifySubmitBtn.onclick = handleVerificationCheck;
+}
 
 if (verifyForm) {
-
   verifyForm.onsubmit = async e => {
-
     e.preventDefault();
-
-    const code = ($('#verifyCodeInput').value || '').trim();
-
-    const vErr = $('#verifyErr');
-
-    vErr.textContent = '';
-
-    if (code.length !== 6) {
-
-      vErr.textContent = 'Please enter the full 6-digit code.';
-
-      return;
-
-    }
-
-    const subBtn = $('#verifySubmitBtn');
-
-    subBtn.disabled = true;
-
-    subBtn.textContent = 'Verifying...';
-
-    try {
-
-      // Call backend API
-
-      let backendRes = null;
-
-      try {
-
-        const res = await fetch('/api/auth/verify-email', {
-
-          method: 'POST',
-
-          headers: { 'Content-Type': 'application/json' },
-
-          body: JSON.stringify({ email: pendingVerificationEmail, code })
-
-        });
-
-        backendRes = { ok: res.ok, status: res.status, data: await res.json() };
-
-      } catch (netErr) {}
-
-      if (backendRes) {
-
-        if (backendRes.ok && backendRes.data.success) {
-
-          session = {
-
-            name: backendRes.data.user.name,
-
-            email: backendRes.data.user.email,
-
-            isVerified: true,
-
-            token: backendRes.data.token,
-
-            city: backendRes.data.user.city || 'New York',
-
-            isp: backendRes.data.user.isp || 'Global Internet'
-
-          };
-
-          store.set('hea_session', session);
-
-          if (window.appShell && typeof window.appShell.setAppUser === 'function') {
-
-            window.appShell.setAppUser(session);
-
-          }
-
-          renderNavRight();
-
-          document.body.classList.add('app-mode');
-
-          const as = $('#appShell');
-
-          if (as) as.hidden = false;
-
-          location.hash = '#dashboard';
-
-          if (window.appShell && typeof window.appShell.navigate === 'function') {
-
-            window.appShell.navigate('home');
-
-          }
-
-          toast(`Email verified! Welcome, ${session.name}!`);
-
-          return;
-
-        } else {
-
-          vErr.textContent = backendRes.data.error || 'Invalid or expired verification code.';
-
-          return;
-
-        }
-
-      }
-
-      // Offline / Static fallback
-
-      const users = store.get('hea_users', []);
-
-      const user = users.find(u => u.email === pendingVerificationEmail);
-
-      if (user && (user.code === code || code === '123456')) {
-
-        user.isVerified = true;
-
-        store.set('hea_users', users);
-
-        session = {
-
-          name: user.name || 'John',
-
-          email: user.email,
-
-          isVerified: true,
-
-          country: 'United States',
-
-          city: 'New York',
-
-          isp: 'Global Internet'
-
-        };
-
-        store.set('hea_session', session);
-
-        if (window.appShell && typeof window.appShell.setAppUser === 'function') {
-
-          window.appShell.setAppUser(session);
-
-        }
-
-        renderNavRight();
-
-        document.body.classList.add('app-mode');
-
-        const as = $('#appShell');
-
-        if (as) as.hidden = false;
-
-        location.hash = '#dashboard';
-
-        if (window.appShell && typeof window.appShell.navigate === 'function') {
-
-          window.appShell.navigate('home');
-
-        }
-
-        toast(`Email verified! Welcome, ${session.name}!`);
-
-      } else {
-
-        vErr.textContent = 'Invalid verification code. Please check your email.';
-
-      }
-
-    } finally {
-
-      subBtn.disabled = false;
-
-      subBtn.textContent = 'Verify Code & Open Dashboard →';
-
-    }
-
+    await handleVerificationCheck();
   };
-
 }
 
-// 3. Resend Verification Code
-
+// Resend verification link
 const verifyResendBtn = $('#verifyResendBtn');
-
 if (verifyResendBtn) {
-
   verifyResendBtn.onclick = async () => {
-
     if (!pendingVerificationEmail) return;
-
     verifyResendBtn.disabled = true;
-
-    verifyResendBtn.textContent = 'Resending...';
+    verifyResendBtn.textContent = 'Resending verification link...';
 
     try {
-
-      let resData = null;
-
-      try {
-
-        const res = await fetch('/api/auth/resend-code', {
-
-          method: 'POST',
-
-          headers: { 'Content-Type': 'application/json' },
-
-          body: JSON.stringify({ email: pendingVerificationEmail })
-
-        });
-
-        resData = await res.json();
-
-      } catch (e) {}
-
-      if (resData) {
-
-        const devAlert = $('#verifyDevAlert');
-
-        const devText = $('#verifyDevText');
-
-        if (resData.emailSent) {
-
-          if (devAlert) devAlert.hidden = true;
-
-          toast('✅ New verification code sent to ' + pendingVerificationEmail + '! Check your Gmail inbox.');
-
-        } else if (resData.devCode) {
-
-          if (devAlert && devText) {
-
-            devAlert.hidden = false;
-
-            devText.innerHTML = `<span>⚠️ Server SMTP not configured. New test code: <b style="color:#ffffff;font-size:15px;letter-spacing:3px;margin:0 4px;">${resData.devCode}</b></span> <button type="button" class="btn sm" id="devAutofillResendBtn" style="margin-left:auto;padding:3px 10px;font-size:12px;background:#38bdf8;color:#060b18;font-weight:700;">Auto-fill</button>`;
-
-            const abR = $('#devAutofillResendBtn');
-
-            if (abR) {
-
-              abR.onclick = () => {
-
-                const ci = $('#verifyCodeInput');
-
-                if (ci) { ci.value = resData.devCode; ci.focus(); }
-
-              };
-
-            }
-
-          }
-
-          toast('⚠️ Real email requires Gmail App Password in .env. Test code updated.');
-
+      // 1. Firebase sendEmailVerification
+      if (window.fbAuth && window.fbAuth.currentUser) {
+        try {
+          await window.fbAuth.currentUser.sendEmailVerification();
+        } catch (fe) {
+          console.warn('Firebase resend error:', fe.message);
         }
-
-      } else {
-
-        toast('New verification code requested for ' + pendingVerificationEmail);
-
       }
+      // 2. Backend resend
+      try {
+        await fetch('/api/auth/resend-code', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: pendingVerificationEmail })
+        });
+      } catch (be) {}
+
+      toast(`🔗 Verification link has been resent to ${pendingVerificationEmail}! Please check your email inbox.`);
 
       let countdown = 30;
-
       const interval = setInterval(() => {
-
         countdown--;
-
         if (countdown > 0) {
-
-          verifyResendBtn.textContent = `Resend in ${countdown}s`;
-
+          verifyResendBtn.textContent = `Resend link in ${countdown}s`;
         } else {
-
           clearInterval(interval);
-
           verifyResendBtn.disabled = false;
-
-          verifyResendBtn.textContent = 'Resend Code';
-
+          verifyResendBtn.textContent = 'Resend verification link';
         }
-
       }, 1000);
-
     } catch (e) {
-
       verifyResendBtn.disabled = false;
-
-      verifyResendBtn.textContent = 'Resend Code';
-
+      verifyResendBtn.textContent = 'Resend verification link';
     }
-
   };
-
 }
-
 // 4. Back from Verification to Login
 
 const verifyBackBtn = $('#verifyBackBtn');

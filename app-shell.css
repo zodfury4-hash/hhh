@@ -494,7 +494,9 @@ section[data-page="app"][hidden] {
   flex: 1;
   padding: 28px 36px;
   overflow-y: auto;
+  scrollbar-gutter: stable;
   min-width: 0;
+  contain: layout paint;
 }
 
 /* Right Bitly Assist Drawer */
