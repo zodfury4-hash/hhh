@@ -749,7 +749,13 @@ function openModal(title, bodyHTML, onSubmit, okText = 'Save') {
 
   $('#mOk').hidden = !onSubmit;
 
-  $('#mCancel').textContent = onSubmit ? 'Cancel' : 'Close';
+  const cancelBtn = $('#mCancel');
+  if (cancelBtn) {
+    cancelBtn.textContent = onSubmit ? 'Cancel' : 'Close';
+    cancelBtn.style.background = '#0070f3';
+    cancelBtn.style.color = '#ffffff';
+    cancelBtn.style.webkitTextFillColor = '#ffffff';
+  }
 
   $('#modal').hidden = false;
 
@@ -6614,7 +6620,7 @@ function renderResources() {
 
           <div>
 
-            <span class="tag">${r[1]}</span>
+            <span class="tag" style="background:#eff6ff !important; color:#0070f3 !important; -webkit-text-fill-color:#0070f3 !important; border:1.5px solid #bfdbfe !important; font-weight:700 !important; font-size:12px !important; padding:4px 12px !important; border-radius:99px !important; display:inline-block !important;">${r[1]}</span>
 
             <h3>${r[0]}</h3>
 

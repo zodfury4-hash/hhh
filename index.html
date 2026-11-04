@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="logo.png">
-  <link rel="stylesheet" href="style.css?v=1793825800000">
-  <link rel="stylesheet" href="app-shell.css?v=1793825800000">
+  <link rel="stylesheet" href="style.css?v=1793828000000">
+  <link rel="stylesheet" href="app-shell.css?v=1793828000000">
   <script>
     (function() {
       try {
@@ -471,7 +471,7 @@
     <div class="wrap">
       <div class="cta" id="homeBottomCta">
         <div>
-          <h2 id="homeCtaHeading">Ready to share smarter links?</h2>
+          <h2 id="homeCtaHeading" style="color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.25) !important;">Ready to share smarter links?</h2>
           <p id="homeCtaSub">Create your free HEA Link account in under a minute.</p>
         </div>
         <a class="btn teal" id="homeCtaBtn" href="#signup">Sign up free</a>
@@ -622,9 +622,7 @@
         <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" type="button" title="Collapse sidebar">‹</button>
       </div>
 
-      <button class="sidebar-create-btn" id="sidebarCreateBtn" type="button">
-        <span class="sidebar-create-plus" style="font-size:18px;font-weight:800;line-height:1;">+</span> <span class="sidebar-create-text">Create new</span>
-      </button>
+      <button class="sidebar-create-btn" id="sidebarCreateBtn" type="button"><span class="sidebar-create-spark">✨</span> <span class="sidebar-create-text">Create new</span></button>
 
       <nav class="sidebar-nav" id="sidebarNav">
         <a class="sidebar-nav-item active" data-tab="home" href="#dashboard">
@@ -637,7 +635,7 @@
           <span class="sidebar-nav-icon">📱</span> <span>QR Codes</span>
         </a>
         <a class="sidebar-nav-item" data-tab="pages" href="#pages">
-          <span class="sidebar-nav-icon">📄</span> <span>Pages</span> <span class="pro-chip" style="margin-left:auto;font-size:9px;padding:1px 5px;background:rgba(212,255,36,0.15);color:#0070f3;border:1px solid rgba(212,255,36,0.3);border-radius:10px;font-weight:700;">PRO</span>
+          <span class="sidebar-nav-icon">📄</span> <span>Pages</span> <span class="pro-chip" style="margin-left:auto;font-size:9px;padding:1px 5px;background:#d4ff24 !important;color:#0b132b !important;border:none !important;border-radius:99px;font-weight:800;padding:2px 7px;">PRO</span>
         </a>
         <a class="sidebar-nav-item" data-tab="analytics" href="#analytics">
           <span class="sidebar-nav-icon">📊</span> <span>Analytics</span>
@@ -646,7 +644,7 @@
           <span class="sidebar-nav-icon">🎯</span> <span>Campaigns</span>
         </a>
         <a class="sidebar-nav-item" data-tab="domains" href="#domains">
-          <span class="sidebar-nav-icon">🌐</span> <span>Custom domains</span> <span class="pro-chip" style="margin-left:auto;font-size:9px;padding:1px 5px;background:rgba(212,255,36,0.15);color:#0070f3;border:1px solid rgba(212,255,36,0.3);border-radius:10px;font-weight:700;">PRO</span>
+          <span class="sidebar-nav-icon">🌐</span> <span>Custom domains</span> <span class="pro-chip" style="margin-left:auto;font-size:9px;padding:1px 5px;background:#d4ff24 !important;color:#0b132b !important;border:none !important;border-radius:99px;font-weight:800;padding:2px 7px;">PRO</span>
         </a>
         <a class="sidebar-nav-item" data-tab="integrations" href="#integrations">
           <span class="sidebar-nav-icon">🔌</span> <span>Integrations</span>
@@ -688,12 +686,14 @@
           </div>
         </div>
         <div class="topbar-actions">
-          <button class="topbar-upgrade-btn" onclick="window.openCheckoutModal('pro')">Upgrade</button>
-          <button class="topbar-icon-btn" id="assistToggleBtn" title="HEA Assist AI" style="color:#38bdf8;font-weight:600;display:flex;align-items:center;gap:6px;background:rgba(56,189,248,0.1);padding:6px 12px;border-radius:8px;">
+          <button class="topbar-upgrade-btn" onclick="window.openCheckoutModal('pro')">
+            <span>👑</span> Upgrade
+          </button>
+          <button class="topbar-assist-pill-btn" id="assistToggleBtn" title="HEA Assist AI">
             <span>✨</span> HEA Assist
           </button>
-          <button class="topbar-icon-btn" id="topbarNotifBtn" title="Notifications">🔔</button>
-          <button class="topbar-icon-btn" id="topbarHelpBtn" title="Help &amp; Guides" onclick="location.hash='#resources'">❓</button>
+          <button class="topbar-circle-icon-btn" id="topbarNotifBtn" title="Notifications">🔔</button>
+          <button class="topbar-circle-icon-btn" id="topbarHelpBtn" title="Help &amp; Guides" onclick="location.hash='#resources'">❓</button>
           <a href="#settings" class="topbar-avatar" id="topbarAvatar" title="Account">HA</a>
         </div>
       </header>
@@ -701,94 +701,139 @@
       <!-- CONTENT ROW (MAIN PANE + RIGHT ASSIST DRAWER) -->
       <div class="app-content-row" data-lenis-prevent="true">
         <main class="app-main-pane" id="appMainPane" data-lenis-prevent="true">
-          <!-- "What do you want to create?" Card -->
+          <!-- Card 1: "What do you want to create?" (1:1 with reference) -->
           <div class="home-create-card">
-            <h3 style="color:#0070f3 !important; font-size:28px; font-weight:800; margin:0 0 20px;">What do you want to create?</h3>
+            <!-- 3D Center Glossy Icon -->
+            <div class="home-icon-3d-wrap">
+              <div class="home-icon-3d-box">
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#0070f3" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+              </div>
+              <span class="icon-spark spark-tl">✦</span>
+              <span class="icon-spark spark-tr">✦</span>
+              <span class="icon-spark spark-br">✦</span>
+            </div>
+
+            <!-- Title with curved blue underline under "create?" -->
+            <h3 class="home-hero-title">
+              What do you want to <span class="curved-underline-wrap">create?<svg class="curved-underline-svg" viewBox="0 0 130 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 13C32 4 92 3 127 11" stroke="#0070f3" stroke-width="3.5" stroke-linecap="round"/></svg></span>
+            </h3>
+
+            <!-- 2 Tab Options -->
             <div class="home-type-tabs">
               <button class="home-type-tab active" type="button" id="tabShortLinkOpt">
                 <span>🔗</span> Short link &amp; URL
               </button>
-              <button class="home-type-tab" type="button" onclick="window.appShell &amp;&amp; window.appShell.navigate('qr')">
+              <button class="home-type-tab" type="button" id="tabQrCodeOpt" onclick="window.appShell &amp;&amp; window.appShell.navigate('qr')">
                 <span>▦</span> QR Code
               </button>
             </div>
 
+            <!-- Clean Capsule Shorten Input -->
             <form id="homeShortenForm" class="home-shorten-box">
               <div class="home-shorten-left-grp">
-                <span id="homeInputIcon" style="color:#000000;font-size:16px;flex-shrink:0;">🔗</span>
+                <span id="homeInputIcon" class="shorten-chain-icon">🔗</span>
                 <input type="url" id="homeShortenInput" class="home-shorten-input" placeholder="Paste a long URL to shorten it..." required>
               </div>
               <div class="home-shorten-right-grp">
                 <select class="home-domain-select" id="homeDomainSelect" style="display:none !important;">
                   <option value="healink.store" selected>healink.store</option>
-                  <option value="healink.store">healink.store</option>
                   <option value="bit.ly">bit.ly</option>
                 </select>
-                <button type="submit" class="home-shorten-btn" id="homeSubmitBtn">→</button>
+                <button type="submit" class="home-shorten-btn" id="homeSubmitBtn" title="Shorten URL">→</button>
               </div>
             </form>
 
-            <div class="home-cyan-banner">
-              <span>👑</span>
-              <span>Get custom links and a complimentary domain. <a href="#" onclick="window.openCheckoutModal('pro'); return false;">Upgrade now</a></span>
+            <div id="homeShortenResult" class="home-shorten-result" style="display:none;"></div>
+
+            <!-- Promo Banner Pill -->
+            <div class="home-promo-banner" onclick="window.openCheckoutModal('pro')">
+              <span class="promo-crown">👑</span>
+              <span>Get custom links and a complimentary domain. <b class="promo-link-text">Upgrade now &gt;</b></span>
             </div>
 
-            <div style="font-size:12px;color:#000000;margin-top:14px;">
-              You can create <b>4 more</b> short links this month. <span title="Free plan limit" style="cursor:help;">❓</span>
+            <!-- Quota Text -->
+            <div class="home-quota-text">
+              You can create <b style="color:#0070f3; font-weight:800;">5 more</b> short links this month. 🚀
             </div>
           </div>
 
-          <!-- Simplify Workflow Banner -->
-          <div class="dash-white-card" style="display:flex;justify-content:space-between;align-items:center;padding:16px 24px;margin-bottom:20px;">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <span style="font-size:20px;color:#38bdf8;">✨</span>
-              <span style="font-weight:700;color:#0070f3;font-size:15px;">Simplify your workflow</span>
-              <span style="color:#000000;font-size:14px;">Explore smarter ways to create links.</span>
+          <!-- Card 2: "Simplify your workflow" (1:1 with reference) -->
+          <div class="home-workflow-card">
+            <div class="workflow-left-col">
+              <div class="workflow-title-row">
+                <span class="workflow-sparkle">✨</span>
+                <h4 class="workflow-heading">Simplify your workflow</h4>
+                <span class="workflow-subtext">Explore smarter ways to create links.</span>
+              </div>
+              <div class="workflow-chips-row">
+                <button type="button" class="workflow-chip-btn" onclick="if(window.appShell) window.appShell.openCreateModal('link')">
+                  <span>✏️</span> Personalize a short link
+                </button>
+                <button type="button" class="workflow-chip-btn" onclick="if(window.appShell) window.appShell.openCreateModal('link')">
+                  <span>⭐</span> Make a unique link for every post
+                </button>
+              </div>
+              <button type="button" class="workflow-upgrade-cta" onclick="window.openCheckoutModal('pro')">
+                <span>👑</span> Upgrade to Create with AI <span>→</span>
+              </button>
             </div>
-            <button class="topbar-upgrade-btn" style="background:linear-gradient(135deg, #10b981, #059669);" onclick="window.openCheckoutModal('pro')">
-              👑 Upgrade to Core
-            </button>
+            <div class="workflow-right-col">
+              <div class="workflow-3d-badge">
+                <div class="workflow-3d-card-inner">
+                  <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#0070f3" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                  </svg>
+                </div>
+                <span class="wf-spark wf-spark-1">✦</span>
+                <span class="wf-spark wf-spark-2">✦</span>
+                <span class="wf-spark wf-spark-3">✦</span>
+              </div>
+            </div>
           </div>
 
-          <!-- 2-Card Row: Connect your account & Hi John -->
+          <!-- 2-Card Row: Connect your account & Hi User Progress -->
           <div class="dash-row-2">
             <!-- Connect your account (Zapier) -->
             <div class="dash-white-card">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
                 <h4 style="margin:0;color:#0070f3;">Connect your account</h4>
-                <a href="#integrations" style="color:#38bdf8;font-size:13px;font-weight:600;text-decoration:none;">Explore integrations →</a>
+                <a href="#integrations" style="color:#0070f3;font-size:13px;font-weight:700;text-decoration:none;">Explore integrations →</a>
               </div>
-              <p style="color:#000000;margin:0 0 16px;font-size:13px;">Automation must-haves</p>
-              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
+              <p style="color:#475569;margin:0 0 16px;font-size:13px;">Automation must-haves</p>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;">
                 <div style="display:flex;align-items:center;gap:12px;">
-                  <div style="width:38px;height:38px;border-radius:8px;background:linear-gradient(135deg, #ff4a00, #ff7a00);color:#0070f3;display:grid;place-items:center;font-weight:800;font-size:14px;">_z</div>
+                  <div style="width:38px;height:38px;border-radius:8px;background:linear-gradient(135deg, #ff4a00, #ff7a00);color:#ffffff;display:grid;place-items:center;font-weight:800;font-size:14px;">_z</div>
                   <div>
-                    <div style="font-weight:700;font-size:14px;color:#0070f3;">Zapier</div>
-                    <div style="font-size:12px;color:#000000;">Add HEA Link into your workflows</div>
+                    <div style="font-weight:700;font-size:14px;color:#0f172a;">Zapier</div>
+                    <div style="font-size:12px;color:#64748b;">Add HEA Link into your workflows</div>
                   </div>
                 </div>
                 <button class="sso-btn" style="width:auto;padding:6px 14px;font-size:13px;" onclick="window.appShell &amp;&amp; window.appShell.toast('Zapier connected successfully!')">Connect</button>
               </div>
             </div>
 
-            <!-- Hi John Progress -->
+            <!-- Hi User Progress -->
             <div class="dash-white-card">
               <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
                 <div>
-                  <h4 style="margin:0 0 2px;color:#000000;font-size:13px;font-weight:500;" id="homeGreetingUser">Hi there,</h4>
+                  <h4 style="margin:0 0 2px;color:#64748b;font-size:13px;font-weight:500;" id="homeGreetingUser">Hi there,</h4>
                   <h4 style="margin:0;color:#0070f3;font-size:18px;font-weight:800;">get started with HEA Link</h4>
                 </div>
                 <div style="display:flex;align-items:center;gap:6px;color:#10b981;font-weight:800;font-size:16px;">
                   <span>67%</span>
-                  <svg width="26" height="26" viewBox="0 0 36 36"><path stroke="rgba(255,255,255,0.1)" stroke-width="4" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/><path stroke="#10b981" stroke-width="4" stroke-dasharray="67, 100" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/></svg>
+                  <svg width="26" height="26" viewBox="0 0 36 36"><path stroke="#e2e8f0" stroke-width="4" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/><path stroke="#10b981" stroke-width="4" stroke-dasharray="67, 100" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/></svg>
                 </div>
               </div>
               <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;">
                 <div style="display:flex;align-items:center;gap:10px;color:#10b981;font-weight:600;">
                   <span>✓</span> <span>Link shortened</span>
                 </div>
-                <div style="display:flex;align-items:center;gap:10px;color:#000000;">
-                  <span style="width:14px;height:14px;border:2px dashed #64748b;border-radius:50%;display:inline-block;"></span>
+                <div style="display:flex;align-items:center;gap:10px;color:#334155;">
+                  <span style="width:14px;height:14px;border:2px dashed #94a3b8;border-radius:50%;display:inline-block;"></span>
                   <span>Collect 10 clicks or scans</span>
                 </div>
               </div>
@@ -799,30 +844,16 @@
           <div class="dash-white-card" style="margin-top:20px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
               <div>
-                <h4 style="margin:0;color:#0070f3;font-size:16px;">Recent links</h4>
-                <p style="color:#000000;font-size:12px;margin:2px 0 0;">Your active links and real-time performance</p>
+                <h4 style="margin:0;color:#0070f3;font-size:16px;font-weight:800;">Recent links</h4>
+                <p style="color:#64748b;font-size:12px;margin:2px 0 0;">Your active links and real-time performance</p>
               </div>
-              <button class="topbar-icon-btn" type="button" onclick="window.appShell &amp;&amp; window.appShell.navigate('links')" style="color:#38bdf8;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:4px;">View all links →</button>
+              <button class="topbar-icon-btn" type="button" onclick="window.appShell &amp;&amp; window.appShell.navigate('links')" style="color:#0070f3;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:4px;">View all links →</button>
             </div>
-            <div class="home-recent-links-list">
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;margin-bottom:10px;">
-                <div style="min-width:0;flex:1;margin-right:16px;">
-                  <a href="https://healink.store/3WeOEOz" target="_blank" rel="noopener" style="font-weight:700;color:#38bdf8;font-size:14px;text-decoration:none;">https://healink.store/3WeOEOz</a>
-                  <div style="font-size:12px;color:#000000;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Untitled 2026-10-30 · <span style="color:#64748b;">https://claude.ai/chat/7f036851-018e-4d51-a859-3730634bb296</span></div>
-                </div>
-                <div style="display:flex;align-items:center;gap:16px;flex-shrink:0;">
-                  <div style="display:none !important;">
-                    <b style="color:#10b981;font-size:14px;">14</b>
-                    <span style="font-size:11px;color:#000000;display:block;">clicks</span>
-                  </div>
-                  <button class="sso-btn" style="width:auto;padding:6px 12px;font-size:12px;" onclick="window.appShell &amp;&amp; window.appShell.copy('https://healink.store/3WeOEOz')">📋 Copy</button>
-                </div>
-              </div>
-            </div>
+            <div class="home-recent-links-list" id="homeRecentLinksList"></div>
           </div>
         </main>
 
-        <!-- RIGHT HEA ASSIST AI DRAWER -->
+        <!-- RIGHT HEA ASSIST AI DRAWER (1:1 with reference) -->
         <aside class="app-assist-drawer" id="appAssistDrawer" data-lenis-prevent="true">
           <div class="drawer-header">
             <div class="drawer-title">
@@ -831,24 +862,49 @@
             <button class="drawer-close" id="drawerCloseBtn" aria-label="Close assistant">✕</button>
           </div>
           <div class="drawer-body" data-lenis-prevent="true">
-            <div class="drawer-hero-illus">
-              <div style="font-size:42px;margin-bottom:6px;filter:drop-shadow(0 0 16px rgba(56,189,248,0.5));">&#129302;</div>
-              <b>Your AI Link Assistant</b>
-              <p>Optimize your titles, generate UTM campaigns, and write high-converting bio descriptions in seconds.</p>
+            <!-- Mascot AI Banner Card -->
+            <div class="assist-mascot-card">
+              <div class="mascot-robot-col">
+                <div class="robot-avatar-3d">🤖</div>
+              </div>
+              <div class="mascot-info-col">
+                <b class="mascot-title">Your AI Link Assistant</b>
+                <p class="mascot-desc">Optimize your titles, generate UTM campaigns, and write high-converting bio descriptions in seconds.</p>
+              </div>
             </div>
-            <div class="drawer-chips">
-              <button class="drawer-chip-btn" data-prompt="Suggest a catchy title for my link">💡 Suggest catchy title</button>
-              <button class="drawer-chip-btn" data-prompt="Generate UTM parameters for a Facebook ad">🎯 UTM parameters for FB ad</button>
-              <button class="drawer-chip-btn" data-prompt="How do I get more QR code scans?">📱 How to get more QR scans</button>
-              <button class="drawer-chip-btn" data-prompt="What should I put on my link-in-bio page?">📄 Link-in-bio best practices</button>
+
+            <!-- Prompt Suggestion Pills with Chevron -->
+            <div class="assist-prompt-pills-list">
+              <button class="assist-prompt-pill" data-prompt="Suggest a catchy title for my link" type="button">
+                <span class="pill-text">💡 Suggest catchy title</span>
+                <span class="pill-chev">›</span>
+              </button>
+              <button class="assist-prompt-pill" data-prompt="Generate UTM parameters for a Facebook ad" type="button">
+                <span class="pill-text">🎯 UTM parameters for FB ad</span>
+                <span class="pill-chev">›</span>
+              </button>
+              <button class="assist-prompt-pill" data-prompt="How do I get more QR code scans?" type="button">
+                <span class="pill-text">📊 How to get more QR scans</span>
+                <span class="pill-chev">›</span>
+              </button>
+              <button class="assist-prompt-pill" data-prompt="What should I put on my link-in-bio page?" type="button">
+                <span class="pill-text">📄 Link-in-bio best practices</span>
+                <span class="pill-chev">›</span>
+              </button>
             </div>
+
+            <!-- Chat Log -->
             <div class="drawer-chat-log" id="drawerChatLog">
-              <div class="drawer-chat-bubble ai">Hi there! I'm HEA Assist. How can I help you optimize your links and campaigns today?</div>
+              <div class="drawer-chat-bubble ai">
+                👋 Hi there! I'm HEA Assist. How can I help you optimize your links and campaigns today?
+              </div>
             </div>
           </div>
           <form class="drawer-input-row" id="drawerChatForm">
-            <input type="text" id="drawerChatInput" placeholder="Ask HEA Assist anything (e.g. 'Suggest high-CTR title', 'UTM tags')..." autocomplete="off">
-            <button type="submit">→</button>
+            <div class="drawer-input-capsule">
+              <input type="text" id="drawerChatInput" placeholder='Ask HEA Assist anything (e.g. "Suggest catchy title")...' autocomplete="off">
+              <button type="submit" class="drawer-capsule-submit">→</button>
+            </div>
           </form>
         </aside>
       </div>
@@ -1160,15 +1216,15 @@
 <div id="toast" role="status"></div>
 
 <div id="modal" class="modal" hidden>
-  <div class="card pad">
-    <button type="button" class="modal-close-cross" id="mCloseBtn" aria-label="Close modal">✕</button>
-    <h3 id="mTitle"></h3>
+  <div class="card pad" style="position:relative !important;">
+    <button type="button" class="modal-close-cross" id="mCloseBtn" aria-label="Close modal" style="position:absolute !important; top:18px !important; right:18px !important; width:36px !important; height:36px !important; border-radius:50% !important; background:#f1f5f9 !important; border:1.5px solid #cbd5e1 !important; color:#0f172a !important; font-size:18px !important; font-weight:bold !important; display:flex !important; align-items:center !important; justify-content:center !important; cursor:pointer !important; z-index:99999 !important;">✕</button>
+    <h3 id="mTitle" style="color:#0070f3 !important; -webkit-text-fill-color:#0070f3 !important; font-size:22px !important; font-weight:800 !important;"></h3>
     <form id="mForm" class="stack" style="margin-top:16px">
-      <div id="mBody" class="stack"></div>
+      <div id="mBody" class="stack" style="color:#1e293b !important; -webkit-text-fill-color:#1e293b !important; font-size:15px !important; line-height:1.65 !important;"></div>
       <p class="err" id="mErr"></p>
-      <div class="row end" style="margin-top:12px">
-        <button type="button" class="btn ghost" id="mCancel">Cancel</button>
-        <button class="btn" id="mOk" type="submit">Save</button>
+      <div class="row end" style="margin-top:16px; display:flex; justify-content:flex-end; gap:10px;">
+        <button type="button" class="btn" id="mCancel" style="background:#0070f3 !important; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; border:none !important; font-weight:700 !important; padding:10px 24px !important; border-radius:99px !important; cursor:pointer !important; box-shadow:0 4px 14px rgba(0,112,243,0.3) !important;">Close</button>
+        <button class="btn" id="mOk" type="submit" style="background:#10b981 !important; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; border:none !important; font-weight:700 !important; padding:10px 24px !important; border-radius:99px !important; cursor:pointer !important; box-shadow:0 4px 14px rgba(16,185,129,0.3) !important;">Save</button>
       </div>
     </form>
   </div>
@@ -1638,8 +1694,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script src="firebase-config.js?v=4"></script>
-<script src="heavy-fx.js?v=1793825800000"></script>
-<script src="app-shell.js?v=1793825800000"></script>
-<script src="app.js?v=1793825800000"></script>
+<script src="heavy-fx.js?v=1793828000000"></script>
+<script src="app-shell.js?v=1793828000000"></script>
+<script src="app.js?v=1793828000000"></script>
 </body>
 </html>

@@ -638,7 +638,7 @@
 
   }
 
-  // ---------------- 1. HOME SCREEN (Frame 1 & Frame 6) ---------------- //
+  // ---------------- 1. HOME SCREEN (Frame 1 & Frame 6 - 1:1 with reference) ---------------- //
 
   function renderHome(container) {
 
@@ -646,96 +646,102 @@
 
     container.innerHTML = `
 
-      <!-- "What do you want to create?" Card -->
+      <!-- Card 1: "What do you want to create?" (1:1 Reference Match) -->
 
       <div class="home-create-card">
 
-        <h3>What do you want to create?</h3>
-
-        <div class="home-type-tabs">
-
-          <button class="home-type-tab active" type="button" id="tabShortLinkOpt">
-
-            <span>🔗</span> Short link &amp; URL
-
-          </button>
-
-          <button class="home-type-tab" type="button" id="tabQrCodeOpt">
-
-            <span>▦</span> QR Code
-
-          </button>
-
+        <!-- 3D Center Glossy Icon -->
+        <div class="home-icon-3d-wrap">
+          <div class="home-icon-3d-box">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#0070f3" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+            </svg>
+          </div>
+          <span class="icon-spark spark-tl">✦</span>
+          <span class="icon-spark spark-tr">✦</span>
+          <span class="icon-spark spark-br">✦</span>
         </div>
 
+        <!-- Title with curved blue underline under "create?" -->
+        <h3 class="home-hero-title">
+          What do you want to <span class="curved-underline-wrap">create?<svg class="curved-underline-svg" viewBox="0 0 130 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 13C32 4 92 3 127 11" stroke="#0070f3" stroke-width="3.5" stroke-linecap="round"/></svg></span>
+        </h3>
+
+        <!-- 2 Tab Options -->
+        <div class="home-type-tabs">
+          <button class="home-type-tab active" type="button" id="tabShortLinkOpt">
+            <span>🔗</span> Short link &amp; URL
+          </button>
+          <button class="home-type-tab" type="button" id="tabQrCodeOpt">
+            <span>▦</span> QR Code
+          </button>
+        </div>
+
+        <!-- Clean Capsule Shorten Input -->
         <form id="homeShortenForm" class="home-shorten-box">
-
           <div class="home-shorten-left-grp">
-
-            <span id="homeInputIcon" style="color:#0070f3;font-size:18px;flex-shrink:0;">🔗</span>
-
+            <span id="homeInputIcon" class="shorten-chain-icon">🔗</span>
             <input type="url" id="homeShortenInput" class="home-shorten-input" placeholder="Paste a long URL to shorten it..." required>
-
           </div>
-
           <div class="home-shorten-right-grp">
-
             <select class="home-domain-select" id="homeDomainSelect" style="display:none !important;">
-
               <option value="healink.store" selected>healink.store</option>
-
-              <option value="healink.store">healink.store</option>
-
               <option value="bit.ly">bit.ly</option>
-
             </select>
-
-            <button type="submit" class="home-shorten-btn" id="homeSubmitBtn">→</button>
-
+            <button type="submit" class="home-shorten-btn" id="homeSubmitBtn" title="Shorten URL">→</button>
           </div>
-
         </form>
 
-        <div class="home-cyan-banner">
+        <div id="homeShortenResult" class="home-shorten-result" style="display:none;"></div>
 
-          <span>👑</span>
-
-          <span>Get custom links and a complimentary domain. <a href="#" onclick="window.openCheckoutModal('pro'); return false;">Upgrade now</a></span>
-
+        <!-- Promo Banner Pill -->
+        <div class="home-promo-banner" onclick="window.openCheckoutModal('pro')">
+          <span class="promo-crown">👑</span>
+          <span>Get custom links and a complimentary domain. <b class="promo-link-text">Upgrade now &gt;</b></span>
         </div>
 
-        <div style="font-size:12px;color:#94a3b8;margin-top:14px;">
-
-          ${appUser.isPro ? '<span style="color:#10b981;font-weight:700;">👑 Core PRO Active: Unlimited short links &amp; Vector QR Codes</span>' : 'You can create <b>5 more</b> short links this month. <span title="Free plan limit" style="cursor:help;">❓</span>'}
-
+        <!-- Quota Text -->
+        <div class="home-quota-text">
+          ${appUser.isPro ? '<span style="color:#10b981;font-weight:700;">👑 Core PRO Active: Unlimited short links &amp; Vector QR Codes</span>' : 'You can create <b style="color:#0070f3; font-weight:800;">5 more</b> short links this month. 🚀'}
         </div>
 
       </div>
 
-      <!-- Simplify Workflow Banner -->
+      <!-- Card 2: "Simplify your workflow" (1:1 Reference Match) -->
 
-      <div class="dash-white-card" style="display:flex;justify-content:space-between;align-items:center;padding:16px 24px;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
-
-        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-
-          <span style="font-size:20px;color:#0070f3;">✨</span>
-
-          <span style="font-weight:700;color:#0b132b;font-size:15px;">Simplify your workflow</span>
-
-          <span style="color:#64748b;font-size:14px;">Explore smarter ways to create links.</span>
-
-          <button class="home-type-tab" type="button" style="padding:4px 10px;font-size:12px;" onclick="window.appShell.navigate('create-link')">🔗 Personalize a short link</button>
-
-          <button class="home-type-tab" type="button" style="padding:4px 10px;font-size:12px;" onclick="window.appShell.navigate('create-link')">⭐ Make a unique link for every post</button>
-
+      <div class="home-workflow-card">
+        <div class="workflow-left-col">
+          <div class="workflow-title-row">
+            <span class="workflow-sparkle">✨</span>
+            <h4 class="workflow-heading">Simplify your workflow</h4>
+            <span class="workflow-subtext">Explore smarter ways to create links.</span>
+          </div>
+          <div class="workflow-chips-row">
+            <button type="button" class="workflow-chip-btn" onclick="if(window.appShell) window.appShell.openCreateModal('link')">
+              <span>✏️</span> Personalize a short link
+            </button>
+            <button type="button" class="workflow-chip-btn" onclick="if(window.appShell) window.appShell.openCreateModal('link')">
+              <span>⭐</span> Make a unique link for every post
+            </button>
+          </div>
+          <button type="button" class="workflow-upgrade-cta" onclick="window.openCheckoutModal('pro')">
+            <span>👑</span> Upgrade to Create with AI <span>→</span>
+          </button>
         </div>
-
-        <button class="topbar-upgrade-btn" style="background:${appUser.isPro ? 'linear-gradient(135deg, #eab308, #ca8a04)' : 'linear-gradient(135deg, #10b981, #059669)'};" onclick="window.openCheckoutModal('pro')">
-
-          ${appUser.isPro ? '👑 PRO Active' : '👑 Upgrade to Create with AI'}
-
-        </button>
-
+        <div class="workflow-right-col">
+          <div class="workflow-3d-badge">
+            <div class="workflow-3d-card-inner">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#0070f3" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+              </svg>
+            </div>
+            <span class="wf-spark wf-spark-1">✦</span>
+            <span class="wf-spark wf-spark-2">✦</span>
+            <span class="wf-spark wf-spark-3">✦</span>
+          </div>
+        </div>
       </div>
 
       <!-- 2-Card Row: Connect your account & Hi User -->
@@ -1039,13 +1045,38 @@
 
           // Direct QR creation and navigate to QR studio
 
-          const newId = await createLinkDirect(dest, '', dom);
+          const newL = await createLinkDirect(dest, '', dom);
 
-          navigate('qr-detail', newId || ('lnk_' + Date.now()));
+          const newId = (newL && newL.id) || ('lnk_' + Date.now());
+
+          navigate('qr-detail', newId);
 
         } else {
 
-          await createLinkDirect(dest, '', dom);
+          const newL = await createLinkDirect(dest, '', dom);
+
+          const resBox = $('#homeShortenResult');
+
+          if (resBox && newL) {
+
+            const liveUrl = newL.url || newL.realShort || `https://${dom}/${newL.slug}`;
+
+            resBox.innerHTML = `
+              <div class="result-title">Your Live Short Link (Click to open destination):</div>
+              <a href="${liveUrl}" target="_blank" rel="noopener" class="result-url">${liveUrl}</a>
+              <div class="result-dest">Destination: <span>${dest}</span></div>
+              <div class="result-actions">
+                <button type="button" class="res-btn-copy" onclick="window.appShell.copy('${liveUrl}')">📋 Copy</button>
+                <button type="button" class="res-btn-action" onclick="window.appShell.navigate('qr')">▦ QR Code</button>
+                <a href="${liveUrl}" target="_blank" rel="noopener" class="res-btn-action">🚀 Visit</a>
+              </div>
+            `;
+
+            resBox.style.display = 'block';
+
+            if ($('#homeShortenInput')) $('#homeShortenInput').value = '';
+
+          }
 
         }
 
@@ -1582,7 +1613,10 @@
 
     window.appShell.toast(`Link shortened: ${cleanUrl}`);
     navigator.clipboard.writeText(cleanUrl).catch(() => {});
-    navigate('links');
+    if (currentView !== 'home' && window.location.hash !== '#dashboard' && window.location.hash !== '') {
+      navigate('links');
+    }
+    return newL;
     return newL.id;
   }
 
@@ -5350,15 +5384,15 @@
 
             <h5>Personal settings</h5>
 
-            <a class="settings-subsidebar-link active">Profile</a>
+            <a class="settings-subsidebar-link active" style="color:#0070f3 !important; font-weight:700 !important; background:#eff6ff !important;">Profile</a>
 
-            <a class="settings-subsidebar-link" onclick="window.appShell.navigate('integrations')">Integrations</a>
+            <a class="settings-subsidebar-link" style="color:#0b132b !important;" onclick="window.appShell.navigate('integrations')">Integrations</a>
 
           </div>
 
           <div class="settings-subsidebar-group">
 
-            <h5 style="display:flex;justify-content:space-between;align-items:center;">
+            <h5 style="display:flex;justify-content:space-between;align-items:center;color:#0070f3 !important;font-weight:700;">
 
               <span>Account settings</span>
 
@@ -5366,21 +5400,21 @@
 
             </h5>
 
-            <div style="font-size:12px;color:#94a3b8;padding:0 12px 6px;">${appUser.orgId}</div>
+            <div style="font-size:12px;color:#64748b;padding:0 12px 6px;">${appUser.orgId}</div>
 
-            <a class="settings-subsidebar-link" onclick="alert('Account details')">Account details</a>
+            <a class="settings-subsidebar-link" style="color:#0b132b !important;font-weight:600;" onclick="alert('Account details')">Account details</a>
 
-            <a class="settings-subsidebar-link" onclick="location.hash='#pricing'">Billing and usage</a>
+            <a class="settings-subsidebar-link" style="color:#0b132b !important;font-weight:600;" onclick="location.hash='#pricing'">Billing and usage</a>
 
-            <a class="settings-subsidebar-link" onclick="alert('Team users')">Users</a>
+            <a class="settings-subsidebar-link" style="color:#0b132b !important;font-weight:600;" onclick="alert('Team users')">Users</a>
 
-            <a class="settings-subsidebar-link" onclick="alert('Groups')">Groups</a>
+            <a class="settings-subsidebar-link" style="color:#0b132b !important;font-weight:600;" onclick="alert('Groups')">Groups</a>
 
-            <a class="settings-subsidebar-link" onclick="alert('Single sign-on config')">Single sign-on</a>
+            <a class="settings-subsidebar-link" style="color:#0b132b !important;font-weight:600;" onclick="alert('Single sign-on config')">Single sign-on</a>
 
-            <a class="settings-subsidebar-link" onclick="alert('Account discovery')">Account discovery</a>
+            <a class="settings-subsidebar-link" style="color:#0b132b !important;font-weight:600;" onclick="alert('Account discovery')">Account discovery</a>
 
-            <a class="settings-subsidebar-link" onclick="alert('Mobile deep links')">Mobile deep links</a>
+            <a class="settings-subsidebar-link" style="color:#0b132b !important;font-weight:600;" onclick="alert('Mobile deep links')">Mobile deep links</a>
 
           </div>
 
