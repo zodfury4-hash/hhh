@@ -711,7 +711,7 @@ h3 { font-size: 18px; font-weight: 600; color: #ffffff !important; }
   border-color: rgba(239, 68, 68, 0.5) !important;
 }
 
-input, select, textarea {
+input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]):not([type="file"]), select, textarea {
   width: 100%;
   padding: 13px 16px;
   border: 1px solid var(--line);
@@ -727,7 +727,7 @@ input, select, textarea {
 input::placeholder, textarea::placeholder {
   color: #64748b;
 }
-input:focus, select:focus, textarea:focus {
+input:not([type="checkbox"]):not([type="radio"]):focus, select:focus, textarea:focus {
   outline: none;
   border-color: #38bdf8;
   background: rgba(255, 255, 255, 0.1);
@@ -743,7 +743,36 @@ label {
   font-weight: 600;
   color: var(--ink-secondary);
 }
-label input, label select, label textarea { margin-top: 6px; }
+label input:not([type="checkbox"]):not([type="radio"]), label select, label textarea { margin-top: 6px; }
+
+/* Dedicated Checkbox & Radio Styles (Prevents Stretched Input Box Bug) */
+input[type="checkbox"],
+input[type="radio"] {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
+  max-width: 18px !important;
+  max-height: 18px !important;
+  padding: 0 !important;
+  margin: 0 8px 0 0 !important;
+  border: 1.5px solid #94a3b8 !important;
+  border-radius: 4px !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  cursor: pointer !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+  flex: 0 0 18px !important;
+  flex-shrink: 0 !important;
+  accent-color: #0070f3 !important;
+  appearance: auto !important;
+  -webkit-appearance: auto !important;
+}
+input[type="radio"] {
+  border-radius: 50% !important;
+}
 input[type=color] {
   padding: 4px;
   height: 48px;
@@ -3708,7 +3737,7 @@ pre, code {
 }
 
 /* --- FORM INPUTS --- */
-input, textarea, select {
+input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]):not([type="file"]), textarea, select {
   background: #ffffff !important;
   border: 1.5px solid #cbd5e1 !important;
   color: #000000 !important;
@@ -3716,7 +3745,7 @@ input, textarea, select {
 input::placeholder, textarea::placeholder {
   color: #64748b !important;
 }
-input:focus, textarea:focus, select:focus {
+input:not([type="checkbox"]):not([type="radio"]):focus, textarea:focus, select:focus {
   border-color: #0070f3 !important;
   box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.14) !important;
 }
@@ -4149,4 +4178,22 @@ th {
   font-size: 26px !important;
   font-weight: 800 !important;
   letter-spacing: -0.02em !important;
+}
+
+
+/* Prevent ugly native horizontal scrollbars on tabs and containers */
+.hero-tabs-wrap::-webkit-scrollbar,
+.home-type-tabs::-webkit-scrollbar,
+.tabs::-webkit-scrollbar,
+.home-create-card::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.hero-tabs-wrap,
+.home-type-tabs,
+.tabs,
+.home-create-card {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
