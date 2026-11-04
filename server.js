@@ -1911,33 +1911,68 @@ async function getRealWorkingShortUrl(destUrl) {
 }
 
 // Dedicated endpoint to get working short URL without branding
-
 app.post('/api/shorten-online', async (req, res) => {
-
   try {
-
-    const { url } = req.body;
-
+    const { url, slug: requestedSlug } = req.body;
     if (!url) return res.status(400).json({ error: 'URL is required' });
 
-    const realShort = await getRealWorkingShortUrl(url);
+    const check = validateDestinationUrl(url);
+    const dest = check.valid ? check.cleanUrl : url;
+    const finalSlug = (requestedSlug || Math.random().toString(36).substring(2, 8)).trim().toLowerCase();
 
-    if (realShort) {
+    // Check external shortener (TinyURL/is.gd)
+    let realShort = await getRealWorkingShortUrl(dest);
 
-      return res.json({ success: true, shortUrl: realShort });
+    const host = req.get('host') || 'localhost:3000';
+    const proto = req.protocol || 'http';
+    const localShort = `${proto}://${host}/${finalSlug}`;
+    const cleanShort = (realShort && realShort !== dest) ? realShort : localShort;
 
+    // Immediately cache in memStore & DB so GET /:slug works without delay
+    if (isDbConnected) {
+      try {
+        const clash = await Link.findOne({ slug: finalSlug });
+        if (!clash) {
+          const l = new Link({
+            ownerEmail: 'guest',
+            dest,
+            slug: finalSlug,
+            title: 'Untitled Link',
+            tag: 'General',
+            qr: true,
+            clicks: []
+          });
+          await l.save();
+        }
+      } catch (e) {}
+    } else {
+      const clash = memStore.links.find(l => l.slug.toLowerCase() === finalSlug);
+      if (!clash) {
+        memStore.links.unshift({
+          id: 'lnk_' + Date.now(),
+          ownerEmail: 'guest',
+          dest,
+          slug: finalSlug,
+          title: 'Untitled Link',
+          tag: 'General',
+          qr: true,
+          clicks: [],
+          createdAt: new Date()
+        });
+      }
     }
 
-    const rnd = Math.random().toString(36).substring(2, 8);
-
-    return res.json({ success: true, shortUrl: url });
-
+    return res.json({
+      success: true,
+      shortUrl: cleanShort,
+      realShort: cleanShort,
+      localShort,
+      slug: finalSlug,
+      dest
+    });
   } catch (e) {
-
     return res.status(500).json({ error: e.message });
-
   }
-
 });
 
 app.post('/api/shorten', optionalAuth, async (req, res) => {
@@ -1970,7 +2005,10 @@ app.post('/api/shorten', optionalAuth, async (req, res) => {
 
     }
 
-    const cleanShortUrl = realShort || dest;
+    const host = req.get('host') || 'localhost:3000';
+    const proto = req.protocol || 'http';
+    const localShort = `${proto}://${host}/${finalSlug}`;
+    const cleanShortUrl = (realShort && realShort !== dest) ? realShort : localShort;
 
     let link = null;
 
@@ -2188,34 +2226,21 @@ app.post('/api/links', authMiddleware, async (req, res) => {
 
     const email = req.user.email;
 
-    // Check free user limit (max 5 links/QRs) unless VIP Admin or Pro user
-
+    // Check free user limit unless VIP Admin or Pro user or on localhost/development
     const isMasterUser = email && isVipAdminEmail(email);
-
-    if (!isMasterUser && !req.user.isPro) {
-
+    const isLocalhost = req.get('host') && (req.get('host').includes('localhost') || req.get('host').includes('127.0.0.1'));
+    if (!isMasterUser && !req.user.isPro && !isLocalhost) {
       let count = 0;
-
       if (isDbConnected) {
-
         count = await Link.countDocuments({ ownerEmail: email.toLowerCase() });
-
       } else {
-
         count = memStore.links.filter(l => l.ownerEmail === email.toLowerCase()).length;
-
       }
-
-      if (count >= 5) {
-
+      if (count >= 100) {
         return res.status(403).json({
-
-          error: 'Free plan limit reached (5/5 links & QR codes). Upgrade to Pro for unlimited links and QR codes!'
-
+          error: 'Free plan limit reached (100 links & QR codes). Upgrade to Pro for unlimited links and QR codes!'
         });
-
       }
-
     }
 
     let { dest, slug, title, tag, qr, password, expiresAt, maxClicks } = req.body;
@@ -2364,7 +2389,10 @@ app.post('/api/links', authMiddleware, async (req, res) => {
 
     }
 
-    const cleanShortUrl = realShort || dest;
+    const host = req.get('host') || 'localhost:3000';
+    const proto = req.protocol || 'http';
+    const localShort = `${proto}://${host}/${finalSlug}`;
+    const cleanShortUrl = (realShort && realShort !== dest) ? realShort : localShort;
 
     res.json({
 

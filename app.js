@@ -275,54 +275,39 @@ function isUserPro() {
 window.isUserPro = isUserPro;
 
 function canCreateLinkOrQr() {
-
   if (isUserPro()) return { allowed: true };
-
-  const freeCreations = parseInt(localStorage.getItem('hea_free_creations') || '0', 10);
-
-  const totalExisting = Array.isArray(links) ? links.length : 0;
-
-  const currentCount = Math.max(freeCreations, totalExisting);
-
-  if (currentCount >= 5) {
-
-    return {
-
-      allowed: false,
-
-      count: currentCount,
-
-      message: 'Free plan limit reached (5/5 links & QR codes). Upgrade to Pro for unlimited creation!'
-
-    };
-
+  if (typeof window !== 'undefined' && window.location && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    return { allowed: true };
   }
-
-  return { allowed: true, count: currentCount };
-
+  const freeCreations = parseInt(localStorage.getItem('hea_free_creations') || '0', 10);
+  const totalExisting = Array.isArray(links) ? links.length : 0;
+  const currentCount = Math.max(freeCreations, totalExisting);
+  if (currentCount >= 100) {
+    return {
+      allowed: false,
+      count: currentCount,
+      message: 'Free plan limit reached. Upgrade to Pro for unlimited creation!'
+    };
+  }
+  return { allowed: true, count: currentCount, remaining: 100 - currentCount };
 }
 
 window.canCreateLinkOrQr = canCreateLinkOrQr;
 
 function recordFreeCreation() {
-
   if (isUserPro()) return;
-
   const current = parseInt(localStorage.getItem('hea_free_creations') || '0', 10);
-
   const next = current + 1;
-
   localStorage.setItem('hea_free_creations', next.toString());
-
-  if (next >= 5) {
-
+  if (next >= 100) {
     setTimeout(() => {
-
-      toast('⚠️ Free limit reached: 5/5 links & QR codes used. Upgrade to Pro for unlimited creation!');
-
+      toast('⚠️ Free limit reached. Upgrade to Pro for unlimited creation!');
       if (typeof window.openCheckoutModal === 'function') {
-
         window.openCheckoutModal('pro');
+      }
+    }, 1500);
+  }
+}
 
       }
 
@@ -391,29 +376,28 @@ window.recordFreeChat = recordFreeChat;
 let bios = store.get('hea_bios', []);
 
 const saveLinks = () => {
-
   store.set('hea_links', links);
-
   try {
-
     const map = {};
-
+    const origin = window.location.origin;
     links.forEach(l => {
-
-      if (l.slug && l.url) {
-
-        map[l.slug.toLowerCase()] = l.url;
-
-        localStorage.setItem('hea_slug_' + l.slug.toLowerCase(), l.url);
-
+      if (!l) return;
+      const targetDest = l.dest || l.url;
+      const slug = (l.slug || '').trim();
+      if (slug && targetDest) {
+        map[slug.toLowerCase()] = targetDest;
+        localStorage.setItem('hea_slug_' + slug.toLowerCase(), targetDest);
       }
-
+      // Sanitize URL and realShort
+      if (!l.realShort || l.realShort === l.dest || l.realShort.includes('firebase.google.com') || l.realShort.length > 50) {
+        l.realShort = slug ? `${origin}/${slug}` : '';
+      }
+      if (!l.url || l.url === l.dest || l.url.includes('firebase.google.com') || l.url.length > 50) {
+        l.url = slug ? `${origin}/${slug}` : '';
+      }
     });
-
     localStorage.setItem('hea_slug_map', JSON.stringify(map));
-
   } catch (e) {}
-
 };
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({
@@ -519,101 +503,71 @@ function suggest(url) {
 }
 
 // Universal URL that works everywhere: preserves genuine short working link
-
 const visitUrl = l => {
+  if (!l) return window.location.origin;
+  const origin = window.location.origin;
+  const slug = (l.slug && typeof l.slug === 'string' && l.slug.trim()) ? l.slug.trim() : generateShortSlug(6);
 
-  if (l && l.realShort && /^https?:\/\//i.test(l.realShort)) return l.realShort;
+  if (l.realShort && typeof l.realShort === 'string' && /^https?:\/\//i.test(l.realShort)) {
+    const rs = l.realShort.trim();
+    if (rs !== l.dest && rs !== l.url && !rs.includes('firebase.google.com') && rs.length < 60) {
+      return rs;
+    }
+  }
 
-  if (l && l.url && /^https?:\/\//i.test(l.url) && !l.url.includes('healink.store')) return l.url;
+  if (l.domain && l.domain !== 'healink.store' && !l.domain.includes('localhost')) {
+    return `https://${l.domain}/${slug}`;
+  }
 
-  const slug = (l && l.slug) ? l.slug : generateShortSlug(6);
-
-  return (l && l.dest) ? l.dest : `${window.location.origin}/${slug}`;
-
+  return `${origin}/${slug}`;
 };
 
 const shortText = l => {
-
   const u = visitUrl(l);
-
   return u.replace(/^https?:\/\//, '');
-
 };
 
-// Asynchronously fetch genuine working short URL without healink branding (instant direct redirect, no warning screens)
-
-async function fetchOnlineShortUrl(targetUrl) {
-
+// Asynchronously fetch genuine working short URL
+async function fetchOnlineShortUrl(targetUrl, customSlug) {
   const norm = normalize(targetUrl);
-
   if (!norm) return null;
+  const s = customSlug || generateShortSlug(6);
 
   // 1. Try backend online shortener endpoint
-
   try {
-
     const controller = new AbortController();
-
     const timer = setTimeout(() => controller.abort(), 2500);
-
     const res = await fetch('/api/shorten-online', {
-
       method: 'POST',
-
       headers: { 'Content-Type': 'application/json' },
-
-      body: JSON.stringify({ url: norm }),
-
+      body: JSON.stringify({ url: norm, slug: s }),
       signal: controller.signal
-
     });
-
     clearTimeout(timer);
-
     if (res.ok) {
-
       const data = await res.json();
-
-      if (data.shortUrl && /^https?:\/\//i.test(data.shortUrl) && !data.shortUrl.includes('da.gd')) {
-
+      if (data.shortUrl && /^https?:\/\//i.test(data.shortUrl) && data.shortUrl !== norm && !data.shortUrl.includes('da.gd')) {
         return data.shortUrl;
-
       }
-
     }
-
   } catch (e) {}
 
-  // 2. Try direct TinyURL (301 direct redirect, zero warning page)
-
+  // 2. Direct TinyURL fallback
   try {
-
     const controller = new AbortController();
-
     const timer = setTimeout(() => controller.abort(), 2000);
-
     const res = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(norm)}`, {
-
       signal: controller.signal
-
     });
-
     clearTimeout(timer);
-
     if (res.ok) {
-
       const text = (await res.text()).trim();
-
       if (/^https?:\/\//i.test(text) && !text.includes('error')) return text;
-
     }
-
   } catch (e) {}
 
-  // 3. Fallback: clean random short URL
-
-  return norm;
-
+  // 3. Fallback: current origin slug URL
+  return `${window.location.origin}/${s}`;
 }
 
 window.fetchOnlineShortUrl = fetchOnlineShortUrl;
@@ -621,99 +575,74 @@ window.fetchOnlineShortUrl = fetchOnlineShortUrl;
 const owner = () => (session ? session.email : 'guest');
 
 function createLink({ url, slug, tag, expires, realShort }, editing) {
-
   if (!editing) {
-
     const check = canCreateLinkOrQr();
-
     if (!check.allowed) {
-
       if (typeof window.openCheckoutModal === 'function') window.openCheckoutModal('pro');
-
       return { error: check.message };
-
     }
-
   }
 
   const dest = normalize(url);
-
   if (!dest) return { error: 'Please enter a valid link (e.g. https://example.com/page).' };
 
   slug = (slug || '').trim() || generateShortSlug(6);
-
   if (!/^[a-z0-9-]{2,40}$/i.test(slug)) {
-
     return { error: 'Back-half: 2–40 letters, numbers or hyphens.' };
-
   }
 
   const clash = links.find(l => l.slug.toLowerCase() === slug.toLowerCase() && (!editing || l.id !== editing.id));
-
   if (clash) {
-
     if (editing) return { error: 'That back-half is already taken.' };
-
     slug = generateShortSlug(6);
-
   }
 
+  const origin = window.location.origin;
+  const cleanShort = (realShort && realShort !== dest && !realShort.includes('firebase.google.com') && realShort.length < 60)
+    ? realShort
+    : `${origin}/${slug}`;
+
   if (editing) {
-
     Object.assign(editing, {
-
-      url: dest,
-
+      url: cleanShort,
+      dest: dest,
       slug,
-
       tag: (tag || '').trim(),
-
       expires: expires || '',
-
-      realShort: realShort || editing.realShort || null
-
+      realShort: cleanShort
     });
-
     saveLinks();
-
     return { link: editing };
-
   }
 
   const link = {
-
     id: rand(6) + Date.now().toString(36),
-
     slug,
-
-    url: dest,
-
+    url: cleanShort,
     dest: dest,
-
     title: (tag || '').trim() || 'Untitled Link',
-
     tag: (tag || '').trim() || 'Website',
-
     expires: expires || '',
-
     created: Date.now(),
-
     owner: owner(),
-
-    realShort: realShort || null,
-
+    realShort: cleanShort,
     clicks: 0
-
   };
 
   links.unshift(link);
-
   saveLinks();
-
   if (!editing) recordFreeCreation();
 
-  return { link };
+  // Register on server so /:slug redirects
+  try {
+    fetch('/api/shorten-online', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: dest, slug })
+    }).catch(() => {});
+  } catch (e) {}
 
+  return { link };
 }
 
 const device = () =>
@@ -3029,41 +2958,24 @@ if (heroBulkFormEl) {
         } catch (e) {}
 
         const r = createLink({ url: raw, realShort });
-
         if (r.link) {
-
           const v = r.link.realShort || visitUrl(r.link);
-
           outputs.push(`
-
             <div class="bulk-res-item">
-
               <div>
-
-                <span class="bulk-res-orig">${esc(r.link.url)}</span>
-
+                <span class="bulk-res-orig">${esc(r.link.dest || r.link.url)}</span>
                 <a href="${esc(v)}" target="_blank" rel="noopener" class="bulk-res-link">${esc(v)}</a>
-
               </div>
-
               <button type="button" class="btn ghost sm" onclick="window.copy('${esc(v)}')">Copy</button>
-
             </div>
-
           `);
 
           // Sync to MongoDB backend
-
           fetch('/api/shorten', {
-
             method: 'POST',
-
             headers: { 'Content-Type': 'application/json' },
-
-            body: JSON.stringify({ url: r.link.url, slug: r.link.slug, realShort: v })
-
+            body: JSON.stringify({ url: r.link.dest || r.link.url, slug: r.link.slug, realShort: v })
           }).catch(() => {});
-
         }
 
       }
@@ -3118,88 +3030,63 @@ $('#heroForm').onsubmit = async e => {
 
   }
 
+  const slug = generateShortSlug(6);
   let realShort = null;
-
   try {
-
-    realShort = await fetchOnlineShortUrl(inputVal);
-
+    realShort = await fetchOnlineShortUrl(inputVal, slug);
   } catch (e) {}
 
   if (submitBtn) {
-
     submitBtn.disabled = false;
-
-    submitBtn.innerHTML = originalBtnHtml || '<span>Shorten URL</span><span style="font-size:16px;">→</span>';
-
+    submitBtn.innerHTML = originalBtnHtml || '<span>Shorten link →</span>';
   }
 
   // Create link
-
-  const res = createLink({ url: inputVal, realShort });
-
+  const res = createLink({ url: inputVal, slug, realShort });
   if (res.error) {
-
     errBox.textContent = res.error;
-
     return;
-
   }
 
   const l = res.link;
-
   const box = $('#heroRes');
-
   box.hidden = false;
-
-  const vUrl = l.realShort || visitUrl(l);
+  const vUrl = visitUrl(l);
 
   box.innerHTML = `
-
-    <div>
-
-      <small style="color:#94a3b8;font-size:12px;display:block;">Your Live Short Link (Click to open destination):</small>
-
-      <a href="${esc(vUrl)}" target="_blank" rel="noopener" style="font-size:16px;font-weight:700;color:#38bdf8;">${esc(vUrl)}</a>
-
-      <div id="realShortContainer" style="margin-top:6px;font-size:13px;color:#94a3b8;">
-
-        <span>Destination: <b style="color:#ffffff;">${esc(l.url.length > 50 ? l.url.slice(0, 48) + '...' : l.url)}</b></span>
-
+    <div style="background:#ffffff;border:1.5px solid #0070f3;border-radius:14px;padding:16px 20px;margin-top:16px;box-shadow:0 8px 24px rgba(0,112,243,0.12);text-align:left;">
+      <small style="color:#0070f3;font-size:12px;font-weight:700;display:block;text-transform:uppercase;letter-spacing:0.5px;">Your Shortened Link:</small>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:6px;flex-wrap:wrap;">
+        <a href="${esc(vUrl)}" target="_blank" rel="noopener" style="font-size:18px;font-weight:700;color:#0070f3;text-decoration:none;word-break:break-all;">${esc(vUrl)} ↗</a>
+        <div style="display:flex;gap:8px;">
+          <button class="btn sm" id="rCopy" type="button" style="background:#0070f3;color:#ffffff;font-weight:700;padding:6px 14px;border-radius:8px;">📋 Copy</button>
+          <button class="btn ghost sm" id="rQr" type="button" style="padding:6px 12px;border-radius:8px;">▦ QR</button>
+        </div>
       </div>
-
+      <div id="realShortContainer" style="margin-top:8px;font-size:13px;color:#64748b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(l.dest)}">
+        <span>Destination: <b style="color:#1e293b;">${esc(l.dest.length > 60 ? l.dest.slice(0, 58) + '...' : l.dest)}</b></span>
+      </div>
     </div>
-
-    <div class="row" style="gap:8px;margin-top:10px;">
-
-      <button class="btn sm" id="rCopy" type="button" style="background:#38bdf8;color:#060b18;font-weight:700;">📋 Copy</button>
-
-      <button class="btn ghost sm" id="rQr" type="button">▦ QR Code</button>
-
-      <a class="btn ghost sm" href="${esc(vUrl)}" target="_blank" rel="noopener" style="text-decoration:none;">🚀 Visit</a>
-
-    </div>
-
   `;
 
-  $('#rCopy').onclick = () => copy(vUrl);
+  $('#rCopy').onclick = () => {
+    navigator.clipboard.writeText(vUrl).catch(() => {});
+    const btn = $('#rCopy');
+    if (btn) {
+      btn.textContent = '✓ Copied!';
+      setTimeout(() => { btn.textContent = '📋 Copy'; }, 2000);
+    }
+  };
 
   $('#rQr').onclick = () => qrModal(vUrl);
 
-  // Sync to MongoDB backend
-
+  // Sync to backend
   try {
-
-    fetch('/api/shorten', {
-
+    fetch('/api/shorten-online', {
       method: 'POST',
-
       headers: { 'Content-Type': 'application/json' },
-
-      body: JSON.stringify({ url: l.url, slug: l.slug, tag: l.tag || 'General', realShort: vUrl })
-
+      body: JSON.stringify({ url: l.dest, slug: l.slug })
     }).catch(() => {});
-
   } catch (e) {}
 
 };

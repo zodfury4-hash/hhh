@@ -26,6 +26,17 @@
 
   const $$ = selector => document.querySelectorAll(selector);
 
+  if (typeof window.canCreateLinkOrQr !== 'function') {
+    window.canCreateLinkOrQr = function() {
+      if (typeof window !== 'undefined' && window.location && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+        return { allowed: true };
+      }
+      const free = parseInt(localStorage.getItem('hea_free_creations') || '0', 10);
+      if (free >= 100) return { allowed: false, message: 'Free limit reached. Upgrade to Pro!' };
+      return { allowed: true };
+    };
+  }
+
   // User state matching authenticated session
 
   function isVipEmail(email) {
@@ -84,84 +95,44 @@
 
   }
 
-  async function fetchOnlineShortUrl(targetUrl) {
-
+  async function fetchOnlineShortUrl(targetUrl, customSlug) {
     if (!targetUrl) return null;
-
     let norm = targetUrl.trim();
-
     if (!/^https?:\/\//i.test(norm)) norm = 'https://' + norm;
-
-    // 1. Try server endpoint /api/shorten-online (instant direct redirect without interstitial)
+    const s = customSlug || generateShortSlug(6);
 
     try {
-
       const controller = new AbortController();
-
       const timer = setTimeout(() => controller.abort(), 2500);
-
       const res = await fetch('/api/shorten-online', {
-
         method: 'POST',
-
         headers: { 'Content-Type': 'application/json' },
-
-        body: JSON.stringify({ url: norm }),
-
+        body: JSON.stringify({ url: norm, slug: s }),
         signal: controller.signal
-
       });
-
       clearTimeout(timer);
-
       if (res.ok) {
-
         const data = await res.json();
-
-        if (data.shortUrl && /^https?:\/\//i.test(data.shortUrl) && !data.shortUrl.includes('da.gd')) {
-
+        if (data.shortUrl && /^https?:\/\//i.test(data.shortUrl) && data.shortUrl !== norm && !data.shortUrl.includes('da.gd')) {
           return data.shortUrl;
-
         }
-
       }
-
     } catch (e) {}
-
-    // 2. Direct TinyURL (301 direct redirect, zero warning screen)
 
     try {
-
       const controller = new AbortController();
-
       const timer = setTimeout(() => controller.abort(), 2000);
-
       const res = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(norm)}`, {
-
         signal: controller.signal
-
       });
-
       clearTimeout(timer);
-
       if (res.ok) {
-
         const text = (await res.text()).trim();
-
-        if (/^https?:\/\//i.test(text) && !text.includes('error')) {
-
-          return text;
-
-        }
-
+        if (/^https?:\/\//i.test(text) && !text.includes('error')) return text;
       }
-
     } catch (e) {}
 
-    // 3. Fallback: clean random short URL
-
-    return norm;
-
+    return `${window.location.origin}/${s}`;
   }
 
   function isUserAuthenticated() {
@@ -322,28 +293,18 @@
   }
 
   function getStoredLinks() {
-
     try {
-
       const raw = localStorage.getItem('hea_links');
-
       if (raw) {
-
         let p = JSON.parse(raw);
-
         if (Array.isArray(p)) {
-
           let dirty = false;
-
-          // Filter legacy sample links
+          const origin = window.location.origin;
 
           p = p.filter(l => l && l.id !== 'lnk_1' && l.id !== 'lnk_2' && !(l.dest && l.dest.includes('claude.ai')) && !(l.dest && l.dest.includes('summer-drop-2026')));
 
           p.forEach(l => {
-
             if (!l) return;
-
-            // Aggressive scrubber: Strip any [object Object] or undefined from all text fields
             l.title = cleanSafeStr(l.title, 'Untitled Link');
             l.slug = cleanSafeStr(l.slug, generateShortSlug(6));
             l.dest = cleanSafeStr(l.dest, '');
@@ -351,21 +312,27 @@
             l.realShort = cleanSafeStr(l.realShort, '');
             l.tag = cleanSafeStr(l.tag, 'Website');
 
-            // Clean out da.gd and tinyurl.com URLs so clicking links opens destination directly
             if (!l.dest && l.url) l.dest = l.url;
-            if (!l.url && l.dest) l.url = l.dest;
+            if (!l.url && l.dest) l.url = origin + '/' + l.slug;
 
-            if (!l.realShort || l.realShort === l.dest || l.realShort.includes('da.gd') || l.realShort.includes('tinyurl.com') || (l.dest && l.realShort.includes('firebase.google.com'))) {
-              l.realShort = l.slug ? (origin + '/' + l.slug) : '';
+            const shortCandidate = origin + '/' + l.slug;
+
+            if (!l.realShort || l.realShort === l.dest || l.realShort.includes('da.gd') || l.realShort.includes('firebase.google.com') || l.realShort.length > 60) {
+              l.realShort = shortCandidate;
               dirty = true;
             }
 
-            if (l.url && (l.url.includes('da.gd') || l.url.includes('tinyurl.com') || (l.dest && l.url === l.dest && l.slug))) {
-              l.url = origin + '/' + l.slug;
+            if (!l.url || l.url === l.dest || l.url.includes('firebase.google.com') || l.url.length > 60) {
+              l.url = shortCandidate;
               dirty = true;
             }
 
-            // Clean clicks to always be a safe integer count (never [object Object])
+            if (l.slug && l.dest) {
+              try {
+                localStorage.setItem('hea_slug_' + l.slug.toLowerCase(), l.dest);
+              } catch (e) {}
+            }
+
             if (Array.isArray(l.clicks)) {
               l.clicks = l.clicks.length;
               dirty = true;
@@ -386,21 +353,13 @@
           });
 
           if (dirty) {
-
             try { localStorage.setItem('hea_links', JSON.stringify(p)); } catch (e) {}
-
           }
-
           return p;
-
         }
-
       }
-
     } catch (e) {}
-
     return [];
-
   }
 
   function getStoredPages() {
@@ -971,35 +930,30 @@
 
             }
 
-            return rLinks.map(l => `
+            const origin = window.location.origin;
+            return rLinks.map(l => {
+              const shortUrl = (l.realShort && l.realShort !== l.dest && !l.realShort.includes('firebase.google.com') && l.realShort.length < 60)
+                ? l.realShort
+                : `${origin}/${l.slug || 'lnk'}`;
+              const shortDisplay = shortUrl.replace(/^https?:\/\//, '');
+              const destDisplay = l.dest ? (l.dest.length > 55 ? l.dest.slice(0, 52) + '...' : l.dest) : '';
 
+              return `
               <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:10px;">
-
                 <div style="min-width:0;flex:1;margin-right:16px;">
-
-                  <a href="${l.dest || l.url}" target="_blank" rel="noopener" style="font-weight:700;color:#0070f3;font-size:14px;text-decoration:none;" title="Click to open destination">${(l.slug ? (origin.replace(/^https?:\/\//, '') + '/' + l.slug) : (l.url || l.dest))} ↗</a>
-
-                  <div style="font-size:12px;color:#64748b;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.title || 'Untitled'} · <span style="color:#94a3b8;">${l.dest}</span></div>
-
+                  <a href="${shortUrl}" target="_blank" rel="noopener" style="font-weight:700;color:#0070f3;font-size:14px;text-decoration:none;" title="Click to open short link">${shortDisplay} ↗</a>
+                  <div style="font-size:12px;color:#64748b;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.title || 'Untitled'} · <span style="color:#94a3b8;" title="${l.dest}">↳ ${destDisplay}</span></div>
                 </div>
-
                 <div style="display:flex;align-items:center;gap:16px;flex-shrink:0;">
-
                   <div style="display:none !important;">
-
                     <b style="color:#10b981;font-size:14px;">${typeof l.clicks === 'number' ? l.clicks : (Array.isArray(l.clicks) ? l.clicks.length : 0)}</b>
-
                     <span style="font-size:11px;color:#94a3b8;display:block;">clicks</span>
-
                   </div>
-
-                  <button class="sso-btn" style="width:auto;padding:6px 12px;font-size:12px;" onclick="window.appShell.copy('${l.url}')">📋 Copy</button>
-
+                  <button class="sso-btn" style="width:auto;padding:6px 12px;font-size:12px;" onclick="window.appShell.copy('${shortUrl}')">📋 Copy</button>
                 </div>
-
               </div>
-
-            `).join('');
+              `;
+            }).join('');
 
           })()}
 
@@ -1478,58 +1432,55 @@
       const hasQR = $('#chkGenerateQR').checked;
 
       const btn = $('#btnSubmitNewLink');
-
       if (btn) {
-
         btn.disabled = true;
-
         btn.textContent = 'Creating link...';
-
       }
 
       let realShort = '';
-
       try {
-
-        realShort = await fetchOnlineShortUrl(dest);
-
+        realShort = await fetchOnlineShortUrl(dest, slug);
       } catch (e) {}
 
-      const cleanUrl = realShort || (slug ? `https://${domain || 'healink.store'}/${slug}` : (origin + '/' + slug));
+      const origin = window.location.origin;
+      const cleanUrl = (realShort && realShort !== dest && !realShort.includes('firebase.google.com') && realShort.length < 60)
+        ? realShort
+        : (slug ? `https://${domain || 'healink.store'}/${slug}` : `${origin}/${slug}`);
 
       const links = getStoredLinks();
-
       const newL = {
-
         id: 'lnk_' + Date.now(),
-
         title: title,
-
         dest: dest,
-
         slug: slug,
-
         url: cleanUrl,
-
         realShort: cleanUrl,
-
         tag: tag,
-
         createdAt: 'Just now',
-
         clicks: 0,
-
         scans: 0,
-
         qr: hasQR
-
       };
 
       links.unshift(newL);
-
       localStorage.setItem('hea_links', JSON.stringify(links));
 
-      // Persist to Firebase Realtime Database
+      try {
+        localStorage.setItem('hea_slug_' + slug.toLowerCase(), dest);
+        const mapRaw = localStorage.getItem('hea_slug_map') || '{}';
+        const map = JSON.parse(mapRaw);
+        map[slug.toLowerCase()] = dest;
+        localStorage.setItem('hea_slug_map', JSON.stringify(map));
+      } catch (e) {}
+
+      try {
+        fetch('/api/shorten-online', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: dest, slug })
+        }).catch(() => {});
+      } catch (e) {}
+
       try {
         if (window.fbRtdbClient && typeof window.fbRtdbClient.saveLink === 'function') {
           const uEmail = (appUser && appUser.email) || 'guest';
@@ -1537,97 +1488,62 @@
         }
       } catch (e) {}
 
-      // Sync to MongoDB backend
-
       try {
-
         const s = JSON.parse(localStorage.getItem('hea_session'));
-
         if (s && s.token) {
-
           fetch('/api/links', {
-
             method: 'POST',
-
             headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.token },
-
             body: JSON.stringify({ dest, slug, title: newL.title, tag: newL.tag, qr: hasQR, realShort: cleanUrl })
-
           }).catch(() => {});
-
         }
-
       } catch (e) {}
 
       if (typeof window.recordFreeCreation === 'function') window.recordFreeCreation();
-
       window.appShell.toast(`Created link: ${cleanUrl}`);
-
+      navigator.clipboard.writeText(cleanUrl).catch(() => {});
       navigate('links');
-
     };
 
   }
 
   async function createLinkDirect(dest, customSlug, domain) {
-
     const checkLimit = (typeof window.canCreateLinkOrQr === 'function') ? window.canCreateLinkOrQr() : { allowed: true };
-
     if (!checkLimit.allowed) {
-
       window.appShell.toast(checkLimit.message);
-
       if (typeof window.openCheckoutModal === 'function') window.openCheckoutModal('pro');
-
       return;
-
     }
 
     const slug = customSlug || generateShortSlug(6);
-
     let realShort = '';
-
     try {
-
-      realShort = await fetchOnlineShortUrl(dest);
-
+      realShort = await fetchOnlineShortUrl(dest, slug);
     } catch (e) {}
 
-    const cleanUrl = realShort || (slug ? `https://${domain || 'healink.store'}/${slug}` : (origin + '/' + slug));
+    const origin = window.location.origin;
+    const cleanUrl = (realShort && realShort !== dest && !realShort.includes('firebase.google.com') && realShort.length < 60)
+      ? realShort
+      : (slug ? `https://${domain || 'healink.store'}/${slug}` : `${origin}/${slug}`);
 
     const links = getStoredLinks();
-
     const newL = {
-
       id: 'lnk_' + Date.now(),
-
       title: 'Untitled ' + new Date().toISOString().slice(0, 10),
-
       dest: dest,
-
       slug: slug,
-
       url: cleanUrl,
-
       realShort: cleanUrl,
-
       tag: 'Website',
-
       createdAt: 'Just now',
-
       clicks: 0,
-
       scans: 0,
-
       qr: true
-
     };
 
     links.unshift(newL);
-
     localStorage.setItem('hea_links', JSON.stringify(links));
 
-    // Persist to Firebase Realtime Database
     try {
       if (window.fbRtdbClient && typeof window.fbRtdbClient.saveLink === 'function') {
         const uEmail = (appUser && appUser.email) || 'guest';
@@ -1638,47 +1554,36 @@
     if (typeof window.recordFreeCreation === 'function') window.recordFreeCreation();
 
     try {
-
       localStorage.setItem('hea_slug_' + slug.toLowerCase(), dest);
-
       const mapRaw = localStorage.getItem('hea_slug_map') || '{}';
-
       const map = JSON.parse(mapRaw);
-
       map[slug.toLowerCase()] = dest;
-
       localStorage.setItem('hea_slug_map', JSON.stringify(map));
-
     } catch (e) {}
-
-    // Sync to MongoDB backend
 
     try {
-
-      const s = JSON.parse(localStorage.getItem('hea_session'));
-
-      if (s && s.token) {
-
-        fetch('/api/links', {
-
-          method: 'POST',
-
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.token },
-
-          body: JSON.stringify({ dest, slug, title: newL.title, tag: newL.tag, qr: true, realShort: cleanUrl })
-
-        }).catch(() => {});
-
-      }
-
+      fetch('/api/shorten-online', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: dest, slug })
+      }).catch(() => {});
     } catch (e) {}
 
-    window.appShell.toast(`Link shortened: ${newL.url}`);
+    try {
+      const s = JSON.parse(localStorage.getItem('hea_session'));
+      if (s && s.token) {
+        fetch('/api/links', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.token },
+          body: JSON.stringify({ dest, slug, title: newL.title, tag: newL.tag, qr: true, realShort: cleanUrl })
+        }).catch(() => {});
+      }
+    } catch (e) {}
 
+    window.appShell.toast(`Link shortened: ${cleanUrl}`);
+    navigator.clipboard.writeText(cleanUrl).catch(() => {});
     navigate('links');
-
     return newL.id;
-
   }
 
   // ---------------- 3. LINKS DIRECTORY SCREEN ---------------- //
@@ -1715,50 +1620,32 @@
 
         ${links.length === 0 ? '<div style="text-align:center;padding:50px;color:#94a3b8;">No links created yet. Click "Create link" to shorten your first URL!</div>' : links.map(l => {
 
-          const liveUrl = l.dest || l.realShort || l.url || (origin + '/' + (l.slug || ''));
+          const shortUrl = (l.realShort && l.realShort !== l.dest && !l.realShort.includes('firebase.google.com') && l.realShort.length < 60)
+            ? l.realShort
+            : `${origin}/${l.slug || 'lnk'}`;
+          const shortDisplay = shortUrl.replace(/^https?:\/\//, '');
 
           return `
-
           <div class="qr-card-item">
-
             <div style="flex:1;min-width:0;overflow:hidden;">
-
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-
                 <span style="background:rgba(0,112,243,0.08);color:#0070f3;font-weight:700;font-size:11px;padding:3px 9px;border-radius:6px;border:1px solid rgba(0,112,243,0.18);">${l.tag || 'Website'}</span>
-
                 <span style="font-size:12px;color:#64748b;">${l.createdAt || 'Recent'}</span>
-
               </div>
-
               <h4 style="margin:0 0 4px;font-size:16px;color:#0070f3 !important;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;">${l.title || 'Untitled Link'}</h4>
-
               <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;">
-
-                <a href="${l.dest || liveUrl}" target="_blank" rel="noopener" style="color:#0070f3;font-weight:700;font-size:14px;text-decoration:none;" title="Click to visit destination">${l.slug ? (origin.replace(/^https?:\/\//, '') + '/' + l.slug) : liveUrl} ↗</a>
-
+                <a href="${shortUrl}" target="_blank" rel="noopener" style="color:#0070f3;font-weight:700;font-size:14px;text-decoration:none;" title="Click to open short link">${shortDisplay} ↗</a>
               </div>
-
-              ${(l.dest && l.dest !== liveUrl) ? `<div style="font-size:13px;color:#64748b;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;" title="${l.dest}">↳ <a href="${l.dest}" target="_blank" rel="noopener" style="color:#64748b;text-decoration:none;">${l.dest}</a></div>` : ''}
-
+              ${l.dest ? `<div style="font-size:13px;color:#64748b;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;" title="${l.dest}">↳ <a href="${l.dest}" target="_blank" rel="noopener" style="color:#64748b;text-decoration:none;">${l.dest}</a></div>` : ''}
             </div>
-
             <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
-
               <span style="display:none !important;">${typeof l.clicks === 'number' ? l.clicks : (Array.isArray(l.clicks) ? l.clicks.length : 0)} clicks</span>
-
-              <button class="sso-btn" style="width:auto;padding:6px 12px;font-size:12px;" onclick="window.appShell.copy('${liveUrl}')">📋 Copy</button>
-
+              <button class="sso-btn" style="width:auto;padding:6px 12px;font-size:12px;" onclick="window.appShell.copy('${shortUrl}')">📋 Copy</button>
               <button class="sso-btn" style="width:auto;padding:6px 12px;font-size:12px;" onclick="window.appShell.navigate('qr-detail', '${l.id || l.slug}')">▦ QR</button>
-
               <button style="background:none;border:0;color:#ef4444;cursor:pointer;font-size:16px;" onclick="window.appShell.deleteLink('${l.id}', '${l.slug}')" title="Delete link">🗑️</button>
-
             </div>
-
           </div>
-
           `;
-
         }).join('')}
 
       </div>
@@ -2130,64 +2017,45 @@
 
         <div id="qrCardsContainer">
 
-          ${links.map((item, idx) => `
+          ${(() => {
+            const origin = window.location.origin;
+            return links.map((item, idx) => {
+              const shortUrl = (item.realShort && item.realShort !== item.dest && !item.realShort.includes('firebase.google.com') && item.realShort.length < 60)
+                ? item.realShort
+                : `${origin}/${item.slug || 'lnk'}`;
+              const shortDisplay = shortUrl.replace(/^https?:\/\//, '');
 
-            <div class="qr-card-item">
-
-              <div class="qr-card-left">
-
-                <input type="checkbox">
-
-                <div class="qr-framed-thumbnail" style="cursor:pointer;" onclick="window.appShell.navigate('qr-detail', '${item.id}')">
-
-                  <canvas id="qrCardCanvas_${idx}" width="160" height="160"></canvas>
-
-                  <div class="qr-thumb-label">SCAN ME</div>
-
-                </div>
-
-                <div class="qr-details">
-
-                  <span style="background:rgba(0,112,243,0.08);color:#0070f3;font-weight:700;font-size:11px;padding:3px 9px;border-radius:6px;border:1px solid rgba(0,112,243,0.18);">🌐 ${item.tag || 'Website'}</span>
-
-                  <h4 style="cursor:pointer;color:#0070f3 !important;margin:6px 0 4px;font-size:16px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;" onclick="window.appShell.navigate('qr-detail', '${item.id}')">${item.title}</h4>
-
-                  <div class="qr-dest-text" title="${item.dest}">↳ ${item.dest}</div>
-
-                  <div class="qr-meta-row">
-
-                    <span>👑 ${item.scans || 0} scans</span>
-
-                    <span>📅 ${item.createdAt}</span>
-
-                    <span title="${((item.realShort && item.realShort !== item.dest) ? item.realShort : (item.slug ? (origin.replace(/^https?:\/\//, '') + '/' + item.slug) : (item.dest || ''))).replace(/^https?:\/\//, '')}">🔗 ${((item.realShort && item.realShort !== item.dest) ? item.realShort : (item.slug ? (origin.replace(/^https?:\/\//, '') + '/' + item.slug) : (item.dest || ''))).replace(/^https?:\/\//, '')}</span>
-
-                    <span>🏷 No tags</span>
-
+              return `
+              <div class="qr-card-item">
+                <div class="qr-card-left">
+                  <input type="checkbox">
+                  <div class="qr-framed-thumbnail" style="cursor:pointer;" onclick="window.appShell.navigate('qr-detail', '${item.id}')">
+                    <canvas id="qrCardCanvas_${idx}" width="160" height="160"></canvas>
+                    <div class="qr-thumb-label">SCAN ME</div>
                   </div>
-
+                  <div class="qr-details" style="min-width:0;flex:1;">
+                    <span style="background:rgba(0,112,243,0.08);color:#0070f3;font-weight:700;font-size:11px;padding:3px 9px;border-radius:6px;border:1px solid rgba(0,112,243,0.18);">🌐 ${item.tag || 'Website'}</span>
+                    <h4 style="cursor:pointer;color:#0070f3 !important;margin:6px 0 4px;font-size:16px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;" onclick="window.appShell.navigate('qr-detail', '${item.id}')">${item.title}</h4>
+                    <div class="qr-dest-text" title="${item.dest}">↳ ${item.dest}</div>
+                    <div class="qr-meta-row">
+                      <span>👑 ${item.scans || 0} scans</span>
+                      <span>📅 ${item.createdAt}</span>
+                      <span title="${shortDisplay}">🔗 ${shortDisplay}</span>
+                      <span>🏷 No tags</span>
+                    </div>
+                  </div>
                 </div>
-
+                <div style="display:flex;align-items:center;gap:16px;color:#94a3b8;">
+                  <button class="topbar-icon-btn" title="Edit & Customize" onclick="window.appShell.navigate('qr-detail', '${item.id}')">✏️</button>
+                  <button class="topbar-icon-btn" title="Download" onclick="window.appShell.downloadQrPNG('${item.slug}')">📥</button>
+                  <button class="topbar-icon-btn" title="Stats" onclick="window.appShell.navigate('analytics')">📊</button>
+                  <button class="topbar-icon-btn" title="More">···</button>
+                </div>
               </div>
-
-              <div style="display:flex;align-items:center;gap:16px;color:#94a3b8;">
-
-                <button class="topbar-icon-btn" title="Edit & Customize" onclick="window.appShell.navigate('qr-detail', '${item.id}')">✏️</button>
-
-                <button class="topbar-icon-btn" title="Download" onclick="window.appShell.downloadQrPNG('${item.slug}')">📥</button>
-
-                <button class="topbar-icon-btn" title="Stats" onclick="window.appShell.navigate('analytics')">📊</button>
-
-                <button class="topbar-icon-btn" title="More">···</button>
-
-              </div>
-
-            </div>
-
-          `).join('')}
-
+              `;
+            }).join('');
+          })()}
         </div>
-
         <div style="text-align:center;color:#64748b;font-size:13px;margin:40px 0;">
 
           — You've reached the end of your QR codes —
@@ -2329,17 +2197,11 @@
           </div>
 
           <div style="margin-bottom:16px;">
-
             <div style="font-size:12px;font-weight:700;color:#94a3b8;margin-bottom:4px;">Short link</div>
-
             <div style="display:flex;align-items:center;gap:10px;">
-
-              <span style="color:#0070f3;font-size:14px;font-weight:700;">${((item.realShort && item.realShort !== item.dest) ? item.realShort : (item.slug ? (origin.replace(/^https?:\/\//, '') + '/' + item.slug) : (item.dest || ''))).replace(/^https?:\/\//, '')}</span>
-
-              <button class="sso-btn" style="width:auto;padding:2px 8px;font-size:11px;" onclick="window.appShell.copy('${((item.realShort && item.realShort !== item.dest) ? item.realShort : (item.slug ? (origin + '/' + item.slug) : (item.dest || '')))}')">📋 Copy</button>
-
+              <span style="color:#0070f3;font-size:14px;font-weight:700;">${((item.realShort && item.realShort !== item.dest && !item.realShort.includes('firebase.google.com') && item.realShort.length < 60) ? item.realShort : (origin + '/' + (item.slug || 'lnk'))).replace(/^https?:\/\//, '')}</span>
+              <button class="sso-btn" style="width:auto;padding:2px 8px;font-size:11px;" onclick="window.appShell.copy('${((item.realShort && item.realShort !== item.dest && !item.realShort.includes('firebase.google.com') && item.realShort.length < 60) ? item.realShort : (origin + '/' + (item.slug || 'lnk')))}')">📋 Copy</button>
             </div>
-
           </div>
 
           <div style="margin-bottom:16px;">
@@ -6349,7 +6211,7 @@ Here are recommended optimizations for your links and campaigns:<br>
 
           } catch (e) {}
 
-          const shortUrl = (link && link.dest) ? link.dest : (realShort || `https://healink.store/${slug}`);
+          const shortUrl = (realShort && realShort !== dest && !realShort.includes('firebase.google.com') && realShort.length < 60) ? realShort : `${window.location.origin}/${slug}`;
 
           const links = getStoredLinks();
 
