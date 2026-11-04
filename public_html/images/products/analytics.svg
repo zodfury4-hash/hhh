@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="an_bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#09262e"/>
+      <stop offset="100%" stop-color="#051117"/>
+    </linearGradient>
+    <linearGradient id="an_bar1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0369a1"/>
+    </linearGradient>
+    <linearGradient id="an_bar2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#0891b2"/>
+    </linearGradient>
+    <linearGradient id="an_bar3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="100%" stop-color="#15803d"/>
+    </linearGradient>
+    <linearGradient id="an_bar4" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d4ff24"/>
+      <stop offset="100%" stop-color="#84cc16"/>
+    </linearGradient>
+    <filter id="an_glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#an_bg)"/>
+  <rect width="64" height="64" rx="16" fill="none" stroke="rgba(56,189,248,0.4)" stroke-width="1.5"/>
+
+  <!-- Chart Grid Lines -->
+  <line x1="12" y1="48" x2="52" y2="48" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+  <line x1="12" y1="35" x2="52" y2="35" stroke="rgba(255,255,255,0.08)" stroke-dasharray="2 2"/>
+  <line x1="12" y1="22" x2="52" y2="22" stroke="rgba(255,255,255,0.08)" stroke-dasharray="2 2"/>
+
+  <!-- 3D Bar Columns -->
+  <rect x="14" y="36" width="6.5" height="12" rx="2.5" fill="url(#an_bar1)"/>
+  <rect x="23.5" y="28" width="6.5" height="20" rx="2.5" fill="url(#an_bar2)"/>
+  <rect x="33" y="21" width="6.5" height="27" rx="2.5" fill="url(#an_bar3)"/>
+  <rect x="42.5" y="15" width="6.5" height="33" rx="2.5" fill="url(#an_bar4)" filter="url(#an_glow)"/>
+
+  <!-- Upward Trend Line with Area -->
+  <path d="M17 34 L27 26 L36 19 L46 11" fill="none" stroke="#d4ff24" stroke-width="2.5" stroke-linecap="round" filter="url(#an_glow)"/>
+  <polygon points="48,11 43,10 47,15" fill="#d4ff24"/>
+
+  <!-- Data point dots -->
+  <circle cx="17" cy="34" r="2" fill="#ffffff"/>
+  <circle cx="27" cy="26" r="2" fill="#ffffff"/>
+  <circle cx="36" cy="19" r="2" fill="#ffffff"/>
+  <circle cx="46" cy="11" r="2.5" fill="#d4ff24" filter="url(#an_glow)"/>
+
+  <!-- Growth badge top-left -->
+  <rect x="11" y="10" width="21" height="9" rx="4.5" fill="rgba(212,255,36,0.18)" stroke="#d4ff24" stroke-width="0.8"/>
+  <text x="21.5" y="17" font-family="system-ui, sans-serif" font-size="6.5" font-weight="800" fill="#d4ff24" text-anchor="middle">+94%</text>
+</svg>

@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="bc_bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0d2238"/>
+      <stop offset="100%" stop-color="#06111e"/>
+    </linearGradient>
+    <linearGradient id="bc_top" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+    <linearGradient id="bc_left" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0369a1"/>
+      <stop offset="100%" stop-color="#075985"/>
+    </linearGradient>
+    <linearGradient id="bc_right" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#0c4a6e"/>
+    </linearGradient>
+    <filter id="bc_glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#bc_bg)"/>
+  <rect width="64" height="64" rx="16" fill="none" stroke="rgba(56,189,248,0.4)" stroke-width="1.5"/>
+
+  <!-- 3D Isometric Package Box -->
+  <polygon points="32,13 48,21 32,29 16,21" fill="url(#bc_top)"/>
+  <polygon points="16,21 32,29 32,49 16,41" fill="url(#bc_left)"/>
+  <polygon points="32,29 48,21 48,41 32,49" fill="url(#bc_right)"/>
+
+  <line x1="32" y1="29" x2="32" y2="49" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+
+  <!-- GS1 2D DataMatrix on Left Face -->
+  <g transform="matrix(0.866 0.5 0 0.866 20 28)">
+    <rect x="0" y="0" width="8" height="8" fill="#ffffff" opacity="0.9"/>
+    <rect x="1" y="1" width="2" height="2" fill="#0284c7"/>
+    <rect x="5" y="1" width="2" height="2" fill="#0284c7"/>
+    <rect x="3" y="3" width="2" height="2" fill="#0284c7"/>
+    <rect x="1" y="5" width="2" height="2" fill="#0284c7"/>
+    <rect x="5" y="5" width="2" height="2" fill="#0284c7"/>
+  </g>
+
+  <!-- Barcode stripes on Right Face -->
+  <g transform="matrix(0.866 -0.5 0 0.866 36 37)">
+    <rect x="0" y="0" width="1.5" height="9" fill="#ffffff" opacity="0.9"/>
+    <rect x="2.5" y="0" width="1" height="9" fill="#ffffff" opacity="0.9"/>
+    <rect x="4.5" y="0" width="2" height="9" fill="#ffffff" opacity="0.9"/>
+    <rect x="7.5" y="0" width="1" height="9" fill="#ffffff" opacity="0.9"/>
+    <rect x="9.5" y="0" width="1.5" height="9" fill="#d4ff24"/>
+  </g>
+
+  <!-- Green Scan Verified check floating -->
+  <circle cx="48" cy="15" r="6" fill="#d4ff24" filter="url(#bc_glow)"/>
+  <polyline points="45,15 47,17 51,13" fill="none" stroke="#0f172a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

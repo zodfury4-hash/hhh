@@ -388,19 +388,19 @@ const MEGA = {
       <div class="mega-col">
         <h4>PRODUCTS</h4>
         <a class="mega-item" href="#dashboard">
-          <div class="icon-box">${MEGA_ICONS.link}</div>
+          <div class="mega-img-box"><img src="images/products/url-shortener.svg" alt="URL Shortener" width="38" height="38" loading="eager"></div>
           <div><b>URL SHORTENER</b><span>Customize, share and track links</span></div>
         </a>
         <a class="mega-item" href="#qr">
-          <div class="icon-box">${MEGA_ICONS.qr}</div>
+          <div class="mega-img-box"><img src="images/products/qr-code.svg" alt="QR Code Generator" width="38" height="38" loading="eager"></div>
           <div><b>QR CODE GENERATOR</b><span>Dynamic solutions to fit every business need</span></div>
         </a>
         <a class="mega-item" href="#pages">
-          <div class="icon-box">${MEGA_ICONS.mobile}</div>
+          <div class="mega-img-box"><img src="images/products/pages-bio.svg" alt="Pages &amp; Bio" width="38" height="38" loading="eager"></div>
           <div><b>PAGES &amp; BIO</b><span>Curate and track links for social media profiles</span></div>
         </a>
         <a class="mega-item" href="#analytics">
-          <div class="icon-box">${MEGA_ICONS.analytics}</div>
+          <div class="mega-img-box"><img src="images/products/analytics.svg" alt="Analytics" width="38" height="38" loading="eager"></div>
           <div><b>ANALYTICS</b><span>A central place to track performance of all links</span></div>
         </a>
       </div>
@@ -409,27 +409,27 @@ const MEGA = {
       <div class="mega-col">
         <h4>FEATURES</h4>
         <a class="mega-item" href="#pages">
-          <div class="icon-box">${MEGA_ICONS.bio}</div>
+          <div class="mega-img-box"><img src="images/products/link-in-bio.svg" alt="Link-in-Bio" width="38" height="38" loading="eager"></div>
           <div><b>LINK-IN-BIO</b><span>Curate and track content for social profiles</span></div>
         </a>
         <a class="mega-item" href="#dashboard">
-          <div class="icon-box">${MEGA_ICONS.sparkle}</div>
+          <div class="mega-img-box"><img src="images/products/branded-links.svg" alt="Branded Links" width="38" height="38" loading="eager"></div>
           <div><b>BRANDED LINKS</b><span>Customize links with your brand's URL</span></div>
         </a>
         <a class="mega-item" href="#dashboard">
-          <div class="icon-box">${MEGA_ICONS.message}</div>
+          <div class="mega-img-box"><img src="images/products/mobile-links.svg" alt="Mobile Links" width="38" height="38" loading="eager"></div>
           <div><b>MOBILE LINKS</b><span>Short links optimized for SMS messages</span></div>
         </a>
         <a class="mega-item" href="#utm">
-          <div class="icon-box">${MEGA_ICONS.tag}</div>
+          <div class="mega-img-box"><img src="images/products/utm-campaigns.svg" alt="UTM Campaigns" width="38" height="38" loading="eager"></div>
           <div><b>UTM CAMPAIGNS</b><span>Track links with custom UTM parameters</span></div>
         </a>
         <a class="mega-item" href="#pages">
-          <div class="icon-box">${MEGA_ICONS.card}</div>
+          <div class="mega-img-box"><img src="images/products/digital-cards.svg" alt="Digital Business Cards" width="38" height="38" loading="eager"></div>
           <div><b>DIGITAL BUSINESS CARDS</b><span>Grow your network with virtual cards</span></div>
         </a>
         <a class="mega-item" href="#qr">
-          <div class="icon-box">${MEGA_ICONS.box}</div>
+          <div class="mega-img-box"><img src="images/products/2d-barcodes.svg" alt="2D Barcodes" width="38" height="38" loading="eager"></div>
           <div><b>2D BARCODES</b><span>Add GTIN to packaging QR codes</span></div>
         </a>
       </div>
@@ -496,15 +496,15 @@ const MEGA = {
       <div class="mega-col">
         <h4>AI FEATURES</h4>
         <a class="mega-item" href="#assist">
-          <div class="icon-box">${MEGA_ICONS.ai}</div>
+          <div class="mega-img-box"><img src="images/products/ai-assist.svg" alt="HEA Assist" width="38" height="38" loading="eager"></div>
           <div><b>HEA ASSIST</b><span>AI-Powered link and QR Code analysis</span></div>
         </a>
         <a class="mega-item" href="#assist">
-          <div class="icon-box">${MEGA_ICONS.gear}</div>
+          <div class="mega-img-box"><img src="images/products/ai-mcp.svg" alt="HEA MCP" width="38" height="38" loading="eager"></div>
           <div><b>HEA MCP</b><span>Connect to AI agents with Model Context Protocol</span></div>
         </a>
         <a class="mega-item" href="#assist">
-          <div class="icon-box">${MEGA_ICONS.cpu}</div>
+          <div class="mega-img-box"><img src="images/products/ai-llm.svg" alt="LLM Integrations" width="38" height="38" loading="eager"></div>
           <div><b>LLM INTEGRATIONS</b><span>Bring link management to your AI assistants</span></div>
         </a>
       </div>
@@ -513,19 +513,19 @@ const MEGA = {
       <div class="mega-col">
         <h4>AI RESOURCES</h4>
         <a class="mega-item" href="#faq">
-          <div class="icon-box">${MEGA_ICONS.help}</div>
+          <div class="mega-img-box"><img src="images/products/help-center.svg" alt="Help Center" width="38" height="38" loading="eager"></div>
           <div><b>HELP CENTER</b><span>Step-by-step guides &amp; documentation</span></div>
         </a>
         <a class="mega-item" href="#resources">
-          <div class="icon-box">${MEGA_ICONS.code}</div>
+          <div class="mega-img-box"><img src="images/products/developers.svg" alt="Developers" width="38" height="38" loading="eager"></div>
           <div><b>DEVELOPERS</b><span>API endpoints &amp; SDK references</span></div>
         </a>
         <a class="mega-item" href="#resources">
-          <div class="icon-box">${MEGA_ICONS.shield}</div>
+          <div class="mega-img-box"><img src="images/products/trust-center.svg" alt="Trust Center" width="38" height="38" loading="eager"></div>
           <div><b>TRUST CENTER</b><span>Security, privacy &amp; compliance</span></div>
         </a>
         <a class="mega-item" href="#integrations">
-          <div class="icon-box">${MEGA_ICONS.plug}</div>
+          <div class="mega-img-box"><img src="images/products/marketplace.svg" alt="Marketplace" width="38" height="38" loading="eager"></div>
           <div><b>INTEGRATIONS MARKETPLACE</b><span>Plug into 100+ platforms</span></div>
         </a>
       </div>
@@ -626,30 +626,30 @@ const MEGA = {
       <div class="mega-col">
         <h4>LEARN MORE</h4>
         <a class="mega-item" href="#resources">
-          <div class="icon-box">${MEGA_ICONS.book}</div>
+          <div class="mega-img-box"><img src="images/products/guides.svg" alt="Guides" width="38" height="38" loading="eager"></div>
           <div><b>GUIDES &amp; EBOOKS</b><span>Practical tactics to increase CTR</span></div>
         </a>
         <a class="mega-item" href="#resources">
-          <div class="icon-box">${MEGA_ICONS.edit}</div>
+          <div class="mega-img-box"><img src="images/products/blog.svg" alt="Blog" width="38" height="38" loading="eager"></div>
           <div><b>BLOG &amp; INSIGHTS</b><span>Latest trends in short link branding</span></div>
         </a>
         <a class="mega-item" href="#assist">
-          <div class="icon-box">${MEGA_ICONS.bot}</div>
+          <div class="mega-img-box"><img src="images/products/ai-assist.svg" alt="HEA Assist AI" width="38" height="38" loading="eager"></div>
           <div><b>HEA ASSIST AI</b><span>Ask questions about your data</span></div>
         </a>
       </div>
       <div class="mega-col">
         <h4>FIND ANSWERS</h4>
         <a class="mega-item" href="#faq">
-          <div class="icon-box">${MEGA_ICONS.help}</div>
+          <div class="mega-img-box"><img src="images/products/help-center.svg" alt="Help Center" width="38" height="38" loading="eager"></div>
           <div><b>HELP CENTER</b><span>FAQs and setup troubleshooting</span></div>
         </a>
         <a class="mega-item" href="#pricing">
-          <div class="icon-box">${MEGA_ICONS.pricing}</div>
+          <div class="mega-img-box"><img src="images/products/pricing.svg" alt="Pricing" width="38" height="38" loading="eager"></div>
           <div><b>PRICING</b><span>Transparent plans for all teams</span></div>
         </a>
         <a class="mega-item" href="#solutions">
-          <div class="icon-box">${MEGA_ICONS.handshake}</div>
+          <div class="mega-img-box"><img src="images/products/contact.svg" alt="Contact Sales" width="38" height="38" loading="eager"></div>
           <div><b>CONTACT SALES</b><span>Custom enterprise plans &amp; SLAs</span></div>
         </a>
       </div>

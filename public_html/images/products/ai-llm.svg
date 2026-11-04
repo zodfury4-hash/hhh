@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="llm_bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a2a22"/>
+      <stop offset="100%" stop-color="#04120e"/>
+    </linearGradient>
+    <linearGradient id="llm_chip" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+    <filter id="llm_glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#llm_bg)"/>
+  <rect width="64" height="64" rx="16" fill="none" stroke="rgba(16,185,129,0.4)" stroke-width="1.5"/>
+  <!-- Silicon Chip -->
+  <rect x="18" y="18" width="28" height="28" rx="6" fill="url(#llm_chip)" stroke="#d4ff24" stroke-width="1.5" filter="url(#llm_glow)"/>
+  <!-- Pins Top & Bottom -->
+  <line x1="24" y1="12" x2="24" y2="18" stroke="#d4ff24" stroke-width="2" stroke-linecap="round"/>
+  <line x1="32" y1="12" x2="32" y2="18" stroke="#d4ff24" stroke-width="2" stroke-linecap="round"/>
+  <line x1="40" y1="12" x2="40" y2="18" stroke="#d4ff24" stroke-width="2" stroke-linecap="round"/>
+  <line x1="24" y1="46" x2="24" y2="52" stroke="#d4ff24" stroke-width="2" stroke-linecap="round"/>
+  <line x1="32" y1="46" x2="32" y2="52" stroke="#d4ff24" stroke-width="2" stroke-linecap="round"/>
+  <line x1="40" y1="46" x2="40" y2="52" stroke="#d4ff24" stroke-width="2" stroke-linecap="round"/>
+  <!-- Pins Left & Right -->
+  <line x1="12" y1="24" x2="18" y2="24" stroke="#d4ff24" stroke-width="2" stroke-linecap="round"/>
+  <line x1="12" y1="32" x2="18" y2="32" stroke="#d4ff24" stroke-width="2" stroke-linecap="round"/>
+  <line x1="12" y1="40" x2="18" y2="40" stroke="#d4ff24" stroke-width="2" stroke-linecap="round"/>
+  <line x1="46" y1="24" x2="52" y2="24" stroke="#d4ff24" stroke-width="2" stroke-linecap="round"/>
+  <line x1="46" y1="32" x2="52" y2="32" stroke="#d4ff24" stroke-width="2" stroke-linecap="round"/>
+  <line x1="46" y1="40" x2="52" y2="40" stroke="#d4ff24" stroke-width="2" stroke-linecap="round"/>
+  <!-- Text inside chip -->
+  <text x="32" y="35" font-family="system-ui, sans-serif" font-size="7" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">LLM</text>
+</svg>
