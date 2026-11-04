@@ -675,6 +675,8 @@ input[type=color] {
   align-items: center;
   padding-top: 18px;
   padding-bottom: 14px;
+  padding-left: 48px !important;
+  padding-right: 48px !important;
   position: relative;
   z-index: 5;
   min-width: 0;
