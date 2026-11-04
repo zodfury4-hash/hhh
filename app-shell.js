@@ -355,13 +355,13 @@
             if (!l.dest && l.url) l.dest = l.url;
             if (!l.url && l.dest) l.url = l.dest;
 
-            if (l.realShort && (l.realShort.includes('da.gd') || l.realShort.includes('tinyurl.com'))) {
-              l.realShort = l.dest || (origin + '/' + l.slug);
+            if (!l.realShort || l.realShort === l.dest || l.realShort.includes('da.gd') || l.realShort.includes('tinyurl.com') || (l.dest && l.realShort.includes('firebase.google.com'))) {
+              l.realShort = l.slug ? (origin + '/' + l.slug) : '';
               dirty = true;
             }
 
-            if (l.url && (l.url.includes('da.gd') || l.url.includes('tinyurl.com'))) {
-              l.url = l.dest || (origin + '/' + l.slug);
+            if (l.url && (l.url.includes('da.gd') || l.url.includes('tinyurl.com') || (l.dest && l.url === l.dest && l.slug))) {
+              l.url = origin + '/' + l.slug;
               dirty = true;
             }
 
@@ -485,19 +485,19 @@
 
     container.innerHTML = `
 
-      <div class="pro-locked-screen" style="text-align:center;padding:70px 24px;max-width:560px;margin:40px auto;background:rgba(15,23,42,0.85);border:1px solid rgba(56,189,248,0.25);border-radius:24px;backdrop-filter:blur(24px);box-shadow:0 24px 60px rgba(0,0,0,0.6);">
+      <div class="pro-locked-screen" style="text-align:center;padding:60px 32px;max-width:560px;margin:40px auto;background:#ffffff;border:1.5px solid #e2e8f0;border-radius:24px;box-shadow:0 20px 45px rgba(0,70,200,0.08);">
 
-        <div style="width:76px;height:76px;border-radius:22px;background:linear-gradient(135deg,rgba(56,189,248,0.2),rgba(212,255,36,0.15));border:1px solid #D4FF24;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 0 25px rgba(212,255,36,0.25);">
+        <div style="width:76px;height:76px;border-radius:22px;background:#eff6ff;border:1.5px solid #bfdbfe;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 8px 24px rgba(0,112,243,0.12);">
 
           🔒
 
         </div>
 
-        <span class="pill" style="background:rgba(212,255,36,0.15);color:#D4FF24;border:1px solid rgba(212,255,36,0.3);padding:4px 14px;border-radius:20px;font-size:11px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;">EXCLUSIVE PRO FEATURE</span>
+        <span class="pill" style="background:#eff6ff;color:#0070f3;border:1px solid #bfdbfe;padding:5px 16px;border-radius:20px;font-size:11px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;">EXCLUSIVE PRO FEATURE</span>
 
-        <h2 style="font-size:26px;font-weight:800;color:#ffffff;margin:16px 0 10px;">${featureName} is locked</h2>
+        <h2 style="font-size:26px;font-weight:800;color:#0070f3;margin:16px 0 10px;">${featureName} is locked</h2>
 
-        <p style="color:#94a3b8;font-size:14px;line-height:1.6;margin-bottom:28px;">
+        <p style="color:#334155;font-size:14px;line-height:1.6;margin-bottom:28px;">
 
           ${featureDescription}
 
@@ -505,13 +505,13 @@
 
         <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
 
-          <button type="button" class="btn" style="background:#D4FF24;color:#060b18;font-weight:800;font-size:15px;padding:12px 28px;border-radius:12px;cursor:pointer;border:none;box-shadow:0 0 20px rgba(212,255,36,0.35);" onclick="window.openCheckoutModal('pro')">
+          <button type="button" class="btn" style="background:#0070f3;color:#ffffff;font-weight:800;font-size:15px;padding:12px 28px;border-radius:12px;cursor:pointer;border:none;box-shadow:0 8px 22px rgba(0,112,243,0.3);transition:all 0.2s ease;" onclick="window.openCheckoutModal('pro')">
 
             ⚡ Upgrade to Pro Now
 
           </button>
 
-          <button type="button" class="btn ghost" style="font-size:14px;padding:12px 22px;border-radius:12px;cursor:pointer;" onclick="window.appShell.navigate('home')">
+          <button type="button" class="btn ghost" style="font-size:14px;padding:12px 22px;border-radius:12px;cursor:pointer;background:#f1f5f9;border:1.5px solid #cbd5e1;color:#0b132b;font-weight:700;" onclick="window.appShell.navigate('home')">
 
             ← Back to Dashboard
 
@@ -759,11 +759,11 @@
 
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
 
-          <span style="font-size:20px;color:#38bdf8;">✨</span>
+          <span style="font-size:20px;color:#0070f3;">✨</span>
 
-          <span style="font-weight:700;color:#ffffff;font-size:15px;">Simplify your workflow</span>
+          <span style="font-weight:700;color:#0b132b;font-size:15px;">Simplify your workflow</span>
 
-          <span style="color:#94a3b8;font-size:14px;">Explore smarter ways to create links.</span>
+          <span style="color:#64748b;font-size:14px;">Explore smarter ways to create links.</span>
 
           <button class="home-type-tab" type="button" style="padding:4px 10px;font-size:12px;" onclick="window.appShell.navigate('create-link')">🔗 Personalize a short link</button>
 
@@ -789,17 +789,17 @@
 
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
 
-            <h4 style="margin:0;color:#ffffff;">Connect your account</h4>
+            <h4 style="margin:0;color:#0070f3;font-weight:800;">Connect your account</h4>
 
-            <a href="#integrations" style="color:#38bdf8;font-size:13px;font-weight:600;text-decoration:none;">Explore Integrations →</a>
+            <a href="#integrations" style="color:#0070f3;font-size:13px;font-weight:600;text-decoration:none;">Explore Integrations →</a>
 
           </div>
 
-          <p style="color:#94a3b8;margin:0 0 16px;font-size:13px;">Recommended for you</p>
+          <p style="color:#64748b;margin:0 0 16px;font-size:13px;">Recommended for you</p>
 
           <div style="display:flex;flex-direction:column;gap:10px;">
 
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;">
 
               <div style="display:flex;align-items:center;gap:12px;">
 
@@ -807,9 +807,9 @@
 
                 <div>
 
-                  <div style="font-weight:700;font-size:14px;color:#ffffff;">Chrome Extension</div>
+                  <div style="font-weight:700;font-size:14px;color:#0b132b;">Chrome Extension</div>
 
-                  <div style="font-size:12px;color:#94a3b8;">Instant links and QR Codes from anywhere</div>
+                  <div style="font-size:12px;color:#64748b;">Instant links and QR Codes from anywhere</div>
 
                 </div>
 
@@ -819,7 +819,7 @@
 
             </div>
 
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;">
 
               <div style="display:flex;align-items:center;gap:12px;">
 
@@ -827,9 +827,9 @@
 
                 <div>
 
-                  <div style="font-weight:700;font-size:14px;color:#ffffff;">Canva</div>
+                  <div style="font-weight:700;font-size:14px;color:#0b132b;">Canva</div>
 
-                  <div style="font-size:12px;color:#94a3b8;">Popular pick in productivity and design</div>
+                  <div style="font-size:12px;color:#64748b;">Popular pick in productivity and design</div>
 
                 </div>
 
@@ -839,7 +839,7 @@
 
             </div>
 
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;">
 
               <div style="display:flex;align-items:center;gap:12px;">
 
@@ -847,9 +847,9 @@
 
                 <div>
 
-                  <div style="font-weight:700;font-size:14px;color:#ffffff;">Shopify <span style="background:#0284c7;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;font-weight:800;margin-left:4px;">New</span></div>
+                  <div style="font-weight:700;font-size:14px;color:#0b132b;">Shopify <span style="background:#0284c7;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;font-weight:800;margin-left:4px;">New</span></div>
 
-                  <div style="font-size:12px;color:#94a3b8;">Auto-attribute orders to specific links</div>
+                  <div style="font-size:12px;color:#64748b;">Auto-attribute orders to specific links</div>
 
                 </div>
 
@@ -871,9 +871,9 @@
 
             <div>
 
-              <h4 style="margin:0 0 2px;color:#94a3b8;font-size:13px;font-weight:500;">Hi ${appUser.name},</h4>
+              <h4 style="margin:0 0 2px;color:#64748b;font-size:13px;font-weight:500;">Hi ${appUser.name},</h4>
 
-              <h4 style="margin:0;color:#ffffff;font-size:18px;font-weight:800;">get started with HEA Link</h4>
+              <h4 style="margin:0;color:#0070f3;font-size:18px;font-weight:800;">get started with HEA Link</h4>
 
             </div>
 
@@ -881,7 +881,7 @@
 
               <span>33%</span>
 
-              <svg width="26" height="26" viewBox="0 0 36 36"><path stroke="rgba(255,255,255,0.1)" stroke-width="4" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/><path stroke="#10b981" stroke-width="4" stroke-dasharray="33, 100" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/></svg>
+              <svg width="26" height="26" viewBox="0 0 36 36"><path stroke="rgba(0,112,243,0.15)" stroke-width="4" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/><path stroke="#10b981" stroke-width="4" stroke-dasharray="33, 100" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/></svg>
 
             </div>
 
@@ -889,17 +889,17 @@
 
           <div style="display:flex;flex-direction:column;gap:12px;font-size:13px;">
 
-            <div style="padding:10px 12px;background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:10px;">
+            <div style="padding:10px 12px;background:rgba(0,112,243,0.06);border:1px solid rgba(0,112,243,0.18);border-radius:10px;">
 
-              <div style="display:flex;align-items:center;gap:10px;color:#ffffff;font-weight:700;margin-bottom:6px;">
+              <div style="display:flex;align-items:center;gap:10px;color:#0b132b;font-weight:700;margin-bottom:6px;">
 
-                <span style="width:16px;height:16px;border:2px solid #38bdf8;border-radius:50%;display:inline-block;"></span>
+                <span style="width:16px;height:16px;border:2px solid #0070f3;border-radius:50%;display:inline-block;"></span>
 
                 <span>Shorten a URL</span>
 
               </div>
 
-              <button class="sso-btn" style="width:auto;padding:6px 14px;font-size:12px;color:#38bdf8;font-weight:700;" onclick="window.appShell.navigate('create-link')">
+              <button class="sso-btn" style="width:auto;padding:6px 14px;font-size:12px;color:#0070f3;font-weight:700;" onclick="window.appShell.navigate('create-link')">
 
                 🔗 Let's make a link
 
@@ -907,9 +907,9 @@
 
             </div>
 
-            <div style="display:flex;align-items:center;gap:10px;color:#94a3b8;padding:4px 0;">
+            <div style="display:flex;align-items:center;gap:10px;color:#64748b;padding:4px 0;">
 
-              <span style="width:16px;height:16px;border:2px dashed #64748b;border-radius:50%;display:inline-block;"></span>
+              <span style="width:16px;height:16px;border:2px dashed #94a3b8;border-radius:50%;display:inline-block;"></span>
 
               <span>Collect 10 clicks or scans</span>
 
@@ -935,13 +935,13 @@
 
           <div>
 
-            <h4 style="margin:0;color:#ffffff;font-size:16px;">Recent links</h4>
+            <h4 style="margin:0;color:#0070f3;font-weight:800;font-size:16px;">Recent links</h4>
 
-            <p style="color:#94a3b8;font-size:12px;margin:2px 0 0;">Your active links and real-time performance</p>
+            <p style="color:#64748b;font-size:12px;margin:2px 0 0;">Your active links and real-time performance</p>
 
           </div>
 
-          <button class="topbar-icon-btn" type="button" onclick="window.appShell.navigate('links')" style="color:#38bdf8;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:4px;">View all links →</button>
+          <button class="topbar-icon-btn" type="button" onclick="window.appShell.navigate('links')" style="color:#0070f3;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:4px;">View all links →</button>
 
         </div>
 
@@ -955,15 +955,15 @@
 
               return `
 
-                <div style="text-align:center;padding:32px 16px;color:#94a3b8;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.08);border-radius:12px;">
+                <div style="text-align:center;padding:32px 16px;color:#64748b;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;">
 
                   <div style="font-size:26px;margin-bottom:6px;">🔗</div>
 
-                  <div style="font-weight:700;color:#ffffff;font-size:14px;margin-bottom:4px;">No short links created yet</div>
+                  <div style="font-weight:700;color:#0b132b;font-size:14px;margin-bottom:4px;">No short links created yet</div>
 
-                  <p style="font-size:12px;color:#94a3b8;margin:0 0 12px;">Paste a destination URL above to create your first short link &amp; track clicks in real-time.</p>
+                  <p style="font-size:12px;color:#64748b;margin:0 0 12px;">Paste a destination URL above to create your first short link &amp; track clicks in real-time.</p>
 
-                  <button class="sso-btn" style="width:auto;margin:0 auto;padding:6px 14px;font-size:12px;color:#38bdf8;font-weight:700;" onclick="const inp = $('#homeShortenInput'); if (inp) inp.focus();">Create your first link ↑</button>
+                  <button class="sso-btn" style="width:auto;margin:0 auto;padding:6px 14px;font-size:12px;color:#0070f3;font-weight:700;" onclick="const inp = $('#homeShortenInput'); if (inp) inp.focus();">Create your first link ↑</button>
 
                 </div>
 
@@ -973,13 +973,13 @@
 
             return rLinks.map(l => `
 
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;margin-bottom:10px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:10px;">
 
                 <div style="min-width:0;flex:1;margin-right:16px;">
 
-                  <a href="${l.dest || l.url}" target="_blank" rel="noopener" style="font-weight:700;color:#38bdf8;font-size:14px;text-decoration:none;" title="Click to open destination">${(l.slug ? (origin.replace(/^https?:\/\//, '') + '/' + l.slug) : (l.url || l.dest))} ↗</a>
+                  <a href="${l.dest || l.url}" target="_blank" rel="noopener" style="font-weight:700;color:#0070f3;font-size:14px;text-decoration:none;" title="Click to open destination">${(l.slug ? (origin.replace(/^https?:\/\//, '') + '/' + l.slug) : (l.url || l.dest))} ↗</a>
 
-                  <div style="font-size:12px;color:#94a3b8;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.title || 'Untitled'} · <span style="color:#64748b;">${l.dest}</span></div>
+                  <div style="font-size:12px;color:#64748b;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.title || 'Untitled'} · <span style="color:#94a3b8;">${l.dest}</span></div>
 
                 </div>
 
@@ -1119,7 +1119,7 @@
 
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
 
-          <h2 style="font-size:24px;font-weight:800;color:#ffffff;margin:0;">Create a new link</h2>
+          <h2 style="font-size:24px;font-weight:800;color:#0070f3;margin:0;">Create a new link</h2>
 
           <a href="#" style="color:#38bdf8;font-size:13px;font-weight:600;text-decoration:none;" onclick="alert('Bulk upload is available on the Pro plan')">Bulk upload 📄</a>
 
@@ -1495,7 +1495,7 @@
 
       } catch (e) {}
 
-      const cleanUrl = dest || realShort || `https://${domain || 'healink.store'}/${slug}`;
+      const cleanUrl = realShort || (slug ? `https://${domain || 'healink.store'}/${slug}` : (origin + '/' + slug));
 
       const links = getStoredLinks();
 
@@ -1593,7 +1593,7 @@
 
     } catch (e) {}
 
-    const cleanUrl = dest || realShort || `https://${domain || 'healink.store'}/${slug}`;
+    const cleanUrl = realShort || (slug ? `https://${domain || 'healink.store'}/${slug}` : (origin + '/' + slug));
 
     const links = getStoredLinks();
 
@@ -1721,25 +1721,29 @@
 
           <div class="qr-card-item">
 
-            <div>
+            <div style="flex:1;min-width:0;overflow:hidden;">
 
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
 
-                <span style="background:rgba(56,189,248,0.15);color:#38bdf8;font-weight:700;font-size:11px;padding:2px 8px;border-radius:4px;">${l.tag || 'Website'}</span>
+                <span style="background:rgba(0,112,243,0.08);color:#0070f3;font-weight:700;font-size:11px;padding:3px 9px;border-radius:6px;border:1px solid rgba(0,112,243,0.18);">${l.tag || 'Website'}</span>
 
-                <span style="font-size:12px;color:#94a3b8;">${l.createdAt || 'Recent'}</span>
+                <span style="font-size:12px;color:#64748b;">${l.createdAt || 'Recent'}</span>
 
               </div>
 
-              <h4 style="margin:0 0 4px;font-size:16px;color:#ffffff;">${l.title || 'Untitled Link'}</h4>
+              <h4 style="margin:0 0 4px;font-size:16px;color:#0070f3 !important;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;">${l.title || 'Untitled Link'}</h4>
 
-              <a href="${l.dest || liveUrl}" target="_blank" rel="noopener" style="color:#38bdf8;font-weight:700;font-size:14px;text-decoration:none;" title="Click to visit destination">${l.slug ? (origin.replace(/^https?:\/\//, '') + '/' + l.slug) : liveUrl} ↗</a>
+              <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;">
 
-              ${(l.dest && l.dest !== liveUrl) ? `<div style="font-size:13px;color:#94a3b8;margin-top:4px;">↳ <a href="${l.dest}" target="_blank" rel="noopener" style="color:#94a3b8;text-decoration:none;">${l.dest}</a></div>` : ''}
+                <a href="${l.dest || liveUrl}" target="_blank" rel="noopener" style="color:#0070f3;font-weight:700;font-size:14px;text-decoration:none;" title="Click to visit destination">${l.slug ? (origin.replace(/^https?:\/\//, '') + '/' + l.slug) : liveUrl} ↗</a>
+
+              </div>
+
+              ${(l.dest && l.dest !== liveUrl) ? `<div style="font-size:13px;color:#64748b;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;" title="${l.dest}">↳ <a href="${l.dest}" target="_blank" rel="noopener" style="color:#64748b;text-decoration:none;">${l.dest}</a></div>` : ''}
 
             </div>
 
-            <div style="display:flex;align-items:center;gap:12px;">
+            <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
 
               <span style="display:none !important;">${typeof l.clicks === 'number' ? l.clicks : (Array.isArray(l.clicks) ? l.clicks.length : 0)} clicks</span>
 
@@ -1821,7 +1825,7 @@
 
             </div>
 
-            <h3 style="font-size:26px;font-weight:800;color:#ffffff;margin:0 0 10px;">Connect your audience with a simple scan</h3>
+            <h3 style="font-size:26px;font-weight:800;color:#0070f3;margin:0 0 10px;">Connect your audience with a simple scan</h3>
 
             <p style="color:#94a3b8;font-size:15px;max-width:480px;margin:0 auto 24px;line-height:1.5;">
 
@@ -1889,7 +1893,7 @@
 
             <div class="dash-white-card">
 
-              <h3 style="color:#ffffff;margin-top:0;font-size:18px;">QR Code Details</h3>
+              <h3 style="color:#0070f3;margin-top:0;font-size:18px;font-weight:800;">QR Code Details</h3>
 
               <div class="create-link-field">
 
@@ -1909,7 +1913,7 @@
 
               <!-- Advanced Settings (Frame 9) -->
 
-              <h4 style="font-size:15px;color:#ffffff;margin:20px 0 10px;">Advanced settings</h4>
+              <h4 style="font-size:15px;color:#0070f3;margin:20px 0 10px;font-weight:700;">Advanced settings</h4>
 
               <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
 
@@ -2013,7 +2017,7 @@
 
           const realShort = await fetchOnlineShortUrl(dest);
 
-          const cleanUrl = dest || realShort || `https://healink.store/${slug}`;
+          const cleanUrl = realShort || (slug ? `https://healink.store/${slug}` : (origin + '/' + slug));
 
           const links = getStoredLinks();
 
@@ -2144,11 +2148,11 @@
 
                 <div class="qr-details">
 
-                  <span style="background:rgba(255,255,255,0.06);color:#38bdf8;font-weight:600;font-size:11px;padding:2px 8px;border-radius:4px;">🌐 ${item.tag || 'Website'}</span>
+                  <span style="background:rgba(0,112,243,0.08);color:#0070f3;font-weight:700;font-size:11px;padding:3px 9px;border-radius:6px;border:1px solid rgba(0,112,243,0.18);">🌐 ${item.tag || 'Website'}</span>
 
-                  <h4 style="cursor:pointer;" onclick="window.appShell.navigate('qr-detail', '${item.id}')">${item.title}</h4>
+                  <h4 style="cursor:pointer;color:#0070f3 !important;margin:6px 0 4px;font-size:16px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;" onclick="window.appShell.navigate('qr-detail', '${item.id}')">${item.title}</h4>
 
-                  <div class="qr-dest-text">↳ ${item.dest}</div>
+                  <div class="qr-dest-text" title="${item.dest}">↳ ${item.dest}</div>
 
                   <div class="qr-meta-row">
 
@@ -2156,7 +2160,7 @@
 
                     <span>📅 ${item.createdAt}</span>
 
-                    <span>🔗 ${(item.realShort || item.url || (item.dest || item.url || (origin + '/' + (item.slug || '')))).replace(/^https?:\/\//, '')}</span>
+                    <span title="${((item.realShort && item.realShort !== item.dest) ? item.realShort : (item.slug ? (origin.replace(/^https?:\/\//, '') + '/' + item.slug) : (item.dest || ''))).replace(/^https?:\/\//, '')}">🔗 ${((item.realShort && item.realShort !== item.dest) ? item.realShort : (item.slug ? (origin.replace(/^https?:\/\//, '') + '/' + item.slug) : (item.dest || ''))).replace(/^https?:\/\//, '')}</span>
 
                     <span>🏷 No tags</span>
 
@@ -2268,7 +2272,7 @@
 
           <button class="sso-btn" style="width:auto;padding:6px 12px;font-size:14px;" onclick="window.appShell.navigate('qr')">←</button>
 
-          <h2 style="font-size:24px;font-weight:800;color:#ffffff;margin:0;">${item.title}</h2>
+          <h2 style="font-size:24px;font-weight:800;color:#0070f3;margin:0;">${item.title}</h2>
 
           <button class="topbar-icon-btn" title="Edit title" onclick="alert('Editing QR code title')">✏️</button>
 
@@ -2302,13 +2306,13 @@
 
         <div class="dash-white-card">
 
-          <h3 style="font-size:18px;font-weight:700;color:#ffffff;margin:0 0 18px;">Details</h3>
+          <h3 style="font-size:18px;font-weight:700;color:#0070f3;margin:0 0 18px;">Details</h3>
 
           <div style="margin-bottom:16px;">
 
             <div style="font-size:12px;font-weight:700;color:#94a3b8;margin-bottom:4px;">Scan destination</div>
 
-            <div style="display:flex;align-items:center;gap:8px;color:#ffffff;font-size:14px;font-weight:600;">
+            <div style="display:flex;align-items:center;gap:8px;color:#0b132b;font-size:14px;font-weight:600;">
 
               <span>🌐</span> Website / URL
 
@@ -2320,7 +2324,7 @@
 
             <div style="font-size:12px;font-weight:700;color:#94a3b8;margin-bottom:4px;">Destination</div>
 
-            <div style="color:#38bdf8;font-size:13px;word-break:break-all;">↳ ${item.dest}</div>
+            <div style="color:#0070f3;font-size:13px;word-break:break-all;">↳ ${item.dest}</div>
 
           </div>
 
@@ -2330,9 +2334,9 @@
 
             <div style="display:flex;align-items:center;gap:10px;">
 
-              <span style="color:#ffffff;font-size:14px;font-weight:700;">${(item.realShort || item.url || (item.dest || item.url || (origin + '/' + (item.slug || '')))).replace(/^https?:\/\//, '')}</span>
+              <span style="color:#0070f3;font-size:14px;font-weight:700;">${((item.realShort && item.realShort !== item.dest) ? item.realShort : (item.slug ? (origin.replace(/^https?:\/\//, '') + '/' + item.slug) : (item.dest || ''))).replace(/^https?:\/\//, '')}</span>
 
-              <button class="sso-btn" style="width:auto;padding:2px 8px;font-size:11px;" onclick="window.appShell.copy('${item.realShort || item.url || (item.dest || item.url || (origin + '/' + (item.slug || '')))}')">📋 Copy</button>
+              <button class="sso-btn" style="width:auto;padding:2px 8px;font-size:11px;" onclick="window.appShell.copy('${((item.realShort && item.realShort !== item.dest) ? item.realShort : (item.slug ? (origin + '/' + item.slug) : (item.dest || '')))}')">📋 Copy</button>
 
             </div>
 
@@ -2342,7 +2346,7 @@
 
             <div style="font-size:12px;font-weight:700;color:#94a3b8;margin-bottom:4px;">Tags</div>
 
-            <div style="color:#94a3b8;font-size:13px;">🏷️ ${item.tag || 'No tags'}</div>
+            <div style="color:#64748b;font-size:13px;">🏷️ ${item.tag || 'No tags'}</div>
 
           </div>
 
@@ -2350,7 +2354,7 @@
 
             <div style="font-size:12px;font-weight:700;color:#94a3b8;margin-bottom:4px;">Created on</div>
 
-            <div style="color:#cbd5e1;font-size:13px;">${item.createdAt}</div>
+            <div style="color:#64748b;font-size:13px;">${item.createdAt}</div>
 
           </div>
 
@@ -2372,27 +2376,27 @@
 
           <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;">
 
-            <span style="font-size:12px;color:#94a3b8;">Brand Color:</span>
+            <span style="font-size:12px;color:#64748b;">Brand Color:</span>
 
-            ${['#ff007f', '#38bdf8', '#D4FF24', '#ffffff', '#ff9900'].map(c => `
+            ${['#ff007f', '#0070f3', '#10b981', '#0b132b', '#ff9900'].map(c => `
 
-              <button class="color-dot" style="width:20px;height:20px;border-radius:50%;background:${c};border:2px solid ${appUser.selectedQrColor === c ? '#ffffff' : 'transparent'};cursor:pointer;" onclick="window.appShell.changeQrColor('${c}')"></button>
+              <button class="color-dot" style="width:20px;height:20px;border-radius:50%;background:${c};border:2px solid ${appUser.selectedQrColor === c ? '#0070f3' : 'transparent'};cursor:pointer;" onclick="window.appShell.changeQrColor('${c}')"></button>
 
             `).join('')}
 
           </div>
 
-          <button class="sso-btn" style="width:auto;padding:8px 20px;color:#38bdf8;border-color:rgba(56,189,248,0.3);font-weight:600;margin-bottom:14px;" onclick="window.appShell.toast('Custom QR design saved!')">
+          <button class="sso-btn" style="width:auto;padding:8px 20px;color:#0070f3;border-color:rgba(0,112,243,0.3);font-weight:600;margin-bottom:14px;" onclick="window.appShell.toast('Custom QR design saved!')">
 
             🎨 Customize frame &amp; colors
 
           </button>
 
-          <div style="display:flex;justify-content:space-between;align-items:center;width:100%;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;width:100%;padding:10px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
 
-            <span style="color:#ffffff;font-size:13px;font-weight:700;">${(item.realShort || item.url || (item.dest || item.url || (origin + '/' + (item.slug || '')))).replace(/^https?:\/\//, '')}</span>
+            <span style="color:#0070f3;font-size:13px;font-weight:700;">${((item.realShort && item.realShort !== item.dest) ? item.realShort : (item.slug ? (origin.replace(/^https?:\/\//, '') + '/' + item.slug) : (item.dest || ''))).replace(/^https?:\/\//, '')}</span>
 
-            <span style="color:#94a3b8;cursor:pointer;">···</span>
+            <span style="color:#64748b;cursor:pointer;">···</span>
 
           </div>
 
@@ -2408,9 +2412,9 @@
 
           <div>
 
-            <h3 style="font-size:18px;font-weight:700;color:#ffffff;margin:0 0 6px;">Dynamic routing</h3>
+            <h3 style="font-size:18px;font-weight:700;color:#0070f3;margin:0 0 6px;">Dynamic routing</h3>
 
-            <p style="color:#94a3b8;font-size:13px;margin:0;">Automatically route visitors to different destinations based on device, location, and more.</p>
+            <p style="color:#64748b;font-size:13px;margin:0;">Automatically route visitors to different destinations based on device, location, and more.</p>
 
           </div>
 
@@ -2432,9 +2436,9 @@
 
           <div>
 
-            <h3 style="font-size:18px;font-weight:700;color:#ffffff;margin:0 0 4px;">Code analytics — ${item.dest.slice(0, 45)}...</h3>
+            <h3 style="font-size:18px;font-weight:700;color:#0070f3;margin:0 0 4px;">Code analytics — ${item.dest.slice(0, 45)}...</h3>
 
-            <a href="#analytics" style="color:#38bdf8;font-size:13px;font-weight:600;text-decoration:none;">⇄ Switch to all links</a>
+            <a href="#analytics" style="color:#0070f3;font-size:13px;font-weight:600;text-decoration:none;">⇄ Switch to all links</a>
 
           </div>
 
@@ -2456,7 +2460,7 @@
 
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
 
-          <span style="font-size:14px;font-weight:700;color:#ffffff;">Scans over time</span>
+          <span style="font-size:14px;font-weight:700;color:#0b132b;">Scans over time</span>
 
           <span class="verified-tag" style="background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);font-size:10px;padding:3px 8px;">👑 UPGRADE</span>
 
@@ -3606,9 +3610,9 @@
 
                     <span style="font-size:10px;font-weight:800;color:${t.accent};letter-spacing:1px;text-transform:uppercase;">${t.badge}</span>
 
-                    <h4 style="margin:4px 0 6px;color:#ffffff;font-size:15px;font-weight:700;">${t.title}</h4>
+                    <h4 style="margin:4px 0 6px;color:#0070f3;font-size:15px;font-weight:700;">${t.title}</h4>
 
-                    <p style="font-size:12px;color:#94a3b8;line-height:1.4;margin:0 0 14px;">${t.desc}</p>
+                    <p style="font-size:12px;color:#64748b;line-height:1.4;margin:0 0 14px;">${t.desc}</p>
 
                   </div>
 
@@ -3720,7 +3724,7 @@
 
               <div class="configure-card">
 
-                <h3 style="color:#ffffff;font-size:17px;font-weight:700;margin:0 0 14px;display:flex;align-items:center;gap:8px;">
+                <h3 style="color:#0070f3;font-size:17px;font-weight:700;margin:0 0 14px;display:flex;align-items:center;gap:8px;">
 
                   <span>🔗</span> Page URL
 
@@ -3742,7 +3746,7 @@
 
                   </select>
 
-                  <span style="color:#ffffff;font-size:15px;font-weight:800;padding:0 4px;">/m/</span>
+                  <span style="color:#0070f3;font-size:15px;font-weight:800;padding:0 4px;">/m/</span>
 
                   <input type="text" id="configBioSlug" class="home-shorten-input" style="flex:1;min-width:150px;" value="${initialSlug}" placeholder="custom-back-half" required>
 
@@ -3764,7 +3768,7 @@
 
               <div class="configure-card">
 
-                <h3 style="color:#ffffff;font-size:17px;font-weight:700;margin:0 0 16px;display:flex;align-items:center;gap:8px;">
+                <h3 style="color:#0070f3;font-size:17px;font-weight:700;margin:0 0 16px;display:flex;align-items:center;gap:8px;">
 
                   <span>✏️</span> Page Content Details
 
@@ -3832,7 +3836,7 @@
 
               <div class="configure-card">
 
-                <h3 style="color:#ffffff;font-size:17px;font-weight:700;margin:0 0 16px;display:flex;align-items:center;gap:8px;">
+                <h3 style="color:#0070f3;font-size:17px;font-weight:700;margin:0 0 16px;display:flex;align-items:center;gap:8px;">
 
                   <span>▦</span> QR Code
 
@@ -3840,15 +3844,15 @@
 
                 <div style="margin-bottom:18px;">
 
-                  <label style="font-size:12px;color:#94a3b8;font-weight:600;display:block;margin-bottom:10px;">Code color</label>
+                  <label style="font-size:12px;color:#64748b;font-weight:600;display:block;margin-bottom:10px;">Code color</label>
 
                   <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
 
                     ${[
 
-                      { c: '#00c6ff', name: 'Cyber Cyan' },
+                      { c: '#0070f3', name: 'Electric Blue' },
 
-                      { c: '#D4FF24', name: 'Neon Lime' },
+                      { c: '#00c6ff', name: 'Cyber Cyan' },
 
                       { c: '#10b981', name: 'Emerald' },
 
@@ -3876,11 +3880,11 @@
 
                 <div style="margin-bottom:20px;">
 
-                  <label style="font-size:12px;color:#94a3b8;font-weight:600;display:block;margin-bottom:8px;">Logo</label>
+                  <label style="font-size:12px;color:#64748b;font-weight:600;display:block;margin-bottom:8px;">Logo</label>
 
                   <div style="display:flex;gap:12px;align-items:center;">
 
-                    <div style="width:44px;height:44px;border:1px dashed rgba(255,255,255,0.25);border-radius:10px;display:grid;place-items:center;color:#94a3b8;font-size:20px;background:rgba(255,255,255,0.02);cursor:pointer;" onclick="window.openCheckoutModal('pro');">
+                    <div style="width:44px;height:44px;border:1px dashed #cbd5e1;border-radius:10px;display:grid;place-items:center;color:#64748b;font-size:20px;background:#f8fafc;cursor:pointer;" onclick="window.openCheckoutModal('pro');">
 
                       +
 
@@ -3898,15 +3902,15 @@
 
                 <!-- QR Code Preview Box -->
 
-                <div style="display:flex;gap:18px;align-items:center;padding:16px;background:rgba(4, 9, 22, 0.85);border:1px solid rgba(56, 189, 248, 0.18);border-radius:14px;">
+                <div style="display:flex;gap:18px;align-items:center;padding:16px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:14px;">
 
-                  <canvas id="configQrCanvas" width="105" height="105" style="border-radius:10px;background:#ffffff;padding:5px;flex-shrink:0;box-shadow:0 8px 24px rgba(0,0,0,0.5);"></canvas>
+                  <canvas id="configQrCanvas" width="105" height="105" style="border-radius:10px;background:#ffffff;padding:5px;flex-shrink:0;box-shadow:0 4px 14px rgba(0,70,200,0.08);border:1px solid #e2e8f0;"></canvas>
 
                   <div>
 
-                    <div style="font-weight:800;color:#ffffff;font-size:15px;margin-bottom:4px;">Preview</div>
+                    <div style="font-weight:800;color:#0b132b;font-size:15px;margin-bottom:4px;">Preview</div>
 
-                    <div style="font-size:12px;color:#94a3b8;line-height:1.5;">More customizations are available after creating</div>
+                    <div style="font-size:12px;color:#64748b;line-height:1.5;">More customizations are available after creating</div>
 
                   </div>
 
@@ -4266,13 +4270,13 @@
 
           </div>
 
-          <div style="text-align:center;padding:50px 24px;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.08);border-radius:16px;max-width:560px;margin:32px auto;">
+          <div style="text-align:center;padding:50px 24px;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:16px;max-width:560px;margin:32px auto;">
 
             <div style="font-size:36px;margin-bottom:12px;">📱</div>
 
-            <h3 style="color:#ffffff;font-size:18px;margin:0 0 8px;">No bio pages created yet</h3>
+            <h3 style="color:#0070f3;font-size:18px;font-weight:800;margin:0 0 8px;">No bio pages created yet</h3>
 
-            <p style="color:#94a3b8;font-size:14px;margin:0 0 20px;line-height:1.6;">Build a single high-converting mobile bio page to showcase all your links, social media profiles, and offers.</p>
+            <p style="color:#64748b;font-size:14px;margin:0 0 20px;line-height:1.6;">Build a single high-converting mobile bio page to showcase all your links, social media profiles, and offers.</p>
 
             <button class="auth-submit-btn" id="btnEmptyCreateBio" style="width:auto;margin:0 auto;padding:12px 28px;">+ Choose a Template</button>
 
@@ -4511,9 +4515,9 @@
 
         <div class="dash-white-card">
 
-          <div style="font-size:13px;color:#94a3b8;margin-bottom:6px;">TOTAL SHORTENED LINKS</div>
+          <div style="font-size:13px;color:#64748b;margin-bottom:6px;">TOTAL SHORTENED LINKS</div>
 
-          <div style="font-size:32px;font-weight:800;color:#ffffff;">${links.length}</div>
+          <div style="font-size:32px;font-weight:800;color:#0070f3;">${links.length}</div>
 
           <div style="font-size:12px;color:#10b981;margin-top:6px;">🟢 Active &amp; tracked in MongoDB</div>
 
@@ -4521,17 +4525,17 @@
 
         <div class="dash-white-card">
 
-          <div style="font-size:13px;color:#94a3b8;margin-bottom:6px;">TOTAL LIVE CLICKS</div>
+          <div style="font-size:13px;color:#64748b;margin-bottom:6px;">TOTAL LIVE CLICKS</div>
 
-          <div style="font-size:32px;font-weight:800;color:#38bdf8;">${totalClicks}</div>
+          <div style="font-size:32px;font-weight:800;color:#0070f3;">${totalClicks}</div>
 
-          <div style="font-size:12px;color:#38bdf8;margin-top:6px;">↗ Real-time click tracking</div>
+          <div style="font-size:12px;color:#0070f3;margin-top:6px;">↗ Real-time click tracking</div>
 
         </div>
 
         <div class="dash-white-card">
 
-          <div style="font-size:13px;color:#94a3b8;margin-bottom:6px;">TOTAL QR SCANS</div>
+          <div style="font-size:13px;color:#64748b;margin-bottom:6px;">TOTAL QR SCANS</div>
 
           <div style="font-size:32px;font-weight:800;color:#ff007f;">${totalScans}</div>
 
@@ -4549,15 +4553,15 @@
 
           <div>
 
-            <div style="font-size:11px;font-weight:800;color:#38bdf8;text-transform:uppercase;margin-bottom:6px;">Step 1</div>
+            <div style="font-size:11px;font-weight:800;color:#0070f3;text-transform:uppercase;margin-bottom:6px;">Step 1</div>
 
-            <h4 style="color:#ffffff;font-size:16px;margin:0 0 8px;">Create links and codes</h4>
+            <h4 style="color:#0070f3;font-size:16px;font-weight:700;margin:0 0 8px;">Create links and codes</h4>
 
-            <p style="color:#94a3b8;font-size:12px;line-height:1.5;margin:0 0 16px;">Transform any long URL into a short, trackable link or QR Code. It's quick, easy, and takes seconds.</p>
+            <p style="color:#64748b;font-size:12px;line-height:1.5;margin:0 0 16px;">Transform any long URL into a short, trackable link or QR Code. It's quick, easy, and takes seconds.</p>
 
           </div>
 
-          <button class="sso-btn" style="width:100%;padding:8px;font-size:12px;color:#38bdf8;" onclick="window.appShell.navigate('create-link')">
+          <button class="sso-btn" style="width:100%;padding:8px;font-size:12px;color:#0070f3;" onclick="window.appShell.navigate('create-link')">
 
             Create a link →
 
@@ -4569,15 +4573,15 @@
 
           <div>
 
-            <div style="font-size:11px;font-weight:800;color:#D4FF24;text-transform:uppercase;margin-bottom:6px;">Step 2</div>
+            <div style="font-size:11px;font-weight:800;color:#059669;text-transform:uppercase;margin-bottom:6px;">Step 2</div>
 
-            <h4 style="color:#ffffff;font-size:16px;margin:0 0 8px;">Share them anywhere</h4>
+            <h4 style="color:#0070f3;font-size:16px;font-weight:700;margin:0 0 8px;">Share them anywhere</h4>
 
-            <p style="color:#94a3b8;font-size:12px;line-height:1.5;margin:0 0 16px;">Post on social, include in emails, or share however you want. Every click is tracked in real-time.</p>
+            <p style="color:#64748b;font-size:12px;line-height:1.5;margin:0 0 16px;">Post on social, include in emails, or share however you want. Every click is tracked in real-time.</p>
 
           </div>
 
-          <button class="sso-btn" style="width:100%;padding:8px;font-size:12px;color:#D4FF24;" onclick="window.appShell.navigate('pages')">
+          <button class="sso-btn" style="width:100%;padding:8px;font-size:12px;color:#059669;" onclick="window.appShell.navigate('pages')">
 
             Tips to drive engagement →
 
@@ -4591,9 +4595,9 @@
 
             <div style="font-size:11px;font-weight:800;color:#ff007f;text-transform:uppercase;margin-bottom:6px;">Step 3</div>
 
-            <h4 style="color:#ffffff;font-size:16px;margin:0 0 8px;">Come back for insights</h4>
+            <h4 style="color:#0070f3;font-size:16px;font-weight:700;margin:0 0 8px;">Come back for insights</h4>
 
-            <p style="color:#94a3b8;font-size:12px;line-height:1.5;margin:0 0 16px;">Bring your analytics to life—from weekly insights to detailed dashboards about clicks and audience.</p>
+            <p style="color:#64748b;font-size:12px;line-height:1.5;margin:0 0 16px;">Bring your analytics to life—from weekly insights to detailed dashboards about clicks and audience.</p>
 
           </div>
 
@@ -4613,7 +4617,7 @@
 
         <div class="dash-white-card">
 
-          <h4 style="font-size:16px;font-weight:800;color:#ffffff;margin:0 0 16px;">Top Traffic Channels</h4>
+          <h4 style="font-size:16px;font-weight:800;color:#0070f3;margin:0 0 16px;">Top Traffic Channels</h4>
 
           <div style="display:flex;flex-direction:column;gap:12px;font-size:13px;">
 
@@ -4621,15 +4625,15 @@
 
               <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
 
-                <span style="color:#ffffff;font-weight:600;">Direct / SMS / WhatsApp</span>
+                <span style="color:#0b132b;font-weight:600;">Direct / SMS / WhatsApp</span>
 
-                <span style="color:#38bdf8;font-weight:700;">58%</span>
+                <span style="color:#0070f3;font-weight:700;">58%</span>
 
               </div>
 
-              <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;">
+              <div style="height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
 
-                <div style="width:58%;height:100%;background:#38bdf8;border-radius:99px;"></div>
+                <div style="width:58%;height:100%;background:#0070f3;border-radius:99px;"></div>
 
               </div>
 
@@ -4639,13 +4643,13 @@
 
               <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
 
-                <span style="color:#ffffff;font-weight:600;">Instagram &amp; Threads</span>
+                <span style="color:#0b132b;font-weight:600;">Instagram &amp; Threads</span>
 
                 <span style="color:#ff007f;font-weight:700;">24%</span>
 
               </div>
 
-              <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;">
+              <div style="height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
 
                 <div style="width:24%;height:100%;background:#ff007f;border-radius:99px;"></div>
 
@@ -4657,13 +4661,13 @@
 
               <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
 
-                <span style="color:#ffffff;font-weight:600;">Google Search</span>
+                <span style="color:#0b132b;font-weight:600;">Google Search</span>
 
                 <span style="color:#10b981;font-weight:700;">12%</span>
 
               </div>
 
-              <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;">
+              <div style="height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
 
                 <div style="width:12%;height:100%;background:#10b981;border-radius:99px;"></div>
 
@@ -4677,7 +4681,7 @@
 
         <div class="dash-white-card">
 
-          <h4 style="font-size:16px;font-weight:800;color:#ffffff;margin:0 0 16px;">Device &amp; Platform Split</h4>
+          <h4 style="font-size:16px;font-weight:800;color:#0070f3;margin:0 0 16px;">Device &amp; Platform Split</h4>
 
           <div style="display:flex;flex-direction:column;gap:12px;font-size:13px;">
 
@@ -4685,33 +4689,15 @@
 
               <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
 
-                <span style="color:#ffffff;font-weight:600;">Mobile (iOS &amp; Android)</span>
+                <span style="color:#0b132b;font-weight:600;">Mobile (iOS &amp; Android)</span>
 
-                <span style="color:#D4FF24;font-weight:700;">72%</span>
-
-              </div>
-
-              <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;">
-
-                <div style="width:72%;height:100%;background:#D4FF24;border-radius:99px;"></div>
+                <span style="color:#059669;font-weight:700;">72%</span>
 
               </div>
 
-            </div>
+              <div style="height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
 
-            <div>
-
-              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-
-                <span style="color:#ffffff;font-weight:600;">Desktop (Windows &amp; Mac)</span>
-
-                <span style="color:#38bdf8;font-weight:700;">25%</span>
-
-              </div>
-
-              <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;">
-
-                <div style="width:25%;height:100%;background:#38bdf8;border-radius:99px;"></div>
+                <div style="width:72%;height:100%;background:#059669;border-radius:99px;"></div>
 
               </div>
 
@@ -4721,15 +4707,33 @@
 
               <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
 
-                <span style="color:#ffffff;font-weight:600;">Tablet</span>
+                <span style="color:#0b132b;font-weight:600;">Desktop (Windows &amp; Mac)</span>
 
-                <span style="color:#a855f7;font-weight:700;">3%</span>
+                <span style="color:#0070f3;font-weight:700;">25%</span>
 
               </div>
 
-              <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;">
+              <div style="height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
 
-                <div style="width:3%;height:100%;background:#a855f7;border-radius:99px;"></div>
+                <div style="width:25%;height:100%;background:#0070f3;border-radius:99px;"></div>
+
+              </div>
+
+            </div>
+
+            <div>
+
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+
+                <span style="color:#0b132b;font-weight:600;">Tablet</span>
+
+                <span style="color:#8b5cf6;font-weight:700;">3%</span>
+
+              </div>
+
+              <div style="height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+
+                <div style="width:3%;height:100%;background:#8b5cf6;border-radius:99px;"></div>
 
               </div>
 
@@ -4795,19 +4799,19 @@
 
       <div class="dash-white-card" style="text-align:center;padding:40px 24px;margin-bottom:24px;">
 
-        <div style="width:160px;height:100px;margin:0 auto 20px;background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.25);border-radius:12px;display:flex;flex-direction:column;justify-content:center;padding:12px;gap:6px;">
+        <div style="width:160px;height:100px;margin:0 auto 20px;background:rgba(0,112,243,0.06);border:1px solid rgba(0,112,243,0.25);border-radius:12px;display:flex;flex-direction:column;justify-content:center;padding:12px;gap:6px;">
 
-          <div style="display:flex;justify-content:space-between;font-size:10px;color:#ffffff;background:rgba(255,255,255,0.08);padding:4px 8px;border-radius:4px;"><span>TikTok</span> <b>840 clicks</b></div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:#0b132b;background:#f8fafc;padding:4px 8px;border-radius:4px;border:1px solid #e2e8f0;"><span>TikTok</span> <b>840 clicks</b></div>
 
-          <div style="display:flex;justify-content:space-between;font-size:10px;color:#ffffff;background:rgba(255,255,255,0.08);padding:4px 8px;border-radius:4px;"><span>YouTube</span> <b>520 clicks</b></div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:#0b132b;background:#f8fafc;padding:4px 8px;border-radius:4px;border:1px solid #e2e8f0;"><span>YouTube</span> <b>520 clicks</b></div>
 
-          <div style="display:flex;justify-content:space-between;font-size:10px;color:#ffffff;background:rgba(255,255,255,0.08);padding:4px 8px;border-radius:4px;"><span>Direct Mail QR</span> <b>310 scans</b></div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:#0b132b;background:#f8fafc;padding:4px 8px;border-radius:4px;border:1px solid #e2e8f0;"><span>Direct Mail QR</span> <b>310 scans</b></div>
 
         </div>
 
-        <h3 style="font-size:24px;font-weight:800;color:#ffffff;margin:0 0 10px;">Some links belong together</h3>
+        <h3 style="font-size:24px;font-weight:800;color:#0070f3;margin:0 0 10px;">Some links belong together</h3>
 
-        <p style="color:#94a3b8;font-size:14px;max-width:520px;margin:0 auto 20px;line-height:1.5;">
+        <p style="color:#64748b;font-size:14px;max-width:520px;margin:0 auto 20px;line-height:1.5;">
 
           Organize your links in HEA Campaigns and compare performance across channels. Available on the Premium plan.
 
@@ -5385,17 +5389,17 @@
 
         <div>
 
-          <div style="font-size:28px;font-weight:900;color:#96bf48;margin-bottom:12px;">🛍️ shopify</div>
+          <div style="font-size:28px;font-weight:900;color:#0070f3;margin-bottom:12px;">🛍️ shopify</div>
 
-          <h3 style="font-size:22px;font-weight:800;color:#ffffff;margin:0 0 10px;">Automatically attribute orders to specific HEA links</h3>
+          <h3 style="font-size:22px;font-weight:800;color:#0070f3;margin:0 0 10px;">Automatically attribute orders to specific HEA links</h3>
 
-          <p style="color:#94a3b8;font-size:13px;line-height:1.5;margin:0 0 18px;">
+          <p style="color:#334155;font-size:13px;line-height:1.5;margin:0 0 18px;">
 
             Shorten links to products, collections, and more directly from Shopify to identify which campaigns generate real ROI.
 
           </p>
 
-          <button class="sso-btn" style="width:auto;padding:10px 20px;font-weight:700;" onclick="window.appShell.toast('Shopify app integration opened')">
+          <button class="sso-btn" style="width:auto;padding:10px 20px;font-weight:700;background:#0070f3;color:#ffffff;border:none;border-radius:10px;box-shadow:0 4px 14px rgba(0,112,243,0.3);" onclick="window.appShell.toast('Shopify app integration opened')">
 
             Install Shopify app
 
@@ -5403,9 +5407,9 @@
 
         </div>
 
-        <div style="background:#090f22;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:16px;">
+        <div style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:16px;box-shadow:0 4px 12px rgba(0,0,0,0.03);">
 
-          <div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:6px;margin-bottom:8px;font-size:11px;font-weight:700;color:#94a3b8;">
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid #e2e8f0;padding-bottom:6px;margin-bottom:8px;font-size:11px;font-weight:700;color:#64748b;">
 
             <span>Link title</span>
 
@@ -5415,11 +5419,11 @@
 
           </div>
 
-          <div style="font-size:12px;color:#cbd5e1;padding:6px 0;">Maven Armchair • yourbrand.co/3yt77uB • 3</div>
+          <div style="font-size:12px;color:#0b132b;font-weight:600;padding:6px 0;">Maven Armchair • yourbrand.co/3yt77uB • 3</div>
 
-          <div style="font-size:12px;color:#cbd5e1;padding:6px 0;">Floral Accent Chair • yourbrand.co/instagram • 56</div>
+          <div style="font-size:12px;color:#0b132b;font-weight:600;padding:6px 0;">Floral Accent Chair • yourbrand.co/instagram • 56</div>
 
-          <div style="text-align:right;font-size:18px;font-weight:900;color:#10b981;margin-top:10px;">$26,880.00</div>
+          <div style="text-align:right;font-size:18px;font-weight:900;color:#0070f3;margin-top:10px;">$26,880.00</div>
 
         </div>
 

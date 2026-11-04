@@ -2622,9 +2622,9 @@ body.modal-scroll-lock {
   position: fixed;
   inset: 0;
   z-index: 999999;
-  background: rgba(4, 9, 20, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2646,15 +2646,16 @@ body.modal-scroll-lock {
   max-height: min(92vh, 880px);
   display: flex;
   flex-direction: column;
-  background: linear-gradient(145deg, rgba(17, 24, 39, 0.98), rgba(9, 15, 30, 0.99));
-  border: 1px solid rgba(56, 189, 248, 0.35);
-  box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.85), 0 0 45px rgba(56, 189, 248, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 30px 70px -15px rgba(0, 70, 200, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.05);
   border-radius: 26px;
   overflow: hidden;
   margin: auto;
   transform: translateY(24px) scale(0.96);
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   overscroll-behavior: contain;
+  color: #0b132b;
 }
 .checkout-modal-overlay:not([hidden]) .checkout-card {
   transform: translateY(0) scale(1);
@@ -2662,40 +2663,40 @@ body.modal-scroll-lock {
 .checkout-header {
   flex-shrink: 0;
   padding: 22px 28px 18px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid #e2e8f0;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  background: linear-gradient(180deg, rgba(56, 189, 248, 0.09), transparent);
+  background: #f8fafc;
 }
 .checkout-crown-icon {
   width: 48px;
   height: 48px;
   border-radius: 14px;
-  background: linear-gradient(135deg, rgba(234, 179, 8, 0.25), rgba(56, 189, 248, 0.25));
-  border: 1px solid rgba(234, 179, 8, 0.5);
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
   display: grid;
   place-items: center;
   font-size: 24px;
-  box-shadow: 0 0 20px rgba(234, 179, 8, 0.3);
+  box-shadow: 0 4px 14px rgba(0, 112, 243, 0.15);
   flex-shrink: 0;
 }
 .checkout-title {
   font-size: 20px;
-  font-weight: 700;
-  color: #ffffff;
+  font-weight: 800;
+  color: #0070f3;
   margin: 0 0 4px;
 }
 .checkout-sub {
   font-size: 13px;
-  color: #94a3b8;
+  color: #475569;
   margin: 0;
   line-height: 1.4;
 }
 .checkout-close {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #94a3b8;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #475569;
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -2706,8 +2707,8 @@ body.modal-scroll-lock {
   transition: all 0.2s ease;
 }
 .checkout-close:hover {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.5);
+  background: #fee2e2;
+  border-color: #fca5a5;
   color: #ef4444;
   transform: rotate(90deg);
 }
@@ -2720,10 +2721,10 @@ body.modal-scroll-lock {
 }
 .billing-cycle-toggle {
   display: flex;
-  background: rgba(15, 23, 42, 0.85);
+  background: #f1f5f9;
   padding: 4px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  border: 1.5px solid #cbd5e1;
   margin-bottom: 20px;
 }
 .cycle-tab {
@@ -2731,10 +2732,10 @@ body.modal-scroll-lock {
   padding: 10px;
   background: transparent;
   border: none;
-  color: #94a3b8;
-  font-weight: 600;
+  color: #475569;
+  font-weight: 700;
   font-size: 13px;
-  border-radius: 8px;
+  border-radius: 9999px;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
@@ -2743,18 +2744,19 @@ body.modal-scroll-lock {
   gap: 8px;
 }
 .cycle-tab.active {
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.85), rgba(56, 189, 248, 0.85));
+  background: #0070f3;
   color: #ffffff;
-  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.45);
+  box-shadow: 0 4px 14px rgba(0, 112, 243, 0.35);
+  border-radius: 9999px;
 }
 .save-badge {
-  background: rgba(212, 255, 36, 0.2);
-  color: #d4ff24;
+  background: #dcfce7;
+  color: #15803d;
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 800;
   padding: 2px 7px;
-  border-radius: 6px;
-  border: 1px solid rgba(212, 255, 36, 0.4);
+  border-radius: 9999px;
+  border: 1px solid #86efac;
 }
 .checkout-plans-grid {
   display: grid;
@@ -2774,8 +2776,8 @@ body.modal-scroll-lock {
   height: 0;
 }
 .plan-card-inner {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
   border-radius: 16px;
   padding: 16px 12px;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -2785,24 +2787,24 @@ body.modal-scroll-lock {
   justify-content: space-between;
 }
 .checkout-plan-card:hover .plan-card-inner {
-  border-color: rgba(56, 189, 248, 0.4);
-  background: rgba(255, 255, 255, 0.05);
+  border-color: #0070f3;
+  background: #f8fafc;
 }
 .checkout-plan-card.active .plan-card-inner {
-  border-color: #38bdf8;
-  background: rgba(56, 189, 248, 0.09);
-  box-shadow: 0 0 22px rgba(56, 189, 248, 0.28), inset 0 0 15px rgba(56, 189, 248, 0.06);
+  border-color: #0070f3;
+  background: #eff6ff;
+  box-shadow: 0 0 0 2px #0070f3, 0 8px 20px rgba(0, 112, 243, 0.15);
 }
 .plan-card-badge {
   position: absolute;
   top: -9px;
   left: 50%;
   transform: translateX(-50%);
-  background: linear-gradient(135deg, #2563eb, #38bdf8);
+  background: #0070f3;
   color: #fff;
   font-size: 9px;
   font-weight: 800;
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: 20px;
   letter-spacing: 0.05em;
   white-space: nowrap;
@@ -2816,21 +2818,21 @@ body.modal-scroll-lock {
 .plan-card-top .plan-name {
   font-size: 13px;
   font-weight: 700;
-  color: #ffffff;
+  color: #0b132b;
 }
 .plan-card-top .plan-price {
   font-size: 22px;
   font-weight: 800;
-  color: #38bdf8;
+  color: #0070f3;
 }
 .plan-card-top .plan-price small {
   font-size: 11px;
-  color: #94a3b8;
+  color: #64748b;
   font-weight: 400;
 }
 .plan-desc {
   font-size: 11px;
-  color: #94a3b8;
+  color: #475569;
   margin: 0;
   line-height: 1.35;
 }
@@ -2845,24 +2847,24 @@ body.modal-scroll-lock {
   gap: 6px;
   font-size: 12px;
   font-weight: 600;
-  color: #cbd5e1;
+  color: #0b132b;
 }
 .checkout-form input[type="text"],
 .checkout-form input[type="email"],
 .checkout-form input[type="password"] {
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
   border-radius: 12px;
   padding: 11px 14px;
-  color: #ffffff;
+  color: #0b132b;
   font-size: 13px;
   outline: none;
   transition: all 0.2s ease;
 }
 .checkout-form input:focus {
-  border-color: #38bdf8;
-  box-shadow: 0 0 14px rgba(56, 189, 248, 0.35);
-  background: rgba(15, 23, 42, 1);
+  border-color: #0070f3;
+  box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.2);
+  background: #ffffff;
 }
 .card-input-wrap {
   position: relative;
@@ -2888,7 +2890,7 @@ body.modal-scroll-lock {
   right: 12px;
   font-size: 11px;
   font-weight: 800;
-  background: linear-gradient(135deg, #1e3a8a, #2563eb);
+  background: linear-gradient(135deg, #1e3a8a, #0070f3);
   color: #ffffff;
   padding: 3px 6px;
   border-radius: 4px;
@@ -2903,22 +2905,22 @@ body.modal-scroll-lock {
   align-items: center;
   gap: 8px;
   font-size: 11px;
-  color: #94a3b8;
+  color: #475569;
   padding: 9px 14px;
-  background: rgba(255, 255, 255, 0.03);
+  background: #f8fafc;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid #e2e8f0;
 }
 .checkout-submit-btn {
-  background: linear-gradient(135deg, #10b981, #06b6d4);
-  color: #0b1120;
+  background: #0070f3;
+  color: #ffffff;
   font-weight: 700;
   font-size: 15px;
   padding: 14px 20px;
   border-radius: 14px;
   border: none;
   cursor: pointer;
-  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.35);
+  box-shadow: 0 8px 20px rgba(0, 112, 243, 0.35);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   align-items: center;
@@ -2928,8 +2930,8 @@ body.modal-scroll-lock {
 }
 .checkout-submit-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 15px 35px rgba(16, 185, 129, 0.5);
-  background: linear-gradient(135deg, #34d399, #22d3ee);
+  box-shadow: 0 12px 28px rgba(0, 112, 243, 0.5);
+  background: #005bb5;
 }
 .checkout-submit-btn:active {
   transform: translateY(0);
