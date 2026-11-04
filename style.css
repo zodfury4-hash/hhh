@@ -673,7 +673,8 @@ input[type=color] {
   grid-template-columns: 1.18fr 0.82fr;
   gap: 48px;
   align-items: center;
-  padding: 18px 0 14px;
+  padding-top: 18px;
+  padding-bottom: 14px;
   position: relative;
   z-index: 5;
   min-width: 0;
