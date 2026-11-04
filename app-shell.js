@@ -464,7 +464,7 @@
 
         <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
 
-          <button type="button" class="btn" style="background:#0070f3;color:#ffffff;font-weight:800;font-size:15px;padding:12px 28px;border-radius:12px;cursor:pointer;border:none;box-shadow:0 8px 22px rgba(0,112,243,0.3);transition:all 0.2s ease;" onclick="window.openCheckoutModal('pro')">
+          <button type="button" class="btn" style="width:100%;max-width:320px;background:linear-gradient(135deg, #0050d0, #0070f3);color:#ffffff;font-weight:800;font-size:15.5px;padding:14px 32px;border-radius:99px;cursor:pointer;border:none;box-shadow:0 8px 24px rgba(0,112,243,0.35);transition:all 0.2s ease;display:inline-flex;align-items:center;justify-content:center;gap:8px;" onclick="window.openCheckoutModal('pro')">
 
             ⚡ Upgrade to Pro Now
 
@@ -700,7 +700,7 @@
         <form id="homeShortenForm" class="home-shorten-box">
           <div class="home-shorten-left-grp">
             <span id="homeInputIcon" class="shorten-chain-icon">🔗</span>
-            <input type="url" id="homeShortenInput" class="home-shorten-input" placeholder="Paste a long URL to shorten it..." required>
+            <input type="url" id="homeShortenInput" class="home-shorten-input" placeholder="Paste a long URL to shorten it..." style="border:none !important;outline:none !important;box-shadow:none !important;background:transparent !important;" required>
           </div>
           <div class="home-shorten-right-grp">
             <select class="home-domain-select" id="homeDomainSelect" style="display:none !important;">
@@ -820,7 +820,7 @@
           const newL = await createLinkDirect(dest, '', dom);
           const resBox = $('#homeShortenResult');
           if (resBox && newL) {
-            const liveUrl = newL.url || newL.realShort || `https://${dom}/${newL.slug}`;
+            const liveUrl = (newL.realShort && newL.realShort !== dest) ? newL.realShort : (newL.url && newL.url !== dest ? newL.url : `https://${dom}/${newL.slug}`);
             resBox.innerHTML = `
               <div class="result-title">Your Live Short Link (Click to open destination):</div>
               <a href="${liveUrl}" target="_blank" rel="noopener" class="result-url">${liveUrl}</a>
@@ -899,7 +899,7 @@
 
             <div style="display:flex;gap:10px;align-items:center;">
 
-              <button class="sso-btn" style="width:auto;padding:4px 10px;font-size:12px;background:rgba(255,255,255,0.06);" onclick="alert('Dynamic routing rules manager opened')">Set it up</button>
+              <button class="sso-btn" style="width:auto !important;min-width:max-content !important;white-space:nowrap !important;padding:6px 18px !important;font-size:13px !important;font-weight:700 !important;background:#ffffff !important;color:#0b132b !important;border:1.5px solid #cbd5e1 !important;border-radius:99px !important;flex-shrink:0 !important;cursor:pointer !important;" onclick="alert('Dynamic routing rules manager opened')">Set it up</button>
 
               <button style="background:none;border:0;color:#93c5fd;cursor:pointer;font-size:16px;" onclick="this.closest('.dynamic-routing-alert').remove()">✕</button>
 
@@ -1001,7 +1001,7 @@
 
               <div>
 
-                <b style="color:#ffffff;font-size:14px;">Generate a QR Code</b>
+                <b style="color:#0b132b !important;-webkit-text-fill-color:#0b132b !important;font-size:14px;font-weight:700;">Generate a QR Code</b>
 
                 <span style="font-size:12px;color:#94a3b8;margin-left:8px;">1 left</span>
 
@@ -1029,7 +1029,7 @@
 
               <div>
 
-                <b style="color:#ffffff;font-size:14px;">Add to a HEA Page</b>
+                <b style="color:#0b132b !important;-webkit-text-fill-color:#0b132b !important;font-size:14px;font-weight:700;">Add to a HEA Page</b>
 
                 <div style="font-size:12px;color:#94a3b8;">Feature this link on your Link-in-Bio profile</div>
 
@@ -1071,7 +1071,7 @@
 
               <div>
 
-                <b style="color:#ffffff;font-size:14px;">UTM parameters</b>
+                <b style="color:#0b132b !important;-webkit-text-fill-color:#0b132b !important;font-size:14px;font-weight:700;">UTM parameters</b>
 
                 <span style="color:#fbbf24;font-size:13px;margin-left:6px;">👑</span>
 
@@ -1099,7 +1099,7 @@
 
               <div>
 
-                <b style="color:#ffffff;font-size:14px;">Link expiration</b>
+                <b style="color:#0b132b !important;-webkit-text-fill-color:#0b132b !important;font-size:14px;font-weight:700;">Link expiration</b>
 
                 <span style="color:#fbbf24;font-size:13px;margin-left:6px;">👑</span>
 
@@ -1129,7 +1129,7 @@
 
                 <div style="display:flex;align-items:center;gap:6px;">
 
-                  <b style="color:#ffffff;font-size:14px;">Dynamic routing</b>
+                  <b style="color:#0b132b !important;-webkit-text-fill-color:#0b132b !important;font-size:14px;font-weight:700;">Dynamic routing</b>
 
                   <span style="color:#fbbf24;font-size:13px;">👑</span>
 
@@ -1305,6 +1305,7 @@
     const cleanUrl = (realShort && realShort !== dest && !realShort.includes('firebase.google.com') && realShort.length < 60)
       ? realShort
       : (slug ? `https://${domain || 'healink.store'}/${slug}` : `${origin}/${slug}`);
+    if (cleanUrl === dest) cleanUrl = `https://${domain || 'healink.store'}/${slug}`;
 
     const links = getStoredLinks();
     const newL = {
@@ -5173,7 +5174,7 @@
 
         <div class="settings-main-panel">
 
-          <h2 style="font-size:32px;font-weight:800;color:#ffffff;margin:0 0 16px;">Profile</h2>
+          <h2 style="font-size:32px;font-weight:800;color:#0070f3;margin:0 0 16px;">Profile</h2>
 
           <!-- Preferences (Screenshot 12.02.42 AM 2) -->
 

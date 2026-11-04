@@ -5830,7 +5830,7 @@ async function askChat(q) {
 
     } catch (e) {}
 
-    const shortUrl = (link && link.dest) ? link.dest : (realShort || `${window.location.origin}/${slug}`);
+    const shortUrl = (realShort && realShort !== dest) ? realShort : `${window.location.origin}/${slug}`;
 
     try {
 
@@ -6620,7 +6620,7 @@ function renderResources() {
 
           <div>
 
-            <span class="tag" style="background:#eff6ff !important; color:#0070f3 !important; -webkit-text-fill-color:#0070f3 !important; border:1.5px solid #bfdbfe !important; font-weight:700 !important; font-size:12px !important; padding:4px 12px !important; border-radius:99px !important; display:inline-block !important;">${r[1]}</span>
+            <span class="tag" style="background:#0284c7 !important; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; border:none !important; font-weight:800 !important; font-size:11.5px !important; padding:4px 14px !important; border-radius:99px !important; display:inline-block !important; letter-spacing:0.4px; text-transform:uppercase;">${r[1]}</span>
 
             <h3>${r[0]}</h3>
 

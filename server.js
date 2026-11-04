@@ -1884,7 +1884,7 @@ async function getRealWorkingShortUrl(destUrl) {
 
       const text = (await tuRes.text()).trim();
 
-      if (/^https?:\/\//i.test(text) && !text.includes('error')) return text;
+      if (/^https?:\/\//i.test(text) && !text.includes('error') && text !== destUrl) return text;
 
     }
 
@@ -1900,7 +1900,7 @@ async function getRealWorkingShortUrl(destUrl) {
 
       const text = (await isRes.text()).trim();
 
-      if (/^https?:\/\//i.test(text) && !text.includes('error')) return text;
+      if (/^https?:\/\//i.test(text) && !text.includes('error') && text !== destUrl) return text;
 
     }
 
@@ -2452,7 +2452,7 @@ app.post('/api/links/bulk', authMiddleware, async (req, res) => {
 
       const realShort = await getRealWorkingShortUrl(u);
 
-      const cleanUrl = realShort || u;
+      const cleanUrl = (realShort && realShort !== u) ? realShort : `${proto}://${host}/${slug}`;
 
       if (isDbConnected) {
 
@@ -3919,7 +3919,7 @@ app.post('/api/ai/ask', async (req, res) => {
 
       const realShort = await getRealWorkingShortUrl(dest);
 
-      const shortUrl = realShort || dest;
+      const shortUrl = (realShort && realShort !== dest) ? realShort : `${proto}://${host}/${slug}`;
 
       if (isDbConnected) {
 

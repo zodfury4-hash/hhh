@@ -4348,3 +4348,184 @@ input[type="radio"] {
   max-height: 34px !important;
   padding: 0 !important;
 }
+
+/* ==========================================================================
+   MASTER FIXES:
+   1. BORDERLESS URL INPUT (ZERO GREY BOX)
+   2. HEA ASSIST ZERO INNER BORDER & PERFECT CIRCLE BUTTON
+   3. SET IT UP BUTTON SINGLE ROW
+   4. WIDE PRO UPGRADE BUTTON
+   5. HIGH CONTRAST BADGES & TEXT
+   6. HIDE ALL NATIVE HORIZONTAL SCROLLBARS (TABS / CARDS)
+   ========================================================================== */
+
+/* 1. Eliminate inner grey rectangle around "Paste a long URL to shorten it..." */
+#homeShortenInput,
+.home-shorten-box input,
+.home-shorten-input,
+.home-shorten-left-grp input,
+.home-shorten-box input#homeShortenInput,
+.hero-pill-input input,
+#heroUrl,
+#heroQrInput {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  padding: 10px 4px !important;
+  margin: 0 !important;
+  width: 100% !important;
+  -webkit-appearance: none !important;
+}
+
+#homeShortenInput:focus,
+.home-shorten-box input:focus,
+.home-shorten-input:focus,
+.home-shorten-left-grp input:focus,
+.hero-pill-input input:focus,
+#heroUrl:focus,
+#heroQrInput:focus {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* 2. HEA Assist Input Capsule Zero-Border & Circular Send Button */
+#drawerChatInput,
+.drawer-input-capsule input,
+.drawer-input-row input#drawerChatInput {
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 8px 6px !important;
+  -webkit-appearance: none !important;
+}
+#drawerChatInput:focus,
+.drawer-input-capsule input:focus {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+.drawer-capsule-submit,
+.drawer-input-row button.drawer-capsule-submit,
+.drawer-input-capsule button {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+  border-radius: 50% !important;
+  background: #0070f3 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border: none !important;
+  display: grid !important;
+  place-items: center !important;
+  flex-shrink: 0 !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  box-shadow: 0 2px 8px rgba(0, 112, 243, 0.3) !important;
+}
+
+/* 3. "Set it up" text in a single horizontal row */
+.dynamic-routing-alert button.sso-btn,
+.dynamic-routing-alert .sso-btn {
+  white-space: nowrap !important;
+  min-width: max-content !important;
+  width: auto !important;
+  padding: 6px 18px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  border-radius: 99px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  background: #ffffff !important;
+  color: #0b132b !important;
+  border: 1.5px solid #cbd5e1 !important;
+}
+.dynamic-routing-alert > div:last-child {
+  flex-shrink: 0 !important;
+}
+
+/* 4. Wide "Upgrade to Pro Now" button */
+.pro-locked-screen .btn,
+.pro-locked-screen button[onclick*="openCheckoutModal"] {
+  width: 100% !important;
+  max-width: 320px !important;
+  min-width: 260px !important;
+  padding: 14px 32px !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  border-radius: 99px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+}
+
+/* 5. Text visibility in Create Link cards */
+.create-link-card b {
+  color: #0b132b !important;
+  -webkit-text-fill-color: #0b132b !important;
+  font-weight: 700 !important;
+}
+.create-link-card h3 {
+  color: #0070f3 !important;
+  -webkit-text-fill-color: #0070f3 !important;
+}
+.create-link-card span[style*="94a3b8"],
+.create-link-card div[style*="94a3b8"] {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+}
+
+/* 6. Resources Tags Vivid High Contrast */
+.rc .tag,
+#resGrid .tag,
+.tag {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border: none !important;
+  font-weight: 800 !important;
+  font-size: 11px !important;
+  padding: 4px 12px !important;
+  border-radius: 99px !important;
+  display: inline-block !important;
+  letter-spacing: 0.4px !important;
+  text-transform: uppercase !important;
+}
+
+/* 7. Hide all ugly horizontal scrollbars across tabs and capsules */
+.hero-tabs-wrap,
+.home-type-tabs,
+.tabs,
+#heroTabs,
+#resTabs,
+.hero-card-morph-wrap,
+.dash-quick-tabs,
+.analytics-metric-grid {
+  overflow-x: auto !important;
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE/Edge */
+}
+.hero-tabs-wrap::-webkit-scrollbar,
+.home-type-tabs::-webkit-scrollbar,
+.tabs::-webkit-scrollbar,
+#heroTabs::-webkit-scrollbar,
+#resTabs::-webkit-scrollbar,
+.hero-card-morph-wrap::-webkit-scrollbar,
+.dash-quick-tabs::-webkit-scrollbar,
+.analytics-metric-grid::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
