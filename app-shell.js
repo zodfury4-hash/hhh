@@ -1993,8 +1993,6 @@
 
           <div style="display:flex;gap:16px;align-items:center;">
 
-            <input type="checkbox">
-
             <span>${links.length} total codes</span>
 
             <span style="cursor:pointer;" onclick="window.appShell.downloadQrPNG()">Export</span>
@@ -2028,7 +2026,6 @@
               return `
               <div class="qr-card-item">
                 <div class="qr-card-left">
-                  <input type="checkbox">
                   <div class="qr-framed-thumbnail" style="cursor:pointer;" onclick="window.appShell.navigate('qr-detail', '${item.id}')">
                     <canvas id="qrCardCanvas_${idx}" width="160" height="160"></canvas>
                     <div class="qr-thumb-label">SCAN ME</div>

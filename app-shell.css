@@ -2756,3 +2756,15 @@ body.app-mode #appShell,
 .pro-locked-screen p {
   color: #334155 !important;
 }
+
+/* Explicitly hide checkboxes in QR and Links lists */
+.qr-card-left input[type="checkbox"],
+.qr-filter-bar input[type="checkbox"],
+.qr-card-item input[type="checkbox"],
+#linksListContainer input[type="checkbox"] {
+  display: none !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+  opacity: 0 !important;
+}
