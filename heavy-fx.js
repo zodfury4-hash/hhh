@@ -7,7 +7,7 @@
    ========================================================= */
 
 (function () {
-  // Universal Text & Page Entrance Animation Engine (Global & Instant)
+  // Universal Text & Page Entrance Animation Engine (Always Keeps Headings 100% Solid & Visible)
   window.animatePageText = function (container, options = {}) {
     try {
       const root = container || document.querySelector('#appShell:not([hidden]) #appMainPane') || document.querySelector('section:not([hidden])') || document;
@@ -33,43 +33,28 @@
 
       if (!nodes.length) return;
 
-      // 1. If GSAP is loaded, use smooth fluid GSAP animation
+      // Ensure all elements are ALWAYS completely solid, visible and never hidden on scroll
+      nodes.forEach(el => {
+        el.style.opacity = '1';
+        el.style.visibility = 'visible';
+      });
+
+      // Subtle, safe entrance without ever setting opacity to 0
       if (typeof gsap !== 'undefined') {
         gsap.killTweensOf(nodes);
         gsap.fromTo(nodes,
-          { opacity: 0, y: 14, filter: 'blur(4px)' },
+          { opacity: 0.9, y: 8 },
           {
             opacity: 1,
             y: 0,
-            filter: 'blur(0px)',
-            duration: 0.62,
-            stagger: 0.035,
-            ease: 'power3.out',
-            clearProps: 'filter,transform,opacity'
+            duration: 0.35,
+            stagger: 0.02,
+            ease: 'power2.out',
+            clearProps: 'all'
           }
         );
         return;
       }
-
-      // 2. High-performance Web Animations API (Native in all modern browsers & mobile)
-      if (typeof Element.prototype.animate === 'function') {
-        nodes.forEach((el, idx) => {
-          const delay = Math.min(idx * 35, 350);
-          el.animate([
-            { opacity: 0, transform: 'translateY(14px)', filter: 'blur(4px)' },
-            { opacity: 1, transform: 'translateY(0)', filter: 'blur(0px)' }
-          ], {
-            duration: 600,
-            delay: delay,
-            easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
-            fill: 'both'
-          });
-        });
-        return;
-      }
-
-      // 3. CSS animation fallback
-      nodes.forEach(el => el.classList.add('hea-text-animating'));
     } catch (err) {
       console.warn('animatePageText notice:', err);
     }
@@ -352,6 +337,7 @@
         duration: 1.1,
         boxShadow: '0 0 0 rgba(0,0,0,0)'
       }, '-=0.7');
+      heroTl.set('.hero h1, .hero .lead, .hero .hero-card, .hero .pill', { clearProps: 'all' });
     }
 
     // 2. Section Headers Reveal on Scroll
@@ -370,26 +356,10 @@
       });
     });
 
-    // Universal Text Reveal on Scroll Across Every Page Section
-    const allTextTargets = document.querySelectorAll('section:not([hidden]) h2, section:not([hidden]) h3, section:not([hidden]) h4, section:not([hidden]) .lead, section:not([hidden]) .auth-title, section:not([hidden]) .auth-sub, section:not([hidden]) .dash-hero-title, section:not([hidden]) .stat-num, section:not([hidden]) .plan-title');
-    allTextTargets.forEach((target) => {
-      if (target.closest('.hero')) return;
-      gsap.fromTo(target,
-        { opacity: 0, y: 32, filter: 'blur(6px)' },
-        {
-          scrollTrigger: {
-            trigger: target,
-            start: 'top 90%',
-            toggleActions: 'play none none none'
-          },
-          opacity: 1,
-          y: 0,
-          filter: 'blur(0px)',
-          duration: 0.85,
-          ease: 'power3.out',
-          clearProps: 'filter'
-        }
-      );
+    // Headings and section titles are kept 100% visible on scroll - never hidden with opacity 0!
+    document.querySelectorAll('h1, h2, h3, h4, .hero-title, .eyebrow').forEach(el => {
+      el.style.opacity = '1';
+      el.style.visibility = 'visible';
     });
 
     // 3. Features Cards Stagger (Unified Row Trigger with Full Props Cleanup)

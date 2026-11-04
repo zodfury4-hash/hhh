@@ -1,3 +1,9 @@
+
+/* Guaranteed solid visibility for all headings across entire site and during scroll */
+h1, h2, h3, h4, .hero-title, .auth-title, .dash-header h2, .dash-hero-title, .view-header h2, .page-row-title, .dash-white-card h3, .dash-white-card h4 {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
 /* =========================================================
    HEA Link — Dark Light Mix Glassmorphism Theme
    Frosted Glass UI, Luminous Accents & Ambient Mesh Glow

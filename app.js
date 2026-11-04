@@ -3935,6 +3935,4 @@ initStaticSections();
 setupCheckoutModal();
 initFramerMotionFx();
 route();
-if (typeof window.animatePageText === 'function') {
-  setTimeout(() => window.animatePageText(), 100);
-}
+// Headings are maintained solid and visible without competing entrance tweens
