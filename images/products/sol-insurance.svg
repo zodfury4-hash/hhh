@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
   <defs>
     <linearGradient id="ins_bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0f1d38"/>
-      <stop offset="100%" stop-color="#060c18"/>
+      <stop offset="0%" stop-color="#eff6ff"/>
+      <stop offset="100%" stop-color="#dbeafe"/>
     </linearGradient>
     <linearGradient id="ins_shd" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#38bdf8"/>
@@ -17,7 +17,7 @@
     </filter>
   </defs>
   <rect width="64" height="64" rx="16" fill="url(#ins_bg)"/>
-  <rect width="64" height="64" rx="16" fill="none" stroke="rgba(56,189,248,0.4)" stroke-width="1.5"/>
+  <rect width="64" height="64" rx="16" fill="none" stroke="#93c5fd" stroke-width="1.5"/>
   <!-- Protective Shield -->
   <path d="M32 10 L48 16 V28 C48 39 41 48 32 52 C23 48 16 39 16 28 V16 Z" fill="url(#ins_shd)" filter="url(#ins_glow)"/>
   <!-- Umbrella Protection inside Shield -->

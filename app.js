@@ -1108,7 +1108,7 @@ const MEGA = {
 
         <h4>FEATURED ECOSYSTEM</h4>
 
-        <div style="border-radius:12px;overflow:hidden;background:#081021;border:1px solid rgba(56,189,248,0.25);position:relative;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
+        <div style="border-radius:12px;overflow:hidden;background:#ffffff;border:1.5px solid #bfdbfe;position:relative;box-shadow:0 4px 16px rgba(0,112,243,0.08);">
 
           <svg viewBox="0 0 240 85" width="100%" height="85" style="display:block;">
 
@@ -1116,67 +1116,53 @@ const MEGA = {
 
               <linearGradient id="platBg" x1="0" y1="0" x2="1" y2="1">
 
-                <stop offset="0%" stop-color="#0b172e"/>
+                <stop offset="0%" stop-color="#eff6ff"/>
 
-                <stop offset="100%" stop-color="#07101f"/>
+                <stop offset="100%" stop-color="#dbeafe"/>
 
               </linearGradient>
 
               <linearGradient id="cyanLimeLine" x1="0" y1="0" x2="1" y2="0">
 
-                <stop offset="0%" stop-color="#38bdf8"/>
+                <stop offset="0%" stop-color="#0070f3"/>
 
-                <stop offset="100%" stop-color="#D4FF24"/>
+                <stop offset="100%" stop-color="#00d2ff"/>
 
               </linearGradient>
-
-              <filter id="platGlow">
-
-                <feGaussianBlur stdDeviation="3" result="glow"/>
-
-                <feMerge>
-
-                  <feMergeNode in="glow"/>
-
-                  <feMergeNode in="SourceGraphic"/>
-
-                </feMerge>
-
-              </filter>
 
             </defs>
 
             <rect width="240" height="85" fill="url(#platBg)"/>
 
-            <line x1="0" y1="28" x2="240" y2="28" stroke="rgba(56,189,248,0.08)" stroke-width="1"/>
+            <line x1="0" y1="28" x2="240" y2="28" stroke="rgba(0,112,243,0.08)" stroke-width="1"/>
 
-            <line x1="0" y1="56" x2="240" y2="56" stroke="rgba(56,189,248,0.08)" stroke-width="1"/>
+            <line x1="0" y1="56" x2="240" y2="56" stroke="rgba(0,112,243,0.08)" stroke-width="1"/>
 
-            <line x1="60" y1="0" x2="60" y2="85" stroke="rgba(56,189,248,0.08)" stroke-width="1"/>
+            <line x1="60" y1="0" x2="60" y2="85" stroke="rgba(0,112,243,0.08)" stroke-width="1"/>
 
-            <line x1="120" y1="0" x2="120" y2="85" stroke="rgba(56,189,248,0.08)" stroke-width="1"/>
+            <line x1="120" y1="0" x2="120" y2="85" stroke="rgba(0,112,243,0.08)" stroke-width="1"/>
 
-            <line x1="180" y1="0" x2="180" y2="85" stroke="rgba(56,189,248,0.08)" stroke-width="1"/>
+            <line x1="180" y1="0" x2="180" y2="85" stroke="rgba(0,112,243,0.08)" stroke-width="1"/>
 
-            <path d="M 45 42 C 80 42, 90 42, 120 42 C 150 42, 160 42, 195 42" stroke="url(#cyanLimeLine)" stroke-width="2" stroke-dasharray="4,4" opacity="0.8"/>
+            <path d="M 45 42 C 80 42, 90 42, 120 42 C 150 42, 160 42, 195 42" stroke="url(#cyanLimeLine)" stroke-width="2.5" stroke-dasharray="4,4"/>
 
-            <circle cx="45" cy="42" r="16" fill="rgba(15,23,42,0.9)" stroke="rgba(56,189,248,0.5)" stroke-width="1.5"/>
+            <circle cx="45" cy="42" r="16" fill="#ffffff" stroke="#93c5fd" stroke-width="1.5"/>
 
             <text x="45" y="47" font-size="13" text-anchor="middle">🛍️</text>
 
-            <circle cx="120" cy="42" r="20" fill="rgba(8,14,30,0.95)" stroke="#D4FF24" stroke-width="2" filter="url(#platGlow)"/>
+            <circle cx="120" cy="42" r="20" fill="#ffffff" stroke="#0070f3" stroke-width="2.5"/>
 
-            <text x="120" y="47" font-size="14" font-weight="900" text-anchor="middle" fill="#D4FF24">∞</text>
+            <text x="120" y="48" font-size="16" font-weight="900" text-anchor="middle" fill="#0070f3">∞</text>
 
-            <circle cx="195" cy="42" r="16" fill="rgba(15,23,42,0.9)" stroke="rgba(56,189,248,0.5)" stroke-width="1.5"/>
+            <circle cx="195" cy="42" r="16" fill="#ffffff" stroke="#93c5fd" stroke-width="1.5"/>
 
             <text x="195" y="47" font-size="13" text-anchor="middle">🎨</text>
 
-            <rect x="8" y="7" width="82" height="15" rx="7.5" fill="rgba(56,189,248,0.18)" stroke="rgba(56,189,248,0.35)" stroke-width="1"/>
+            <rect x="8" y="7" width="82" height="15" rx="7.5" fill="#dbeafe" stroke="#93c5fd" stroke-width="1"/>
 
-            <circle cx="15" cy="14.5" r="2.5" fill="#D4FF24"/>
+            <circle cx="15" cy="14.5" r="2.5" fill="#10b981"/>
 
-            <text x="22" y="17.5" font-size="8" font-weight="700" fill="#38bdf8" letter-spacing="0.5">CONNECTED</text>
+            <text x="22" y="17.5" font-size="8" font-weight="700" fill="#0070f3" letter-spacing="0.5">CONNECTED</text>
 
           </svg>
 
@@ -1292,7 +1278,7 @@ const MEGA = {
 
         <h4>FEATURED REPORT</h4>
 
-        <div style="border-radius:12px;overflow:hidden;background:#081021;border:1px solid rgba(56,189,248,0.3);position:relative;box-shadow:0 8px 25px rgba(0,0,0,0.6);">
+        <div style="border-radius:12px;overflow:hidden;background:#ffffff;border:1.5px solid #bfdbfe;position:relative;box-shadow:0 4px 16px rgba(0,112,243,0.08);">
 
           <svg viewBox="0 0 240 95" width="100%" height="95" style="display:block;">
 
@@ -1300,75 +1286,61 @@ const MEGA = {
 
               <linearGradient id="aiCardBg" x1="0" y1="0" x2="1" y2="1">
 
-                <stop offset="0%" stop-color="#0b172e"/>
+                <stop offset="0%" stop-color="#eff6ff"/>
 
-                <stop offset="100%" stop-color="#060c18"/>
+                <stop offset="100%" stop-color="#dbeafe"/>
 
               </linearGradient>
 
               <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
 
-                <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.45"/>
+                <stop offset="0%" stop-color="#0070f3" stop-opacity="0.3"/>
 
-                <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.0"/>
+                <stop offset="100%" stop-color="#0070f3" stop-opacity="0.0"/>
 
               </linearGradient>
 
               <linearGradient id="chartLine" x1="0" y1="0" x2="1" y2="0">
 
-                <stop offset="0%" stop-color="#2563eb"/>
+                <stop offset="0%" stop-color="#0070f3"/>
 
-                <stop offset="50%" stop-color="#38bdf8"/>
+                <stop offset="50%" stop-color="#00d2ff"/>
 
-                <stop offset="100%" stop-color="#D4FF24"/>
+                <stop offset="100%" stop-color="#10b981"/>
 
               </linearGradient>
-
-              <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
-
-                <feGaussianBlur stdDeviation="3" result="glow"/>
-
-                <feMerge>
-
-                  <feMergeNode in="glow"/>
-
-                  <feMergeNode in="SourceGraphic"/>
-
-                </feMerge>
-
-              </filter>
 
             </defs>
 
             <rect width="240" height="95" fill="url(#aiCardBg)"/>
 
-            <line x1="0" y1="24" x2="240" y2="24" stroke="rgba(56,189,248,0.08)" stroke-width="1"/>
+            <line x1="0" y1="24" x2="240" y2="24" stroke="rgba(0,112,243,0.08)" stroke-width="1"/>
 
-            <line x1="0" y1="48" x2="240" y2="48" stroke="rgba(56,189,248,0.08)" stroke-width="1"/>
+            <line x1="0" y1="48" x2="240" y2="48" stroke="rgba(0,112,243,0.08)" stroke-width="1"/>
 
-            <line x1="0" y1="72" x2="240" y2="72" stroke="rgba(56,189,248,0.08)" stroke-width="1"/>
+            <line x1="0" y1="72" x2="240" y2="72" stroke="rgba(0,112,243,0.08)" stroke-width="1"/>
 
-            <line x1="60" y1="0" x2="60" y2="95" stroke="rgba(56,189,248,0.06)" stroke-width="1"/>
+            <line x1="60" y1="0" x2="60" y2="95" stroke="rgba(0,112,243,0.06)" stroke-width="1"/>
 
-            <line x1="120" y1="0" x2="120" y2="95" stroke="rgba(56,189,248,0.06)" stroke-width="1"/>
+            <line x1="120" y1="0" x2="120" y2="95" stroke="rgba(0,112,243,0.06)" stroke-width="1"/>
 
-            <line x1="180" y1="0" x2="180" y2="95" stroke="rgba(56,189,248,0.06)" stroke-width="1"/>
+            <line x1="180" y1="0" x2="180" y2="95" stroke="rgba(0,112,243,0.06)" stroke-width="1"/>
 
             <path d="M 15 76 Q 55 70, 85 48 T 150 38 T 225 15 L 225 80 L 15 80 Z" fill="url(#chartGrad)"/>
 
-            <path d="M 15 76 Q 55 70, 85 48 T 150 38 T 225 15" fill="none" stroke="url(#chartLine)" stroke-width="3" filter="url(#neonGlow)"/>
+            <path d="M 15 76 Q 55 70, 85 48 T 150 38 T 225 15" fill="none" stroke="url(#chartLine)" stroke-width="3"/>
 
-            <circle cx="85" cy="48" r="3" fill="#38bdf8" stroke="#ffffff" stroke-width="1.5"/>
+            <circle cx="85" cy="48" r="3.5" fill="#0070f3" stroke="#ffffff" stroke-width="1.5"/>
 
-            <circle cx="150" cy="38" r="3" fill="#38bdf8" stroke="#ffffff" stroke-width="1.5"/>
+            <circle cx="150" cy="38" r="3.5" fill="#0070f3" stroke="#ffffff" stroke-width="1.5"/>
 
-            <circle cx="225" cy="15" r="4" fill="#D4FF24" stroke="#ffffff" stroke-width="2" filter="url(#neonGlow)"/>
+            <circle cx="225" cy="15" r="4.5" fill="#10b981" stroke="#ffffff" stroke-width="2"/>
 
-            <rect x="12" y="8" width="84" height="18" rx="9" fill="rgba(8,14,30,0.9)" stroke="#38bdf8" stroke-width="1.2"/>
+            <rect x="12" y="8" width="84" height="18" rx="9" fill="#ffffff" stroke="#93c5fd" stroke-width="1.2"/>
 
-            <text x="21" y="21" font-size="9" font-weight="700" fill="#D4FF24">↗ +245%</text>
+            <text x="21" y="21" font-size="9" font-weight="700" fill="#10b981">↗ +245%</text>
 
-            <text x="66" y="21" font-size="8.5" fill="#94a3b8">CTR</text>
+            <text x="66" y="21" font-size="8.5" fill="#0070f3" font-weight="700">CTR</text>
 
             <text x="12" y="89" font-size="8" fill="#64748b" font-weight="600" letter-spacing="0.5">CLICK EXPECTATION 2026</text>
 
@@ -1378,11 +1350,11 @@ const MEGA = {
 
         <div>
 
-          <span class="pill" style="font-size:10px;padding:3px 10px;background:rgba(56,189,248,0.15);color:#38bdf8;border:1px solid rgba(56,189,248,0.3);border-radius:20px;font-weight:700;">RESEARCH REPORT</span>
+          <span class="pill" style="font-size:10px;padding:3px 10px;background:#dbeafe;color:#0070f3;border:1px solid #bfdbfe;border-radius:20px;font-weight:700;">RESEARCH REPORT</span>
 
-          <b style="display:block;font-size:13px;margin-top:6px;color:#ffffff">The Click Expectation Report</b>
+          <b style="display:block;font-size:13px;margin-top:6px;color:#0b132b">The Click Expectation Report</b>
 
-          <span style="font-size:12px;color:var(--mut)">What makes links worth clicking in 2026.</span>
+          <span style="font-size:12px;color:#64748b">What makes links worth clicking in 2026.</span>
 
         </div>
 
@@ -1520,7 +1492,7 @@ const MEGA = {
 
         <h4>WHAT'S NEW</h4>
 
-        <div style="border-radius:12px;overflow:hidden;background:#081021;border:1px solid rgba(56,189,248,0.25);position:relative;box-shadow:0 8px 25px rgba(0,0,0,0.6);">
+        <div style="border-radius:12px;overflow:hidden;background:#ffffff;border:1.5px solid #bfdbfe;position:relative;box-shadow:0 4px 16px rgba(0,112,243,0.08);">
 
           <svg viewBox="0 0 240 90" width="100%" height="90" style="display:block;">
 
@@ -1528,17 +1500,17 @@ const MEGA = {
 
               <linearGradient id="resBg" x1="0" y1="0" x2="1" y2="1">
 
-                <stop offset="0%" stop-color="#0b172e"/>
+                <stop offset="0%" stop-color="#eff6ff"/>
 
-                <stop offset="100%" stop-color="#060c18"/>
+                <stop offset="100%" stop-color="#dbeafe"/>
 
               </linearGradient>
 
               <linearGradient id="bioBtn1" x1="0" y1="0" x2="1" y2="0">
 
-                <stop offset="0%" stop-color="#2563eb"/>
+                <stop offset="0%" stop-color="#0070f3"/>
 
-                <stop offset="100%" stop-color="#38bdf8"/>
+                <stop offset="100%" stop-color="#00d2ff"/>
 
               </linearGradient>
 
@@ -1546,25 +1518,25 @@ const MEGA = {
 
             <rect width="240" height="90" fill="url(#resBg)"/>
 
-            <rect x="75" y="5" width="90" height="80" rx="12" fill="rgba(15,23,42,0.95)" stroke="rgba(56,189,248,0.4)" stroke-width="1.5"/>
+            <rect x="75" y="5" width="90" height="80" rx="12" fill="#ffffff" stroke="#bfdbfe" stroke-width="1.5"/>
 
-            <rect x="105" y="8" width="30" height="2.5" rx="1.2" fill="rgba(255,255,255,0.2)"/>
+            <rect x="105" y="8" width="30" height="2.5" rx="1.2" fill="#cbd5e1"/>
 
-            <circle cx="120" cy="24" r="8" fill="url(#bioBtn1)" stroke="#D4FF24" stroke-width="1.5"/>
+            <circle cx="120" cy="24" r="8" fill="url(#bioBtn1)" stroke="#0070f3" stroke-width="1.5"/>
 
             <text x="120" y="27" font-size="7.5" text-anchor="middle" fill="#ffffff" font-weight="700">H</text>
 
-            <text x="120" y="38" font-size="7" text-anchor="middle" fill="#ffffff" font-weight="600">@yourbrand</text>
+            <text x="120" y="38" font-size="7" text-anchor="middle" fill="#0b132b" font-weight="600">@yourbrand</text>
 
             <rect x="85" y="44" width="70" height="10" rx="5" fill="url(#bioBtn1)"/>
 
             <text x="120" y="51.5" font-size="6" text-anchor="middle" fill="#ffffff" font-weight="600">My Website ↗</text>
 
-            <rect x="85" y="58" width="70" height="10" rx="5" fill="rgba(255,255,255,0.08)" stroke="rgba(212,255,36,0.5)" stroke-width="1"/>
+            <rect x="85" y="58" width="70" height="10" rx="5" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
 
-            <text x="120" y="65.5" font-size="6" text-anchor="middle" fill="#D4FF24" font-weight="600">Special Offer ✨</text>
+            <text x="120" y="65.5" font-size="6" text-anchor="middle" fill="#0070f3" font-weight="600">Special Offer ✨</text>
 
-            <circle cx="148" cy="16" r="6" fill="#38bdf8"/>
+            <circle cx="148" cy="16" r="6" fill="#0070f3"/>
 
             <path d="M146 16 L147.5 17.5 L150.5 14.5" stroke="#ffffff" stroke-width="1.2" fill="none"/>
 
@@ -1574,11 +1546,11 @@ const MEGA = {
 
         <div>
 
-          <span class="pill" style="font-size:10px;padding:3px 10px;background:rgba(212,255,36,0.15);color:#D4FF24;border:1px solid rgba(212,255,36,0.35);border-radius:20px;font-weight:700;">VERSION 2.4</span>
+          <span class="pill" style="font-size:10px;padding:3px 10px;background:#dbeafe;color:#0070f3;border:1px solid #bfdbfe;border-radius:20px;font-weight:700;">VERSION 2.4</span>
 
-          <b style="display:block;font-size:13px;margin-top:6px;color:#ffffff">Mobile Link-in-Bio Pages</b>
+          <b style="display:block;font-size:13px;margin-top:6px;color:#0b132b">Mobile Link-in-Bio Pages</b>
 
-          <span style="font-size:12px;color:var(--mut)">Build a gorgeous social profile landing page in under 60 seconds.</span>
+          <span style="font-size:12px;color:#64748b">Build a gorgeous social profile landing page in under 60 seconds.</span>
 
         </div>
 

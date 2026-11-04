@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
   <defs>
     <linearGradient id="lib_bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#20123a"/>
-      <stop offset="100%" stop-color="#0b0617"/>
+      <stop offset="0%" stop-color="#fdf2f8"/>
+      <stop offset="100%" stop-color="#fce7f3"/>
     </linearGradient>
     <linearGradient id="lib_accent" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#ec4899"/>
@@ -17,10 +17,10 @@
     </filter>
   </defs>
   <rect width="64" height="64" rx="16" fill="url(#lib_bg)"/>
-  <rect width="64" height="64" rx="16" fill="none" stroke="rgba(236,72,153,0.45)" stroke-width="1.5"/>
+  <rect width="64" height="64" rx="16" fill="none" stroke="#f472b6" stroke-width="1.5"/>
 
   <!-- Main showcase card -->
-  <rect x="12" y="12" width="40" height="40" rx="8" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+  <rect x="12" y="12" width="40" height="40" rx="8" fill="#ffffff" stroke="#f472b6" stroke-width="1"/>
 
   <!-- Top Hero Banner / Media box -->
   <rect x="15" y="15" width="34" height="14" rx="5" fill="url(#lib_accent)"/>

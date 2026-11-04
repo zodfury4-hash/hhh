@@ -713,7 +713,7 @@
 
           <div class="home-shorten-left-grp">
 
-            <span id="homeInputIcon" style="color:#94a3b8;font-size:16px;flex-shrink:0;">🔗</span>
+            <span id="homeInputIcon" style="color:#0070f3;font-size:18px;flex-shrink:0;">🔗</span>
 
             <input type="url" id="homeShortenInput" class="home-shorten-input" placeholder="Paste a long URL to shorten it..." required>
 
@@ -721,7 +721,7 @@
 
           <div class="home-shorten-right-grp">
 
-            <select class="home-domain-select" id="homeDomainSelect">
+            <select class="home-domain-select" id="homeDomainSelect" style="display:none !important;">
 
               <option value="healink.store" selected>healink.store</option>
 
@@ -985,7 +985,7 @@
 
                 <div style="display:flex;align-items:center;gap:16px;flex-shrink:0;">
 
-                  <div style="text-align:right;">
+                  <div style="display:none !important;">
 
                     <b style="color:#10b981;font-size:14px;">${typeof l.clicks === 'number' ? l.clicks : (Array.isArray(l.clicks) ? l.clicks.length : 0)}</b>
 
@@ -1741,7 +1741,7 @@
 
             <div style="display:flex;align-items:center;gap:12px;">
 
-              <span style="font-size:13px;font-weight:700;color:#10b981;">${typeof l.clicks === 'number' ? l.clicks : (Array.isArray(l.clicks) ? l.clicks.length : 0)} clicks</span>
+              <span style="display:none !important;">${typeof l.clicks === 'number' ? l.clicks : (Array.isArray(l.clicks) ? l.clicks.length : 0)} clicks</span>
 
               <button class="sso-btn" style="width:auto;padding:6px 12px;font-size:12px;" onclick="window.appShell.copy('${liveUrl}')">📋 Copy</button>
 

@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
   <defs>
     <linearGradient id="bl_bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#3b1d08"/>
-      <stop offset="100%" stop-color="#140902"/>
+      <stop offset="0%" stop-color="#fff7ed"/>
+      <stop offset="100%" stop-color="#ffedd5"/>
     </linearGradient>
     <linearGradient id="bl_card" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#f97316"/>
@@ -21,7 +21,7 @@
     </filter>
   </defs>
   <rect width="64" height="64" rx="16" fill="url(#bl_bg)"/>
-  <rect width="64" height="64" rx="16" fill="none" stroke="rgba(249,115,22,0.5)" stroke-width="1.5"/>
+  <rect width="64" height="64" rx="16" fill="none" stroke="#fdba74" stroke-width="1.5"/>
   <!-- Tablet Device Frame -->
   <rect x="14" y="12" width="36" height="42" rx="8" fill="#18151f" stroke="url(#bl_card)" stroke-width="2"/>
   <!-- Screen Area -->

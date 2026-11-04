@@ -409,30 +409,30 @@ h3 { font-size: 18px; font-weight: 600; color: #ffffff !important; }
 }
 
 .mega-item .mega-img-box {
-  width: 38px;
-  height: 38px;
-  border-radius: 11px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4), 0 0 12px rgba(56, 189, 248, 0.15);
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 112, 243, 0.08);
+  border: 1.5px solid #e2e8f0;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  background: #081022;
+  background: #ffffff;
 }
 .mega-item .mega-img-box img {
   width: 100%;
   height: 100%;
   display: block;
   object-fit: cover;
-  border-radius: 10px;
+  border-radius: 11px;
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .mega-item:hover .mega-img-box {
-  border-color: #D4FF24;
-  box-shadow: 0 0 20px rgba(212, 255, 36, 0.45), 0 6px 18px rgba(0, 0, 0, 0.5);
+  border-color: #0070f3;
+  box-shadow: 0 4px 14px rgba(0, 112, 243, 0.22);
   transform: translateY(-1px) scale(1.06);
 }
 .mega-item:hover .mega-img-box img {
@@ -443,41 +443,40 @@ h3 { font-size: 18px; font-weight: 600; color: #ffffff !important; }
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.02em;
-  color: #ffffff;
+  color: #0b132b !important;
   text-transform: uppercase;
   transition: color 0.15s ease;
 }
 .mega-item:hover b {
-  color: #D4FF24;
+  color: #0070f3 !important;
 }
 .mega-item span {
   display: block;
   font-size: 12px;
-  color: var(--mut);
+  color: #64748b !important;
   line-height: 1.35;
   margin-top: 2px;
 }
 
 /* Side Card inside Mega menu */
 .mega-side-card {
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(56, 189, 248, 0.2);
+  background: #f8fafc !important;
+  border: 1.5px solid #e2e8f0 !important;
   border-radius: 16px;
   padding: 18px;
   width: 260px;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  box-shadow: var(--glass-inset);
+  box-shadow: 0 4px 16px rgba(0, 70, 200, 0.06) !important;
 }
 .mega-side-card h4 {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  color: #38bdf8;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #0070f3 !important;
   text-transform: uppercase;
-  text-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+  margin: 0;
 }
 .integrations-row {
   display: flex;
@@ -485,29 +484,37 @@ h3 { font-size: 18px; font-weight: 600; color: #ffffff !important; }
 }
 .integration-pill {
   flex: 1;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
   border-radius: 10px;
-  padding: 10px 6px;
+  padding: 8px 6px;
   text-align: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04) !important;
   transition: all 0.15s ease;
 }
 .integration-pill:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(56, 189, 248, 0.4);
+  background: #eff6ff !important;
+  border-color: #0070f3 !important;
 }
 .integration-pill b {
   display: block;
   font-size: 11px;
-  font-weight: 600;
-  margin-top: 4px;
-  color: #ffffff;
+  font-weight: 700;
+  margin-top: 2px;
+  color: #0b132b !important;
 }
 .integration-pill span {
   font-size: 20px;
 }
 .mega-side-link {
+  color: #0070f3 !important;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.mega-side-link:hover {
+  text-decoration: underline;
+}
   font-size: 13px;
   font-weight: 600;
   color: #38bdf8;
@@ -3159,45 +3166,63 @@ p, .lead, .lead2, .fc p, .faq details p, .plans ul, .card p, .hero-col-left .lea
   display: flex !important;
   align-items: center !important;
   background: #ffffff !important;
-  border: 1.5px solid #e2e8f0 !important;
+  border: 1.5px solid #cbd5e1 !important;
   border-radius: 9999px !important;
   padding: 6px 8px 6px 20px !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+  box-shadow: 0 4px 14px rgba(0, 112, 243, 0.08) !important;
   transition: all 0.2s ease !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 .hero-pill-input:focus-within {
   border-color: #0070f3 !important;
-  box-shadow: 0 0 0 4px rgba(0, 112, 243, 0.12) !important;
+  box-shadow: 0 0 0 4px rgba(0, 112, 243, 0.16) !important;
 }
 .pill-input-icon {
-  color: #94a3b8 !important;
-  margin-right: 10px !important;
-  font-size: 16px !important;
+  color: #0070f3 !important;
+  margin-right: 12px !important;
+  font-size: 18px !important;
   display: flex !important;
   align-items: center !important;
+  flex-shrink: 0 !important;
 }
-.hero-pill-input input {
+.hero-pill-input input,
+.hero-pill-input input:focus,
+.hero-pill-input input:hover {
   flex: 1 !important;
   background: transparent !important;
-  border: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
   outline: none !important;
+  box-shadow: none !important;
   font-size: 15px !important;
-  color: #0b132b !important;
+  color: #000000 !important;
   font-family: inherit !important;
-  padding: 8px 0 !important;
+  padding: 10px 4px !important;
+  margin: 0 !important;
+  min-width: 0 !important;
 }
 .hero-pill-input input::placeholder {
-  color: #94a3b8 !important;
+  color: #64748b !important;
 }
 .hero-submit-btn, #heroBtn {
   background: #0070f3 !important;
   color: #ffffff !important;
   border: 0 !important;
   border-radius: 9999px !important;
-  padding: 12px 26px !important;
+  padding: 12px 28px !important;
   font-size: 15px !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   cursor: pointer !important;
+  box-shadow: 0 4px 14px rgba(0, 112, 243, 0.32) !important;
+  transition: all 0.18s ease !important;
+  flex-shrink: 0 !important;
+}
+.hero-submit-btn:hover, #heroBtn:hover {
+  background: #005ce6 !important;
+  transform: scale(1.03) !important;
+  box-shadow: 0 6px 18px rgba(0, 112, 243, 0.45) !important;
+}
   box-shadow: 0 4px 14px rgba(0, 112, 243, 0.32) !important;
   transition: all 0.2s ease !important;
   white-space: nowrap !important;

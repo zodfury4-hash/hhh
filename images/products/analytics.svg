@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
   <defs>
     <linearGradient id="an_bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#09262e"/>
-      <stop offset="100%" stop-color="#051117"/>
+      <stop offset="0%" stop-color="#ecfeff"/>
+      <stop offset="100%" stop-color="#cffafe"/>
     </linearGradient>
     <linearGradient id="an_bar1" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#38bdf8"/>
@@ -29,10 +29,10 @@
     </filter>
   </defs>
   <rect width="64" height="64" rx="16" fill="url(#an_bg)"/>
-  <rect width="64" height="64" rx="16" fill="none" stroke="rgba(56,189,248,0.4)" stroke-width="1.5"/>
+  <rect width="64" height="64" rx="16" fill="none" stroke="#67e8f9" stroke-width="1.5"/>
 
   <!-- Chart Grid Lines -->
-  <line x1="12" y1="48" x2="52" y2="48" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+  <line x1="12" y1="48" x2="52" y2="48" stroke="#67e8f9" stroke-width="1.5"/>
   <line x1="12" y1="35" x2="52" y2="35" stroke="rgba(255,255,255,0.08)" stroke-dasharray="2 2"/>
   <line x1="12" y1="22" x2="52" y2="22" stroke="rgba(255,255,255,0.08)" stroke-dasharray="2 2"/>
 
