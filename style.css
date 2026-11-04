@@ -877,6 +877,14 @@ input[type=color] {
   overflow: visible;
 }
 
+.cyber-stage-container,
+.cyber-canvas-wrap,
+.cyber-img-wrap {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
 .hero-infinity-img {
   width: 100%;
   max-width: 540px;
@@ -885,7 +893,10 @@ input[type=color] {
   object-fit: contain;
   user-select: none;
   pointer-events: none;
-  filter: drop-shadow(0 16px 35px rgba(0, 112, 243, 0.16));
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  filter: drop-shadow(0 20px 40px rgba(0, 112, 243, 0.22));
   animation: none !important;
   transition: none !important;
 }
