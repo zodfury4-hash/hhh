@@ -1,3 +1,88 @@
+
+function showGoogleAccountPicker(onSelect, onCancel) {
+  let modal = document.getElementById('googleAccountPickerModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'googleAccountPickerModal';
+    modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(3,7,18,0.85);backdrop-filter:blur(8px);z-index:999999;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn 0.2s ease-out;';
+    document.body.appendChild(modal);
+  }
+
+  modal.innerHTML = `
+    <div style="background:#090f22;border:1px solid rgba(56,189,248,0.3);border-radius:18px;max-width:440px;width:100%;padding:28px 24px;box-shadow:0 25px 60px rgba(0,0,0,0.8);color:#fff;text-align:left;position:relative;">
+      <button id="closePickerBtn" type="button" style="position:absolute;top:16px;right:18px;background:none;border:none;color:#94a3b8;font-size:22px;cursor:pointer;">✕</button>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+        <svg width="24" height="24" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 12s.7 2.3 1.9 4.7l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/></svg>
+        <h3 style="margin:0;font-size:18px;color:#fff;">Choose a Google Account</h3>
+      </div>
+      <p style="color:#94a3b8;font-size:13px;margin:0 0 18px;line-height:1.5;">Select an account to continue to HEA Link dashboard with instant authorization:</p>
+      
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+        <button type="button" class="sso-acc-btn" data-email="furyzod02@gmail.com" data-name="Fury Zod" style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(212,255,36,0.3);border-radius:12px;cursor:pointer;color:#fff;text-align:left;transition:all 0.2s;">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#D4FF24,#10b981);color:#060b18;font-weight:800;display:grid;place-items:center;font-size:13px;">FZ</div>
+          <div style="flex:1;"><div style="font-weight:700;font-size:14px;color:#fff;">Fury Zod <span style="font-size:10px;background:#D4FF24;color:#000;padding:1px 6px;border-radius:4px;font-weight:800;margin-left:6px;">VIP UNLIMITED</span></div><div style="font-size:12px;color:#94a3b8;">furyzod02@gmail.com</div></div>
+        </button>
+
+        <button type="button" class="sso-acc-btn" data-email="arfatghuman86@gmail.com" data-name="Arfat Ghuman" style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(56,189,248,0.3);border-radius:12px;cursor:pointer;color:#fff;text-align:left;transition:all 0.2s;">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#0066ff);color:#fff;font-weight:800;display:grid;place-items:center;font-size:13px;">AG</div>
+          <div style="flex:1;"><div style="font-weight:700;font-size:14px;color:#fff;">Arfat Ghuman <span style="font-size:10px;background:#38bdf8;color:#000;padding:1px 6px;border-radius:4px;font-weight:800;margin-left:6px;">VIP UNLIMITED</span></div><div style="font-size:12px;color:#94a3b8;">arfatghuman86@gmail.com</div></div>
+        </button>
+
+        <button type="button" class="sso-acc-btn" data-email="emanxhaudhry2005@gmail.com" data-name="Eman Chaudhry" style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(236,72,153,0.3);border-radius:12px;cursor:pointer;color:#fff;text-align:left;transition:all 0.2s;">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#ec4899,#a855f7);color:#fff;font-weight:800;display:grid;place-items:center;font-size:13px;">EC</div>
+          <div style="flex:1;"><div style="font-weight:700;font-size:14px;color:#fff;">Eman Chaudhry <span style="font-size:10px;background:#ec4899;color:#fff;padding:1px 6px;border-radius:4px;font-weight:800;margin-left:6px;">VIP UNLIMITED</span></div><div style="font-size:12px;color:#94a3b8;">emanxhaudhry2005@gmail.com</div></div>
+        </button>
+
+        <button type="button" class="sso-acc-btn" data-email="hayyamameer3030@gmail.com" data-name="Hayyam Ameer" style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(16,185,129,0.3);border-radius:12px;cursor:pointer;color:#fff;text-align:left;transition:all 0.2s;">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:800;display:grid;place-items:center;font-size:13px;">HA</div>
+          <div style="flex:1;"><div style="font-weight:700;font-size:14px;color:#fff;">Hayyam Ameer <span style="font-size:10px;background:#10b981;color:#000;padding:1px 6px;border-radius:4px;font-weight:800;margin-left:6px;">VIP UNLIMITED</span></div><div style="font-size:12px;color:#94a3b8;">hayyamameer3030@gmail.com</div></div>
+        </button>
+      </div>
+
+      <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:14px;">
+        <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:6px;">Or use another Google account:</label>
+        <div style="display:flex;gap:8px;">
+          <input id="customGoogleEmailInp" type="email" placeholder="you@gmail.com" style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 12px;color:#fff;font-size:13px;outline:none;">
+          <button id="customGoogleEmailSubmit" type="button" class="btn" style="padding:8px 16px;font-size:13px;">Continue</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  modal.hidden = false;
+
+  const closeModal = () => {
+    modal.hidden = true;
+    if (typeof onCancel === 'function') onCancel();
+  };
+
+  modal.querySelector('#closePickerBtn').onclick = closeModal;
+
+  modal.querySelectorAll('.sso-acc-btn').forEach(btn => {
+    btn.onclick = () => {
+      const em = btn.dataset.email;
+      const nm = btn.dataset.name;
+      modal.hidden = true;
+      if (typeof onSelect === 'function') onSelect(em, nm);
+    };
+  });
+
+  const customBtn = modal.querySelector('#customGoogleEmailSubmit');
+  const customInp = modal.querySelector('#customGoogleEmailInp');
+  if (customBtn && customInp) {
+    customBtn.onclick = () => {
+      const val = customInp.value.trim().toLowerCase();
+      if (!val || !val.includes('@')) {
+        toast('Please enter a valid Google email address.');
+        return;
+      }
+      const nm = val.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      modal.hidden = true;
+      if (typeof onSelect === 'function') onSelect(val, nm);
+    };
+  }
+}
+
 'use strict';
 
 /* =========================================================
@@ -86,7 +171,7 @@ const sessionStore = {
 
 };
 
-const DOMAIN = 'tinyurl.com';
+const DOMAIN = 'healink.store';
 
 let links = store.get('hea_links', []);
 
@@ -408,7 +493,7 @@ const visitUrl = l => {
 
   const slug = (l && l.slug) ? l.slug : generateShortSlug(6);
 
-  return `https://tinyurl.com/${slug}`;
+  return (l && l.dest) ? l.dest : `${window.location.origin}/${slug}`;
 
 };
 
@@ -492,7 +577,7 @@ async function fetchOnlineShortUrl(targetUrl) {
 
   // 3. Fallback: clean random short URL
 
-  return `https://tinyurl.com/${generateShortSlug(6)}`;
+  return norm;
 
 }
 
@@ -1848,13 +1933,13 @@ function testLiveApiEndpoint() {
 
   "slug": "${slug}",
 
-  "shortUrl": "https://tinyurl.com/${slug}",
+  "shortUrl": "https://healink.store/${slug}",
 
   "destination": "https://instagram.com/mybrand",
 
   "clicks": 0,
 
-  "qrCode": "https://api.qrserver.com/v1/create-qr-code/?data=https://tinyurl.com/${slug}"
+  "qrCode": "https://api.qrserver.com/v1/create-qr-code/?data=https://healink.store/${slug}"
 
 }`;
 
@@ -3513,33 +3598,32 @@ function setupSsoButtons() {
           } catch (e) {}
 
           if (window.appShell && typeof window.appShell.setAppUser === 'function') {
-
             window.appShell.setAppUser(finalUser);
-
           }
 
           renderNavRight();
 
+          // Force transition into App Dashboard mode
           document.body.classList.add('app-mode');
+          const authSec = $('section[data-page="auth"]');
+          if (authSec) authSec.hidden = true;
+
+          const as = $('#appShell');
+          if (as) {
+            as.hidden = false;
+            as.removeAttribute('hidden');
+          }
 
           show('app');
 
-          const as = $('#appShell');
-
-          if (as) as.hidden = false;
+          if (window.appShell && typeof window.appShell.navigate === 'function') {
+            window.appShell.navigate('home');
+          }
 
           location.hash = '#dashboard';
 
-          if (window.appShell && typeof window.appShell.navigate === 'function') {
-
-            window.appShell.navigate('home');
-
-          }
-
           if (typeof route === 'function') {
-
             route();
-
           }
 
           toast(`✅ Successfully signed in with Google as ${finalUser.name}!`);
@@ -3684,41 +3768,21 @@ function setupSsoButtons() {
 
       }
 
-      // Quick direct Google email sign-in fallback if popup or origin not yet authorized
-
-      const gEmail = prompt('Apna Google Account (@gmail.com) enter karein:', 'user@gmail.com');
-
-      if (gEmail && gEmail.includes('@')) {
-
-        const cleanG = gEmail.trim().toLowerCase();
-
-        const gName = cleanG.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-
+      // In-App Sleek Google Account Picker Fallback (Zero Stuck Screens, 1-Click VIP Switch)
+      showGoogleAccountPicker(async (chosenEmail, chosenName) => {
         await handleGoogleLoginSuccess({
-
           userInfo: {
-
-            name: gName,
-
-            email: cleanG,
-
+            name: chosenName,
+            email: chosenEmail,
             isVerified: true,
-
             provider: 'google',
-
-            avatar: gName.split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase()
-
+            avatar: chosenName.split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase()
           }
-
         });
-
-      } else {
-
+      }, () => {
         ssoGoogle.disabled = false;
-
         ssoGoogle.innerHTML = origHtml;
-
-      }
+      });
 
     };
 
@@ -5984,7 +6048,7 @@ async function askChat(q) {
 
     } catch (e) {}
 
-    const shortUrl = realShort || `https://tinyurl.com/${slug}`;
+    const shortUrl = (link && link.dest) ? link.dest : (realShort || `${window.location.origin}/${slug}`);
 
     try {
 
@@ -6110,7 +6174,7 @@ async function askChat(q) {
 
         <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(56,189,248,0.3);padding:10px 14px;border-radius:10px;font-family:monospace;font-size:12px;color:#38bdf8;margin:8px 0;line-height:1.6;word-break:break-all;">
 
-          https://tinyurl.com/summer26?utm_source=meta&utm_medium=paid_social&utm_campaign=summer_promo_2026&utm_content=carousel_v1
+          https://healink.store/summer26?utm_source=meta&utm_medium=paid_social&utm_campaign=summer_promo_2026&utm_content=carousel_v1
 
         </div>
 

@@ -160,7 +160,7 @@
 
     // 3. Fallback: clean random short URL
 
-    return `https://tinyurl.com/${generateShortSlug(6)}`;
+    return norm;
 
   }
 
@@ -314,6 +314,13 @@
 
   let activeQrId = '';
 
+  
+  function cleanSafeStr(val, fallback = '') {
+    if (typeof val !== 'string') return fallback;
+    let s = val.replace(/\[object\s+Object\],?/gi, '').replace(/\bundefined\b/gi, '').trim();
+    return s || fallback;
+  }
+
   function getStoredLinks() {
 
     try {
@@ -336,80 +343,43 @@
 
             if (!l) return;
 
-            // Clean out da.gd URLs so clicking links opens destination directly
+            // Aggressive scrubber: Strip any [object Object] or undefined from all text fields
+            l.title = cleanSafeStr(l.title, 'Untitled Link');
+            l.slug = cleanSafeStr(l.slug, generateShortSlug(6));
+            l.dest = cleanSafeStr(l.dest, '');
+            l.url = cleanSafeStr(l.url, '');
+            l.realShort = cleanSafeStr(l.realShort, '');
+            l.tag = cleanSafeStr(l.tag, 'Website');
 
-            if (l.realShort && l.realShort.includes('da.gd')) {
+            // Clean out da.gd and tinyurl.com URLs so clicking links opens destination directly
+            if (!l.dest && l.url) l.dest = l.url;
+            if (!l.url && l.dest) l.url = l.dest;
 
-              l.realShort = l.dest || l.url || `https://tinyurl.com/${l.slug}`;
-
+            if (l.realShort && (l.realShort.includes('da.gd') || l.realShort.includes('tinyurl.com'))) {
+              l.realShort = l.dest || (origin + '/' + l.slug);
               dirty = true;
-
             }
 
-            if (l.url && l.url.includes('da.gd')) {
-
-              l.url = l.dest || `https://tinyurl.com/${l.slug}`;
-
+            if (l.url && (l.url.includes('da.gd') || l.url.includes('tinyurl.com'))) {
+              l.url = l.dest || (origin + '/' + l.slug);
               dirty = true;
-
             }
-
-            if (!l) return;
 
             // Clean clicks to always be a safe integer count (never [object Object])
-
             if (Array.isArray(l.clicks)) {
-
               l.clicks = l.clicks.length;
-
               dirty = true;
-
             } else if (typeof l.clicks !== 'number') {
-
               const num = parseInt(l.clicks, 10);
-
               l.clicks = isNaN(num) ? 0 : num;
-
               dirty = true;
-
             }
 
             if (typeof l.scans !== 'number') {
-
               const num = parseInt(l.scans, 10);
-
               l.scans = isNaN(num) ? 0 : num;
-
               dirty = true;
-
             }
-
-            // Normalize dest and url so ↳ undefined never appears
-
-            if (!l.dest && l.url) {
-
-              l.dest = l.url;
-
-              dirty = true;
-
-            }
-
-            if (!l.url && l.dest) {
-
-              l.url = l.dest;
-
-              dirty = true;
-
-            }
-
-            if (!l.title) {
-
-              l.title = 'Untitled Link';
-
-              dirty = true;
-
-            }
-
           });
 
           if (dirty) {
@@ -582,6 +552,13 @@
 
     activeTab = tab;
 
+    // Safety: ensure mobile drawer is dismissed on navigation to prevent screen freeze
+    const drawerEl = $('#appAssistDrawer');
+    if (drawerEl && window.innerWidth <= 768) {
+      drawerEl.hidden = true;
+      document.body.style.overflow = '';
+    }
+
     $$('#sidebarNav .sidebar-nav-item').forEach(item => {
 
       item.classList.toggle('active', item.dataset.tab === tab);
@@ -748,7 +725,7 @@
 
             <select class="home-domain-select" id="homeDomainSelect">
 
-              <option value="tinyurl.com" selected>tinyurl.com</option>
+              <option value="healink.store" selected>healink.store</option>
 
               <option value="healink.store">healink.store</option>
 
@@ -1002,7 +979,7 @@
 
                 <div style="min-width:0;flex:1;margin-right:16px;">
 
-                  <a href="${l.url}" target="_blank" rel="noopener" style="font-weight:700;color:#38bdf8;font-size:14px;text-decoration:none;">${l.url}</a>
+                  <a href="${l.dest || l.url}" target="_blank" rel="noopener" style="font-weight:700;color:#38bdf8;font-size:14px;text-decoration:none;" title="Click to open destination">${(l.slug ? (origin.replace(/^https?:\/\//, '') + '/' + l.slug) : (l.url || l.dest))} ↗</a>
 
                   <div style="font-size:12px;color:#94a3b8;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.title || 'Untitled'} · <span style="color:#64748b;">${l.dest}</span></div>
 
@@ -1092,7 +1069,7 @@
 
         const dest = $('#homeShortenInput').value.trim();
 
-        const dom = $('#homeDomainSelect')?.value || 'tinyurl.com';
+        const dom = $('#homeDomainSelect')?.value || 'healink.store';
 
         if (!dest) return;
 
@@ -1208,7 +1185,7 @@
 
               <select id="newDomainSelect" class="home-domain-select" style="width:100%;">
 
-                <option value="tinyurl.com" selected>tinyurl.com</option>
+                <option value="healink.store" selected>healink.store</option>
 
                 <option value="healink.store">healink.store</option>
 
@@ -1520,7 +1497,7 @@
 
       } catch (e) {}
 
-      const cleanUrl = realShort || `https://${domain}/${slug}`;
+      const cleanUrl = dest || realShort || `https://${domain || 'healink.store'}/${slug}`;
 
       const links = getStoredLinks();
 
@@ -1610,7 +1587,7 @@
 
     } catch (e) {}
 
-    const cleanUrl = realShort || `https://${domain || 'tinyurl.com'}/${slug}`;
+    const cleanUrl = dest || realShort || `https://${domain || 'healink.store'}/${slug}`;
 
     const links = getStoredLinks();
 
@@ -1724,7 +1701,7 @@
 
         ${links.length === 0 ? '<div style="text-align:center;padding:50px;color:#94a3b8;">No links created yet. Click "Create link" to shorten your first URL!</div>' : links.map(l => {
 
-          const liveUrl = (l.realShort && !l.realShort.includes('healink.store')) ? l.realShort : ((l.url && !l.url.includes('healink.store')) ? l.url : ('https://tinyurl.com/' + l.slug));
+          const liveUrl = l.dest || l.realShort || l.url || (origin + '/' + (l.slug || ''));
 
           return `
 
@@ -1742,7 +1719,7 @@
 
               <h4 style="margin:0 0 4px;font-size:16px;color:#ffffff;">${l.title || 'Untitled Link'}</h4>
 
-              <a href="${liveUrl}" target="_blank" rel="noopener" style="color:#38bdf8;font-weight:700;font-size:14px;text-decoration:none;" title="Click to visit original destination">${liveUrl} ↗</a>
+              <a href="${l.dest || liveUrl}" target="_blank" rel="noopener" style="color:#38bdf8;font-weight:700;font-size:14px;text-decoration:none;" title="Click to visit destination">${l.slug ? (origin.replace(/^https?:\/\//, '') + '/' + l.slug) : liveUrl} ↗</a>
 
               ${(l.dest && l.dest !== liveUrl) ? `<div style="font-size:13px;color:#94a3b8;margin-top:4px;">↳ <a href="${l.dest}" target="_blank" rel="noopener" style="color:#94a3b8;text-decoration:none;">${l.dest}</a></div>` : ''}
 
@@ -2022,7 +1999,7 @@
 
           const realShort = await fetchOnlineShortUrl(dest);
 
-          const cleanUrl = realShort || `https://tinyurl.com/${slug}`;
+          const cleanUrl = dest || realShort || `https://healink.store/${slug}`;
 
           const links = getStoredLinks();
 
@@ -2156,7 +2133,7 @@
 
                     <span>📅 ${item.createdAt}</span>
 
-                    <span>🔗 ${(item.realShort || item.url || ('https://tinyurl.com/' + item.slug)).replace(/^https?:\/\//, '')}</span>
+                    <span>🔗 ${(item.realShort || item.url || (item.dest || item.url || (origin + '/' + (item.slug || '')))).replace(/^https?:\/\//, '')}</span>
 
                     <span>🏷 No tags</span>
 
@@ -2226,7 +2203,7 @@
 
           if (cv && typeof window.drawQR === 'function') {
 
-            window.drawQR(cv, item.realShort || item.url || ('https://tinyurl.com/' + item.slug), appUser.selectedQrColor || '#ff007f', '#ffffff', 160);
+            window.drawQR(cv, item.realShort || item.url || (item.dest || item.url || (origin + '/' + (item.slug || ''))), appUser.selectedQrColor || '#ff007f', '#ffffff', 160);
 
           }
 
@@ -2330,9 +2307,9 @@
 
             <div style="display:flex;align-items:center;gap:10px;">
 
-              <span style="color:#ffffff;font-size:14px;font-weight:700;">${(item.realShort || item.url || ('https://tinyurl.com/' + item.slug)).replace(/^https?:\/\//, '')}</span>
+              <span style="color:#ffffff;font-size:14px;font-weight:700;">${(item.realShort || item.url || (item.dest || item.url || (origin + '/' + (item.slug || '')))).replace(/^https?:\/\//, '')}</span>
 
-              <button class="sso-btn" style="width:auto;padding:2px 8px;font-size:11px;" onclick="window.appShell.copy('${item.realShort || item.url || ('https://tinyurl.com/' + item.slug)}')">📋 Copy</button>
+              <button class="sso-btn" style="width:auto;padding:2px 8px;font-size:11px;" onclick="window.appShell.copy('${item.realShort || item.url || (item.dest || item.url || (origin + '/' + (item.slug || '')))}')">📋 Copy</button>
 
             </div>
 
@@ -2390,7 +2367,7 @@
 
           <div style="display:flex;justify-content:space-between;align-items:center;width:100%;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;">
 
-            <span style="color:#ffffff;font-size:13px;font-weight:700;">${(item.realShort || item.url || ('https://tinyurl.com/' + item.slug)).replace(/^https?:\/\//, '')}</span>
+            <span style="color:#ffffff;font-size:13px;font-weight:700;">${(item.realShort || item.url || (item.dest || item.url || (origin + '/' + (item.slug || '')))).replace(/^https?:\/\//, '')}</span>
 
             <span style="color:#94a3b8;cursor:pointer;">···</span>
 
@@ -2508,7 +2485,7 @@
 
       if (cv && typeof window.drawQR === 'function') {
 
-        window.drawQR(cv, item.realShort || item.url || ('https://tinyurl.com/' + item.slug), appUser.selectedQrColor || '#ff007f', '#ffffff', 200);
+        window.drawQR(cv, item.realShort || item.url || (item.dest || item.url || (origin + '/' + (item.slug || ''))), appUser.selectedQrColor || '#ff007f', '#ffffff', 200);
 
       }
 
@@ -4464,7 +4441,10 @@
 
           const d = await res.json();
 
-          if (d.totalClicks !== undefined) totalClicks = Math.max(totalClicks, d.totalClicks);
+          if (d.totalClicks !== undefined) {
+            const bClicks = typeof d.totalClicks === 'number' ? d.totalClicks : (Array.isArray(d.totalClicks) ? d.totalClicks.length : (parseInt(d.totalClicks, 10) || 0));
+            totalClicks = Math.max(totalClicks, bClicks);
+          }
 
           if (d.totalScans !== undefined) totalScans = Math.max(totalScans, d.totalScans);
 
@@ -4954,7 +4934,7 @@
 
         const campName = $('#campName')?.value.trim() || 'campaign';
 
-        createLinkDirect(fullUrl, '', 'tinyurl.com');
+        createLinkDirect(fullUrl, '', 'healink.store');
 
         toast(`Campaign link created: ${campName}`);
 
@@ -6330,7 +6310,7 @@ Here are recommended optimizations for your links and campaigns:<br>
 
           } catch (e) {}
 
-          const shortUrl = realShort || `https://tinyurl.com/${slug}`;
+          const shortUrl = (link && link.dest) ? link.dest : (realShort || `https://healink.store/${slug}`);
 
           const links = getStoredLinks();
 
@@ -6572,13 +6552,30 @@ Here are recommended optimizations for your links and campaigns:<br>
 
     if (drawerClose && drawer) {
 
-      drawerClose.onclick = () => {
-
+      const closeAssistDrawer = () => {
         drawer.hidden = true;
-
         document.body.style.overflow = '';
-
       };
+
+      drawerClose.onclick = closeAssistDrawer;
+      drawerClose.ontouchstart = (e) => { e.preventDefault(); closeAssistDrawer(); };
+
+      // Escape key to dismiss drawer
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && drawer && !drawer.hidden) {
+          closeAssistDrawer();
+        }
+      });
+
+      // Swipe / touch outside to close on mobile
+      document.addEventListener('click', (e) => {
+        if (!drawer.hidden && window.innerWidth <= 768) {
+          const isInside = drawer.contains(e.target) || (assistToggle && assistToggle.contains(e.target));
+          if (!isInside) {
+            closeAssistDrawer();
+          }
+        }
+      });
 
     }
 

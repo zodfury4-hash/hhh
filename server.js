@@ -1930,7 +1930,7 @@ app.post('/api/shorten-online', async (req, res) => {
 
     const rnd = Math.random().toString(36).substring(2, 8);
 
-    return res.json({ success: true, shortUrl: `https://tinyurl.com/${rnd}` });
+    return res.json({ success: true, shortUrl: url });
 
   } catch (e) {
 
@@ -1970,7 +1970,7 @@ app.post('/api/shorten', optionalAuth, async (req, res) => {
 
     }
 
-    const cleanShortUrl = realShort || `https://tinyurl.com/${finalSlug}`;
+    const cleanShortUrl = realShort || dest;
 
     let link = null;
 
@@ -2364,7 +2364,7 @@ app.post('/api/links', authMiddleware, async (req, res) => {
 
     }
 
-    const cleanShortUrl = realShort || `https://tinyurl.com/${finalSlug}`;
+    const cleanShortUrl = realShort || dest;
 
     res.json({
 
@@ -2424,7 +2424,7 @@ app.post('/api/links/bulk', authMiddleware, async (req, res) => {
 
       const realShort = await getRealWorkingShortUrl(u);
 
-      const cleanUrl = realShort || `https://tinyurl.com/${slug}`;
+      const cleanUrl = realShort || u;
 
       if (isDbConnected) {
 
@@ -3888,7 +3888,7 @@ app.post('/api/ai/ask', async (req, res) => {
 
       const realShort = await getRealWorkingShortUrl(dest);
 
-      const shortUrl = realShort || `https://tinyurl.com/${slug}`;
+      const shortUrl = realShort || dest;
 
       if (isDbConnected) {
 
