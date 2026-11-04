@@ -4519,6 +4519,31 @@ async function seedVipAdminAccounts() {
 
       }
 
+      // Also persist to Firebase Realtime Database
+      try {
+
+        await firebaseRtdb.saveUser(vEmail, {
+
+          name: vData.name,
+
+          email: vEmail,
+
+          isVerified: true,
+
+          isPro: true,
+
+          isAdmin: true,
+
+          plan: 'Unlimited'
+
+        });
+
+      } catch (fbErr) {
+
+        console.warn('[Firebase RTDB seed VIP warn]:', fbErr.message);
+
+      }
+
     }
 
   } catch (err) {

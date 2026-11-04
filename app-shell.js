@@ -369,6 +369,9 @@
             if (Array.isArray(l.clicks)) {
               l.clicks = l.clicks.length;
               dirty = true;
+            } else if (l.clicks && typeof l.clicks === 'object') {
+              l.clicks = Object.keys(l.clicks).length;
+              dirty = true;
             } else if (typeof l.clicks !== 'number') {
               const num = parseInt(l.clicks, 10);
               l.clicks = isNaN(num) ? 0 : num;
@@ -1526,6 +1529,14 @@
 
       localStorage.setItem('hea_links', JSON.stringify(links));
 
+      // Persist to Firebase Realtime Database
+      try {
+        if (window.fbRtdbClient && typeof window.fbRtdbClient.saveLink === 'function') {
+          const uEmail = (appUser && appUser.email) || 'guest';
+          window.fbRtdbClient.saveLink(uEmail, newL);
+        }
+      } catch (e) {}
+
       // Sync to MongoDB backend
 
       try {
@@ -1615,6 +1626,14 @@
     links.unshift(newL);
 
     localStorage.setItem('hea_links', JSON.stringify(links));
+
+    // Persist to Firebase Realtime Database
+    try {
+      if (window.fbRtdbClient && typeof window.fbRtdbClient.saveLink === 'function') {
+        const uEmail = (appUser && appUser.email) || 'guest';
+        window.fbRtdbClient.saveLink(uEmail, newL);
+      }
+    } catch (e) {}
 
     if (typeof window.recordFreeCreation === 'function') window.recordFreeCreation();
 
@@ -2027,6 +2046,15 @@
           links.unshift(newQ);
 
           localStorage.setItem('hea_links', JSON.stringify(links));
+
+          // Persist to Firebase Realtime Database
+          try {
+            if (window.fbRtdbClient) {
+              const uEmail = (appUser && appUser.email) || 'guest';
+              window.fbRtdbClient.saveLink(uEmail, newQ);
+              window.fbRtdbClient.saveQr(uEmail, newQ);
+            }
+          } catch (e) {}
 
           if (typeof window.recordFreeCreation === 'function') window.recordFreeCreation();
 
@@ -4176,6 +4204,14 @@
 
           localStorage.setItem('hea_bios', JSON.stringify(pages));
 
+          // Persist to Firebase Realtime Database
+          try {
+            if (window.fbRtdbClient && typeof window.fbRtdbClient.saveBio === 'function') {
+              const uEmail = (appUser && appUser.email) || 'guest';
+              window.fbRtdbClient.saveBio(uEmail, newPage);
+            }
+          } catch (e) {}
+
           // Realtime Database Sync under Logged-in User Email
 
           try {
@@ -5978,6 +6014,14 @@
     links = links.filter(l => l.id !== id && l.slug !== slug);
 
     localStorage.setItem('hea_links', JSON.stringify(links));
+
+    // Persist delete to Firebase Realtime Database
+    try {
+      if (window.fbRtdbClient && typeof window.fbRtdbClient.deleteLink === 'function') {
+        const uEmail = (appUser && appUser.email) || 'guest';
+        window.fbRtdbClient.deleteLink(uEmail, slug);
+      }
+    } catch (e) {}
 
     // Call backend API
 

@@ -3641,6 +3641,17 @@ function setupSsoButtons() {
 
           } catch (e) {}
 
+          // Persist authenticated Google user to Firebase Realtime Database
+          try {
+
+            if (window.fbRtdbClient && typeof window.fbRtdbClient.saveUser === 'function') {
+
+              window.fbRtdbClient.saveUser(finalUser.email, finalUser);
+
+            }
+
+          } catch (e) {}
+
           if (window.appShell && typeof window.appShell.setAppUser === 'function') {
             window.appShell.setAppUser(finalUser);
           }
@@ -4083,6 +4094,17 @@ $('#authForm').onsubmit = async e => {
             localStorage.setItem('hea_session', JSON.stringify(userSession));
 
             sessionStorage.setItem('hea_session', JSON.stringify(userSession));
+
+            // Persist registered user to Firebase Realtime Database
+            try {
+
+              if (window.fbRtdbClient && typeof window.fbRtdbClient.saveUser === 'function') {
+
+                window.fbRtdbClient.saveUser(userSession.email, userSession);
+
+              }
+
+            } catch (e) {}
 
             if (window.appShell && typeof window.appShell.setAppUser === 'function') {
 
@@ -4566,6 +4588,17 @@ $('#authForm').onsubmit = async e => {
 
       store.set('hea_session', session);
 
+      // Persist logged-in user to Firebase Realtime Database
+      try {
+
+        if (window.fbRtdbClient && typeof window.fbRtdbClient.saveUser === 'function') {
+
+          window.fbRtdbClient.saveUser(session.email, session);
+
+        }
+
+      } catch (e) {}
+
       if (window.appShell && typeof window.appShell.setAppUser === 'function') {
 
         window.appShell.setAppUser(session);
@@ -4643,6 +4676,13 @@ async function handleVerificationCheck() {
     try {
       localStorage.setItem('hea_session', JSON.stringify(verifiedUser));
       sessionStorage.setItem('hea_session', JSON.stringify(verifiedUser));
+    } catch (e) {}
+
+    // Persist verified user to Firebase Realtime Database
+    try {
+      if (window.fbRtdbClient && typeof window.fbRtdbClient.saveUser === 'function') {
+        window.fbRtdbClient.saveUser(verifiedUser.email, verifiedUser);
+      }
     } catch (e) {}
 
     if (window.appShell && typeof window.appShell.setAppUser === 'function') {
