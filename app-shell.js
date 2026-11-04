@@ -646,22 +646,40 @@
 
     container.innerHTML = `
 
-      <!-- Card 1: "What do you want to create?" (1:1 Reference Match) -->
-
+      <!-- Card 1: "What do you want to create?" (1:1 Exact Reference Match) -->
       <div class="home-create-card">
-
-        <!-- 3D Center Glossy Icon -->
         <div class="home-icon-3d-wrap">
-          <div class="home-icon-3d-box">
-            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#0070f3" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-            </svg>
-          </div>
-          <span class="icon-spark spark-tl">✦</span>
-          <span class="icon-spark spark-tr">✦</span>
-          <span class="icon-spark spark-br">✦</span>
-        </div>
+  <svg width="84" height="84" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Burst Spark Lines -->
+    <path d="M50 4V12" stroke="#93c5fd" stroke-width="3" stroke-linecap="round"/>
+    <path d="M22 16L28 22" stroke="#93c5fd" stroke-width="3" stroke-linecap="round"/>
+    <path d="M78 16L72 22" stroke="#93c5fd" stroke-width="3" stroke-linecap="round"/>
+    <path d="M88 42L80 44" stroke="#93c5fd" stroke-width="3" stroke-linecap="round"/>
+    <path d="M12 42L20 44" stroke="#93c5fd" stroke-width="3" stroke-linecap="round"/>
+    <!-- 3D Squircle Base Shadow -->
+    <rect x="18" y="24" width="64" height="64" rx="20" fill="rgba(0,112,243,0.18)" transform="rotate(-6 50 56)"/>
+    <!-- 3D Squircle Main Body -->
+    <rect x="18" y="20" width="64" height="64" rx="20" fill="url(#squircleGradHome)" stroke="#bfdbfe" stroke-width="2" transform="rotate(-6 50 52)"/>
+    <!-- Glossy Highlight Sheen -->
+    <path d="M26 28C26 23 30 19 35 18L58 16C63 15 67 19 67 24C67 24 50 25 38 34C28 42 26 52 26 52L26 28Z" fill="url(#sheenGradHome)" opacity="0.6" transform="rotate(-6 50 52)"/>
+    <!-- Chain Link Icon -->
+    <g transform="rotate(-6 50 52) translate(30, 32)">
+      <path d="M16 22L22 16C25.3 12.7 25.3 7.3 22 4C18.7 0.7 13.3 0.7 10 4L4 10C0.7 13.3 0.7 18.7 4 22C6 24 8.7 25 11.3 25" stroke="#0070f3" stroke-width="4.5" stroke-linecap="round"/>
+      <path d="M24 18L18 24C14.7 27.3 9.3 27.3 6 24C2.7 20.7 2.7 15.3 6 12L12 6C15.3 2.7 20.7 2.7 24 6C26 8 27 10.7 27 13.3" stroke="#0050d0" stroke-width="4.5" stroke-linecap="round"/>
+    </g>
+    <defs>
+      <linearGradient id="squircleGradHome" x1="18" y1="20" x2="82" y2="84" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#ffffff"/>
+        <stop offset="0.4" stop-color="#eff6ff"/>
+        <stop offset="1" stop-color="#dbeafe"/>
+      </linearGradient>
+      <linearGradient id="sheenGradHome" x1="26" y1="16" x2="67" y2="52" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#ffffff" stop-opacity="0.9"/>
+        <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+  </svg>
+</div>
 
         <!-- Title with curved blue underline under "create?" -->
         <h3 class="home-hero-title">
@@ -705,11 +723,9 @@
         <div class="home-quota-text">
           ${appUser.isPro ? '<span style="color:#10b981;font-weight:700;">👑 Core PRO Active: Unlimited short links &amp; Vector QR Codes</span>' : 'You can create <b style="color:#0070f3; font-weight:800;">5 more</b> short links this month. 🚀'}
         </div>
-
       </div>
 
-      <!-- Card 2: "Simplify your workflow" (1:1 Reference Match) -->
-
+      <!-- Card 2: "Simplify your workflow" (1:1 Exact Reference Match) -->
       <div class="home-workflow-card">
         <div class="workflow-left-col">
           <div class="workflow-title-row">
@@ -730,337 +746,81 @@
           </button>
         </div>
         <div class="workflow-right-col">
-          <div class="workflow-3d-badge">
-            <div class="workflow-3d-card-inner">
-              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#0070f3" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-              </svg>
-            </div>
-            <span class="wf-spark wf-spark-1">✦</span>
-            <span class="wf-spark wf-spark-2">✦</span>
-            <span class="wf-spark wf-spark-3">✦</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 2-Card Row: Connect your account & Hi User -->
-
-      <div class="dash-row-2">
-
-        <!-- Connect your account (Frame 6) -->
-
-        <div class="dash-white-card">
-
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-
-            <h4 style="margin:0;color:#0070f3;font-weight:800;">Connect your account</h4>
-
-            <a href="#integrations" style="color:#0070f3;font-size:13px;font-weight:600;text-decoration:none;">Explore Integrations →</a>
-
-          </div>
-
-          <p style="color:#64748b;margin:0 0 16px;font-size:13px;">Recommended for you</p>
-
-          <div style="display:flex;flex-direction:column;gap:10px;">
-
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;">
-
-              <div style="display:flex;align-items:center;gap:12px;">
-
-                <div style="font-size:24px;">🌐</div>
-
-                <div>
-
-                  <div style="font-weight:700;font-size:14px;color:#0b132b;">Chrome Extension</div>
-
-                  <div style="font-size:12px;color:#64748b;">Instant links and QR Codes from anywhere</div>
-
-                </div>
-
-              </div>
-
-              <button class="sso-btn" style="width:auto;padding:6px 14px;font-size:13px;" onclick="window.appShell.toast('Chrome Extension installed in browser!')">Install</button>
-
-            </div>
-
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;">
-
-              <div style="display:flex;align-items:center;gap:12px;">
-
-                <div style="font-size:24px;">🎨</div>
-
-                <div>
-
-                  <div style="font-weight:700;font-size:14px;color:#0b132b;">Canva</div>
-
-                  <div style="font-size:12px;color:#64748b;">Popular pick in productivity and design</div>
-
-                </div>
-
-              </div>
-
-              <button class="sso-btn" style="width:auto;padding:6px 14px;font-size:13px;" onclick="window.appShell.toast('Canva workspace connected!')">Connect</button>
-
-            </div>
-
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;">
-
-              <div style="display:flex;align-items:center;gap:12px;">
-
-                <div style="font-size:24px;">🛍️</div>
-
-                <div>
-
-                  <div style="font-weight:700;font-size:14px;color:#0b132b;">Shopify <span style="background:#0284c7;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;font-weight:800;margin-left:4px;">New</span></div>
-
-                  <div style="font-size:12px;color:#64748b;">Auto-attribute orders to specific links</div>
-
-                </div>
-
-              </div>
-
-              <button class="sso-btn" style="width:auto;padding:6px 14px;font-size:13px;" onclick="window.appShell.toast('Shopify store connected!')">Connect</button>
-
-            </div>
-
-          </div>
-
-        </div>
-
-        <!-- Hi User Progress (Frame 6) -->
-
-        <div class="dash-white-card">
-
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
-
-            <div>
-
-              <h4 style="margin:0 0 2px;color:#64748b;font-size:13px;font-weight:500;">Hi ${appUser.name},</h4>
-
-              <h4 style="margin:0;color:#0070f3;font-size:18px;font-weight:800;">get started with HEA Link</h4>
-
-            </div>
-
-            <div style="display:flex;align-items:center;gap:6px;color:#10b981;font-weight:800;font-size:16px;">
-
-              <span>33%</span>
-
-              <svg width="26" height="26" viewBox="0 0 36 36"><path stroke="rgba(0,112,243,0.15)" stroke-width="4" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/><path stroke="#10b981" stroke-width="4" stroke-dasharray="33, 100" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/></svg>
-
-            </div>
-
-          </div>
-
-          <div style="display:flex;flex-direction:column;gap:12px;font-size:13px;">
-
-            <div style="padding:10px 12px;background:rgba(0,112,243,0.06);border:1px solid rgba(0,112,243,0.18);border-radius:10px;">
-
-              <div style="display:flex;align-items:center;gap:10px;color:#0b132b;font-weight:700;margin-bottom:6px;">
-
-                <span style="width:16px;height:16px;border:2px solid #0070f3;border-radius:50%;display:inline-block;"></span>
-
-                <span>Shorten a URL</span>
-
-              </div>
-
-              <button class="sso-btn" style="width:auto;padding:6px 14px;font-size:12px;color:#0070f3;font-weight:700;" onclick="window.appShell.navigate('create-link')">
-
-                🔗 Let's make a link
-
-              </button>
-
-            </div>
-
-            <div style="display:flex;align-items:center;gap:10px;color:#64748b;padding:4px 0;">
-
-              <span style="width:16px;height:16px;border:2px dashed #94a3b8;border-radius:50%;display:inline-block;"></span>
-
-              <span>Collect 10 clicks or scans</span>
-
-            </div>
-
-            <div style="display:flex;align-items:center;gap:10px;color:#10b981;font-weight:600;cursor:pointer;padding:4px 0;" onclick="window.appShell.navigate('analytics')">
-
-              <span>✓</span> <span>Analytics preview</span>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-      <!-- Recent Links Quick Section -->
-
-      <div class="dash-white-card" style="margin-top:20px;">
-
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-
-          <div>
-
-            <h4 style="margin:0;color:#0070f3;font-weight:800;font-size:16px;">Recent links</h4>
-
-            <p style="color:#64748b;font-size:12px;margin:2px 0 0;">Your active links and real-time performance</p>
-
-          </div>
-
-          <button class="topbar-icon-btn" type="button" onclick="window.appShell.navigate('links')" style="color:#0070f3;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:4px;">View all links →</button>
-
-        </div>
-
-        <div class="home-recent-links-list">
-
-          ${(() => {
-
-            const rLinks = getStoredLinks().slice(0, 3);
-
-            if (rLinks.length === 0) {
-
-              return `
-
-                <div style="text-align:center;padding:32px 16px;color:#64748b;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;">
-
-                  <div style="font-size:26px;margin-bottom:6px;">🔗</div>
-
-                  <div style="font-weight:700;color:#0b132b;font-size:14px;margin-bottom:4px;">No short links created yet</div>
-
-                  <p style="font-size:12px;color:#64748b;margin:0 0 12px;">Paste a destination URL above to create your first short link &amp; track clicks in real-time.</p>
-
-                  <button class="sso-btn" style="width:auto;margin:0 auto;padding:6px 14px;font-size:12px;color:#0070f3;font-weight:700;" onclick="const inp = $('#homeShortenInput'); if (inp) inp.focus();">Create your first link ↑</button>
-
-                </div>
-
-              `;
-
-            }
-
-            const origin = window.location.origin;
-            return rLinks.map(l => {
-              const shortUrl = (l.realShort && l.realShort !== l.dest && !l.realShort.includes('firebase.google.com') && l.realShort.length < 60)
-                ? l.realShort
-                : `${origin}/${l.slug || 'lnk'}`;
-              const shortDisplay = shortUrl.replace(/^https?:\/\//, '');
-              const destDisplay = l.dest ? (l.dest.length > 55 ? l.dest.slice(0, 52) + '...' : l.dest) : '';
-
-              return `
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:10px;">
-                <div style="min-width:0;flex:1;margin-right:16px;">
-                  <a href="${shortUrl}" target="_blank" rel="noopener" style="font-weight:700;color:#0070f3;font-size:14px;text-decoration:none;" title="Click to open short link">${shortDisplay} ↗</a>
-                  <div style="font-size:12px;color:#64748b;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.title || 'Untitled'} · <span style="color:#94a3b8;" title="${l.dest}">↳ ${destDisplay}</span></div>
-                </div>
-                <div style="display:flex;align-items:center;gap:16px;flex-shrink:0;">
-                  <div style="display:none !important;">
-                    <b style="color:#10b981;font-size:14px;">${typeof l.clicks === 'number' ? l.clicks : (Array.isArray(l.clicks) ? l.clicks.length : 0)}</b>
-                    <span style="font-size:11px;color:#94a3b8;display:block;">clicks</span>
-                  </div>
-                  <button class="sso-btn" style="width:auto;padding:6px 12px;font-size:12px;" onclick="window.appShell.copy('${shortUrl}')">📋 Copy</button>
-                </div>
-              </div>
-              `;
-            }).join('');
-
-          })()}
-
-        </div>
-
+  <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Spark Burst Lines -->
+    <path d="M52 8L50 16" stroke="#93c5fd" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M72 14L66 20" stroke="#93c5fd" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M84 32L76 34" stroke="#93c5fd" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M26 34L34 38" stroke="#93c5fd" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Card Drop Shadow -->
+    <rect x="28" y="24" width="46" height="62" rx="14" fill="rgba(0,112,243,0.18)" transform="rotate(18 51 55)"/>
+    <!-- Card Body -->
+    <rect x="28" y="20" width="46" height="62" rx="14" fill="url(#cardGradHome)" stroke="#bfdbfe" stroke-width="2" transform="rotate(18 51 51)"/>
+    <!-- Link Icon Inside Tilted Card -->
+    <g transform="rotate(18 51 51) translate(37, 37)">
+      <path d="M12 18L17 13C19.8 10.2 19.8 5.8 17 3C14.2 0.2 9.8 0.2 7 3L2 8C-0.8 10.8 -0.8 15.2 2 18C3.7 19.7 6 20.5 8.2 20.5" stroke="#0070f3" stroke-width="3.5" stroke-linecap="round"/>
+      <path d="M18 14L13 19C10.2 21.8 5.8 21.8 3 19C0.2 16.2 0.2 11.8 3 9L8 4C10.8 1.2 15.2 1.2 18 4C19.7 5.7 20.5 8 20.5 10.2" stroke="#0050d0" stroke-width="3.5" stroke-linecap="round"/>
+    </g>
+    <defs>
+      <linearGradient id="cardGradHome" x1="28" y1="20" x2="74" y2="82" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#ffffff"/>
+        <stop offset="1" stop-color="#eff6ff"/>
+      </linearGradient>
+    </defs>
+  </svg>
+</div>
       </div>
 
     `;
 
-    // Tab switcher logic on Home
-
+    // Tab Switching Logic
     const tabLink = $('#tabShortLinkOpt');
-
     const tabQr = $('#tabQrCodeOpt');
-
     const input = $('#homeShortenInput');
-
     const icon = $('#homeInputIcon');
 
-    const domSelect = $('#homeDomainSelect');
-
     if (tabLink && tabQr && input) {
-
       tabLink.onclick = () => {
-
         activeType = 'link';
-
         tabLink.classList.add('active');
-
         tabQr.classList.remove('active');
-
         input.placeholder = 'Paste a long URL to shorten it...';
-
         if (icon) icon.textContent = '🔗';
-
-        if (domSelect) domSelect.style.display = 'block';
-
       };
 
       tabQr.onclick = () => {
-
         activeType = 'qr';
-
         tabQr.classList.add('active');
-
         tabLink.classList.remove('active');
-
         input.placeholder = 'Enter a URL to create a QR Code...';
-
         if (icon) icon.textContent = '▦';
-
-        if (domSelect) domSelect.style.display = 'none';
-
       };
-
     }
 
+    // Form Submit Handler
     const form = $('#homeShortenForm');
-
     if (form) {
-
       form.onsubmit = async e => {
-
         e.preventDefault();
-
         const dest = $('#homeShortenInput').value.trim();
-
-        const dom = $('#homeDomainSelect')?.value || 'healink.store';
-
+        const dom = 'healink.store';
         if (!dest) return;
 
         const btn = $('#homeSubmitBtn');
-
         if (btn) {
-
           btn.disabled = true;
-
           btn.textContent = '...';
-
         }
 
         if (activeType === 'qr') {
-
-          // Direct QR creation and navigate to QR studio
-
           const newL = await createLinkDirect(dest, '', dom);
-
           const newId = (newL && newL.id) || ('lnk_' + Date.now());
-
           navigate('qr-detail', newId);
-
         } else {
-
           const newL = await createLinkDirect(dest, '', dom);
-
           const resBox = $('#homeShortenResult');
-
           if (resBox && newL) {
-
             const liveUrl = newL.url || newL.realShort || `https://${dom}/${newL.slug}`;
-
             resBox.innerHTML = `
               <div class="result-title">Your Live Short Link (Click to open destination):</div>
               <a href="${liveUrl}" target="_blank" rel="noopener" class="result-url">${liveUrl}</a>
@@ -1071,30 +831,19 @@
                 <a href="${liveUrl}" target="_blank" rel="noopener" class="res-btn-action">🚀 Visit</a>
               </div>
             `;
-
             resBox.style.display = 'block';
-
             if ($('#homeShortenInput')) $('#homeShortenInput').value = '';
-
           }
-
         }
 
         if (btn) {
-
           btn.disabled = false;
-
           btn.textContent = '→';
-
         }
-
       };
-
     }
 
   }
-
-  // ---------------- 2. CREATE A NEW LINK SCREEN (Screenshots 12.02.38 AM, 1, 2) ---------------- //
 
   function renderCreateLink(container) {
 
