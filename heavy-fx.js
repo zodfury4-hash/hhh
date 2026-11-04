@@ -604,8 +604,8 @@
       return;
     }
 
-    const width = wrap.clientWidth || 540;
-    const height = wrap.clientHeight || 540;
+    const width = wrap.clientWidth || 560;
+    const height = wrap.clientHeight || 520;
 
     const renderer = new THREE.WebGLRenderer({
       canvas: canvas,
@@ -617,41 +617,41 @@
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 100);
-    camera.position.set(0, 0.15, 9.4);
+    const camera = new THREE.PerspectiveCamera(35, width / height, 0.1, 100);
+    camera.position.set(0, 0.1, 9.6);
     camera.lookAt(0, 0.05, 0);
 
     const stageGroup = new THREE.Group();
     scene.add(stageGroup);
 
-    // 1. Soft Blue Ambient Radial Ground Shadow (Exact match to floor reflection)
+    // 1. Soft Blue Ambient Radial Ground Shadow (Exact match to floor reflection in screenshot)
     const shadowCanvas = document.createElement('canvas');
-    shadowCanvas.width = 256;
-    shadowCanvas.height = 256;
+    shadowCanvas.width = 512;
+    shadowCanvas.height = 512;
     const sCtx = shadowCanvas.getContext('2d');
-    const sGrad = sCtx.createRadialGradient(128, 128, 0, 128, 128, 128);
-    sGrad.addColorStop(0, 'rgba(0, 112, 243, 0.36)');
-    sGrad.addColorStop(0.35, 'rgba(56, 189, 248, 0.18)');
-    sGrad.addColorStop(0.7, 'rgba(147, 197, 253, 0.06)');
+    const sGrad = sCtx.createRadialGradient(256, 256, 0, 256, 256, 256);
+    sGrad.addColorStop(0, 'rgba(0, 112, 243, 0.32)');
+    sGrad.addColorStop(0.3, 'rgba(56, 189, 248, 0.18)');
+    sGrad.addColorStop(0.65, 'rgba(147, 197, 253, 0.06)');
     sGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
     sCtx.fillStyle = sGrad;
-    sCtx.fillRect(0, 0, 256, 256);
+    sCtx.fillRect(0, 0, 512, 512);
 
     const shadowTex = new THREE.CanvasTexture(shadowCanvas);
     const shadowMat = new THREE.MeshBasicMaterial({
       map: shadowTex,
       transparent: true,
-      opacity: 0.88,
+      opacity: 0.85,
       depthWrite: false
     });
-    const shadowPlane = new THREE.Mesh(new THREE.PlaneGeometry(6.8, 3.8), shadowMat);
+    const shadowPlane = new THREE.Mesh(new THREE.PlaneGeometry(7.2, 3.2), shadowMat);
     shadowPlane.rotation.x = -Math.PI / 2;
-    shadowPlane.position.y = -2.25;
+    shadowPlane.position.set(0.2, -2.3, 0);
     stageGroup.add(shadowPlane);
 
-    // 2. Parametric 3D Infinity Curve (Meta Lemniscate matching media_1793811502139_2e7fde7c.jpg)
+    // 2. Parametric 3D Infinity Curve (Exact match to media_1793812204870_052cfe60.jpg)
     class MetaInfinityCurve extends THREE.Curve {
-      constructor(scale = 2.75) {
+      constructor(scale = 2.85) {
         super();
         this.scale = scale;
       }
@@ -660,48 +660,49 @@
         const u = t * Math.PI * 2.0;
         const scale = this.scale;
         
-        // Classic 3D Gerono Lemniscate with volumetric crossover
-        const denom = 1.0 + 0.35 * Math.sin(u) * Math.sin(u);
+        // Volumetric lemniscate with smooth circular lobes
+        const denom = 1.0 + 0.32 * Math.sin(u) * Math.sin(u);
         const x = (scale * Math.cos(u)) / denom;
-        const y = (scale * 0.62 * Math.sin(2.0 * u)) / denom;
-        // z-axis tilt: brings left loop forward (+z) and curves smoothly in 3D
-        const z = Math.sin(u) * 0.55 + Math.cos(2.0 * u) * 0.25;
+        const y = (scale * 0.65 * Math.sin(2.0 * u)) / denom;
+        // Volumetric crossover: front strand curves forward towards camera (+z), back strand behind (-z)
+        const z = Math.sin(u) * 0.65 + Math.cos(2.0 * u) * 0.28;
         
         return point.set(x, y, z);
       }
     }
 
-    const path = new MetaInfinityCurve(2.75);
-    // Plump, soft-rounded tubular volume (radius 0.52, 36 radial segments)
-    const infinityGeom = new THREE.TubeGeometry(path, 200, 0.52, 36, true);
+    const path = new MetaInfinityCurve(2.85);
+    // Plump, soft-rounded tubular volume (radius 0.60, 48 radial segments)
+    const infinityGeom = new THREE.TubeGeometry(path, 240, 0.60, 48, true);
 
     // 3. Dual-Tone Gradient (Sky-Cyan to Electric Cerulean) via Vertex Colors
     const pos = infinityGeom.attributes.position;
     const colors = new Float32Array(pos.count * 3);
 
-    const colCyan = new THREE.Color(0x38bdf8);      // Bright Sky Cyan (#38bdf8)
-    const colElectric = new THREE.Color(0x007aff);  // Electric Cerulean Blue (#007aff)
-    const colDeep = new THREE.Color(0x0284c7);      // Deep Azure Blue (#0284c7)
-    const colHighlight = new THREE.Color(0x93c5fd); // Upper sheen (#93c5fd)
+    const colCyan = new THREE.Color(0x00c2ff);      // Luminous Sky Cyan (#00c2ff)
+    const colElectric = new THREE.Color(0x007aff);  // Vibrant Electric Blue (#007aff)
+    const colDeep = new THREE.Color(0x0052e0);      // Deep Cerulean Blue (#0052e0)
+    const colHighlight = new THREE.Color(0xdbeafe); // Soft white-blue sheen
 
     for (let i = 0; i < pos.count; i++) {
       const x = pos.getX(i);
       const y = pos.getY(i);
       const z = pos.getZ(i);
 
-      // Horizontal loop progress (-2.6 to +2.6)
-      const nx = Math.max(0.0, Math.min(1.0, (x + 2.6) / 5.2));
+      // Horizontal loop progress (-2.7 to +2.7)
+      const nx = Math.max(0.0, Math.min(1.0, (x + 2.7) / 5.4));
       const c = new THREE.Color();
 
-      if (nx < 0.5) {
-        c.copy(colCyan).lerp(colElectric, nx * 2.0);
+      if (nx < 0.45) {
+        c.copy(colCyan).lerp(colElectric, nx / 0.45);
       } else {
-        c.copy(colElectric).lerp(colDeep, (nx - 0.5) * 2.0);
+        c.copy(colElectric).lerp(colDeep, (nx - 0.45) / 0.55);
       }
 
-      // Upper sheen reflection on top curves
-      if (y > 0.4 && z > 0.0) {
-        c.lerp(colHighlight, Math.min(0.65, (y - 0.4) * 0.8));
+      // Upper specular highlight reflection along top curves
+      if (y > 0.35 && z > -0.2) {
+        const hFactor = Math.min(0.55, (y - 0.35) * 0.75);
+        c.lerp(colHighlight, hFactor);
       }
 
       colors[i * 3] = c.r;
@@ -713,68 +714,81 @@
     // 4. Glossy Silicone/Clay Satin Finish Material with Clearcoat
     const infinityMat = new THREE.MeshPhysicalMaterial({
       vertexColors: true,
-      roughness: 0.18,          // Satin claymorphic smoothness
-      metalness: 0.08,
-      clearcoat: 0.95,          // Lustrous clearcoat sheen
+      roughness: 0.16,          // Satin claymorphic smoothness
+      metalness: 0.02,
+      clearcoat: 1.0,           // Lustrous clearcoat sheen
       clearcoatRoughness: 0.08,
-      reflectivity: 0.95,
-      emissive: 0x0044aa,
-      emissiveIntensity: 0.15
+      reflectivity: 0.98,
+      emissive: 0x0033aa,
+      emissiveIntensity: 0.16
     });
 
     const infinityMesh = new THREE.Mesh(infinityGeom, infinityMat);
+    // Initial 3D orientation matching reference screenshot perspective
+    infinityMesh.rotation.set(0.12, 0.32, -0.06);
     stageGroup.add(infinityMesh);
 
     // 5. Thin Glowing Light-Cyan Orbital Ring Tilted Around the Loop
-    const ringGeom = new THREE.TorusGeometry(3.45, 0.024, 16, 140);
+    const ringGeom = new THREE.TorusGeometry(3.6, 0.028, 16, 160);
     const ringMat = new THREE.MeshBasicMaterial({
       color: 0xcbe4ff,
       transparent: true,
-      opacity: 0.92
+      opacity: 0.95
     });
     const ringMesh = new THREE.Mesh(ringGeom, ringMat);
-    ringMesh.rotation.set(0.38, -0.06, 0.08);
+    ringMesh.rotation.set(0.42, -0.08, 0.1);
     stageGroup.add(ringMesh);
 
-    // 6. Sparkling Glint Flare on the Foreground Ring Curve
+    // 6. Sparkling Glint Starburst Flare on Foreground Ring Curve
     const glintCanvas = document.createElement('canvas');
-    glintCanvas.width = 64;
-    glintCanvas.height = 64;
+    glintCanvas.width = 128;
+    glintCanvas.height = 128;
     const gCtx = glintCanvas.getContext('2d');
-    const gGrad = gCtx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    
+    const gGrad = gCtx.createRadialGradient(64, 64, 0, 64, 64, 64);
     gGrad.addColorStop(0, 'rgba(255, 255, 255, 1)');
-    gGrad.addColorStop(0.25, 'rgba(186, 230, 253, 0.85)');
-    gGrad.addColorStop(0.65, 'rgba(56, 189, 248, 0.25)');
+    gGrad.addColorStop(0.2, 'rgba(224, 242, 254, 0.9)');
+    gGrad.addColorStop(0.5, 'rgba(56, 189, 248, 0.35)');
     gGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
     gCtx.fillStyle = gGrad;
-    gCtx.fillRect(0, 0, 64, 64);
+    gCtx.beginPath();
+    gCtx.arc(64, 64, 64, 0, Math.PI * 2);
+    gCtx.fill();
+
+    gCtx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+    gCtx.beginPath();
+    gCtx.ellipse(64, 64, 38, 2.5, 0, 0, Math.PI * 2);
+    gCtx.fill();
+    gCtx.beginPath();
+    gCtx.ellipse(64, 64, 38, 2.5, Math.PI / 2, 0, Math.PI * 2);
+    gCtx.fill();
 
     const glintTex = new THREE.CanvasTexture(glintCanvas);
     const glintMat = new THREE.SpriteMaterial({
       map: glintTex,
       transparent: true,
-      opacity: 0.95,
+      opacity: 0.98,
       blending: THREE.AdditiveBlending
     });
     const glintSprite = new THREE.Sprite(glintMat);
-    glintSprite.scale.set(0.7, 0.7, 0.7);
-    glintSprite.position.set(-0.45, -1.25, 2.75);
+    glintSprite.scale.set(0.85, 0.85, 0.85);
+    glintSprite.position.set(-0.4, -1.35, 2.85);
     stageGroup.add(glintSprite);
 
     // 7. Studio Key, Fill and Rim Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.8);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 2.4);
-    keyLight.position.set(5, 7, 6);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.8);
+    keyLight.position.set(6, 8, 7);
     scene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0x7dd3fc, 1.8);
-    fillLight.position.set(-6, 3, 4);
+    const fillLight = new THREE.DirectionalLight(0x7dd3fc, 2.0);
+    fillLight.position.set(-7, 4, 5);
     scene.add(fillLight);
 
-    const bottomGlow = new THREE.PointLight(0x0284c7, 2.5, 14);
-    bottomGlow.position.set(0, -2, 3);
+    const bottomGlow = new THREE.PointLight(0x0070f3, 2.2, 16);
+    bottomGlow.position.set(0, -2.5, 3.5);
     scene.add(bottomGlow);
 
     // Interactive mouse tilt with damping
@@ -783,14 +797,14 @@
     window.addEventListener('mousemove', e => {
       const x = (e.clientX / window.innerWidth) * 2 - 1;
       const y = (e.clientY / window.innerHeight) * 2 - 1;
-      targetRotY = x * 0.22;
-      targetRotX = y * 0.14;
+      targetRotY = x * 0.18;
+      targetRotX = y * 0.12;
     });
 
     window.addEventListener('resize', () => {
       if (!wrap) return;
-      const w = wrap.clientWidth || 540;
-      const h = wrap.clientHeight || 540;
+      const w = wrap.clientWidth || 560;
+      const h = wrap.clientHeight || 520;
       renderer.setSize(w, h);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
@@ -803,21 +817,23 @@
       const elapsed = clock.getElapsedTime();
 
       // Smooth harmonic floating levitation (bob up and down)
-      infinityMesh.position.y = Math.sin(elapsed * 1.5) * 0.12;
+      const bob = Math.sin(elapsed * 1.4) * 0.12;
+      infinityMesh.position.y = bob;
+      shadowPlane.scale.set(1.0 - bob * 0.4, 1.0 - bob * 0.4, 1.0);
 
-      // Gentle swaying 3D breathing rotation (yaw, pitch, roll)
-      infinityMesh.rotation.y = -0.12 + Math.sin(elapsed * 0.8) * 0.14;
-      infinityMesh.rotation.x = 0.14 + Math.cos(elapsed * 0.6) * 0.06;
-      infinityMesh.rotation.z = -0.06 + Math.sin(elapsed * 0.5) * 0.04;
+      // Gentle swaying 3D breathing rotation centered around the reference angle
+      const targetY = 0.32 + Math.sin(elapsed * 0.6) * 0.08 + targetRotY;
+      const targetX = 0.12 + Math.cos(elapsed * 0.5) * 0.04 + targetRotX;
+      infinityMesh.rotation.y += (targetY - infinityMesh.rotation.y) * 0.08;
+      infinityMesh.rotation.x += (targetX - infinityMesh.rotation.x) * 0.08;
 
       // Ring floating slightly out of phase & slow axial spin
-      ringMesh.position.y = Math.sin(elapsed * 1.5 + 0.3) * 0.08;
-      ringMesh.rotation.z = elapsed * 0.05;
+      ringMesh.position.y = Math.sin(elapsed * 1.4 + 0.3) * 0.08;
+      ringMesh.rotation.z = elapsed * 0.04;
 
       // Shimmering flare pulse
-      const glintPulse = 0.65 + Math.sin(elapsed * 3.0) * 0.15;
-      glintSprite.scale.set(glintPulse, glintPulse, glintPulse);
-      glintSprite.position.y = -1.25 + Math.sin(elapsed * 1.5 + 0.3) * 0.08;
+      const glintPulse = 0.8 + Math.sin(elapsed * 3.2) * 0.2;
+      glintSprite.scale.set(0.85 * glintPulse, 0.85 * glintPulse, 1.0);
 
       // Smooth mouse reactive parallax
       stageGroup.rotation.y += (targetRotY - stageGroup.rotation.y) * 0.06;
