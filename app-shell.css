@@ -2168,3 +2168,94 @@ section[data-page="app"][hidden] {
     border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
   }
 }
+
+
+/* =========================================================================
+   APP-SHELL CLOUD-BLUE LIGHT GLASSMORPHISM UNIFICATION
+   Ensures All Dashboard, Auth, and Inner Pages Share the EXACT Same Theme
+   ========================================================================= */
+
+body.app-mode {
+  background-color: #f0f6ff !important;
+  background-image: 
+    radial-gradient(circle at 80% 20%, rgba(0, 112, 243, 0.10) 0%, transparent 60%),
+    radial-gradient(circle at 10% 70%, rgba(56, 189, 248, 0.07) 0%, transparent 60%),
+    linear-gradient(180deg, #f5f9ff 0%, #edf5ff 40%, #f7faff 100%) !important;
+  background-attachment: fixed !important;
+  color: #0b132b !important;
+}
+
+/* Sidebar */
+.app-sidebar {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-right: 1px solid #e2e8f0 !important;
+  box-shadow: 2px 0 14px rgba(0, 50, 150, 0.03) !important;
+}
+.sidebar-logo b {
+  color: #0b132b !important;
+}
+.sidebar-logo span {
+  color: #0070f3 !important;
+}
+.sidebar-nav-item {
+  color: #475569 !important;
+  font-weight: 500 !important;
+}
+.sidebar-nav-item:hover {
+  background: rgba(0, 112, 243, 0.06) !important;
+  color: #0070f3 !important;
+}
+.sidebar-nav-item.active {
+  background: rgba(0, 112, 243, 0.10) !important;
+  color: #0070f3 !important;
+  font-weight: 700 !important;
+  border-left-color: #0070f3 !important;
+}
+.sidebar-create-btn {
+  background: #0070f3 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(0, 112, 243, 0.35) !important;
+}
+
+/* Main Dashboard Cards & Views */
+.dash-white-card, .home-create-card, .create-link-card, .qr-card-item, .page-row-card, .data-card, .bio-phone-frame-wrap {
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 20px !important;
+  box-shadow: 0 10px 30px rgba(0, 50, 150, 0.05) !important;
+  color: #0b132b !important;
+}
+
+.dash-header h2, .dash-hero-title, .dash-white-card h4, .dash-white-card h3 {
+  color: #0b132b !important;
+}
+.dash-white-card p, .dash-header p {
+  color: #475569 !important;
+}
+
+/* Auth Screens */
+.auth-split-wrap {
+  background: #f0f6ff !important;
+}
+.auth-left-col {
+  background: #f0f6ff !important;
+}
+.auth-title {
+  color: #0b132b !important;
+}
+.auth-sub {
+  color: #64748b !important;
+}
+.auth-form input {
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  color: #0b132b !important;
+}
+.auth-form input:focus {
+  border-color: #0070f3 !important;
+  box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.12) !important;
+}

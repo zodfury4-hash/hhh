@@ -18,7 +18,18 @@
 <!-- HEADER NAVBAR -->
 <header class="nav">
   <div class="wrap nav-in">
-    <a class="logo" href="#home"><img src="logo.png" alt="HEA Link" class="logo-img"><b style="color:#ffffff !important;font-style:italic">HEA</b> <span style="color:#D4FF24 !important;font-weight:700">Link</span></a>
+    <a class="logo" href="#home">
+      <svg class="logo-infinity-svg" width="34" height="24" viewBox="0 0 54 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15.5 8C10.25 8 6 12.25 6 17.5C6 22.75 10.25 27 15.5 27C21.2 27 24.6 20.8 27 17.5C29.4 14.2 32.8 8 38.5 8C43.75 8 48 12.25 48 17.5C48 22.75 43.75 27 38.5 27C32.8 27 29.4 20.8 27 17.5C24.6 14.2 21.2 8 15.5 8Z" stroke="url(#logoBlueGrad)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <defs>
+          <linearGradient id="logoBlueGrad" x1="6" y1="8" x2="48" y2="27" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#0066ff"/>
+            <stop offset="100%" stop-color="#00c8ff"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <span class="logo-hea">HEA</span> <span class="logo-link">Link</span>
+    </a>
     <div class="nav-collapse" id="navCollapse">
       <nav id="menu" aria-label="Main Navigation"></nav>
       <div class="nav-r" id="navR"></div>
@@ -34,7 +45,7 @@
     <div class="hero-split-wrap wrap">
       <!-- LEFT COLUMN -->
       <div class="hero-col-left">
-        <h1 class="hero-title">Short links &amp; URLs,<br class="hero-mob-br"> QR codes &amp; bio pages<span class="lime-text">all in one place</span></h1>
+        <h1 class="hero-title">Short links &amp; URLs,<br class="hero-mob-br"> QR codes &amp; bio pages<br><span class="blue-highlight">all in one place</span></h1>
         <p class="lead">Create branded short links and scalable QR codes, then see exactly who clicks.</p>
         
         <div class="card hero-card" id="heroShortenCard">
@@ -53,7 +64,7 @@
               <form id="heroForm" class="hero-form-row">
                 <div class="hero-pill-input">
                   <span class="pill-input-icon">🔗</span>
-                  <input id="heroUrl" type="url" placeholder="Enter or paste your destination link (e.g. https://yourbrand.com/summer-sale)..." aria-label="Long URL" autocomplete="off" required>
+                  <input id="heroUrl" type="url" placeholder="Enter or paste your destination link (e.g. https://" aria-label="Long URL" autocomplete="off" required>
                   <button class="btn hero-submit-btn" id="heroBtn" type="submit">Shorten link →</button>
                 </div>
               </form>
@@ -88,7 +99,7 @@
                     <div class="qr-meta-col">
                       <div class="qr-badge-pill">✨ Dynamic Vector QR</div>
                       <div class="qr-action-buttons">
-                        <button type="button" class="btn sm" id="heroQrDlBtn" style="background:#38bdf8;color:#060b18;font-weight:700;">Download PNG 📥</button>
+                        <button type="button" class="btn sm" id="heroQrDlBtn" style="background:#0070f3;color:#ffffff;font-weight:600;border-radius:99px;">Download PNG 📥</button>
                         <button type="button" class="btn sm ghost" id="heroQrCopyBtn">Copy Link 📋</button>
                       </div>
                     </div>
@@ -148,7 +159,7 @@
 
           <!-- Floating HUD Card 3: Track Clicks -->
           <div class="hud-card hud-clicks float-anim-3">
-            <div class="hud-icon users-icon">👥</div>
+            <div class="hud-icon users-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0070f3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
             <div class="hud-info">
               <div class="hud-label">Track</div>
               <div class="hud-sub">Clicks</div>
@@ -332,7 +343,7 @@
             <div class="slide-visual">
               <div class="mock-card" style="text-align:center">
                 <div style="font-size:32px;margin-bottom:8px">✨</div>
-                <b style="color:#ffffff;font-size:16px">@yourbrand</b>
+                <b style="color:#0b132b;font-size:16px">@yourbrand</b>
                 <p style="color:#94a3b8;font-size:12px;margin:4px 0 12px">All our official links & releases</p>
                 <div class="mock-line glow" style="margin-bottom:8px"></div>
                 <div class="mock-line" style="opacity:0.4"></div>
@@ -357,7 +368,7 @@
               <div class="mock-card">
                 <div style="display:flex;justify-content:space-between;margin-bottom:12px">
                   <span style="font-size:13px;font-weight:600;color:#ffffff">Total Traffic</span>
-                  <span style="color:#D4FF24;font-size:13px;font-weight:700">+34.8% ↑</span>
+                  <span style="color:#0070f3;font-size:13px;font-weight:700">+34.8% ↑</span>
                 </div>
                 <div class="mock-line glow" style="height:14px;border-radius:6px"></div>
                 <div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;margin-top:10px">
@@ -448,7 +459,7 @@
       <div class="auth-left-col">
         <a href="#home" class="auth-brand-logo">
           <img src="logo.png" alt="HEA Link" style="width:32px;height:32px;object-fit:contain;">
-          <span><b style="color:#ffffff;font-style:italic">HEA</b> <span style="color:#D4FF24">Link</span></span>
+          <span><b style="color:#0b132b;font-weight:800;font-style:normal;">HEA</b> <span style="color:#0070f3;font-weight:800;">Link</span></span>
         </a>
         <h2 class="auth-title" id="authTitle">Welcome Back</h2>
         <p class="auth-sub" id="authSub">Log in to manage your links, QR codes, and analytics.</p>
@@ -524,7 +535,7 @@
         <!-- EMAIL VERIFICATION LINK STEP -->
         <div id="verifyWrap" hidden class="verify-container">
           <div class="verify-badge" style="background:rgba(56,189,248,0.12);color:#38bdf8;border:1px solid rgba(56,189,248,0.3);padding:6px 14px;border-radius:20px;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;margin-bottom:14px;"><span>✉️</span> Verify Your Email</div>
-          <h3 style="font-size:22px;color:#fff;margin:0 0 8px;">Check Your Inbox</h3>
+          <h3 style="font-size:22px;color:#0b132b;margin:0 0 8px;">Check Your Inbox</h3>
           <p style="color:#cbd5e1;font-size:14px;margin:0 0 12px;line-height:1.5;">
             Verify your email: A verification link has been sent to your account:<br>
             <span class="verify-target-email" id="verifyTargetEmail" style="display:inline-block;margin-top:6px;font-size:15px;color:#38bdf8;font-weight:700;">user@example.com</span>
@@ -572,7 +583,7 @@
       <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 14px 12px;">
         <a href="#home" class="sidebar-logo">
           <img src="logo.png" alt="HEA Link" style="width:30px;height:30px;object-fit:contain;">
-          <span style="color:#ffffff;font-weight:700;"><b style="color:#ffffff;font-style:italic">HEA</b> <span style="color:#D4FF24">Link</span></span>
+          <span style="color:#ffffff;font-weight:700;"><b style="color:#0b132b;font-weight:800;font-style:normal;">HEA</b> <span style="color:#0070f3;font-weight:800;">Link</span></span>
         </a>
         <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" type="button" title="Collapse sidebar">‹</button>
       </div>
@@ -592,7 +603,7 @@
           <span class="sidebar-nav-icon">📱</span> <span>QR Codes</span>
         </a>
         <a class="sidebar-nav-item" data-tab="pages" href="#pages">
-          <span class="sidebar-nav-icon">📄</span> <span>Pages</span> <span class="pro-chip" style="margin-left:auto;font-size:9px;padding:1px 5px;background:rgba(212,255,36,0.15);color:#D4FF24;border:1px solid rgba(212,255,36,0.3);border-radius:10px;font-weight:700;">PRO</span>
+          <span class="sidebar-nav-icon">📄</span> <span>Pages</span> <span class="pro-chip" style="margin-left:auto;font-size:9px;padding:1px 5px;background:rgba(212,255,36,0.15);color:#0070f3;border:1px solid rgba(212,255,36,0.3);border-radius:10px;font-weight:700;">PRO</span>
         </a>
         <a class="sidebar-nav-item" data-tab="analytics" href="#analytics">
           <span class="sidebar-nav-icon">📊</span> <span>Analytics</span>
@@ -601,7 +612,7 @@
           <span class="sidebar-nav-icon">🎯</span> <span>Campaigns</span>
         </a>
         <a class="sidebar-nav-item" data-tab="domains" href="#domains">
-          <span class="sidebar-nav-icon">🌐</span> <span>Custom domains</span> <span class="pro-chip" style="margin-left:auto;font-size:9px;padding:1px 5px;background:rgba(212,255,36,0.15);color:#D4FF24;border:1px solid rgba(212,255,36,0.3);border-radius:10px;font-weight:700;">PRO</span>
+          <span class="sidebar-nav-icon">🌐</span> <span>Custom domains</span> <span class="pro-chip" style="margin-left:auto;font-size:9px;padding:1px 5px;background:rgba(212,255,36,0.15);color:#0070f3;border:1px solid rgba(212,255,36,0.3);border-radius:10px;font-weight:700;">PRO</span>
         </a>
         <a class="sidebar-nav-item" data-tab="integrations" href="#integrations">
           <span class="sidebar-nav-icon">🔌</span> <span>Integrations</span>
@@ -824,7 +835,7 @@
           <span class="create-option-badge">L</span>
         </div>
         <div class="create-option-card" id="optCreateQR">
-          <div style="font-size:24px;color:#D4FF24;margin-bottom:8px;">▦</div>
+          <div style="font-size:24px;color:#0070f3;margin-bottom:8px;">▦</div>
           <b style="font-size:15px;color:#ffffff;display:block;margin-bottom:4px;">Create a QR Code</b>
           <span class="create-option-badge">Q</span>
         </div>
@@ -1057,7 +1068,7 @@
   <div class="wrap">
     <div class="foot">
       <div>
-        <a class="logo" href="#home"><img src="logo.png" alt="HEA Link" class="logo-img"><b style="color:#ffffff !important;font-style:italic">HEA</b> <span style="color:#D4FF24 !important;font-weight:700">Link</span></a>
+        <a class="logo" href="#home"><img src="logo.png" alt="HEA Link" class="logo-img"><b style="color:#ffffff !important;font-style:italic">HEA</b> <span style="color:#0070f3 !important;font-weight:700">Link</span></a>
         <p style="margin-top:12px;font-size:14px;line-height:1.6">The complete link management platform: URL shortener, dynamic QR codes, and link-in-bio pages with detailed real-time analytics.</p>
       </div>
       <div>
@@ -1290,7 +1301,7 @@
   <div class="checkout-card" style="max-width:700px;">
     <div class="checkout-header">
       <div style="display:flex;align-items:center;gap:12px;">
-        <div class="checkout-crown-icon" style="background:rgba(212,255,36,0.15);border-color:#D4FF24;color:#D4FF24;">💻</div>
+        <div class="checkout-crown-icon" style="background:rgba(212,255,36,0.15);border-color:#0070f3;color:#0070f3;">💻</div>
         <div>
           <h3 class="checkout-title">Developer Hub &amp; REST APIs</h3>
           <p class="checkout-sub">Integrate link shortening, QR generation, and click telemetry into your codebase.</p>
@@ -1309,7 +1320,7 @@
       <pre id="apiSnippetCode" style="background:#070d1e;border:1px solid rgba(56,189,248,0.25);border-radius:12px;padding:16px;font-family:monospace;font-size:12px;color:#38bdf8;overflow-x:auto;line-height:1.6;margin:0 0 16px;"></pre>
 
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;background:rgba(255,255,255,0.03);padding:12px 16px;border-radius:12px;">
-        <span style="font-size:13px;color:#94a3b8;">Endpoint: <code style="color:#D4FF24;">POST /api/shorten</code></span>
+        <span style="font-size:13px;color:#94a3b8;">Endpoint: <code style="color:#0070f3;">POST /api/shorten</code></span>
         <button type="button" class="sso-btn" style="width:auto;padding:8px 16px;font-size:12px;" onclick="testLiveApiEndpoint()">▶ Test Live Request</button>
       </div>
       <div id="liveApiResult" style="margin-top:12px;font-family:monospace;font-size:11px;color:#10b981;" hidden></div>
@@ -1355,7 +1366,7 @@
         </div>
 
         <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:14px;border-radius:12px;">
-          <div style="display:flex;align-items:center;gap:8px;font-weight:700;color:#D4FF24;margin-bottom:4px;">
+          <div style="display:flex;align-items:center;gap:8px;font-weight:700;color:#0070f3;margin-bottom:4px;">
             🛡️ SOC 2 Type II
           </div>
           <span style="font-size:12px;color:#94a3b8;">Third-party audited infrastructure with isolated tenant databases.</span>
@@ -1383,7 +1394,7 @@
     </div>
     <div class="checkout-body" style="padding:22px 28px;">
       <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:18px;margin-bottom:16px;">
-        <div style="font-size:28px;font-weight:800;color:#D4FF24;margin-bottom:4px;">+74.2% Higher CTR</div>
+        <div style="font-size:28px;font-weight:800;color:#0070f3;margin-bottom:4px;">+74.2% Higher CTR</div>
         <div style="font-size:13px;color:#cbd5e1;line-height:1.6;">Branded short domains (e.g. <code>brand.link/drop</code>) earn nearly 2x more trust than generic unbranded links.</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;">
@@ -1445,7 +1456,7 @@
   <div class="checkout-card" style="max-width:540px;">
     <div class="checkout-header">
       <div style="display:flex;align-items:center;gap:12px;">
-        <div class="checkout-crown-icon" style="background:rgba(212,255,36,0.15);border-color:#D4FF24;color:#D4FF24;">🤝</div>
+        <div class="checkout-crown-icon" style="background:rgba(212,255,36,0.15);border-color:#0070f3;color:#0070f3;">🤝</div>
         <div>
           <h3 class="checkout-title">Enterprise Consultation &amp; SLAs</h3>
           <p class="checkout-sub">Dedicated account manager, custom SSO, and 99.99% SLA guarantee.</p>
@@ -1493,7 +1504,7 @@
       <!-- Interactive Phone Mockup -->
       <div style="max-width:320px;margin:0 auto 16px;background:#060b18;border:2px solid rgba(56,189,248,0.4);border-radius:28px;padding:24px 18px;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,0.8);">
         <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#D4FF24);margin:0 auto 10px;display:grid;place-items:center;font-size:24px;font-weight:800;color:#000;">JD</div>
-        <h4 style="margin:0 0 2px;color:#fff;">John</h4>
+        <h4 style="margin:0 0 2px;color:#0b132b;">John</h4>
         <p style="margin:0 0 14px;font-size:12px;color:#94a3b8;">Creator &amp; Tech Lead · Global</p>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <a href="#home" style="display:block;padding:10px;border-radius:10px;background:rgba(56,189,248,0.12);border:1px solid #38bdf8;color:#fff;text-decoration:none;font-size:13px;font-weight:600;">✨ Explore My Projects</a>
@@ -1525,7 +1536,7 @@
       <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;margin-bottom:18px;">
         <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:14px;border-radius:12px;text-align:center;">
           <span style="font-size:11px;color:#94a3b8;display:block;">TOTAL CLICKS</span>
-          <b style="font-size:24px;color:#D4FF24;" id="sandboxTotalClicks">14,820</b>
+          <b style="font-size:24px;color:#0070f3;" id="sandboxTotalClicks">14,820</b>
         </div>
         <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:14px;border-radius:12px;text-align:center;">
           <span style="font-size:11px;color:#94a3b8;display:block;">UNIQUE VISITORS</span>

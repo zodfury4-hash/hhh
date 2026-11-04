@@ -146,8 +146,8 @@
         float t = u_time * 0.22;
         float scrollOffset = u_scroll * 0.0003;
 
-        // Base luxury midnight dark space
-        vec3 color = vec3(0.043, 0.067, 0.125); // #0b1120
+        // Base soft, luminous cloud-blue / ethereal sky palette (Matches reference image)
+        vec3 color = vec3(0.945, 0.968, 1.0); // #f1f7ff base
 
         // Subtle slow drifting ambient light positions (smooth lissajous motion)
         vec2 p1 = vec2(0.20 * aspect + sin(t * 0.4) * 0.12, 0.85 + cos(t * 0.3) * 0.08 - scrollOffset * 0.2);
@@ -155,28 +155,28 @@
         vec2 p3 = vec2(0.50 * aspect + sin(t * 0.25) * 0.15, 0.30 + cos(t * 0.35) * 0.10);
 
         // Soft, elegant atmospheric glows
-        float g1 = softGlow(st, p1, 0.55); // Top-left Royal Blue
-        float g2 = softGlow(st, p2, 0.48); // Top-right Emerald / Teal
-        float g3 = softGlow(st, p3, 0.60); // Mid-bottom Deep Purple
-        float gMouse = softGlow(st, mouse, 0.32); // Interactive subtle cursor light
+        float g1 = softGlow(st, p1, 0.65); // Soft ethereal blue
+        float g2 = softGlow(st, p2, 0.55); // Soft ambient sky/cyan
+        float g3 = softGlow(st, p3, 0.70); // Pure cloud white ambient
+        float gMouse = softGlow(st, mouse, 0.35); // Interactive cursor light
 
-        // Refined, subtle color palette
-        vec3 colBlue   = vec3(0.145, 0.388, 0.922); // #2563eb
-        vec3 colTeal   = vec3(0.176, 0.831, 0.749); // #2dd4bf
-        vec3 colViolet = vec3(0.486, 0.227, 0.929); // #7c3aed
-        vec3 colSky    = vec3(0.22, 0.741, 0.973);  // #38bdf8
+        // Soft, clean cloud-sky palette
+        vec3 colBlue  = vec3(0.72, 0.84, 1.0);  // Soft sky blue
+        vec3 colCyan  = vec3(0.80, 0.92, 0.98); // Soft cyan
+        vec3 colWhite = vec3(1.0, 1.0, 1.0);    // Crisp white cloud
+        vec3 colGlow  = vec3(0.86, 0.93, 1.0);  // Subtle blue ambient glow
 
-        // Combine ambient lighting (soft, calm, elegant)
-        color += colBlue * g1 * 0.22;
-        color += colTeal * g2 * 0.14;
-        color += colViolet * g3 * 0.12;
-        color += colSky * gMouse * 0.15;
+        // Blend ambient cloud lighting
+        color = mix(color, colBlue, g1 * 0.42);
+        color = mix(color, colCyan, g2 * 0.28);
+        color = mix(color, colWhite, g3 * 0.45);
+        color = mix(color, colGlow, gMouse * 0.20);
 
-        // Faint, high-end technical dot grid (subtle 36px grid)
-        vec2 grid = fract(gl_FragCoord.xy / 36.0) - 0.5;
-        float dGrid = length(grid * 36.0);
-        float dots = smoothstep(1.4, 0.4, dGrid) * 0.06;
-        color += vec3(dots);
+        // Faint, high-end technical dot grid (ultra subtle 40px grid)
+        vec2 grid = fract(gl_FragCoord.xy / 40.0) - 0.5;
+        float dGrid = length(grid * 40.0);
+        float dots = smoothstep(1.3, 0.3, dGrid) * 0.025;
+        color -= vec3(dots * 0.3);
 
         gl_FragColor = vec4(color, 1.0);
       }
@@ -590,14 +590,13 @@
     setTimeout(() => {
       const miniCv = document.getElementById('stageQrMini');
       if (miniCv && typeof window.drawQR === 'function') {
-        window.drawQR(miniCv, 'https://healink.store', '#38bdf8', '#090f22', 48);
+        window.drawQR(miniCv, 'https://healink.store', '#0070f3', '#ffffff', 48);
       }
     }, 200);
 
     const wrap = canvas.parentElement;
     if (!wrap) return;
 
-    // Check WebGL support
     try {
       const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
       if (!gl) return;
@@ -618,182 +617,113 @@
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
-    camera.position.set(0, 0.35, 9.5);
-    camera.lookAt(0, 0.12, 0);
+    const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 100);
+    camera.position.set(0, 0.25, 9.2);
+    camera.lookAt(0, 0.05, 0);
 
     const stageGroup = new THREE.Group();
-    stageGroup.scale.set(0.9, 0.9, 0.9); // Reduce visual dominance by 10% to prevent competing with headline
     scene.add(stageGroup);
 
-    // 1. Pedestal Base (Concentric Cyber Rings & Complete Platform)
-    const pedestalGroup = new THREE.Group();
-    pedestalGroup.position.y = -1.6;
-    stageGroup.add(pedestalGroup);
+    // 1. Soft Blue Radial Ground Shadow (Matches reference image depth)
+    const shadowCanvas = document.createElement('canvas');
+    shadowCanvas.width = 256;
+    shadowCanvas.height = 256;
+    const sCtx = shadowCanvas.getContext('2d');
+    const sGrad = sCtx.createRadialGradient(128, 128, 0, 128, 128, 128);
+    sGrad.addColorStop(0, 'rgba(0, 112, 243, 0.32)');
+    sGrad.addColorStop(0.35, 'rgba(0, 112, 243, 0.14)');
+    sGrad.addColorStop(0.7, 'rgba(56, 189, 248, 0.04)');
+    sGrad.addColorStop(1, 'rgba(0, 112, 243, 0)');
+    sCtx.fillStyle = sGrad;
+    sCtx.fillRect(0, 0, 256, 256);
 
-    const baseMat = new THREE.MeshStandardMaterial({
-      color: 0x071126,
-      metalness: 0.85,
-      roughness: 0.25
+    const shadowTex = new THREE.CanvasTexture(shadowCanvas);
+    const shadowMat = new THREE.MeshBasicMaterial({
+      map: shadowTex,
+      transparent: true,
+      opacity: 0.85,
+      depthWrite: false
     });
+    const shadowPlane = new THREE.Mesh(new THREE.PlaneGeometry(6.6, 3.6), shadowMat);
+    shadowPlane.rotation.x = -Math.PI / 2;
+    shadowPlane.position.y = -2.15;
+    stageGroup.add(shadowPlane);
 
-    // Outer Ground Disc / Foundation (Prevents any clipping)
-    const groundMat = new THREE.MeshStandardMaterial({
-      color: 0x040a18,
-      metalness: 0.9,
-      roughness: 0.2
-    });
-    const groundBase = new THREE.Mesh(new THREE.CylinderGeometry(3.6, 3.85, 0.2, 48), groundMat);
-    groundBase.position.y = -0.12;
-    pedestalGroup.add(groundBase);
-
-    const groundGlowRing = new THREE.Mesh(
-      new THREE.TorusGeometry(3.7, 0.04, 16, 64),
-      new THREE.MeshBasicMaterial({ color: 0x0084ff, transparent: true, opacity: 0.75 })
-    );
-    groundGlowRing.rotation.x = Math.PI / 2;
-    groundGlowRing.position.y = -0.02;
-    pedestalGroup.add(groundGlowRing);
-
-    // Tier 1
-    const tier1 = new THREE.Mesh(new THREE.CylinderGeometry(2.9, 3.3, 0.45, 48), baseMat);
-    tier1.position.y = 0.18;
-    pedestalGroup.add(tier1);
-
-    // Tier 2
-    const tier2 = new THREE.Mesh(new THREE.CylinderGeometry(2.35, 2.65, 0.4, 48), baseMat);
-    tier2.position.y = 0.55;
-    pedestalGroup.add(tier2);
-
-    // Tier 3
-    const tier3 = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 2.05, 0.35, 48), baseMat);
-    tier3.position.y = 0.88;
-    pedestalGroup.add(tier3);
-
-    // Neon Glow Rings on Pedestal Tiers
-    const ringMatCyan = new THREE.MeshBasicMaterial({ color: 0x00d2ff });
-    const ringMatLime = new THREE.MeshBasicMaterial({ color: 0xD4FF24 });
-
-    const ring1 = new THREE.Mesh(new THREE.TorusGeometry(2.95, 0.045, 16, 64), ringMatCyan);
-    ring1.rotation.x = Math.PI / 2;
-    ring1.position.y = 0.38;
-    pedestalGroup.add(ring1);
-
-    const ring2 = new THREE.Mesh(new THREE.TorusGeometry(2.4, 0.055, 16, 64), ringMatCyan);
-    ring2.rotation.x = Math.PI / 2;
-    ring2.position.y = 0.72;
-    pedestalGroup.add(ring2);
-
-    const ring3 = new THREE.Mesh(new THREE.TorusGeometry(1.85, 0.065, 16, 64), ringMatLime);
-    ring3.rotation.x = Math.PI / 2;
-    ring3.position.y = 1.04;
-    pedestalGroup.add(ring3);
-
-    // Central Core Disc
-    const coreDisc = new THREE.Mesh(
-      new THREE.CylinderGeometry(1.4, 1.4, 0.06, 32),
-      new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
-    );
-    coreDisc.position.y = 1.06;
-    pedestalGroup.add(coreDisc);
-
-    // 2. Interlocking 3D Chain Links
-    const chainGroup = new THREE.Group();
-    chainGroup.position.y = 0.55;
-    stageGroup.add(chainGroup);
-
-    function createChainLink(color, emissive, scaleY) {
-      const geo = new THREE.TorusGeometry(1.35, 0.4, 28, 72);
-      geo.scale(1.0, scaleY || 1.45, 1.0);
-      const mat = new THREE.MeshPhysicalMaterial({
-        color: color,
-        emissive: emissive,
-        emissiveIntensity: 0.65,
-        metalness: 0.6,
-        roughness: 0.12,
-        clearcoat: 1.0,
-        clearcoatRoughness: 0.1,
-        transmission: 0.4,
-        ior: 1.5
-      });
-      return new THREE.Mesh(geo, mat);
+    // 2. 3D Lemniscate of Bernoulli Curve (Infinity Loop)
+    class InfinityCurve extends THREE.Curve {
+      constructor(scale = 2.7) {
+        super();
+        this.scale = scale;
+      }
+      getPoint(t, optionalTarget = new THREE.Vector3()) {
+        const point = optionalTarget;
+        const u = t * Math.PI * 2.0;
+        const scale = this.scale;
+        const denom = 1.0 + Math.sin(u) * Math.sin(u);
+        const x = (scale * Math.cos(u)) / denom;
+        const y = (scale * Math.sin(u) * Math.cos(u)) / denom * 1.55;
+        // Subtle volumetric 3D wave
+        const z = Math.sin(u * 2.0) * 0.45;
+        return point.set(x, y, z);
+      }
     }
 
-    // Left Link: Emerald / Lime Green
-    const link1 = createChainLink(0x10b981, 0x059669, 1.46);
-    link1.position.set(-0.65, 0.05, 0);
-    link1.rotation.set(0.42, 0.32, 0.78);
-    chainGroup.add(link1);
+    const path = new InfinityCurve(2.7);
+    const infinityGeom = new THREE.TubeGeometry(path, 180, 0.48, 36, true);
 
-    // Right Link: Electric Cyan / Neon Blue (Interlocked)
-    const link2 = createChainLink(0x00d2ff, 0x0066ff, 1.46);
-    link2.position.set(0.65, 0.65, 0);
-    link2.rotation.set(-0.38, -0.36, -0.72);
-    chainGroup.add(link2);
+    // Glossy Electric Blue Physical Material with Clearcoat (Exact match to reference image)
+    const infinityMat = new THREE.MeshPhysicalMaterial({
+      color: 0x007aff,          // Rich electric sky blue
+      emissive: 0x0033aa,       // Subtle deep blue glow
+      emissiveIntensity: 0.18,
+      roughness: 0.12,
+      metalness: 0.10,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.06,
+      reflectivity: 0.95
+    });
+    const infinityMesh = new THREE.Mesh(infinityGeom, infinityMat);
+    infinityMesh.position.y = 0.05;
+    stageGroup.add(infinityMesh);
 
-    // 3. Orbiting Neon Rings in 3D around the links
-    const orbit1 = new THREE.Mesh(
-      new THREE.TorusGeometry(2.85, 0.028, 16, 100),
-      new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.7 })
-    );
-    orbit1.rotation.set(1.2, 0.4, 0.2);
-    stageGroup.add(orbit1);
-
-    const orbit2 = new THREE.Mesh(
-      new THREE.TorusGeometry(3.2, 0.022, 16, 100),
-      new THREE.MeshBasicMaterial({ color: 0xD4FF24, transparent: true, opacity: 0.5 })
-    );
-    orbit2.rotation.set(-0.8, -0.6, 0.8);
-    stageGroup.add(orbit2);
-
-    // 4. Floating Cyber Sparkle Particles
-    const particleCount = 60;
-    const particleGeo = new THREE.BufferGeometry();
-    const particlePositions = new Float32Array(particleCount * 3);
-    for (let i = 0; i < particleCount * 3; i += 3) {
-      particlePositions[i] = (Math.random() - 0.5) * 5.0;
-      particlePositions[i + 1] = (Math.random() - 0.5) * 4.0 - 0.5;
-      particlePositions[i + 2] = (Math.random() - 0.5) * 4.0;
-    }
-    particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
-    const particleMat = new THREE.PointsMaterial({
-      color: 0x38bdf8,
-      size: 0.065,
+    // 3. Thin Glowing Orbital Ring tilted around the Infinity Loop
+    const ringGeom = new THREE.TorusGeometry(3.35, 0.024, 16, 120);
+    const ringMat = new THREE.MeshBasicMaterial({
+      color: 0xd0e8ff,
       transparent: true,
       opacity: 0.85
     });
-    const particles = new THREE.Points(particleGeo, particleMat);
-    stageGroup.add(particles);
+    const ringMesh = new THREE.Mesh(ringGeom, ringMat);
+    ringMesh.rotation.x = Math.PI * 0.36;
+    ringMesh.rotation.y = Math.PI * 0.12;
+    stageGroup.add(ringMesh);
 
-    // 5. Lighting
-    const ambientLight = new THREE.AmbientLight(0x0a1a3a, 2.2);
+    // 4. Studio Lighting Rig
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
     scene.add(ambientLight);
 
-    const cyanLight = new THREE.PointLight(0x00d2ff, 4, 15);
-    cyanLight.position.set(2, 2, 3);
-    scene.add(cyanLight);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.2);
+    keyLight.position.set(6, 8, 7);
+    scene.add(keyLight);
 
-    const limeLight = new THREE.PointLight(0xD4FF24, 3.5, 15);
-    limeLight.position.set(-2.5, 1, 3);
-    scene.add(limeLight);
+    const fillLight = new THREE.DirectionalLight(0x88ccff, 1.6);
+    fillLight.position.set(-7, 2, 5);
+    scene.add(fillLight);
 
-    const bottomSpot = new THREE.SpotLight(0x38bdf8, 5, 10, Math.PI / 4, 0.5);
-    bottomSpot.position.set(0, -2, 0);
-    bottomSpot.target.position.set(0, 0, 0);
-    scene.add(bottomSpot);
-    scene.add(bottomSpot.target);
+    const bottomGlow = new THREE.PointLight(0x00aaff, 2.2, 12);
+    bottomGlow.position.set(0, -1.8, 3);
+    scene.add(bottomGlow);
 
-    // Mouse tracking for 3D tactile tilt
+    // Interactive mouse tilt
     let targetRotX = 0;
     let targetRotY = 0;
     window.addEventListener('mousemove', e => {
       const x = (e.clientX / window.innerWidth) * 2 - 1;
       const y = (e.clientY / window.innerHeight) * 2 - 1;
-      targetRotY = x * 0.35;
-      targetRotX = y * 0.2;
+      targetRotY = x * 0.25;
+      targetRotX = y * 0.15;
     });
 
-    // Resize handler
     window.addEventListener('resize', () => {
       if (!wrap) return;
       const w = wrap.clientWidth || 540;
@@ -804,39 +734,28 @@
     });
 
     // Render loop
-    let clock = new THREE.Clock();
+    const clock = new THREE.Clock();
     function animate() {
       requestAnimationFrame(animate);
       const elapsed = clock.getElapsedTime();
 
-      // Smooth floating and gentle oscillation
-      chainGroup.position.y = 0.55 + Math.sin(elapsed * 1.5) * 0.1;
-      chainGroup.rotation.y = Math.sin(elapsed * 0.6) * 0.1;
+      // Smooth floating bob
+      infinityMesh.position.y = 0.05 + Math.sin(elapsed * 1.6) * 0.1;
+      infinityMesh.rotation.y = Math.sin(elapsed * 0.7) * 0.22;
+      infinityMesh.rotation.x = 0.08 + Math.cos(elapsed * 0.5) * 0.06;
 
-      // Orbit rings rotation
-      orbit1.rotation.z = elapsed * 0.35;
-      orbit2.rotation.z = -elapsed * 0.28;
-
-      // Particles gentle upward drift
-      const positions = particleGeo.attributes.position.array;
-      for (let i = 1; i < particleCount * 3; i += 3) {
-        positions[i] += 0.007;
-        if (positions[i] > 2.5) positions[i] = -2.0;
-      }
-      particleGeo.attributes.position.needsUpdate = true;
+      ringMesh.position.y = Math.sin(elapsed * 1.6 + 0.4) * 0.08;
+      ringMesh.rotation.z += 0.003;
 
       // Mouse interactive tilt damping
-      stageGroup.rotation.y += (targetRotY - stageGroup.rotation.y) * 0.05;
-      stageGroup.rotation.x += (targetRotX - stageGroup.rotation.x) * 0.05;
+      stageGroup.rotation.y += (targetRotY - stageGroup.rotation.y) * 0.06;
+      stageGroup.rotation.x += (targetRotX - stageGroup.rotation.x) * 0.06;
 
       renderer.render(scene, camera);
     }
     animate();
   }
 
-  /* ---------------------------------------------------------
-     5. FRAMER MOTION (Motion One) SPRING MICRO-INTERACTIONS
-     --------------------------------------------------------- */
   function initFramerMotionEngine() {
     if (typeof window.Motion === 'undefined' || typeof window.Motion.animate !== 'function') return;
 

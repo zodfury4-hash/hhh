@@ -2482,7 +2482,7 @@ function renderNavRight() {
 
        <button class="btn dark sm" id="logoutBtn" type="button">Log out</button>`
 
-    : `<a href="#login" style="font-weight:500;font-size:14px;padding:8px 16px;color:#ffffff !important;margin-right:6px">Log in</a>
+    : `<a href="#login" style="font-weight:500;font-size:14px;padding:8px 16px;color:#0f172a !important;margin-right:6px;font-weight:600">Log in</a>
 
        <a class="btn pill-btn sm" href="#signup">Sign up free →</a>`;
 
