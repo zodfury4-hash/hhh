@@ -617,23 +617,23 @@
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 100);
-    camera.position.set(0, 0.25, 9.2);
+    const camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 100);
+    camera.position.set(0, 0.15, 9.4);
     camera.lookAt(0, 0.05, 0);
 
     const stageGroup = new THREE.Group();
     scene.add(stageGroup);
 
-    // 1. Soft Blue Radial Ground Shadow (Matches reference image depth)
+    // 1. Soft Blue Ambient Radial Ground Shadow (Exact match to floor reflection)
     const shadowCanvas = document.createElement('canvas');
     shadowCanvas.width = 256;
     shadowCanvas.height = 256;
     const sCtx = shadowCanvas.getContext('2d');
     const sGrad = sCtx.createRadialGradient(128, 128, 0, 128, 128, 128);
-    sGrad.addColorStop(0, 'rgba(0, 112, 243, 0.32)');
-    sGrad.addColorStop(0.35, 'rgba(0, 112, 243, 0.14)');
-    sGrad.addColorStop(0.7, 'rgba(56, 189, 248, 0.04)');
-    sGrad.addColorStop(1, 'rgba(0, 112, 243, 0)');
+    sGrad.addColorStop(0, 'rgba(0, 112, 243, 0.36)');
+    sGrad.addColorStop(0.35, 'rgba(56, 189, 248, 0.18)');
+    sGrad.addColorStop(0.7, 'rgba(147, 197, 253, 0.06)');
+    sGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
     sCtx.fillStyle = sGrad;
     sCtx.fillRect(0, 0, 256, 256);
 
@@ -641,17 +641,17 @@
     const shadowMat = new THREE.MeshBasicMaterial({
       map: shadowTex,
       transparent: true,
-      opacity: 0.85,
+      opacity: 0.88,
       depthWrite: false
     });
-    const shadowPlane = new THREE.Mesh(new THREE.PlaneGeometry(6.6, 3.6), shadowMat);
+    const shadowPlane = new THREE.Mesh(new THREE.PlaneGeometry(6.8, 3.8), shadowMat);
     shadowPlane.rotation.x = -Math.PI / 2;
-    shadowPlane.position.y = -2.15;
+    shadowPlane.position.y = -2.25;
     stageGroup.add(shadowPlane);
 
-    // 2. 3D Lemniscate of Bernoulli Curve (Infinity Loop)
-    class InfinityCurve extends THREE.Curve {
-      constructor(scale = 2.7) {
+    // 2. Parametric 3D Infinity Curve (Meta Lemniscate matching media_1793811502139_2e7fde7c.jpg)
+    class MetaInfinityCurve extends THREE.Curve {
+      constructor(scale = 2.75) {
         super();
         this.scale = scale;
       }
@@ -659,69 +659,132 @@
         const point = optionalTarget;
         const u = t * Math.PI * 2.0;
         const scale = this.scale;
-        const denom = 1.0 + Math.sin(u) * Math.sin(u);
+        
+        // Classic 3D Gerono Lemniscate with volumetric crossover
+        const denom = 1.0 + 0.35 * Math.sin(u) * Math.sin(u);
         const x = (scale * Math.cos(u)) / denom;
-        const y = (scale * Math.sin(u) * Math.cos(u)) / denom * 1.55;
-        // Subtle volumetric 3D wave
-        const z = Math.sin(u * 2.0) * 0.45;
+        const y = (scale * 0.62 * Math.sin(2.0 * u)) / denom;
+        // z-axis tilt: brings left loop forward (+z) and curves smoothly in 3D
+        const z = Math.sin(u) * 0.55 + Math.cos(2.0 * u) * 0.25;
+        
         return point.set(x, y, z);
       }
     }
 
-    const path = new InfinityCurve(2.7);
-    const infinityGeom = new THREE.TubeGeometry(path, 180, 0.48, 36, true);
+    const path = new MetaInfinityCurve(2.75);
+    // Plump, soft-rounded tubular volume (radius 0.52, 36 radial segments)
+    const infinityGeom = new THREE.TubeGeometry(path, 200, 0.52, 36, true);
 
-    // Glossy Electric Blue Physical Material with Clearcoat (Exact match to reference image)
+    // 3. Dual-Tone Gradient (Sky-Cyan to Electric Cerulean) via Vertex Colors
+    const pos = infinityGeom.attributes.position;
+    const colors = new Float32Array(pos.count * 3);
+
+    const colCyan = new THREE.Color(0x38bdf8);      // Bright Sky Cyan (#38bdf8)
+    const colElectric = new THREE.Color(0x007aff);  // Electric Cerulean Blue (#007aff)
+    const colDeep = new THREE.Color(0x0284c7);      // Deep Azure Blue (#0284c7)
+    const colHighlight = new THREE.Color(0x93c5fd); // Upper sheen (#93c5fd)
+
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i);
+      const y = pos.getY(i);
+      const z = pos.getZ(i);
+
+      // Horizontal loop progress (-2.6 to +2.6)
+      const nx = Math.max(0.0, Math.min(1.0, (x + 2.6) / 5.2));
+      const c = new THREE.Color();
+
+      if (nx < 0.5) {
+        c.copy(colCyan).lerp(colElectric, nx * 2.0);
+      } else {
+        c.copy(colElectric).lerp(colDeep, (nx - 0.5) * 2.0);
+      }
+
+      // Upper sheen reflection on top curves
+      if (y > 0.4 && z > 0.0) {
+        c.lerp(colHighlight, Math.min(0.65, (y - 0.4) * 0.8));
+      }
+
+      colors[i * 3] = c.r;
+      colors[i * 3 + 1] = c.g;
+      colors[i * 3 + 2] = c.b;
+    }
+    infinityGeom.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    // 4. Glossy Silicone/Clay Satin Finish Material with Clearcoat
     const infinityMat = new THREE.MeshPhysicalMaterial({
-      color: 0x007aff,          // Rich electric sky blue
-      emissive: 0x0033aa,       // Subtle deep blue glow
-      emissiveIntensity: 0.18,
-      roughness: 0.12,
-      metalness: 0.10,
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.06,
-      reflectivity: 0.95
+      vertexColors: true,
+      roughness: 0.18,          // Satin claymorphic smoothness
+      metalness: 0.08,
+      clearcoat: 0.95,          // Lustrous clearcoat sheen
+      clearcoatRoughness: 0.08,
+      reflectivity: 0.95,
+      emissive: 0x0044aa,
+      emissiveIntensity: 0.15
     });
+
     const infinityMesh = new THREE.Mesh(infinityGeom, infinityMat);
-    infinityMesh.position.y = 0.05;
     stageGroup.add(infinityMesh);
 
-    // 3. Thin Glowing Orbital Ring tilted around the Infinity Loop
-    const ringGeom = new THREE.TorusGeometry(3.35, 0.024, 16, 120);
+    // 5. Thin Glowing Light-Cyan Orbital Ring Tilted Around the Loop
+    const ringGeom = new THREE.TorusGeometry(3.45, 0.024, 16, 140);
     const ringMat = new THREE.MeshBasicMaterial({
-      color: 0xd0e8ff,
+      color: 0xcbe4ff,
       transparent: true,
-      opacity: 0.85
+      opacity: 0.92
     });
     const ringMesh = new THREE.Mesh(ringGeom, ringMat);
-    ringMesh.rotation.x = Math.PI * 0.36;
-    ringMesh.rotation.y = Math.PI * 0.12;
+    ringMesh.rotation.set(0.38, -0.06, 0.08);
     stageGroup.add(ringMesh);
 
-    // 4. Studio Lighting Rig
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
+    // 6. Sparkling Glint Flare on the Foreground Ring Curve
+    const glintCanvas = document.createElement('canvas');
+    glintCanvas.width = 64;
+    glintCanvas.height = 64;
+    const gCtx = glintCanvas.getContext('2d');
+    const gGrad = gCtx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    gGrad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    gGrad.addColorStop(0.25, 'rgba(186, 230, 253, 0.85)');
+    gGrad.addColorStop(0.65, 'rgba(56, 189, 248, 0.25)');
+    gGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    gCtx.fillStyle = gGrad;
+    gCtx.fillRect(0, 0, 64, 64);
+
+    const glintTex = new THREE.CanvasTexture(glintCanvas);
+    const glintMat = new THREE.SpriteMaterial({
+      map: glintTex,
+      transparent: true,
+      opacity: 0.95,
+      blending: THREE.AdditiveBlending
+    });
+    const glintSprite = new THREE.Sprite(glintMat);
+    glintSprite.scale.set(0.7, 0.7, 0.7);
+    glintSprite.position.set(-0.45, -1.25, 2.75);
+    stageGroup.add(glintSprite);
+
+    // 7. Studio Key, Fill and Rim Lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 2.2);
-    keyLight.position.set(6, 8, 7);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.4);
+    keyLight.position.set(5, 7, 6);
     scene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0x88ccff, 1.6);
-    fillLight.position.set(-7, 2, 5);
+    const fillLight = new THREE.DirectionalLight(0x7dd3fc, 1.8);
+    fillLight.position.set(-6, 3, 4);
     scene.add(fillLight);
 
-    const bottomGlow = new THREE.PointLight(0x00aaff, 2.2, 12);
-    bottomGlow.position.set(0, -1.8, 3);
+    const bottomGlow = new THREE.PointLight(0x0284c7, 2.5, 14);
+    bottomGlow.position.set(0, -2, 3);
     scene.add(bottomGlow);
 
-    // Interactive mouse tilt
+    // Interactive mouse tilt with damping
     let targetRotX = 0;
     let targetRotY = 0;
     window.addEventListener('mousemove', e => {
       const x = (e.clientX / window.innerWidth) * 2 - 1;
       const y = (e.clientY / window.innerHeight) * 2 - 1;
-      targetRotY = x * 0.25;
-      targetRotX = y * 0.15;
+      targetRotY = x * 0.22;
+      targetRotX = y * 0.14;
     });
 
     window.addEventListener('resize', () => {
@@ -733,21 +796,30 @@
       camera.updateProjectionMatrix();
     });
 
-    // Render loop
+    // 8. Animation Choreography (Exact Floating Levitation & Sway)
     const clock = new THREE.Clock();
     function animate() {
       requestAnimationFrame(animate);
       const elapsed = clock.getElapsedTime();
 
-      // Smooth floating bob
-      infinityMesh.position.y = 0.05 + Math.sin(elapsed * 1.6) * 0.1;
-      infinityMesh.rotation.y = Math.sin(elapsed * 0.7) * 0.22;
-      infinityMesh.rotation.x = 0.08 + Math.cos(elapsed * 0.5) * 0.06;
+      // Smooth harmonic floating levitation (bob up and down)
+      infinityMesh.position.y = Math.sin(elapsed * 1.5) * 0.12;
 
-      ringMesh.position.y = Math.sin(elapsed * 1.6 + 0.4) * 0.08;
-      ringMesh.rotation.z += 0.003;
+      // Gentle swaying 3D breathing rotation (yaw, pitch, roll)
+      infinityMesh.rotation.y = -0.12 + Math.sin(elapsed * 0.8) * 0.14;
+      infinityMesh.rotation.x = 0.14 + Math.cos(elapsed * 0.6) * 0.06;
+      infinityMesh.rotation.z = -0.06 + Math.sin(elapsed * 0.5) * 0.04;
 
-      // Mouse interactive tilt damping
+      // Ring floating slightly out of phase & slow axial spin
+      ringMesh.position.y = Math.sin(elapsed * 1.5 + 0.3) * 0.08;
+      ringMesh.rotation.z = elapsed * 0.05;
+
+      // Shimmering flare pulse
+      const glintPulse = 0.65 + Math.sin(elapsed * 3.0) * 0.15;
+      glintSprite.scale.set(glintPulse, glintPulse, glintPulse);
+      glintSprite.position.y = -1.25 + Math.sin(elapsed * 1.5 + 0.3) * 0.08;
+
+      // Smooth mouse reactive parallax
       stageGroup.rotation.y += (targetRotY - stageGroup.rotation.y) * 0.06;
       stageGroup.rotation.x += (targetRotX - stageGroup.rotation.x) * 0.06;
 
