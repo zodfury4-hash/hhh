@@ -2259,3 +2259,172 @@ body.app-mode {
   border-color: #0070f3 !important;
   box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.12) !important;
 }
+
+
+/* =========================================================================
+   APP SHELL MASTER OVERRIDES (DASHBOARD & ALL INNER PAGES):
+   1. ALL HEADINGS -> BLUE (#0070f3)
+   2. ALL TEXT -> SOLID BLACK (#000000)
+   3. ZERO DARK THEME -> CLEAN WHITE & LIGHT GLASS
+   ========================================================================= */
+
+body.app-mode {
+  background-color: #f0f6ff !important;
+  color: #000000 !important;
+}
+
+/* Headings in Dashboard */
+body.app-mode h1,
+body.app-mode h2,
+body.app-mode h3,
+body.app-mode h4,
+body.app-mode h5,
+body.app-mode h6,
+.dash-header h2,
+.dash-hero-title,
+.dash-white-card h3,
+.dash-white-card h4,
+.view-header h2,
+.settings-subsidebar-group h5,
+.drawer-heading,
+.drawer-title {
+  color: #0070f3 !important;
+  -webkit-text-fill-color: #0070f3 !important;
+  font-weight: 700 !important;
+}
+
+/* Text in Dashboard */
+body.app-mode p,
+body.app-mode span:not(.pro-chip):not(.badge-pill):not(.btn):not(.sidebar-create-btn),
+body.app-mode td,
+body.app-mode th,
+body.app-mode label,
+.dash-white-card p,
+.dash-header p,
+.drawer-subtext,
+.sidebar-nav-item,
+.settings-nav-item {
+  color: #000000 !important;
+}
+
+/* Sidebar */
+.app-sidebar {
+  background: #ffffff !important;
+  border-right: 1px solid #e2e8f0 !important;
+  box-shadow: 2px 0 12px rgba(0, 50, 150, 0.03) !important;
+}
+.sidebar-logo b {
+  color: #000000 !important;
+}
+.sidebar-logo span {
+  color: #0070f3 !important;
+}
+.sidebar-nav-item {
+  color: #000000 !important;
+  font-weight: 600 !important;
+}
+.sidebar-nav-item:hover {
+  background: #f1f5f9 !important;
+  color: #0070f3 !important;
+}
+.sidebar-nav-item.active {
+  background: rgba(0, 112, 243, 0.10) !important;
+  color: #0070f3 !important;
+  font-weight: 700 !important;
+  border-left-color: #0070f3 !important;
+}
+
+/* Dashboard Cards */
+.dash-white-card,
+.home-create-card,
+.create-link-card,
+.qr-card-item,
+.page-row-card,
+.data-card,
+.bio-phone-frame-wrap,
+.app-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 18px !important;
+  box-shadow: 0 10px 30px rgba(0, 50, 150, 0.05) !important;
+}
+
+/* Tables */
+.dash-table, table {
+  background: #ffffff !important;
+  border-collapse: collapse !important;
+  width: 100% !important;
+}
+.dash-table th, table th {
+  background: #f8fafc !important;
+  color: #000000 !important;
+  font-weight: 700 !important;
+  border-bottom: 2px solid #e2e8f0 !important;
+}
+.dash-table td, table td {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+.dash-table tr:hover td, table tr:hover td {
+  background: #f1f5f9 !important;
+}
+
+/* Assist AI Chat Drawer */
+.app-assist-drawer {
+  background: #ffffff !important;
+  border-left: 1px solid #e2e8f0 !important;
+  box-shadow: -4px 0 25px rgba(0, 50, 150, 0.06) !important;
+}
+.drawer-header {
+  background: #f8fafc !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+.drawer-header .drawer-title {
+  color: #0070f3 !important;
+}
+.drawer-close {
+  color: #000000 !important;
+}
+.drawer-chat-bubble.ai {
+  background: #f0f6ff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #000000 !important;
+}
+.drawer-chat-bubble.user {
+  background: #0070f3 !important;
+  color: #ffffff !important;
+}
+.drawer-input-row, .drawer-input-card {
+  background: #ffffff !important;
+  border-top: 1px solid #e2e8f0 !important;
+}
+.drawer-input-row input, .drawer-textarea {
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #000000 !important;
+}
+
+/* Auth Screens */
+.auth-split-wrap {
+  background: #f0f6ff !important;
+}
+.auth-left-col {
+  background: #ffffff !important;
+  border-right: 1px solid #e2e8f0 !important;
+}
+.auth-title {
+  color: #0070f3 !important;
+}
+.auth-sub {
+  color: #000000 !important;
+}
+.auth-form label {
+  color: #000000 !important;
+  font-weight: 600 !important;
+}
+.auth-form input {
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #000000 !important;
+}
