@@ -1367,7 +1367,7 @@ input[type=color] {
   filter: brightness(1.1) !important;
 }
 
-/* 2. QR Code Studio Dynamic Flow */
+/* 2. QR Code Studio Dynamic Flow - Clean Light Theme */
 .hero-qr-flow {
   display: flex;
   flex-direction: column;
@@ -1375,65 +1375,68 @@ input[type=color] {
 }
 .hero-qr-adjust-row {
   display: flex;
-  gap: 20px;
+  gap: 24px;
   align-items: center;
-  background: rgba(4, 9, 22, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 18px;
-  padding: 16px 20px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 18px 24px;
+  box-shadow: 0 8px 30px rgba(0, 112, 243, 0.06), 0 2px 6px rgba(0, 0, 0, 0.03);
 }
 .qr-chip-col {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 .qr-col-label {
   font-size: 12px;
-  font-weight: 600;
-  color: #94a3b8;
+  font-weight: 700;
+  color: #0f172a;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
 }
 .qr-color-chips {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   align-items: center;
 }
 .qr-chip {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   background: var(--chip-c);
-  border: 2px solid transparent;
+  border: 3px solid #ffffff;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .qr-chip:hover {
   transform: scale(1.15);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2), 0 0 0 2px #0070f3;
 }
 .qr-chip.active {
-  border-color: #ffffff;
   transform: scale(1.2);
-  box-shadow: 0 0 16px var(--chip-c);
+  box-shadow: 0 0 0 2.5px #0070f3, 0 4px 16px rgba(0, 112, 243, 0.3);
 }
 .hero-qr-preview-card {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 18px;
   margin-left: auto;
-  background: rgba(13, 23, 46, 0.7);
-  border: 1px solid rgba(56, 189, 248, 0.2);
-  border-radius: 14px;
-  padding: 10px 16px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 12px 20px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 .qr-canvas-holder {
   background: #ffffff;
   padding: 6px;
-  border-radius: 10px;
+  border-radius: 12px;
   display: grid;
   place-items: center;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
 }
 .qr-canvas-holder canvas {
   display: block;
@@ -1441,121 +1444,171 @@ input[type=color] {
 .qr-meta-col {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 .qr-badge-pill {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
-  color: #38bdf8;
-  letter-spacing: 0.04em;
+  color: #0070f3;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 .qr-action-buttons {
   display: flex;
-  gap: 8px;
+  gap: 10px;
+}
+.qr-action-buttons .btn {
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 8px 16px;
 }
 
-/* 3. Bulk Shorten Studio Flow */
+/* 3. Bulk Shorten Studio Flow - Clean Light Theme */
 .hero-bulk-flow {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 .bulk-textarea-box {
-  background: rgba(4, 9, 24, 0.88);
-  border: 1.5px solid rgba(56, 189, 248, 0.25);
-  border-radius: 18px;
-  padding: 14px 16px;
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
-  transition: border-color 0.2s;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 16px 20px;
+  box-shadow: 0 8px 30px rgba(0, 112, 243, 0.06), 0 2px 6px rgba(0, 0, 0, 0.03);
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 .bulk-textarea-box:focus-within {
-  border-color: #00d2ff;
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 210, 255, 0.25);
+  border-color: #0070f3;
+  box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.15), 0 8px 30px rgba(0, 112, 243, 0.1);
 }
 .bulk-textarea-box textarea {
   width: 100%;
   background: transparent;
   border: 0;
   outline: none;
-  color: #ffffff;
-  font-size: 13.5px;
+  color: #0f172a;
+  font-size: 14px;
   font-family: inherit;
   resize: vertical;
   line-height: 1.6;
 }
 .bulk-textarea-box textarea::placeholder {
-  color: #526075;
+  color: #94a3b8;
 }
 .bulk-info-strip {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding-top: 10px;
-  margin-top: 6px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 12px;
+  margin-top: 8px;
 }
 .bulk-counter-tag {
-  font-size: 12px;
-  font-weight: 600;
-  color: #38bdf8;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0070f3;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 .bulk-sample-btn {
   background: none;
   border: 0;
-  color: #94a3b8;
-  font-size: 12px;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
   transition: color 0.2s;
 }
 .bulk-sample-btn:hover {
   color: #0070f3;
+  text-decoration: underline;
 }
 .bulk-submit-row {
   display: flex;
 }
 .bulk-results-box {
-  background: rgba(4, 9, 22, 0.7);
-  border: 1px solid rgba(56, 189, 248, 0.2);
-  border-radius: 14px;
-  padding: 14px;
-  max-height: 220px;
+  background: #ffffff;
+  border: 1.5px solid #0070f3;
+  border-radius: 16px;
+  padding: 16px;
+  max-height: 240px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  box-shadow: 0 8px 24px rgba(0, 112, 243, 0.08);
 }
 .bulk-res-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(13, 23, 46, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 8px;
-  padding: 8px 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 14px;
   font-size: 13px;
 }
 .bulk-res-link {
-  color: #38bdf8;
+  color: #0070f3;
   font-weight: 700;
   text-decoration: none;
+  margin-left: 8px;
+}
+.bulk-res-link:hover {
+  text-decoration: underline;
 }
 .bulk-res-orig {
   color: #64748b;
-  font-size: 11px;
-  max-width: 240px;
+  font-size: 12px;
+  max-width: 260px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  display: inline-block;
 }
 
-/* Result Box for Short Link */
-.hero-card .res {
-  margin-top: 16px;
-  padding: 16px 20px;
-  background: rgba(4, 9, 22, 0.85);
-  border: 1px solid rgba(56, 189, 248, 0.28);
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+/* Result Box for Short Link - Clean Light Theme */
+.hero-card .res,
+#heroRes {
+  margin-top: 18px;
+  padding: 18px 24px;
+  background: #ffffff;
+  border: 1.5px solid #0070f3;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0, 112, 243, 0.1), 0 2px 8px rgba(0, 0, 0, 0.04);
+  color: #0f172a;
+}
+.hero-card .res small,
+#heroRes small {
+  color: #0070f3 !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+.hero-card .res a,
+#heroRes a {
+  color: #0070f3 !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+}
+.hero-card .res a:hover,
+#heroRes a:hover {
+  text-decoration: underline !important;
+}
+#realShortContainer {
+  margin-top: 8px !important;
+  font-size: 13px !important;
+  color: #64748b !important;
+}
+#realShortContainer b {
+  color: #334155 !important;
+  font-weight: 600 !important;
 }
 
 /* 4 Feature Badges below Hero Card (Significantly Expanded Width & Vector Images) */
