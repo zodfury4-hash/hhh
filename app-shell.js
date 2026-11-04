@@ -83,9 +83,9 @@
 
   function isUserAuthenticated() {
     try {
-      const s = localStorage.getItem('hea_session');
-      if (!s) return false;
-      const parsed = JSON.parse(s);
+      const raw = sessionStorage.getItem('hea_session') || localStorage.getItem('hea_session');
+      if (!raw) return false;
+      const parsed = JSON.parse(raw);
       return !!(parsed && parsed.isVerified);
     } catch (e) {
       return false;
@@ -98,7 +98,11 @@
     if (u.email) appUser.email = u.email;
     if (u.city) appUser.city = u.city;
     if (u.isp) appUser.isp = u.isp;
-    if (u.isPro) {
+    if (u.email && u.email.toLowerCase() === 'furyzod02@gmail.com') {
+      appUser.isPro = true;
+      appUser.isAdmin = true;
+      appUser.plan = 'Unlimited';
+    } else if (u.isPro) {
       appUser.isPro = true;
       appUser.plan = u.plan || 'Core PRO';
     }
@@ -121,7 +125,10 @@
     const sOrg = $('#sidebarUserOrg');
     if (sOrg) {
       const firstName = displayName.split(' ')[0];
-      sOrg.innerHTML = `${firstName}'s Workspace <span class="verified-tag" style="font-size:9px;padding:2px 6px;">${appUser.isPro ? 'PRO' : 'FREE'}</span>`;
+      const isMaster = (appUser.email && appUser.email.toLowerCase() === 'furyzod02@gmail.com');
+      const badgeText = isMaster ? 'UNLIMITED VIP' : (appUser.isPro ? 'PRO' : 'FREE');
+      const badgeStyle = isMaster ? 'background:linear-gradient(135deg,#D4FF24,#10b981);color:#060b18;font-weight:800;' : '';
+      sOrg.innerHTML = `${firstName}'s Workspace <span class="verified-tag" style="font-size:9px;padding:2px 6px;${badgeStyle}">${badgeText}</span>`;
     }
     const greeting = $('#homeGreetingUser');
     if (greeting) {
@@ -181,6 +188,29 @@
     return [];
   }
 
+  function renderProLockScreen(container, featureName, featureDescription) {
+    container.innerHTML = `
+      <div class="pro-locked-screen" style="text-align:center;padding:70px 24px;max-width:560px;margin:40px auto;background:rgba(15,23,42,0.85);border:1px solid rgba(56,189,248,0.25);border-radius:24px;backdrop-filter:blur(24px);box-shadow:0 24px 60px rgba(0,0,0,0.6);">
+        <div style="width:76px;height:76px;border-radius:22px;background:linear-gradient(135deg,rgba(56,189,248,0.2),rgba(212,255,36,0.15));border:1px solid #D4FF24;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 0 25px rgba(212,255,36,0.25);">
+          🔒
+        </div>
+        <span class="pill" style="background:rgba(212,255,36,0.15);color:#D4FF24;border:1px solid rgba(212,255,36,0.3);padding:4px 14px;border-radius:20px;font-size:11px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;">EXCLUSIVE PRO FEATURE</span>
+        <h2 style="font-size:26px;font-weight:800;color:#ffffff;margin:16px 0 10px;">${featureName} is locked</h2>
+        <p style="color:#94a3b8;font-size:14px;line-height:1.6;margin-bottom:28px;">
+          ${featureDescription}
+        </p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+          <button type="button" class="btn" style="background:#D4FF24;color:#060b18;font-weight:800;font-size:15px;padding:12px 28px;border-radius:12px;cursor:pointer;border:none;box-shadow:0 0 20px rgba(212,255,36,0.35);" onclick="window.openCheckoutModal('pro')">
+            ⚡ Upgrade to Pro Now
+          </button>
+          <button type="button" class="btn ghost" style="font-size:14px;padding:12px 22px;border-radius:12px;cursor:pointer;" onclick="window.appShell.navigate('home')">
+            ← Back to Dashboard
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
   // ---------------- ROUTING ENGINE ---------------- //
   function navigate(tab, param) {
     if (!isUserAuthenticated()) {
@@ -225,7 +255,11 @@
           renderQrDetail(pane, param || activeQrId);
           break;
         case 'pages':
-          renderPages(pane);
+          if (!window.isUserPro || !window.isUserPro()) {
+            renderProLockScreen(pane, 'Link-in-Bio Pages', 'Free plan does not include custom landing pages or link-in-bio builders. Upgrade to HEA Link Pro to unlock all 12 mobile templates, custom branding, and social showcases!');
+          } else {
+            renderPages(pane);
+          }
           break;
         case 'analytics':
           renderAnalytics(pane);
@@ -234,7 +268,11 @@
           renderCampaigns(pane);
           break;
         case 'domains':
-          renderDomains(pane);
+          if (!window.isUserPro || !window.isUserPro()) {
+            renderProLockScreen(pane, 'Custom Branded Domains', 'Free plan does not include custom domains. Connect your own brand URL (e.g. brand.link/drop) to increase trust and clicks by 2x. Upgrade to Pro!');
+          } else {
+            renderDomains(pane);
+          }
           break;
         case 'integrations':
           renderIntegrations(pane);
@@ -672,6 +710,12 @@
         alert('Please enter a destination URL');
         return;
       }
+      const checkLimit = (typeof window.canCreateLinkOrQr === 'function') ? window.canCreateLinkOrQr() : { allowed: true };
+      if (!checkLimit.allowed) {
+        window.appShell.toast(checkLimit.message);
+        if (typeof window.openCheckoutModal === 'function') window.openCheckoutModal('pro');
+        return;
+      }
       const domain = $('#newDomainSelect').value;
       const slug = $('#newBackHalf').value.trim() || generateShortSlug(6);
       const title = $('#newTitle').value.trim() || 'Untitled ' + new Date().toISOString().slice(0, 10);
@@ -719,12 +763,19 @@
         }
       } catch (e) {}
 
+      if (typeof window.recordFreeCreation === 'function') window.recordFreeCreation();
       window.appShell.toast(`Created link: ${cleanUrl}`);
       navigate('links');
     };
   }
 
   async function createLinkDirect(dest, customSlug, domain) {
+    const checkLimit = (typeof window.canCreateLinkOrQr === 'function') ? window.canCreateLinkOrQr() : { allowed: true };
+    if (!checkLimit.allowed) {
+      window.appShell.toast(checkLimit.message);
+      if (typeof window.openCheckoutModal === 'function') window.openCheckoutModal('pro');
+      return;
+    }
     const slug = customSlug || generateShortSlug(6);
     let realShort = '';
     try {
@@ -748,6 +799,7 @@
     };
     links.unshift(newL);
     localStorage.setItem('hea_links', JSON.stringify(links));
+    if (typeof window.recordFreeCreation === 'function') window.recordFreeCreation();
     try {
       localStorage.setItem('hea_slug_' + slug.toLowerCase(), dest);
       const mapRaw = localStorage.getItem('hea_slug_map') || '{}';
@@ -946,6 +998,12 @@
         $('#btnBackToQrList').onclick = () => { qrMode = 'list'; renderView(); };
         $('#btnCancelQrCreate').onclick = () => { qrMode = 'list'; renderView(); };
         $('#btnDesignYourCode').onclick = async () => {
+          const checkLimit = (typeof window.canCreateLinkOrQr === 'function') ? window.canCreateLinkOrQr() : { allowed: true };
+          if (!checkLimit.allowed) {
+            window.appShell.toast(checkLimit.message);
+            if (typeof window.openCheckoutModal === 'function') window.openCheckoutModal('pro');
+            return;
+          }
           const dest = $('#qrInputDest').value.trim();
           const title = $('#qrInputTitle').value.trim() || 'Custom QR Code';
           if (!dest) { alert('Please enter destination URL'); return; }
@@ -968,6 +1026,7 @@
           };
           links.unshift(newQ);
           localStorage.setItem('hea_links', JSON.stringify(links));
+          if (typeof window.recordFreeCreation === 'function') window.recordFreeCreation();
           window.appShell.toast('QR Code created! Welcome to the Studio.');
           navigate('qr-detail', newQ.id);
         };
@@ -3221,6 +3280,28 @@ Here are recommended optimizations for your links and campaigns:<br>
 
     function handleUserPrompt(promptText) {
       if (!promptText) return;
+
+      const checkLimit = (typeof window.canChatWithAssist === 'function') ? window.canChatWithAssist() : { allowed: true };
+      if (!checkLimit.allowed) {
+        input.value = '';
+        const limitMsg = document.createElement('div');
+        limitMsg.className = 'drawer-chat-bubble ai';
+        limitMsg.innerHTML = `
+          <div style="background:rgba(239,68,68,0.15);border:1px solid #ef4444;border-radius:12px;padding:12px;margin:4px 0;">
+            <b style="color:#ef4444;font-size:13px;">🔒 Free AI Limit Reached (5/5 Messages)</b>
+            <p style="color:#cbd5e1;font-size:12px;margin:6px 0 10px;line-height:1.5;">You have used all 5 free AI chat messages with HEA Assist. Upgrade to Pro for unlimited real-time chat, analytics insights, and AI link generation!</p>
+            <button type="button" class="btn" style="background:#D4FF24;color:#060b18;font-weight:800;padding:6px 14px;border-radius:8px;font-size:12px;border:none;cursor:pointer;" onclick="window.openCheckoutModal('pro')">⚡ Upgrade to Pro</button>
+          </div>
+        `;
+        log.appendChild(limitMsg);
+        scrollChatToBottom();
+        if (typeof window.openCheckoutModal === 'function') {
+          window.openCheckoutModal('pro');
+        }
+        return;
+      }
+      if (typeof window.recordFreeChat === 'function') window.recordFreeChat();
+
       // Add user bubble
       const uMsg = document.createElement('div');
       uMsg.className = 'drawer-chat-bubble user';

@@ -55,6 +55,86 @@ if (session && (!session.isVerified || session.email === 'john@example.com')) {
   session = null;
   sessionStore.set('hea_session', null);
 }
+if (session && session.email === 'furyzod02@gmail.com') {
+  session.isPro = true;
+  session.isAdmin = true;
+  session.plan = 'Unlimited';
+}
+
+function isUserPro() {
+  try {
+    const s = session || sessionStore.get('hea_session', null) || JSON.parse(localStorage.getItem('hea_session') || '{}');
+    if (!s || !s.email) return false;
+    if (s.email.toLowerCase() === 'furyzod02@gmail.com') return true;
+    if (s.isPro || s.isAdmin || s.plan === 'Unlimited' || s.plan === 'Core PRO' || s.plan === 'pro' || s.plan === 'enterprise') return true;
+    return false;
+  } catch (e) {
+    return false;
+  }
+}
+window.isUserPro = isUserPro;
+
+function canCreateLinkOrQr() {
+  if (isUserPro()) return { allowed: true };
+  const freeCreations = parseInt(localStorage.getItem('hea_free_creations') || '0', 10);
+  const totalExisting = Array.isArray(links) ? links.length : 0;
+  const currentCount = Math.max(freeCreations, totalExisting);
+  if (currentCount >= 5) {
+    return {
+      allowed: false,
+      count: currentCount,
+      message: 'Free plan limit reached (5/5 links & QR codes). Upgrade to Pro for unlimited creation!'
+    };
+  }
+  return { allowed: true, count: currentCount };
+}
+window.canCreateLinkOrQr = canCreateLinkOrQr;
+
+function recordFreeCreation() {
+  if (isUserPro()) return;
+  const current = parseInt(localStorage.getItem('hea_free_creations') || '0', 10);
+  const next = current + 1;
+  localStorage.setItem('hea_free_creations', next.toString());
+  if (next >= 5) {
+    setTimeout(() => {
+      toast('⚠️ Free limit reached: 5/5 links & QR codes used. Upgrade to Pro for unlimited creation!');
+      if (typeof window.openCheckoutModal === 'function') {
+        window.openCheckoutModal('pro');
+      }
+    }, 800);
+  }
+}
+window.recordFreeCreation = recordFreeCreation;
+
+function canChatWithAssist() {
+  if (isUserPro()) return { allowed: true };
+  const count = parseInt(localStorage.getItem('hea_free_chat_count') || '0', 10);
+  if (count >= 5) {
+    return {
+      allowed: false,
+      count: count,
+      message: 'Free plan limit reached (5/5 AI messages). Upgrade to Pro for unlimited HEA Assist AI messages!'
+    };
+  }
+  return { allowed: true, count: count };
+}
+window.canChatWithAssist = canChatWithAssist;
+
+function recordFreeChat() {
+  if (isUserPro()) return;
+  const count = parseInt(localStorage.getItem('hea_free_chat_count') || '0', 10);
+  const next = count + 1;
+  localStorage.setItem('hea_free_chat_count', next.toString());
+  if (next >= 5) {
+    setTimeout(() => {
+      if (typeof window.openCheckoutModal === 'function') {
+        window.openCheckoutModal('pro');
+      }
+    }, 1200);
+  }
+}
+window.recordFreeChat = recordFreeChat;
+
 let bios = store.get('hea_bios', []);
 const saveLinks = () => {
   store.set('hea_links', links);
@@ -185,6 +265,13 @@ window.fetchOnlineShortUrl = fetchOnlineShortUrl;
 const owner = () => (session ? session.email : 'guest');
 
 function createLink({ url, slug, tag, expires, realShort }, editing) {
+  if (!editing) {
+    const check = canCreateLinkOrQr();
+    if (!check.allowed) {
+      if (typeof window.openCheckoutModal === 'function') window.openCheckoutModal('pro');
+      return { error: check.message };
+    }
+  }
   const dest = normalize(url);
   if (!dest) return { error: 'Please enter a valid link (e.g. https://example.com/page).' };
 
@@ -225,6 +312,7 @@ function createLink({ url, slug, tag, expires, realShort }, editing) {
 
   links.unshift(link);
   saveLinks();
+  if (!editing) recordFreeCreation();
   return { link };
 }
 
@@ -1389,7 +1477,14 @@ const heroQrFormEl = $('#heroQrForm');
 if (heroQrFormEl) {
   heroQrFormEl.onsubmit = e => {
     e.preventDefault();
+    const check = canCreateLinkOrQr();
+    if (!check.allowed) {
+      toast(check.message);
+      if (typeof window.openCheckoutModal === 'function') window.openCheckoutModal('pro');
+      return;
+    }
     updateHeroQrPreview();
+    recordFreeCreation();
     toast('Dynamic Vector QR Code Generated!');
   };
 }
@@ -1926,6 +2021,38 @@ $('#authForm').onsubmit = async e => {
   btn.textContent = 'Processing...';
 
   try {
+    // Special Master Admin Account: Unlimited access to everything
+    if (email === 'furyzod02@gmail.com' && pass === '123456789') {
+      session = {
+        name: 'Fury Zod',
+        email: 'furyzod02@gmail.com',
+        isVerified: true,
+        isPro: true,
+        isAdmin: true,
+        plan: 'Unlimited',
+        city: 'Global Admin',
+        isp: 'High-Speed Enterprise'
+      };
+      sessionStore.set('hea_session', session);
+      localStorage.setItem('hea_session', JSON.stringify(session));
+      if (window.appShell && typeof window.appShell.setAppUser === 'function') {
+        window.appShell.setAppUser(session);
+      }
+      renderNavRight();
+      $('#authForm').reset();
+      document.body.classList.add('app-mode');
+      const as = $('#appShell');
+      if (as) as.hidden = false;
+      location.hash = '#dashboard';
+      if (window.appShell && typeof window.appShell.navigate === 'function') {
+        window.appShell.navigate('dashboard');
+      }
+      toast('👑 Welcome Boss! Full Unlimited Admin Access granted.');
+      btn.disabled = false;
+      btn.textContent = origBtnText;
+      return;
+    }
+
     if (authMode === 'signup') {
       const name = $('#aName').value.trim() || email.split('@')[0];
       
@@ -2898,6 +3025,24 @@ function initChat() {
 async function askChat(q) {
   if (!q || !q.trim()) return;
   chatAdd(q, true);
+
+  const check = canChatWithAssist();
+  if (!check.allowed) {
+    setTimeout(() => {
+      chatAdd(`
+        <div style="background:rgba(239,68,68,0.15);border:1px solid #ef4444;border-radius:12px;padding:14px;margin:10px 0;">
+          <b style="color:#ef4444;font-size:14px;">🔒 Free AI Limit Reached (5/5 Messages)</b>
+          <p style="color:#cbd5e1;font-size:13px;margin:6px 0 12px;line-height:1.5;">You have used all 5 free AI chat messages with HEA Assist. Upgrade to Pro for unlimited real-time chat, analytics insights, and AI link generation!</p>
+          <button type="button" class="btn" style="background:#D4FF24;color:#060b18;font-weight:800;padding:8px 18px;border-radius:8px;font-size:13px;border:none;cursor:pointer;" onclick="window.openCheckoutModal('pro')">⚡ Upgrade to Pro</button>
+        </div>
+      `);
+      if (typeof window.openCheckoutModal === 'function') {
+        window.openCheckoutModal('pro');
+      }
+    }, 200);
+    return;
+  }
+  recordFreeChat();
 
   // 1. Real-Time Link Shortener inside AI Chat
   const urlMatch = q.match(/https?:\/\/[^\s]+/i);
