@@ -694,26 +694,26 @@ const MEGA = {
 
 const SOL_ITEMS = {
   industry: [
-    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>`, title: 'RETAIL', href: '#solutions' },
-    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>`, title: 'CONSUMER PACKAGED GOODS', href: '#solutions' },
-    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"></path><path d="M19 21v-4"></path><path d="M19 13V3a1 1 0 0 0-1-1H6a1 1 0 0 0-1 1v18"></path><rect x="9" y="6" width="6" height="4"></rect></svg>`, title: 'HOSPITALITY', href: '#solutions' },
-    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>`, title: 'MEDIA &amp; ENTERTAINMENT', href: '#solutions' },
-    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="2" y1="20" x2="22" y2="20"></line></svg>`, title: 'TECHNOLOGY &amp; HARDWARE', href: '#solutions' },
-    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>`, title: 'HEALTHCARE', href: '#solutions' },
-    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>`, title: 'INSURANCE', href: '#solutions' },
-    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 18V6"></path></svg>`, title: 'FINANCIAL SERVICES', href: '#solutions' },
-    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>`, title: 'PROFESSIONAL SERVICES', href: '#solutions' },
-    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>`, title: 'EDUCATION', href: '#solutions' }
+    { img: 'images/products/sol-retail.svg', title: 'RETAIL', href: '#solutions' },
+    { img: 'images/products/sol-cpg.svg', title: 'CONSUMER PACKAGED GOODS', href: '#solutions' },
+    { img: 'images/products/sol-hospitality.svg', title: 'HOSPITALITY', href: '#solutions' },
+    { img: 'images/products/sol-media.svg', title: 'MEDIA &amp; ENTERTAINMENT', href: '#solutions' },
+    { img: 'images/products/sol-tech.svg', title: 'TECHNOLOGY &amp; HARDWARE', href: '#solutions' },
+    { img: 'images/products/sol-healthcare.svg', title: 'HEALTHCARE', href: '#solutions' },
+    { img: 'images/products/sol-insurance.svg', title: 'INSURANCE', href: '#solutions' },
+    { img: 'images/products/sol-finance.svg', title: 'FINANCIAL SERVICES', href: '#solutions' },
+    { img: 'images/products/sol-professional.svg', title: 'PROFESSIONAL SERVICES', href: '#solutions' },
+    { img: 'images/products/sol-education.svg', title: 'EDUCATION', href: '#solutions' }
   ],
   team: [
-    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>`, title: 'DEVELOPERS', href: '#solutions' },
-    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 11 18-5v12L3 14v-3z"></path><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path></svg>`, title: 'MARKETING', href: '#solutions' },
-    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>`, title: 'CUSTOMER SERVICE', href: '#solutions' }
+    { img: 'images/products/sol-devs.svg', title: 'DEVELOPERS', href: '#solutions' },
+    { img: 'images/products/sol-marketing.svg', title: 'MARKETING', href: '#solutions' },
+    { img: 'images/products/sol-support.svg', title: 'CUSTOMER SERVICE', href: '#solutions' }
   ],
   business: [
-    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"></path><rect x="4" y="8" width="7" height="13"></rect><rect x="13" y="4" width="7" height="17"></rect></svg>`, title: 'SMALL BUSINESS', href: '#solutions' },
-    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"></path><rect x="4" y="6" width="16" height="15"></rect><line x1="8" y1="10" x2="8" y2="10.01"></line><line x1="16" y1="10" x2="16" y2="10.01"></line><line x1="8" y1="14" x2="8" y2="14.01"></line><line x1="16" y1="14" x2="16" y2="14.01"></line></svg>`, title: 'MIDMARKET', href: '#solutions' },
-    { icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 2 7l10 5 10-5-10-5z"></path><path d="m2 17 10 5 10-5"></path><path d="m2 12 10 5 10-5"></path></svg>`, title: 'ENTERPRISE', href: '#solutions' }
+    { img: 'images/products/sol-small-biz.svg', title: 'SMALL BUSINESS', href: '#solutions' },
+    { img: 'images/products/sol-midmarket.svg', title: 'MIDMARKET', href: '#solutions' },
+    { img: 'images/products/sol-enterprise.svg', title: 'ENTERPRISE', href: '#solutions' }
   ]
 };
 
@@ -723,7 +723,7 @@ function renderSolMegaGrid(tabKey = 'industry') {
   const items = SOL_ITEMS[tabKey] || SOL_ITEMS.industry;
   container.innerHTML = items.map(it => `
     <a class="mega-item" href="${it.href}">
-      <div class="icon-box">${it.icon}</div>
+      <div class="mega-img-box"><img src="${it.img}" alt="${it.title}" width="38" height="38" loading="eager"></div>
       <div><b>${it.title}</b></div>
     </a>
   `).join('');

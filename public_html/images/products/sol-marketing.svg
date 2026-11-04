@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="mkt_bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2d131f"/>
+      <stop offset="100%" stop-color="#0f050a"/>
+    </linearGradient>
+    <linearGradient id="mkt_mega" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f43f5e"/>
+      <stop offset="100%" stop-color="#fb923c"/>
+    </linearGradient>
+    <filter id="mkt_glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#mkt_bg)"/>
+  <rect width="64" height="64" rx="16" fill="none" stroke="rgba(244,63,94,0.4)" stroke-width="1.5"/>
+  <!-- Megaphone Bullhorn -->
+  <path d="M16 28 H22 L36 17 V45 L22 34 H16 C14.5 34 13 32.5 13 31 V31 C13 29.5 14.5 28 16 28 Z" fill="url(#mkt_mega)" filter="url(#mkt_glow)"/>
+  <!-- Handle -->
+  <path d="M22 34 L21 44 C21 45.5 22.5 47 24 47 H25 C26.5 47 27.5 45.5 27 44 L25 34" fill="#fb923c"/>
+  <!-- Sound Waves Broadcasting -->
+  <path d="M42 24 C45 28 45 34 42 38" fill="none" stroke="#d4ff24" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M47 19 C52 26 52 36 47 43" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" filter="url(#mkt_glow)"/>
+</svg>

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="ret_bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#141c38"/>
+      <stop offset="100%" stop-color="#080c18"/>
+    </linearGradient>
+    <linearGradient id="ret_bag" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+    <filter id="ret_glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#ret_bg)"/>
+  <rect width="64" height="64" rx="16" fill="none" stroke="rgba(56,189,248,0.4)" stroke-width="1.5"/>
+  <!-- Shopping Bag -->
+  <path d="M16 20 H48 L45 50 C45 52 43 53 41 53 H23 C21 53 19 52 19 50 Z" fill="url(#ret_bag)" filter="url(#ret_glow)"/>
+  <!-- Bag Handle -->
+  <path d="M26 20 V14 C26 10.7 28.7 8 32 8 C35.3 8 38 10.7 38 14 V20" fill="none" stroke="#d4ff24" stroke-width="2.8" stroke-linecap="round"/>
+  <!-- Discount/Price Tag on Bag -->
+  <circle cx="32" cy="34" r="7" fill="#0f172a" stroke="#d4ff24" stroke-width="1.5"/>
+  <text x="32" y="38" font-family="system-ui, sans-serif" font-size="9" font-weight="900" fill="#d4ff24" text-anchor="middle">%</text>
+  <!-- Sparkles -->
+  <polygon points="48,16 49.5,19 52.5,20 49.5,21 48,24 46.5,21 43.5,20 46.5,19" fill="#d4ff24" filter="url(#ret_glow)"/>
+</svg>

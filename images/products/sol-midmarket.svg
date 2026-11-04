@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="mid_bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0c233c"/>
+      <stop offset="100%" stop-color="#040f1a"/>
+    </linearGradient>
+    <linearGradient id="mid_bld" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+    <filter id="mid_glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#mid_bg)"/>
+  <rect width="64" height="64" rx="16" fill="none" stroke="rgba(56,189,248,0.4)" stroke-width="1.5"/>
+  <!-- Commercial Midmarket Building -->
+  <!-- Left Wing -->
+  <rect x="14" y="24" width="16" height="26" rx="2" fill="#0f172a" stroke="#38bdf8" stroke-width="1.2"/>
+  <rect x="18" y="28" width="3" height="3" fill="#d4ff24"/>
+  <rect x="23" y="28" width="3" height="3" fill="#38bdf8"/>
+  <rect x="18" y="34" width="3" height="3" fill="#38bdf8"/>
+  <rect x="23" y="34" width="3" height="3" fill="#d4ff24"/>
+  <rect x="18" y="40" width="3" height="3" fill="#ffffff"/>
+  <rect x="23" y="40" width="3" height="3" fill="#38bdf8"/>
+  <!-- Right Higher Tower -->
+  <rect x="30" y="14" width="20" height="36" rx="2" fill="url(#mid_bld)" filter="url(#mid_glow)"/>
+  <rect x="35" y="19" width="3.5" height="3.5" fill="#ffffff"/>
+  <rect x="42" y="19" width="3.5" height="3.5" fill="#d4ff24"/>
+  <rect x="35" y="26" width="3.5" height="3.5" fill="#d4ff24"/>
+  <rect x="42" y="26" width="3.5" height="3.5" fill="#ffffff"/>
+  <rect x="35" y="33" width="3.5" height="3.5" fill="#ffffff"/>
+  <rect x="42" y="33" width="3.5" height="3.5" fill="#ffffff"/>
+  <rect x="35" y="40" width="3.5" height="3.5" fill="#d4ff24"/>
+  <rect x="42" y="40" width="3.5" height="3.5" fill="#ffffff"/>
+</svg>
