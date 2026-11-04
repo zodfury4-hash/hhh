@@ -212,14 +212,40 @@
       if (s) {
         let p = JSON.parse(s);
         if (Array.isArray(p)) {
-          // Remove legacy dummy pages
-          p = p.filter(page => page && page.slug !== 'hgrgferf' && page.slug !== 'john');
+          const originalLen = p.length;
+          // Filter out dummy/sample pages and clean data
+          p = p.filter(page => page &&
+            page.slug !== 'hgrgferf' &&
+            page.slug !== 'john' &&
+            page.slug !== 'sample' &&
+            !(page.slug && page.slug.toLowerCase().includes('hgrgferf')) &&
+            !(page.url && page.url.includes('hgrgferf')) &&
+            !(page.title && page.title.toLowerCase() === 'john' && (page.views || 0) === 0)
+          );
+          if (p.length !== originalLen) {
+            try { localStorage.setItem('hea_bios', JSON.stringify(p)); } catch (e) {}
+          }
           return p;
         }
       }
     } catch (e) {}
 
     return [];
+  }
+
+  function deletePage(slug) {
+    if (!slug) return;
+    if (!confirm('Are you sure you want to delete this Bio Page?')) return;
+    try {
+      let bios = getStoredPages();
+      bios = bios.filter(p => p && p.slug !== slug);
+      localStorage.setItem('hea_bios', JSON.stringify(bios));
+      toast('Page deleted successfully');
+      const pane = document.getElementById('appMainPane');
+      if (pane) renderPages(pane, 'list');
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   function renderProLockScreen(container, featureName, featureDescription) {
@@ -2258,48 +2284,62 @@
           </button>
         </div>
 
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-          <input type="text" class="topbar-search-input" style="max-width:320px;" placeholder="Search bio pages by title, handle, or bio...">
-          <span style="font-size:13px;color:#94a3b8;">${pages.length} published page${pages.length === 1 ? '' : 's'}</span>
+        <div class="page-search-bar-row">
+          <input type="text" class="topbar-search-input page-search-input" id="pageSearchInput" placeholder="Search bio pages by title, handle, or bio...">
+          <span class="page-count-badge" id="pageCountBadge">${pages.length} published page${pages.length === 1 ? '' : 's'}</span>
         </div>
 
+        <div id="pagesListContainer">
         ${pages.map(p => {
           const bioUrl = p.url || `${origin}/m/${p.slug}`;
           return `
-            <div class="page-row-card">
-              <div style="display:flex;align-items:center;gap:20px;">
+            <div class="page-row-card" data-slug="${p.slug}" data-title="${(p.title || '').toLowerCase()}" data-tagline="${(p.tagline || '').toLowerCase()}">
+              <div class="page-row-main">
                 <div class="page-wireframe-thumb" style="background:${p.color || '#00c6ff'}15;border-color:${p.color || '#00c6ff'}40;">
                   <span style="font-weight:800;color:${p.color || '#ffffff'};">${p.title ? p.title.slice(0, 10) : 'Page'}</span>
                   <div class="wireframe-bar" style="background:${p.color || '#00c6ff'};opacity:0.8;"></div>
                   <div class="wireframe-bar"></div>
                   <div class="wireframe-bar"></div>
                 </div>
-                <div>
-                  <h3 style="font-size:18px;font-weight:800;color:#ffffff;margin:0 0 6px;">
-                    <a href="${bioUrl}" target="_blank" rel="noopener" style="color:#38bdf8;text-decoration:none;">${bioUrl} ↗</a>
+                <div class="page-row-info">
+                  <h3 class="page-row-title">
+                    <a href="${bioUrl}" target="_blank" rel="noopener">${bioUrl} ↗</a>
                   </h3>
-                  <div style="font-size:13px;color:#94a3b8;margin-bottom:8px;">${p.tagline || 'Custom verified landing page'} • Created ${p.createdAt || 'Recent'}</div>
-                  <div style="display:flex;gap:16px;font-size:13px;color:#cbd5e1;">
+                  <div class="page-row-tagline">${p.tagline || 'Custom verified landing page'} • Created ${p.createdAt || 'Recent'}</div>
+                  <div class="page-row-stats">
                     <span>📊 <b>${p.views || 0}</b> views</span>
                     <span>🎯 <b>${p.engagements || 0}</b> engagements</span>
                   </div>
                 </div>
               </div>
-              <div style="display:flex;align-items:center;gap:12px;">
-                <a class="auth-submit-btn" style="width:auto;padding:8px 18px;text-decoration:none;font-size:13px;" href="${bioUrl}" target="_blank" rel="noopener">
+              <div class="page-row-actions">
+                <a class="auth-submit-btn page-live-btn" href="${bioUrl}" target="_blank" rel="noopener">
                   🚀 View Live Page
                 </a>
                 <button class="topbar-icon-btn" title="Copy Bio Link" onclick="window.appShell.copy('${bioUrl}')">📋</button>
                 <button class="topbar-icon-btn" title="Share QR" onclick="window.appShell.navigate('qr-detail', '${p.slug}')">▦</button>
+                <button class="topbar-icon-btn" style="color:#ef4444;" title="Delete Page" onclick="window.appShell.deletePage('${p.slug}')">🗑️</button>
               </div>
             </div>
           `;
         }).join('')}
+        </div>
 
         <div style="text-align:center;color:#64748b;font-size:13px;margin:40px 0;">
           • You've reached the end of your Pages •
         </div>
       `;
+
+      const pSearch = $('#pageSearchInput');
+      if (pSearch) {
+        pSearch.oninput = () => {
+          const q = pSearch.value.toLowerCase().trim();
+          $$('.page-row-card').forEach(card => {
+            const match = !q || card.dataset.slug.includes(q) || card.dataset.title.includes(q) || card.dataset.tagline.includes(q);
+            card.style.display = match ? 'flex' : 'none';
+          });
+        };
+      }
 
       $('#btnLaunchTemplateCatalog').onclick = () => {
         mode = 'catalog';
@@ -3650,6 +3690,7 @@ Here are recommended optimizations for your links and campaigns:<br>
     copy,
     updateDisplayName,
     deleteLink,
+    deletePage,
     exportAnalyticsCSV
   };
 
