@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="logo.png">
-  <link rel="stylesheet" href="style.css?v=1793821700000">
-  <link rel="stylesheet" href="app-shell.css?v=1793821700000">
+  <link rel="stylesheet" href="style.css?v=1793823700000">
+  <link rel="stylesheet" href="app-shell.css?v=1793823700000">
   <script>
     (function() {
       try {
@@ -484,8 +484,16 @@
     <div class="auth-split-wrap">
       <div class="auth-left-col">
         <a href="#home" class="auth-brand-logo">
-          <img src="logo.png" alt="HEA Link" style="width:32px;height:32px;object-fit:contain;">
-          <span><b style="color:#0b132b;font-weight:800;font-style:normal;">HEA</b> <span style="color:#0070f3;font-weight:800;">Link</span></span>
+          <svg class="logo-infinity-svg" width="36" height="25" viewBox="0 0 54 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15.5 8C10.25 8 6 12.25 6 17.5C6 22.75 10.25 27 15.5 27C21.2 27 24.6 20.8 27 17.5C29.4 14.2 32.8 8 38.5 8C43.75 8 48 12.25 48 17.5C48 22.75 43.75 27 38.5 27C32.8 27 29.4 20.8 27 17.5C24.6 14.2 21.2 8 15.5 8Z" stroke="url(#logoBlueGradAuth)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="logoBlueGradAuth" x1="6" y1="8" x2="48" y2="27" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#0066ff"/>
+                <stop offset="1" stop-color="#00c8ff"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span class="logo-hea">HEA</span> <span class="logo-link">Link</span>
         </a>
         <h2 class="auth-title" id="authTitle">Welcome Back</h2>
         <p class="auth-sub" id="authSub">Log in to manage your links, QR codes, and analytics.</p>
@@ -1153,6 +1161,7 @@
 
 <div id="modal" class="modal" hidden>
   <div class="card pad">
+    <button type="button" class="modal-close-cross" id="mCloseBtn" aria-label="Close modal">✕</button>
     <h3 id="mTitle"></h3>
     <form id="mForm" class="stack" style="margin-top:16px">
       <div id="mBody" class="stack"></div>
@@ -1628,9 +1637,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
-<script src="firebase-config.js?v=3"></script>
-<script src="heavy-fx.js?v=1793821700000"></script>
-<script src="app-shell.js?v=1793821700000"></script>
-<script src="app.js?v=1793821700000"></script>
+<script src="firebase-config.js?v=4"></script>
+<script src="heavy-fx.js?v=1793823700000"></script>
+<script src="app-shell.js?v=1793823700000"></script>
+<script src="app.js?v=1793823700000"></script>
 </body>
 </html>

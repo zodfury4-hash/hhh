@@ -309,14 +309,6 @@ function recordFreeCreation() {
   }
 }
 
-      }
-
-    }, 800);
-
-  }
-
-}
-
 window.recordFreeCreation = recordFreeCreation;
 
 function canChatWithAssist() {
@@ -757,6 +749,8 @@ function openModal(title, bodyHTML, onSubmit, okText = 'Save') {
 
   $('#mOk').hidden = !onSubmit;
 
+  $('#mCancel').textContent = onSubmit ? 'Cancel' : 'Close';
+
   $('#modal').hidden = false;
 
   $('#mForm').onsubmit = e => {
@@ -776,6 +770,8 @@ function openModal(title, bodyHTML, onSubmit, okText = 'Save') {
 const closeModal = () => { $('#modal').hidden = true; };
 
 $('#mCancel').onclick = closeModal;
+const mCloseCross = $('#mCloseBtn');
+if (mCloseCross) mCloseCross.onclick = closeModal;
 
 $('#modal').onclick = e => { if (e.target.id === 'modal') closeModal(); };
 
