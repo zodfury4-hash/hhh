@@ -1,32 +1,38 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
   <defs>
-    <linearGradient id="blg_bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#2a1a08"/>
-      <stop offset="100%" stop-color="#120a03"/>
+    <linearGradient id="bl_bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3b1d08"/>
+      <stop offset="100%" stop-color="#140902"/>
     </linearGradient>
-    <linearGradient id="blg_pen" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#fbbf24"/>
-      <stop offset="100%" stop-color="#f97316"/>
+    <linearGradient id="bl_card" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#ea580c"/>
     </linearGradient>
-    <filter id="blg_glow">
-      <feGaussianBlur stdDeviation="2" result="blur"/>
+    <linearGradient id="bl_lime" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="100%" stop-color="#d4ff24"/>
+    </linearGradient>
+    <filter id="bl_glow">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
       <feMerge>
         <feMergeNode in="blur"/>
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
   </defs>
-  <rect width="64" height="64" rx="16" fill="url(#blg_bg)"/>
-  <rect width="64" height="64" rx="16" fill="none" stroke="rgba(251,191,36,0.4)" stroke-width="1.5"/>
-  <!-- Article document sheet -->
-  <rect x="14" y="14" width="30" height="38" rx="4" fill="#1e293b" stroke="rgba(255,255,255,0.2)" stroke-width="1.2"/>
-  <line x1="20" y1="22" x2="36" y2="22" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
-  <line x1="20" y1="28" x2="34" y2="28" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round"/>
-  <line x1="20" y1="34" x2="38" y2="34" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round"/>
-  <line x1="20" y1="40" x2="30" y2="40" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round"/>
-  <!-- Angled Pen writing on document -->
-  <g transform="rotate(-30 42 36)">
-    <rect x="39" y="16" width="6" height="24" rx="2" fill="url(#blg_pen)" filter="url(#blg_glow)"/>
-    <polygon points="39,40 45,40 42,46" fill="#d4ff24"/>
-  </g>
+  <rect width="64" height="64" rx="16" fill="url(#bl_bg)"/>
+  <rect width="64" height="64" rx="16" fill="none" stroke="rgba(249,115,22,0.5)" stroke-width="1.5"/>
+  <!-- Tablet Device Frame -->
+  <rect x="14" y="12" width="36" height="42" rx="8" fill="#18151f" stroke="url(#bl_card)" stroke-width="2"/>
+  <!-- Screen Area -->
+  <rect x="18" y="16" width="28" height="34" rx="4" fill="#0d0a14"/>
+  <!-- Insight Growth Chart (Trending Line) -->
+  <polyline points="21,38 27,33 33,36 41,23" fill="none" stroke="url(#bl_lime)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#bl_glow)"/>
+  <circle cx="41" cy="23" r="3" fill="#ffffff" filter="url(#bl_glow)"/>
+  <!-- Stylus Pen Glowing on Top-Right -->
+  <polygon points="46,10 52,14 36,36 32,36 33,32" fill="url(#bl_card)" filter="url(#bl_glow)"/>
+  <polygon points="32,36 33,32 30,37" fill="#ffffff"/>
+  <!-- Small Star Sparkles -->
+  <circle cx="22" cy="22" r="1.5" fill="#f97316"/>
+  <circle cx="28" cy="20" r="1" fill="#d4ff24"/>
 </svg>

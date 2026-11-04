@@ -1,31 +1,45 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
   <defs>
-    <linearGradient id="gd_bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0f2638"/>
-      <stop offset="100%" stop-color="#051019"/>
+    <linearGradient id="g_bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0e2a47"/>
+      <stop offset="100%" stop-color="#040f1a"/>
     </linearGradient>
-    <linearGradient id="gd_book" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#38bdf8"/>
-      <stop offset="100%" stop-color="#0284c7"/>
+    <linearGradient id="g_cover" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#00d2ff"/>
+      <stop offset="50%" stop-color="#0066ff"/>
+      <stop offset="100%" stop-color="#0033aa"/>
     </linearGradient>
-    <filter id="gd_glow">
-      <feGaussianBlur stdDeviation="2" result="blur"/>
+    <linearGradient id="g_page" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#cbd5e1"/>
+    </linearGradient>
+    <linearGradient id="g_gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="100%" stop-color="#eab308"/>
+    </linearGradient>
+    <filter id="g_glow">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
       <feMerge>
         <feMergeNode in="blur"/>
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
   </defs>
-  <rect width="64" height="64" rx="16" fill="url(#gd_bg)"/>
-  <rect width="64" height="64" rx="16" fill="none" stroke="rgba(56,189,248,0.4)" stroke-width="1.5"/>
-  <!-- Book Cover -->
-  <path d="M18 14 H44 C46.2 14 48 15.8 48 18 V48 C48 50.2 46.2 52 44 52 H18 Z" fill="url(#gd_book)" filter="url(#gd_glow)"/>
-  <!-- Book Spine -->
-  <path d="M18 14 H22 V52 H18 C15.8 52 14 50.2 14 48 V18 C14 15.8 15.8 14 18 14 Z" fill="#0369a1"/>
-  <!-- Gold Bookmark Ribbon -->
-  <path d="M38 14 V30 L41 27 L44 30 V14 Z" fill="#d4ff24"/>
-  <!-- Book Details -->
-  <line x1="26" y1="24" x2="36" y2="24" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
-  <line x1="26" y1="30" x2="34" y2="30" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
-  <line x1="26" y1="36" x2="42" y2="36" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+  <rect width="64" height="64" rx="16" fill="url(#g_bg)"/>
+  <rect width="64" height="64" rx="16" fill="none" stroke="rgba(56,189,248,0.5)" stroke-width="1.5"/>
+  <!-- Open 3D Book Left Page -->
+  <path d="M12 44 C18 42 28 42 32 45 V19 C28 16 18 16 12 18 Z" fill="url(#g_page)"/>
+  <!-- Open 3D Book Right Page -->
+  <path d="M52 44 C46 42 36 42 32 45 V19 C36 16 46 16 52 18 Z" fill="url(#g_page)"/>
+  <!-- Book Spine / Cover Rim -->
+  <path d="M10 47 C18 44 28 44 32 48 C36 44 46 44 54 47 V20 C46 17 36 17 32 20 C28 17 18 17 10 20 Z" fill="url(#g_cover)" opacity="0.9" filter="url(#g_glow)"/>
+  <!-- Golden Ribbon Bookmark -->
+  <path d="M30 19 V38 L32 36 L34 38 V19 Z" fill="url(#g_gold)" filter="url(#g_glow)"/>
+  <!-- Hologram Content Lines -->
+  <line x1="16" y1="26" x2="27" y2="25" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round"/>
+  <line x1="16" y1="31" x2="25" y2="30" stroke="#38bdf8" stroke-width="1.4" stroke-linecap="round" opacity="0.8"/>
+  <line x1="16" y1="36" x2="28" y2="35" stroke="#38bdf8" stroke-width="1.4" stroke-linecap="round" opacity="0.6"/>
+  <line x1="37" y1="25" x2="48" y2="26" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
+  <line x1="37" y1="30" x2="46" y2="31" stroke="#0ea5e9" stroke-width="1.4" stroke-linecap="round" opacity="0.8"/>
+  <circle cx="44" cy="36" r="2.5" fill="#D4FF24" filter="url(#g_glow)"/>
 </svg>

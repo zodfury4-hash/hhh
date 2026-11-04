@@ -42,26 +42,10 @@
     let norm = targetUrl.trim();
     if (!/^https?:\/\//i.test(norm)) norm = 'https://' + norm;
 
-    // 1. Try da.gd (supports CORS * from browser, ultra fast <300ms, returns e.g. https://da.gd/abcd)
+    // 1. Try server endpoint /api/shorten-online (instant direct redirect without interstitial)
     try {
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 2200);
-      const res = await fetch(`https://da.gd/s?strip=1&url=${encodeURIComponent(norm)}`, {
-        signal: controller.signal
-      });
-      clearTimeout(timer);
-      if (res.ok) {
-        const text = (await res.text()).trim();
-        if (/^https?:\/\/[a-z0-9]/i.test(text) && !text.includes('error')) {
-          return text;
-        }
-      }
-    } catch (e) {}
-
-    // 2. Try server endpoint /api/shorten-online
-    try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 2200);
+      const timer = setTimeout(() => controller.abort(), 2500);
       const res = await fetch('/api/shorten-online', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -71,8 +55,24 @@
       clearTimeout(timer);
       if (res.ok) {
         const data = await res.json();
-        if (data.shortUrl && /^https?:\/\//i.test(data.shortUrl)) {
+        if (data.shortUrl && /^https?:\/\//i.test(data.shortUrl) && !data.shortUrl.includes('da.gd')) {
           return data.shortUrl;
+        }
+      }
+    } catch (e) {}
+
+    // 2. Direct TinyURL (301 direct redirect, zero warning screen)
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 2000);
+      const res = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(norm)}`, {
+        signal: controller.signal
+      });
+      clearTimeout(timer);
+      if (res.ok) {
+        const text = (await res.text()).trim();
+        if (/^https?:\/\//i.test(text) && !text.includes('error')) {
+          return text;
         }
       }
     } catch (e) {}
@@ -166,6 +166,16 @@
           // Filter legacy sample links
           p = p.filter(l => l && l.id !== 'lnk_1' && l.id !== 'lnk_2' && !(l.dest && l.dest.includes('claude.ai')) && !(l.dest && l.dest.includes('summer-drop-2026')));
           p.forEach(l => {
+            if (!l) return;
+            // Clean out da.gd URLs so clicking links opens destination directly
+            if (l.realShort && l.realShort.includes('da.gd')) {
+              l.realShort = l.dest || l.url || `https://tinyurl.com/${l.slug}`;
+              dirty = true;
+            }
+            if (l.url && l.url.includes('da.gd')) {
+              l.url = l.dest || `https://tinyurl.com/${l.slug}`;
+              dirty = true;
+            }
             if (!l) return;
             // Clean clicks to always be a safe integer count (never [object Object])
             if (Array.isArray(l.clicks)) {
@@ -379,7 +389,7 @@
           <div class="home-shorten-right-grp">
             <select class="home-domain-select" id="homeDomainSelect">
               <option value="tinyurl.com" selected>tinyurl.com</option>
-              <option value="da.gd">da.gd</option>
+              <option value="healink.store">healink.store</option>
               <option value="bit.ly">bit.ly</option>
             </select>
             <button type="submit" class="home-shorten-btn" id="homeSubmitBtn">→</button>
@@ -623,7 +633,7 @@
               <label>Short link domain</label>
               <select id="newDomainSelect" class="home-domain-select" style="width:100%;">
                 <option value="tinyurl.com" selected>tinyurl.com</option>
-                <option value="da.gd">da.gd</option>
+                <option value="healink.store">healink.store</option>
                 <option value="bit.ly">bit.ly</option>
               </select>
             </div>
@@ -1977,7 +1987,7 @@
                     <option value="healink.store" selected>healink.store</option>
                     <option value="hea.link">hea.link</option>
                     <option value="tinyurl.com">tinyurl.com</option>
-                    <option value="da.gd">da.gd</option>
+                    <option value="healink.store">healink.store</option>
                     <option value="bit.ly">bit.ly</option>
                   </select>
                   <span style="color:#ffffff;font-size:15px;font-weight:800;padding:0 4px;">/m/</span>
@@ -3542,10 +3552,20 @@ Here are recommended optimizations for your links and campaigns:<br>
     const drawer = $('#appAssistDrawer');
     const drawerClose = $('#drawerCloseBtn');
     if (assistToggle && drawer) {
-      assistToggle.onclick = () => { drawer.hidden = !drawer.hidden; };
+      assistToggle.onclick = () => {
+        drawer.hidden = !drawer.hidden;
+        if (!drawer.hidden && window.innerWidth <= 768) {
+          document.body.style.overflow = 'hidden';
+        } else {
+          document.body.style.overflow = '';
+        }
+      };
     }
     if (drawerClose && drawer) {
-      drawerClose.onclick = () => { drawer.hidden = true; };
+      drawerClose.onclick = () => {
+        drawer.hidden = true;
+        document.body.style.overflow = '';
+      };
     }
 
     setupAssistChat();

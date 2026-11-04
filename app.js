@@ -221,29 +221,15 @@ const shortText = l => {
   return u.replace(/^https?:\/\//, '');
 };
 
-// Asynchronously fetch genuine working short URL without healink branding
+// Asynchronously fetch genuine working short URL without healink branding (instant direct redirect, no warning screens)
 async function fetchOnlineShortUrl(targetUrl) {
   const norm = normalize(targetUrl);
   if (!norm) return null;
 
-  // 1. Try da.gd first (CORS allowed on browser, instant redirect response, e.g. https://da.gd/czqL)
+  // 1. Try backend online shortener endpoint
   try {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 2000);
-    const res = await fetch(`https://da.gd/s?strip=1&url=${encodeURIComponent(norm)}`, {
-      signal: controller.signal
-    });
-    clearTimeout(timer);
-    if (res.ok) {
-      const text = (await res.text()).trim();
-      if (/^https?:\/\/[a-z0-9]/i.test(text) && !text.includes('error')) return text;
-    }
-  } catch (e) {}
-
-  // 2. Try backend online shortener endpoint
-  try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 2000);
+    const timer = setTimeout(() => controller.abort(), 2500);
     const res = await fetch('/api/shorten-online', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -253,7 +239,23 @@ async function fetchOnlineShortUrl(targetUrl) {
     clearTimeout(timer);
     if (res.ok) {
       const data = await res.json();
-      if (data.shortUrl && /^https?:\/\//i.test(data.shortUrl)) return data.shortUrl;
+      if (data.shortUrl && /^https?:\/\//i.test(data.shortUrl) && !data.shortUrl.includes('da.gd')) {
+        return data.shortUrl;
+      }
+    }
+  } catch (e) {}
+
+  // 2. Try direct TinyURL (301 direct redirect, zero warning page)
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2000);
+    const res = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(norm)}`, {
+      signal: controller.signal
+    });
+    clearTimeout(timer);
+    if (res.ok) {
+      const text = (await res.text()).trim();
+      if (/^https?:\/\//i.test(text) && !text.includes('error')) return text;
     }
   } catch (e) {}
 

@@ -1,28 +1,38 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
   <defs>
-    <linearGradient id="cs_bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#1c1038"/>
-      <stop offset="100%" stop-color="#080414"/>
+    <linearGradient id="ct_bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#141a38"/>
+      <stop offset="100%" stop-color="#050814"/>
     </linearGradient>
-    <linearGradient id="cs_hand" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="ct_neon" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#38bdf8"/>
-      <stop offset="100%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#0066ff"/>
     </linearGradient>
-    <filter id="cs_glow">
-      <feGaussianBlur stdDeviation="2" result="blur"/>
+    <linearGradient id="ct_lime" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="100%" stop-color="#d4ff24"/>
+    </linearGradient>
+    <filter id="ct_glow">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
       <feMerge>
         <feMergeNode in="blur"/>
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
   </defs>
-  <rect width="64" height="64" rx="16" fill="url(#cs_bg)"/>
-  <rect width="64" height="64" rx="16" fill="none" stroke="rgba(129,140,248,0.4)" stroke-width="1.5"/>
-  <!-- Handshake partnership -->
-  <path d="M14 34 L24 24 C25 23 27 23 28 24 L32 28 L40 20 C41 19 43 19 44 20 L50 26" fill="none" stroke="url(#cs_hand)" stroke-width="3" stroke-linecap="round"/>
-  <path d="M26 36 L30 40 C31 41 33 41 34 40 L44 30" fill="none" stroke="#d4ff24" stroke-width="3" stroke-linecap="round" filter="url(#cs_glow)"/>
-  <!-- Clasp knot -->
-  <circle cx="32" cy="34" r="3.5" fill="#ffffff"/>
-  <!-- Sparkles -->
-  <polygon points="32,14 33.5,17 36.5,18 33.5,19 32,22 30.5,19 27.5,18 30.5,17" fill="#d4ff24" filter="url(#cs_glow)"/>
+  <rect width="64" height="64" rx="16" fill="url(#ct_bg)"/>
+  <rect width="64" height="64" rx="16" fill="none" stroke="rgba(56,189,248,0.5)" stroke-width="1.5"/>
+  <!-- Left Hand / Cuff -->
+  <path d="M12 28 L22 36 L28 30 L22 24 Z" fill="url(#ct_neon)" filter="url(#ct_glow)"/>
+  <!-- Right Hand / Cuff -->
+  <path d="M52 28 L42 36 L36 30 L42 24 Z" fill="url(#ct_lime)" filter="url(#ct_glow)"/>
+  <!-- Clasping Fingers Core -->
+  <path d="M22 36 L29 42 C31 43.5 33 43.5 35 42 L42 36 L38 32 L32 37 L26 32 Z" fill="#ffffff" filter="url(#ct_glow)"/>
+  <!-- Glowing Connection Pulse Rays -->
+  <circle cx="32" cy="35" r="4.5" fill="#38bdf8" filter="url(#ct_glow)"/>
+  <circle cx="32" cy="35" r="2.5" fill="#ffffff"/>
+  <!-- Enterprise Stars -->
+  <polygon points="32,14 33.5,17 37,17.5 34.5,19.5 35.2,23 32,21.2 28.8,23 29.5,19.5 27,17.5 30.5,17" fill="#d4ff24"/>
+  <circle cx="20" cy="18" r="1.5" fill="#38bdf8"/>
+  <circle cx="44" cy="18" r="1.5" fill="#38bdf8"/>
 </svg>

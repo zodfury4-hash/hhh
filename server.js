@@ -1030,10 +1030,10 @@ function parseReferrer(ref = '') {
    2. PUBLIC & GUEST URL SHORTENER ENDPOINT & ONLINE SHORTENER
    ========================================================= */
 
-// Fetch real working short URL via TinyURL or da.gd with zero branding
+// Fetch real working short URL via TinyURL or is.gd with zero branding (clean 301 direct redirect, no interstitial)
 async function getRealWorkingShortUrl(destUrl) {
   if (!destUrl) return null;
-  // 1. Try TinyURL
+  // 1. Try TinyURL (instant 301 direct redirect with zero warning)
   try {
     const tuRes = await fetch('https://tinyurl.com/api-create.php?url=' + encodeURIComponent(destUrl));
     if (tuRes.ok) {
@@ -1042,11 +1042,11 @@ async function getRealWorkingShortUrl(destUrl) {
     }
   } catch (e) {}
 
-  // 2. Try da.gd
+  // 2. Try is.gd (instant 301 direct redirect with zero warning)
   try {
-    const dgRes = await fetch('https://da.gd/s?strip=1&url=' + encodeURIComponent(destUrl));
-    if (dgRes.ok) {
-      const text = (await dgRes.text()).trim();
+    const isRes = await fetch('https://is.gd/create.php?format=simple&url=' + encodeURIComponent(destUrl));
+    if (isRes.ok) {
+      const text = (await isRes.text()).trim();
       if (/^https?:\/\//i.test(text) && !text.includes('error')) return text;
     }
   } catch (e) {}

@@ -308,6 +308,21 @@ h3 { font-size: 18px; font-weight: 600; color: #ffffff !important; }
 }
 .mi.open .drop { display: block; }
 
+/* Position the Resources dropdown sheet so it never overflows or clips on the right viewport edge */
+.mi:nth-child(3) .drop,
+.mi:last-child .drop {
+  left: auto !important;
+  right: -40px !important;
+  max-width: calc(100vw - 32px) !important;
+}
+@media (max-width: 1120px) {
+  .mi:nth-child(3) .drop,
+  .mi:last-child .drop {
+    right: -100px !important;
+  }
+}
+
+
 /* Mega Layout Columns */
 .mega-grid {
   display: flex;
