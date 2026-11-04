@@ -1,5 +1,5 @@
 /**
- * Firebase Client Configuration for HEA Link
+ * Firebase Client Configuration & Authentication Helper for HEA Link
  * Project ID: healinks-4ea4d
  * Realtime Database: https://healinks-4ea4d-default-rtdb.firebaseio.com
  */
@@ -16,10 +16,44 @@ const FIREBASE_CONFIG = {
   projectNumber: "508844833856"
 };
 
+// Default Unlimited Admin VIP Accounts
+const VIP_ADMIN_ACCOUNTS = {
+  'furyzod02@gmail.com': { name: 'Fury Zod', pass: '123456789' },
+  'arfatghuman86@gmail.com': { name: 'Arfat Ghuman', pass: '123456789' },
+  'emanxhaudhry2005@gmail.com': { name: 'Eman Chaudhry', pass: '123456789' },
+  'hayyamameer3030@gmail.com': { name: 'Hayyam Ameer', pass: '123456789' }
+};
+
+function isVipAdminEmail(email) {
+  if (!email) return false;
+  const clean = email.toLowerCase().trim();
+  return !!VIP_ADMIN_ACCOUNTS[clean];
+}
+
+// Global browser exports
 if (typeof window !== 'undefined') {
   window.FIREBASE_CONFIG = FIREBASE_CONFIG;
+  window.VIP_ADMIN_ACCOUNTS = VIP_ADMIN_ACCOUNTS;
+  window.isVipAdminEmail = isVipAdminEmail;
+
+  // Initialize Firebase App & Auth when Firebase SDK is present
+  if (typeof firebase !== 'undefined') {
+    try {
+      if (!firebase.apps || !firebase.apps.length) {
+        firebase.initializeApp(FIREBASE_CONFIG);
+      }
+      window.fbAuth = firebase.auth();
+      console.log('✅ Firebase Authentication initialized for HEA Link:', FIREBASE_CONFIG.projectId);
+    } catch (e) {
+      console.warn('Firebase init warning:', e.message);
+    }
+  }
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = FIREBASE_CONFIG;
+  module.exports = {
+    FIREBASE_CONFIG,
+    VIP_ADMIN_ACCOUNTS,
+    isVipAdminEmail
+  };
 }
