@@ -1,16 +1,16 @@
 /* =========================================================
    HEA Link — Logged-in App Shell (Website Dark Theme)
    Matches the website aesthetic:
-   - Deep Midnight: #060b18
-   - Glass Cards: #0d172e / rgba(13, 23, 46, 0.85)
-   - Borders: rgba(255, 255, 255, 0.08) / rgba(0, 180, 255, 0.25)
+   - Deep Midnight: #f0f6ff
+   - Glass Cards: #ffffff / rgba(13, 23, 46, 0.85)
+   - Borders: #e2e8f0 / rgba(0, 180, 255, 0.25)
    - Accents: #38bdf8 (Cyan/Sky), #0066ff (Neon Blue), #10b981 (Green)
    - Text: #ffffff (Headings), #94a3b8 (Muted body)
    ========================================================= */
 
 /* Body in App Mode */
 body.app-mode {
-  background-color: #060b18 !important;
+  background-color: #f0f6ff !important;
   background-image: none !important;
   color: #f8fafc !important;
   overflow-x: hidden !important;
@@ -45,7 +45,7 @@ section[data-page="auth"] {
   display: grid;
   grid-template-columns: 1.1fr 1fr;
   min-height: 100vh;
-  background: #060b18;
+  background: #f0f6ff;
 }
 .auth-left-col {
   padding: 60px 80px;
@@ -55,7 +55,7 @@ section[data-page="auth"] {
   max-width: 540px;
   margin: 0 auto;
   width: 100%;
-  background: #060b18;
+  background: #f0f6ff;
 }
 .auth-brand-logo {
   display: flex;
@@ -75,12 +75,12 @@ section[data-page="auth"] {
 .auth-title {
   font-size: 32px;
   font-weight: 800;
-  color: #ffffff !important;
+  color: #0070f3 !important;
   margin-bottom: 6px;
   letter-spacing: -0.02em;
 }
 .auth-sub {
-  color: #94a3b8;
+  color: #000000;
   font-size: 14px;
   margin-bottom: 24px;
 }
@@ -105,8 +105,8 @@ section[data-page="auth"] {
   width: 100%;
   padding: 12px 18px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
   color: #ffffff;
   font-size: 14px;
   font-weight: 600;
@@ -126,14 +126,14 @@ section[data-page="auth"] {
   align-items: center;
   text-align: center;
   margin: 16px 0 22px;
-  color: #64748b;
+  color: #334155;
   font-size: 12px;
   font-weight: 600;
 }
 .auth-divider::before, .auth-divider::after {
   content: '';
   flex: 1;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid #e2e8f0;
 }
 .auth-divider span {
   padding: 0 14px;
@@ -153,8 +153,8 @@ section[data-page="auth"] {
   font-weight: 600;
 }
 .auth-form-card input {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
   border-radius: 8px;
   padding: 12px 14px;
   color: #ffffff;
@@ -168,7 +168,7 @@ section[data-page="auth"] {
 }
 .auth-submit-btn {
   background: linear-gradient(135deg, #0066ff, #00d2ff) !important;
-  color: #ffffff !important;
+  color: #0070f3 !important;
   border-radius: 8px !important;
   padding: 13px 20px !important;
   font-size: 15px !important;
@@ -183,7 +183,7 @@ section[data-page="auth"] {
   opacity: 0.95;
 }
 .auth-terms {
-  color: #64748b;
+  color: #334155;
   font-size: 12px;
   line-height: 1.5;
   margin-top: 18px;
@@ -191,8 +191,8 @@ section[data-page="auth"] {
 
 /* Right Illustration Column */
 .auth-right-col {
-  background: radial-gradient(circle at 60% 40%, rgba(0, 102, 255, 0.15) 0%, #080f22 70%);
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  background: radial-gradient(circle at 60% 40%, rgba(0, 102, 255, 0.15) 0%, #f8fafc 70%);
+  border-left: 1px solid #e2e8f0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -204,8 +204,8 @@ section[data-page="auth"] {
   max-width: 460px;
 }
 .auth-illus-mockup {
-  background: #0d172e;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   border-radius: 20px;
   padding: 24px;
   margin: 0 auto 32px;
@@ -239,11 +239,11 @@ section[data-page="auth"] {
 .auth-illus-card h3 {
   font-size: 24px;
   font-weight: 800;
-  color: #ffffff !important;
+  color: #0070f3 !important;
   margin-bottom: 12px;
 }
 .auth-illus-card p {
-  color: #94a3b8;
+  color: #000000;
   font-size: 14px;
   line-height: 1.6;
 }
@@ -253,7 +253,7 @@ section[data-page="auth"] {
   display: none !important;
   min-height: 100vh;
   width: 100%;
-  background: #060b18;
+  background: #f0f6ff;
   color: #f8fafc;
 }
 
@@ -270,8 +270,8 @@ section[data-page="app"][hidden] {
 /* Sidebar */
 .app-sidebar {
   width: 230px;
-  background: #090f22;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border-right: 1px solid #e2e8f0;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -309,16 +309,16 @@ section[data-page="app"][hidden] {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
-  color: #94a3b8;
+  border: 1px solid #e2e8f0;
+  background: #f1f5f9;
+  color: #000000;
   display: grid;
   place-items: center;
   cursor: pointer;
   font-size: 12px;
 }
 .sidebar-collapse-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: #e2e8f0;
   color: #ffffff;
 }
 
@@ -359,7 +359,7 @@ section[data-page="app"][hidden] {
   align-items: center;
   gap: 12px;
   padding: 10px 18px;
-  color: #94a3b8;
+  color: #000000;
   font-size: 14px;
   font-weight: 500;
   text-decoration: none;
@@ -368,7 +368,7 @@ section[data-page="app"][hidden] {
   border-left: 3px solid transparent;
 }
 .sidebar-nav-item:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: #f8fafc;
   color: #ffffff;
 }
 .sidebar-nav-item.active {
@@ -385,7 +385,7 @@ section[data-page="app"][hidden] {
 }
 
 .sidebar-bottom {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid #e2e8f0;
   padding: 12px 14px;
   margin-top: auto;
 }
@@ -402,8 +402,8 @@ section[data-page="app"][hidden] {
 /* Topbar */
 .app-topbar {
   height: 60px;
-  background: #090f22;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -421,13 +421,13 @@ section[data-page="app"][hidden] {
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #64748b;
+  color: #334155;
   font-size: 14px;
 }
 .topbar-search-input {
   width: 100%;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
   border-radius: 8px;
   padding: 8px 12px 8px 36px;
   color: #ffffff;
@@ -447,7 +447,7 @@ section[data-page="app"][hidden] {
 .topbar-icon-btn {
   background: none;
   border: 0;
-  color: #94a3b8;
+  color: #000000;
   font-size: 16px;
   cursor: pointer;
   padding: 6px 8px;
@@ -481,7 +481,7 @@ section[data-page="app"][hidden] {
   display: grid;
   place-items: center;
   cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid #94a3b8;
 }
 
 /* Main pane & Right drawer */
@@ -502,8 +502,8 @@ section[data-page="app"][hidden] {
 /* Right Bitly Assist Drawer */
 .app-assist-drawer {
   width: 350px;
-  background: #090f22;
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border-left: 1px solid #e2e8f0;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -518,7 +518,7 @@ section[data-page="app"][hidden] {
 }
 .drawer-header {
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -535,7 +535,7 @@ section[data-page="app"][hidden] {
 .drawer-close {
   background: none;
   border: 0;
-  color: #94a3b8;
+  color: #000000;
   font-size: 18px;
   cursor: pointer;
 }
@@ -589,7 +589,7 @@ section[data-page="app"][hidden] {
   margin: 0;
 }
 .drawer-subtext {
-  color: #94a3b8;
+  color: #000000;
   font-size: 13px;
   line-height: 1.5;
   margin: 0;
@@ -597,8 +597,8 @@ section[data-page="app"][hidden] {
 .drawer-input-card {
   width: 100%;
   margin-top: auto;
-  background: #0d172e;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
   padding: 12px;
   display: flex;
@@ -643,7 +643,7 @@ section[data-page="app"][hidden] {
 .view-header h2 {
   font-size: 26px;
   font-weight: 800;
-  color: #ffffff !important;
+  color: #0070f3 !important;
   margin: 0;
   letter-spacing: -0.02em;
 }
@@ -657,8 +657,8 @@ section[data-page="app"][hidden] {
 .campaigns-hero-wrap,
 .settings-main-panel,
 .integration-card-white {
-  background: #0d172e !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
   border-radius: 14px;
   color: #f8fafc !important;
 }
@@ -682,13 +682,13 @@ section[data-page="app"][hidden] {
   margin-bottom: 24px;
 }
 .home-type-tab {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
   border-radius: 99px;
   padding: 8px 18px;
   font-size: 13px;
   font-weight: 600;
-  color: #94a3b8;
+  color: #000000;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -708,7 +708,7 @@ section[data-page="app"][hidden] {
   max-width: 680px;
   margin: 0 auto 16px;
   background: #0f1b36;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid #cbd5e1;
   border-radius: 12px;
   padding: 6px 8px 6px 14px;
   display: flex;
@@ -746,8 +746,8 @@ section[data-page="app"][hidden] {
   flex-shrink: 0;
 }
 .home-domain-select {
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: #090f22;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
   border-radius: 8px;
   padding: 8px 12px;
   font-size: 13px;
@@ -809,7 +809,7 @@ section[data-page="app"][hidden] {
   margin: 0 0 6px;
 }
 .dash-white-card p {
-  color: #94a3b8;
+  color: #000000;
   font-size: 13px;
   margin: 0 0 16px;
 }
@@ -830,7 +830,7 @@ section[data-page="app"][hidden] {
   margin: 0 0 4px;
 }
 .create-link-sub {
-  color: #94a3b8;
+  color: #000000;
   font-size: 13px;
   margin: 0 0 20px;
 }
@@ -850,8 +850,8 @@ section[data-page="app"][hidden] {
   color: #e2e8f0;
 }
 .create-link-field input, .create-link-field select {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
   border-radius: 8px;
   padding: 10px 14px;
   font-size: 14px;
@@ -880,8 +880,8 @@ section[data-page="app"][hidden] {
 .sticky-bottom-actions {
   position: sticky;
   bottom: 0;
-  background: #090f22;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 10px;
   padding: 14px 20px;
   display: flex;
@@ -935,7 +935,7 @@ section[data-page="app"][hidden] {
 }
 .qr-dest-text {
   font-size: 13px;
-  color: #94a3b8;
+  color: #000000;
   margin-bottom: 6px;
   max-width: 500px;
   overflow: hidden;
@@ -947,7 +947,7 @@ section[data-page="app"][hidden] {
   align-items: center;
   gap: 14px;
   font-size: 12px;
-  color: #64748b;
+  color: #334155;
 }
 
 /* ---------------- 6. PAGES VIEW (Screenshot 12.02.40 AM) ---------------- */
@@ -961,8 +961,8 @@ section[data-page="app"][hidden] {
   max-width: 100%;
   box-sizing: border-box;
   overflow: hidden;
-  background: #0d172e;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 14px;
   transition: border-color 0.15s;
 }
@@ -996,7 +996,7 @@ section[data-page="app"][hidden] {
 }
 .page-row-tagline {
   font-size: 13px;
-  color: #94a3b8;
+  color: #000000;
   margin-bottom: 8px;
   word-break: break-word;
 }
@@ -1004,7 +1004,7 @@ section[data-page="app"][hidden] {
   display: flex;
   gap: 16px;
   font-size: 13px;
-  color: #cbd5e1;
+  color: #000000;
   flex-wrap: wrap;
 }
 .page-row-actions {
@@ -1038,14 +1038,14 @@ section[data-page="app"][hidden] {
 }
 .page-count-badge {
   font-size: 13px;
-  color: #94a3b8;
+  color: #000000;
   white-space: nowrap;
 }
 .page-wireframe-thumb {
   width: 64px;
   height: 84px;
-  background: #090f22;
-  border: 2px solid rgba(255, 255, 255, 0.15);
+  background: #ffffff;
+  border: 2px solid #cbd5e1;
   border-radius: 10px;
   padding: 8px;
   display: flex;
@@ -1061,7 +1061,7 @@ section[data-page="app"][hidden] {
 }
 .wireframe-bar {
   height: 6px;
-  background: rgba(255, 255, 255, 0.1);
+  background: #e2e8f0;
   border-radius: 3px;
 }
 
@@ -1076,8 +1076,8 @@ section[data-page="app"][hidden] {
   width: 280px;
   height: 180px;
   margin: 0 auto 28px;
-  background: #090f22;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   border-radius: 12px;
   padding: 16px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.5);
@@ -1089,7 +1089,7 @@ section[data-page="app"][hidden] {
   margin: 0 0 12px;
 }
 .campaigns-hero-wrap p {
-  color: #94a3b8;
+  color: #000000;
   font-size: 15px;
   max-width: 520px;
   margin: 0 auto 24px;
@@ -1115,13 +1115,13 @@ section[data-page="app"][hidden] {
 }
 .domain-ai-textarea {
   width: 100%;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid #cbd5e1;
   border-radius: 8px;
   padding: 12px 14px;
   font-size: 14px;
   height: 80px;
   resize: none;
-  background: rgba(255, 255, 255, 0.04);
+  background: #f8fafc;
   color: #ffffff;
 }
 
@@ -1174,7 +1174,7 @@ section[data-page="app"][hidden] {
   flex-direction: column;
   align-items: center;
   padding: 12px 14px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid #e2e8f0;
 }
 .template-phone-preview .mini-notch {
   width: 76px;
@@ -1225,7 +1225,7 @@ section[data-page="app"][hidden] {
   flex-direction: column;
   align-items: center;
   padding: 14px 12px;
-  background: #090f22;
+  background: #ffffff;
 }
 
 /* Configure Screen Layout (Frame 14) */
@@ -1253,7 +1253,7 @@ section[data-page="app"][hidden] {
   border: none;
   border-radius: 8px;
   background: transparent;
-  color: #94a3b8;
+  color: #000000;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
@@ -1315,7 +1315,7 @@ section[data-page="app"][hidden] {
 /* ---------------- 9. INTEGRATIONS VIEW (Screenshot 12.02.42 AM) ---------------- */
 .shopify-cream-banner {
   background: #0f1c3a;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid #e2e8f0;
   border-radius: 16px;
   padding: 32px;
   margin-bottom: 24px;
@@ -1357,12 +1357,12 @@ section[data-page="app"][hidden] {
   padding: 8px 12px;
   border-radius: 6px;
   font-size: 14px;
-  color: #94a3b8;
+  color: #000000;
   text-decoration: none;
   cursor: pointer;
 }
 .settings-subsidebar-link:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: #f8fafc;
   color: #ffffff;
 }
 .settings-subsidebar-link.active {
@@ -1375,7 +1375,7 @@ section[data-page="app"][hidden] {
   padding: 32px;
 }
 .settings-section-divider {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid #e2e8f0;
   margin: 32px 0;
 }
 
@@ -1422,7 +1422,7 @@ section[data-page="app"][hidden] {
 .create-modal-header h3 {
   font-size: 24px;
   font-weight: 800;
-  color: #ffffff !important;
+  color: #0070f3 !important;
   margin: 0;
 }
 .create-modal-grid {
@@ -1431,8 +1431,8 @@ section[data-page="app"][hidden] {
   gap: 16px;
 }
 .create-option-card {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 10px;
   padding: 20px 16px;
   text-align: left;
@@ -1449,8 +1449,8 @@ section[data-page="app"][hidden] {
   position: absolute;
   right: 12px;
   bottom: 12px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #e2e8f0;
+  border: 1px solid #cbd5e1;
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 11px;
@@ -1480,7 +1480,7 @@ section[data-page="app"][hidden] {
   background-color: rgba(255, 255, 255, 0.14);
   transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid #e2e8f0;
 }
 .app-toggle-slider:before {
   position: absolute;
@@ -1504,9 +1504,9 @@ section[data-page="app"][hidden] {
 
 /* Collapsible Sidebar (Screenshot 12.02.42 AM 1) */
 .sidebar-collapse-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #94a3b8;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #000000;
   width: 26px;
   height: 26px;
   border-radius: 50%;
@@ -1518,7 +1518,7 @@ section[data-page="app"][hidden] {
   transition: all 0.15s ease;
 }
 .sidebar-collapse-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: #cbd5e1;
   color: #ffffff;
 }
 .app-sidebar.collapsed {
@@ -1565,7 +1565,7 @@ section[data-page="app"][hidden] {
   font-size: 15px;
 }
 .drawer-hero-illus p {
-  color: #94a3b8;
+  color: #000000;
   font-size: 12px;
   margin: 0;
   line-height: 1.4;
@@ -1577,8 +1577,8 @@ section[data-page="app"][hidden] {
   width: 100%;
 }
 .drawer-chip-btn {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   color: #e2e8f0;
   padding: 8px 12px;
   border-radius: 8px;
@@ -1610,8 +1610,8 @@ section[data-page="app"][hidden] {
   animation: fadeIn 0.2s ease;
 }
 .drawer-chat-bubble.ai {
-  background: #0d172e;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   color: #e2e8f0;
   align-self: flex-start;
 }
@@ -1624,13 +1624,13 @@ section[data-page="app"][hidden] {
   display: flex;
   gap: 8px;
   padding: 14px 18px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background: #090f22;
+  border-top: 1px solid #e2e8f0;
+  background: #ffffff;
 }
 .drawer-input-row input {
   flex: 1;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
   color: #ffffff;
   padding: 8px 12px;
   border-radius: 8px;
@@ -1665,14 +1665,14 @@ section[data-page="app"][hidden] {
   padding: 10px 14px;
   font-size: 12px;
   font-weight: 700;
-  color: #94a3b8;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: #000000;
+  border-bottom: 1px solid #e2e8f0;
 }
 .settings-email-table td {
   padding: 14px;
   font-size: 14px;
   color: #ffffff;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid #e2e8f0;
 }
 
 /* QR Code Studio & Details (Screenshots 12.02.39 AM 1, 2, 3) */
@@ -1683,8 +1683,8 @@ section[data-page="app"][hidden] {
   margin-bottom: 24px;
 }
 .qr-preview-box {
-  background: #0d172e;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 14px;
   padding: 28px;
   display: flex;
@@ -1694,8 +1694,8 @@ section[data-page="app"][hidden] {
   text-align: center;
 }
 .qr-chart-card {
-  background: #0d172e;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 14px;
   padding: 24px;
   margin-top: 24px;
@@ -1742,7 +1742,7 @@ section[data-page="app"][hidden] {
   font-family: monospace;
   text-align: center;
   padding: 14px;
-  background: #090f22;
+  background: #ffffff;
   border: 2px solid rgba(56, 189, 248, 0.3);
   border-radius: 12px;
   color: #38bdf8;
@@ -1760,7 +1760,7 @@ section[data-page="app"][hidden] {
   align-items: center;
   margin-top: 14px;
   font-size: 13px;
-  color: #94a3b8;
+  color: #000000;
 }
 .verify-resend-btn {
   background: none;
@@ -1775,7 +1775,7 @@ section[data-page="app"][hidden] {
   text-decoration: underline;
 }
 .verify-resend-btn:disabled {
-  color: #64748b;
+  color: #334155;
   cursor: not-allowed;
   text-decoration: none;
 }
@@ -1785,7 +1785,7 @@ section[data-page="app"][hidden] {
   border-radius: 10px;
   padding: 10px 14px;
   margin-top: 14px;
-  color: #D4FF24;
+  color: #0070f3;
   font-size: 12px;
   display: flex;
   align-items: center;
@@ -1916,8 +1916,8 @@ section[data-page="app"][hidden] {
   }
   .home-shorten-left-grp {
     width: 100% !important;
-    background: rgba(255, 255, 255, 0.04) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
     border-radius: 8px !important;
     padding: 2px 10px !important;
     box-sizing: border-box !important;
@@ -2043,7 +2043,7 @@ section[data-page="app"][hidden] {
     width: 100% !important;
     justify-content: space-between !important;
     padding-top: 12px !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-top: 1px solid #e2e8f0 !important;
     flex-wrap: wrap !important;
     gap: 8px !important;
   }
@@ -2095,7 +2095,7 @@ section[data-page="app"][hidden] {
     flex-wrap: wrap !important;
     gap: 8px !important;
     padding-top: 12px !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-top: 1px solid #e2e8f0 !important;
   }
   .qr-card-item .sso-btn {
     flex: 1 !important;
@@ -2126,7 +2126,7 @@ section[data-page="app"][hidden] {
     height: 100dvh !important;
     max-height: 100dvh !important;
     z-index: 99999 !important;
-    background: #090f22 !important;
+    background: #ffffff !important;
     display: flex !important;
     flex-direction: column !important;
     border-left: 0 !important;
@@ -2139,7 +2139,7 @@ section[data-page="app"][hidden] {
     padding: 14px 18px !important;
     padding-top: max(14px, env(safe-area-inset-top)) !important;
     background: #0b152d !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-bottom: 1px solid #e2e8f0 !important;
   }
   .drawer-close {
     width: 38px !important;
@@ -2147,8 +2147,8 @@ section[data-page="app"][hidden] {
     display: grid !important;
     place-items: center !important;
     font-size: 20px !important;
-    color: #ffffff !important;
-    background: rgba(255, 255, 255, 0.1) !important;
+    color: #0070f3 !important;
+    background: #e2e8f0 !important;
     border-radius: 50% !important;
     cursor: pointer !important;
   }
@@ -2165,7 +2165,7 @@ section[data-page="app"][hidden] {
     padding: 12px 16px !important;
     padding-bottom: max(14px, env(safe-area-inset-bottom)) !important;
     background: #0b152d !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-top: 1px solid #e2e8f0 !important;
   }
 }
 
@@ -2215,7 +2215,7 @@ body.app-mode {
 }
 .sidebar-create-btn {
   background: #0070f3 !important;
-  color: #ffffff !important;
+  color: #0070f3 !important;
   box-shadow: 0 4px 14px rgba(0, 112, 243, 0.35) !important;
 }
 
@@ -2248,7 +2248,7 @@ body.app-mode {
   color: #0b132b !important;
 }
 .auth-sub {
-  color: #64748b !important;
+  color: #334155 !important;
 }
 .auth-form input {
   background: #ffffff !important;
@@ -2393,7 +2393,7 @@ body.app-mode label,
 }
 .drawer-chat-bubble.user {
   background: #0070f3 !important;
-  color: #ffffff !important;
+  color: #0070f3 !important;
 }
 .drawer-input-row, .drawer-input-card {
   background: #ffffff !important;
@@ -2427,4 +2427,134 @@ body.app-mode label,
   background: #ffffff !important;
   border: 1.5px solid #cbd5e1 !important;
   color: #000000 !important;
+}
+
+/* =========================================================
+   LIGHT GLASSMORPHIC SAAS REFINEMENTS
+   ========================================================= */
+body.app-mode {
+  background-color: #f0f6ff !important;
+  color: #000000 !important;
+}
+
+body.app-mode #appShell,
+#appShell {
+  background: #f0f6ff !important;
+  color: #000000 !important;
+}
+
+.auth-split-wrap {
+  background: #f8fafc !important;
+}
+.auth-left-col {
+  background: #ffffff !important;
+  box-shadow: 0 10px 30px rgba(0, 50, 150, 0.05);
+}
+.auth-brand-logo {
+  color: #0070f3 !important;
+}
+.auth-title {
+  color: #0070f3 !important;
+}
+.auth-sub {
+  color: #000000 !important;
+  font-weight: 500;
+}
+.auth-form-card label {
+  color: #000000 !important;
+  font-weight: 600;
+}
+.auth-form-card input {
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #000000 !important;
+}
+.sso-btn {
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  color: #000000 !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+.auth-right-col {
+  background: radial-gradient(circle at 60% 40%, rgba(0, 112, 243, 0.08) 0%, #f0f6ff 70%) !important;
+}
+.auth-illus-mockup {
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  box-shadow: 0 16px 36px rgba(0, 50, 150, 0.08) !important;
+}
+.auth-illus-card h3 {
+  color: #0070f3 !important;
+}
+.auth-illus-card p {
+  color: #000000 !important;
+  font-weight: 500;
+}
+
+/* Sidebar & Topbar */
+.app-sidebar {
+  background: #ffffff !important;
+  border-right: 1.5px solid #e2e8f0 !important;
+}
+.sidebar-logo {
+  color: #0070f3 !important;
+}
+.sidebar-nav-item {
+  color: #000000 !important;
+  font-weight: 600;
+}
+.sidebar-nav-item:hover {
+  background: rgba(0, 112, 243, 0.05) !important;
+  color: #0070f3 !important;
+}
+.sidebar-nav-item.active {
+  background: rgba(0, 112, 243, 0.1) !important;
+  color: #0070f3 !important;
+  border-left-color: #0070f3 !important;
+}
+.app-topbar {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-bottom: 1.5px solid #e2e8f0 !important;
+}
+.topbar-search-box input {
+  background: #f8fafc !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #000000 !important;
+}
+
+/* Cards & Tables */
+.app-card, .dash-card, .table-card, .stat-card, .links-table-card {
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 24px rgba(0, 50, 150, 0.05) !important;
+  color: #000000 !important;
+}
+.app-card h2, .app-card h3, .dash-card h2, .dash-card h3, .stat-card h3 {
+  color: #0070f3 !important;
+}
+.links-table th {
+  background: #f8fafc !important;
+  color: #0070f3 !important;
+  border-bottom: 1.5px solid #e2e8f0 !important;
+}
+.links-table td {
+  color: #000000 !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+/* Buttons in App Shell always have white text */
+.sidebar-create-btn,
+.auth-submit-btn,
+.btn-primary,
+.app-btn-primary {
+  background: #0070f3 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+.sidebar-create-btn *,
+.auth-submit-btn *,
+.btn-primary *,
+.app-btn-primary * {
+  color: #ffffff !important;
 }
