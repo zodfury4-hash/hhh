@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="logo.png">
-  <link rel="stylesheet" href="style.css?v=1793812732501">
+  <link rel="stylesheet" href="style.css?v=1793817267691">
   <link rel="stylesheet" href="app-shell.css?v=1793812732501">
 </head>
 <body>
@@ -134,7 +134,7 @@
       <div class="hero-col-right">
         <div class="cyber-stage-container" id="cyberStage">
           <!-- Floating HUD Card 1: Real-time Analytics -->
-          <div class="hud-card hud-analytics float-anim-1">
+          <div class="hud-card hud-analytics">
             <div class="hud-icon chart-icon">
               <span class="chart-bar b1"></span>
               <span class="chart-bar b2"></span>
@@ -147,7 +147,7 @@
           </div>
 
           <!-- Floating HUD Card 2: Create QR Codes -->
-          <div class="hud-card hud-qr float-anim-2">
+          <div class="hud-card hud-qr">
             <div class="hud-qr-thumb">
               <canvas id="stageQrMini" width="48" height="48"></canvas>
             </div>
@@ -158,7 +158,7 @@
           </div>
 
           <!-- Floating HUD Card 3: Track Clicks -->
-          <div class="hud-card hud-clicks float-anim-3">
+          <div class="hud-card hud-clicks">
             <div class="hud-icon users-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0070f3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
             <div class="hud-info">
               <div class="hud-label">Track</div>
@@ -166,9 +166,12 @@
             </div>
           </div>
 
-          <!-- 3D WebGL Canvas for Glowing Chain Links & Cyber Pedestal Stage -->
-          <div class="cyber-canvas-wrap">
-            <canvas id="chain3dCanvas"></canvas>
+          <!-- Static High-Clarity 3D Infinity Hero Visual (No Animation, 100% Crisp) -->
+          <div class="cyber-canvas-wrap cyber-img-wrap">
+            <picture>
+              <source srcset="images/hero-infinity-hd.webp" type="image/webp">
+              <img src="images/hero-infinity-hd.png" alt="HEA Link 3D Blue Infinity" class="hero-infinity-img" width="560" height="274" loading="eager" decoding="async">
+            </picture>
           </div>
         </div>
       </div>
@@ -1603,8 +1606,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script src="firebase-config.js?v=3"></script>
-<script src="heavy-fx.js?v=1793812732501"></script>
+<script src="heavy-fx.js?v=1793817267691"></script>
 <script src="app-shell.js?v=1793812732501"></script>
-<script src="app.js?v=1793812732501"></script>
+<script src="app.js?v=1793817267691"></script>
 </body>
 </html>

@@ -583,16 +583,16 @@
      Matches media_1793564494242_dc725741.png
      --------------------------------------------------------- */
   function init3DCyberChainStage() {
-    const canvas = document.getElementById('chain3dCanvas');
-    if (!canvas || typeof THREE === 'undefined') return;
-
-    // Mini QR inside HUD card
+    // Draw mini QR code on the static HUD card
     setTimeout(() => {
       const miniCv = document.getElementById('stageQrMini');
       if (miniCv && typeof window.drawQR === 'function') {
         window.drawQR(miniCv, 'https://healink.store', '#0070f3', '#ffffff', 48);
       }
     }, 200);
+
+    const canvas = document.getElementById('chain3dCanvas');
+    if (!canvas || typeof THREE === 'undefined') return;
 
     const wrap = canvas.parentElement;
     if (!wrap) return;
