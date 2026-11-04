@@ -3410,6 +3410,7 @@ Here are recommended optimizations for your links and campaigns:<br>
     if (logoutBtn) {
       logoutBtn.onclick = () => {
         try {
+          sessionStorage.removeItem('hea_session');
           localStorage.removeItem('hea_session');
         } catch (e) {}
         if (typeof session !== 'undefined') session = null;
@@ -3417,7 +3418,7 @@ Here are recommended optimizations for your links and campaigns:<br>
         const as = $('#appShell');
         if (as) as.hidden = true;
         if (typeof renderNavRight === 'function') renderNavRight();
-        location.hash = '#home';
+        location.hash = '#login';
         toast('Logged out successfully');
       };
     }

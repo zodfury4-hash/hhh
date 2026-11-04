@@ -25,13 +25,35 @@ const store = {
   }
 };
 
+// Session store: uses sessionStorage so user is logged out when tab/browser closes
+const sessionStore = {
+  get(k, d) {
+    try {
+      const v = JSON.parse(sessionStorage.getItem(k));
+      return v ?? d;
+    } catch (e) {
+      return d;
+    }
+  },
+  set(k, v) {
+    try {
+      if (v === null) {
+        sessionStorage.removeItem(k);
+        localStorage.removeItem(k);
+      } else {
+        sessionStorage.setItem(k, JSON.stringify(v));
+      }
+    } catch (e) {}
+  }
+};
+
 const DOMAIN = 'tinyurl.com';
 let links = store.get('hea_links', []);
-let session = store.get('hea_session', null);
+// Load session from sessionStorage only (auto-cleared on tab/browser close)
+let session = sessionStore.get('hea_session', null);
 if (session && (!session.isVerified || session.email === 'john@example.com')) {
   session = null;
-  store.set('hea_session', null);
-  try { localStorage.removeItem('hea_session'); } catch (e) {}
+  sessionStore.set('hea_session', null);
 }
 let bios = store.get('hea_bios', []);
 const saveLinks = () => {
@@ -1139,13 +1161,13 @@ function renderNavRight() {
   if (lo) {
     lo.onclick = () => {
       session = null;
-      store.set('hea_session', null);
+      sessionStore.set('hea_session', null);
       document.body.classList.remove('app-mode');
       const as = $('#appShell');
       if (as) as.hidden = true;
       renderNavRight();
       updateHomeCtaForAuth();
-      location.hash = '#home';
+      location.hash = '#login';
       toast('Logged out successfully');
     };
   }
@@ -1712,8 +1734,7 @@ function setupSsoButtons() {
           finalUser.isVerified = true;
 
           session = finalUser;
-          store.set('hea_session', finalUser);
-          try { localStorage.setItem('hea_session', JSON.stringify(finalUser)); } catch (e) {}
+          sessionStore.set('hea_session', finalUser);
 
           if (window.appShell && typeof window.appShell.setAppUser === 'function') {
             window.appShell.setAppUser(finalUser);
@@ -1727,7 +1748,7 @@ function setupSsoButtons() {
 
           location.hash = '#dashboard';
           if (window.appShell && typeof window.appShell.navigate === 'function') {
-            window.appShell.navigate('home');
+            window.appShell.navigate('dashboard');
           }
           if (typeof route === 'function') {
             route();
@@ -1862,10 +1883,7 @@ function setupSsoButtons() {
         };
 
         session = aUser;
-        store.set('hea_session', aUser);
-        try {
-          localStorage.setItem('hea_session', JSON.stringify(aUser));
-        } catch (e) {}
+        sessionStore.set('hea_session', aUser);
 
         if (window.appShell && typeof window.appShell.setAppUser === 'function') {
           window.appShell.setAppUser(aUser);
@@ -1878,7 +1896,7 @@ function setupSsoButtons() {
 
         location.hash = '#dashboard';
         if (window.appShell && typeof window.appShell.navigate === 'function') {
-          window.appShell.navigate('home');
+          window.appShell.navigate('dashboard');
         }
 
         toast('✅ Successfully signed in with Apple ID!');
@@ -2027,7 +2045,7 @@ $('#authForm').onsubmit = async e => {
             city: backendRes.data.user.city || 'New York',
             isp: backendRes.data.user.isp || 'Global Internet'
           };
-          store.set('hea_session', session);
+          sessionStore.set('hea_session', session);
           if (window.appShell && typeof window.appShell.setAppUser === 'function') {
             window.appShell.setAppUser(session);
           }
@@ -2038,7 +2056,7 @@ $('#authForm').onsubmit = async e => {
           if (as) as.hidden = false;
           location.hash = '#dashboard';
           if (window.appShell && typeof window.appShell.navigate === 'function') {
-            window.appShell.navigate('home');
+            window.appShell.navigate('dashboard');
           }
           toast(`Welcome back, ${session.name}!`);
           return;
