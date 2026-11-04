@@ -1,0 +1,455 @@
+{
+  "_meta": {
+    "version": "1.0.0",
+    "locale": "en",
+    "language": "English",
+    "description": "Master localization dictionary for HEA Link platform and dashboard"
+  },
+  "common": {
+    "brand_name": "HEA Link",
+    "brand_tagline": "The Modern SaaS Link Management & Dynamic QR Platform",
+    "actions": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "copy": "Copy",
+      "close": "Close",
+      "download": "Download",
+      "export": "Export",
+      "connect": "Connect",
+      "install": "Install",
+      "back": "Back",
+      "back_to_dashboard": "← Back to Dashboard",
+      "upgrade_to_pro": "⚡ Upgrade to Pro Now",
+      "view_plans": "View our plans",
+      "learn_more": "Learn more →",
+      "submit": "Submit",
+      "search": "Search",
+      "filter": "Filter",
+      "apply": "Apply"
+    },
+    "status": {
+      "active": "Active",
+      "locked": "Locked",
+      "pro_feature": "Exclusive Pro Feature",
+      "recommended": "RECOMMENDED",
+      "new": "New",
+      "recent": "Recent",
+      "just_now": "Just now"
+    }
+  },
+  "landing": {
+    "navigation": {
+      "platform": "Platform",
+      "ai": "AI",
+      "solutions": "Solutions",
+      "resources": "Resources",
+      "pricing": "Pricing",
+      "login": "Log in",
+      "signup_free": "Sign up free →"
+    },
+    "mega_menu": {
+      "products_heading": "PRODUCTS",
+      "products": {
+        "url_shortener": {
+          "title": "URL SHORTENER",
+          "desc": "Customize, share and track links"
+        },
+        "qr_code_generator": {
+          "title": "QR CODE GENERATOR",
+          "desc": "Dynamic solutions to fit every business need"
+        },
+        "pages_bio": {
+          "title": "PAGES & BIO",
+          "desc": "Curate and track links for social media profiles"
+        },
+        "analytics": {
+          "title": "ANALYTICS",
+          "desc": "A central place to track performance of all links"
+        }
+      },
+      "features_heading": "FEATURES",
+      "features": {
+        "link_in_bio": {
+          "title": "LINK-IN-BIO",
+          "desc": "Curate and track content for social profiles"
+        },
+        "branded_links": {
+          "title": "BRANDED LINKS",
+          "desc": "Customize links with your brand's URL"
+        },
+        "mobile_links": {
+          "title": "MOBILE LINKS",
+          "desc": "Short links optimized for SMS messages"
+        },
+        "utm_campaigns": {
+          "title": "UTM CAMPAIGNS",
+          "desc": "Track links with custom UTM parameters"
+        },
+        "digital_business_cards": {
+          "title": "DIGITAL BUSINESS CARDS",
+          "desc": "Grow your network with virtual cards"
+        },
+        "two_d_barcodes": {
+          "title": "2D BARCODES",
+          "desc": "Add GTIN to packaging QR codes"
+        }
+      },
+      "ecosystem": {
+        "title": "FEATURED ECOSYSTEM",
+        "see_integrations": "See 100+ integrations →",
+        "api_docs": "API & DOCUMENTATION",
+        "trust_center": "TRUST CENTER"
+      }
+    },
+    "hero": {
+      "title_line1": "Short links & URLs, QR",
+      "title_line2": "codes & bio pages",
+      "title_highlight": "all in one place",
+      "subtitle": "Create branded short links and scalable QR codes, then see exactly who clicks.",
+      "tabs": {
+        "short_link": "Short link & URL",
+        "qr_code": "QR code",
+        "bulk_shorten": "Bulk shorten"
+      },
+      "shorten_box": {
+        "placeholder": "Enter or paste your destination link (e.g. https://",
+        "button": "Shorten link →",
+        "custom_domain_label": "Domain:",
+        "custom_slug_placeholder": "custom-back-half (optional)"
+      },
+      "floating_badges": {
+        "real_time_analytics": "Real-time Analytics",
+        "analytics_growth": "+245%",
+        "create_qr": "Create QR Codes",
+        "track_clicks": "Track Clicks"
+      }
+    },
+    "skipper_slider": {
+      "slide_bio": {
+        "badge": "MOBILE EXPERIENCE",
+        "title": "Link-in-Bio Social Showcases",
+        "desc": "Curate all your products, socials, and campaigns onto one mobile-first glassmorphic bio page with live themes, click tracking, and verified badges.",
+        "stat_1_val": "100%",
+        "stat_1_lbl": "Mobile First",
+        "stat_2_val": "Themes",
+        "stat_2_lbl": "Light SaaS Glass",
+        "stat_3_val": "Instant",
+        "stat_3_lbl": "Live Publishing",
+        "cta": "Create Bio Page"
+      },
+      "slide_qr": {
+        "badge": "DYNAMIC QR ENGINE",
+        "title": "Vector QR Codes with Embedded Logos",
+        "desc": "Generate high-resolution SVG and PNG QR codes with customizable brand colors, custom frames, scan counters, and real-time destination editing.",
+        "stat_1_val": "4K",
+        "stat_1_lbl": "Vector Quality",
+        "stat_2_val": "Dynamic",
+        "stat_2_lbl": "Edit Anytime",
+        "stat_3_val": "Scans",
+        "stat_3_lbl": "Real-time Metrics",
+        "cta": "Design QR Code"
+      },
+      "slide_analytics": {
+        "badge": "CLICK TELEMETRY",
+        "title": "Granular Click & Device Analytics",
+        "desc": "Gain deep visibility into visitor locations, referrers, devices, and browser types across every shared link without compromising visitor privacy.",
+        "stat_1_val": "0ms",
+        "stat_1_lbl": "Redirect Latency",
+        "stat_2_val": "Geo",
+        "stat_2_lbl": "City & Country",
+        "stat_3_val": "100%",
+        "stat_3_lbl": "GDPR Compliant",
+        "cta": "Explore Insights"
+      }
+    },
+    "pricing_section": {
+      "title": "Predictable plans that scale with your links",
+      "subtitle": "Choose the right plan for your personal brand or growing business.",
+      "billing_monthly": "Monthly Billing",
+      "billing_annual": "Annual Billing",
+      "save_badge": "Save 20%",
+      "plans": {
+        "growth": {
+          "name": "Growth",
+          "price_monthly": "$8",
+          "price_annual": "$6.40",
+          "period": "/mo",
+          "desc": "For growing creators & social marketers",
+          "features": [
+            "500 Short Links / month",
+            "10 Dynamic Vector QR Codes",
+            "Basic Click & Geo Analytics",
+            "Standard Redirection Speed",
+            "Email Support"
+          ],
+          "cta": "Get Started"
+        },
+        "pro": {
+          "badge": "RECOMMENDED",
+          "name": "Core PRO",
+          "price_monthly": "$35",
+          "price_annual": "$28",
+          "period": "/mo",
+          "desc": "Everything unlimited + Custom Branded Domains",
+          "features": [
+            "Unlimited Short Links",
+            "Unlimited 4K Vector QR Codes",
+            "Custom Branded Domains (SSL incl.)",
+            "12 Mobile Bio Page Templates",
+            "Deep UTM Parameter Builder",
+            "Geo & Device Dynamic Routing",
+            "Export Reports (CSV & PDF)",
+            "Priority 24/7 Support"
+          ],
+          "cta": "Upgrade to Pro"
+        },
+        "enterprise": {
+          "name": "Enterprise",
+          "price_monthly": "$199",
+          "price_annual": "$159",
+          "period": "/mo",
+          "desc": "Dedicated infrastructure & custom SLAs",
+          "features": [
+            "Everything in Core PRO",
+            "Multiple Custom Domains",
+            "Single Sign-On (SAML / Okta)",
+            "Custom Webhooks & REST API",
+            "99.99% Uptime Guarantee SLA",
+            "Dedicated Account Manager"
+          ],
+          "cta": "Contact Sales"
+        }
+      }
+    },
+    "footer": {
+      "copyright": "© 2026 HEA Link Inc. All rights reserved.",
+      "links": {
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service",
+        "security": "Security",
+        "cookies": "Cookie Settings",
+        "status": "System Status"
+      }
+    }
+  },
+  "dashboard": {
+    "sidebar": {
+      "home": "Home",
+      "links": "Links",
+      "qr_codes": "QR Codes",
+      "link_in_bio": "Pages & Bio",
+      "analytics": "Analytics",
+      "campaigns": "Campaigns",
+      "custom_domains": "Custom Domains",
+      "integrations": "Integrations",
+      "settings": "Settings",
+      "collapse_btn_title": "Collapse sidebar",
+      "create_new_btn": "+ Create new"
+    },
+    "topbar": {
+      "search_placeholder": "Search links, codes, campaigns, or domains...",
+      "upgrade_btn": "👑 Upgrade to PRO",
+      "notifications": "Notifications",
+      "help": "Help & Docs",
+      "profile": "My Profile",
+      "sign_out": "Sign out"
+    },
+    "home": {
+      "welcome_banner": {
+        "simplify_title": "Simplify your workflow",
+        "simplify_desc": "Explore smarter ways to create links.",
+        "chip_personalize": "🔗 Personalize a short link",
+        "chip_unique_post": "⭐ Make a unique link for every post"
+      },
+      "connect_account": {
+        "title": "Connect your account",
+        "sub": "Recommended for you",
+        "explore_integrations": "Explore Integrations →",
+        "chrome_ext": {
+          "title": "Chrome Extension",
+          "desc": "Instant links and QR Codes from anywhere",
+          "btn": "Install"
+        },
+        "canva": {
+          "title": "Canva",
+          "desc": "Popular pick in productivity and design",
+          "btn": "Connect"
+        },
+        "shopify": {
+          "title": "Shopify",
+          "desc": "Auto-attribute orders to specific links",
+          "btn": "Connect"
+        }
+      },
+      "getting_started": {
+        "title": "get started with HEA Link",
+        "step1": "Shorten a URL",
+        "step1_btn": "🔗 Let's make a link",
+        "step2": "Collect 10 clicks or scans",
+        "step3": "Analytics preview"
+      },
+      "recent_links": {
+        "title": "Recent links",
+        "sub": "Your active links and real-time performance",
+        "view_all": "View all links →",
+        "empty_title": "No short links created yet",
+        "empty_desc": "Paste a destination URL above to create your first short link & track clicks in real-time.",
+        "empty_btn": "Create your first link ↑"
+      }
+    },
+    "links": {
+      "title": "Links",
+      "create_btn": "Create link",
+      "search_placeholder": "Search links by title, slug, tag, or destination...",
+      "all_tags": "All tags",
+      "empty": "No links created yet. Click 'Create link' to shorten your first URL!",
+      "copy_btn": "📋 Copy",
+      "qr_btn": "▦ QR",
+      "delete_btn": "Delete link"
+    },
+    "qr_codes": {
+      "title": "QR Codes",
+      "view_all": "View All Codes",
+      "empty_title": "Connect your audience with a simple scan",
+      "empty_desc": "Create a QR Code from any short link. Then edit, customize, and track your QR Codes here.",
+      "empty_btn": "Create a HEA Code",
+      "scan_me": "SCAN ME",
+      "filter_show_active": "Show: Active",
+      "end_of_codes": "— You've reached the end of your QR codes —",
+      "create_view": {
+        "title": "Create a QR Code",
+        "details_title": "QR Code Details",
+        "dest_label": "Destination URL",
+        "dest_placeholder": "https://yourstore.com/summer-promo",
+        "title_label": "Title (optional)",
+        "title_placeholder": "e.g. Table 4 Menu or Conference Flyer",
+        "advanced_settings": "Advanced settings",
+        "utm_label": "{ } UTM parameters 👑"
+      },
+      "detail_view": {
+        "details": "Details",
+        "scan_dest": "Scan destination",
+        "website_url": "🌐 Website / URL",
+        "destination": "Destination",
+        "short_link": "Short link",
+        "tags": "Tags",
+        "created_on": "Created on",
+        "brand_color": "Brand Color:",
+        "customize_btn": "🎨 Customize frame & colors",
+        "dynamic_routing": "Dynamic routing",
+        "dynamic_routing_desc": "Automatically route visitors to different destinations based on device, location, and more.",
+        "add_rules_btn": "+ Add rules",
+        "code_analytics": "Code analytics",
+        "scans_over_time": "Scans over time",
+        "download_png": "📥 Download PNG",
+        "download_svg": "📐 Download SVG"
+      }
+    },
+    "bio_pages": {
+      "title": "Link-in-Bio Pages",
+      "create_btn": "+ Create Page",
+      "empty_title": "No bio pages created yet",
+      "empty_desc": "Build a single high-converting mobile bio page to showcase all your links, social media profiles, and offers.",
+      "empty_btn": "+ Choose a Template",
+      "template_catalog_title": "Choose a Template to Start",
+      "use_template": "Use this template →",
+      "editor": {
+        "page_url": "Page URL",
+        "custom_domain_banner": "Brand your page with a custom domain.",
+        "page_content": "Page Content Details",
+        "qr_code": "QR Code",
+        "code_color": "Code color",
+        "logo": "Logo",
+        "add_logo_btn": "Add Logo 👑",
+        "preview": "Preview",
+        "preview_note": "More customizations are available after creating"
+      }
+    },
+    "analytics": {
+      "title": "Analytics Overview",
+      "metric_links": "TOTAL SHORTENED LINKS",
+      "metric_links_note": "🟢 Active & tracked in MongoDB",
+      "metric_clicks": "TOTAL LIVE CLICKS",
+      "metric_clicks_note": "↗ Real-time click tracking",
+      "metric_scans": "TOTAL QR SCANS",
+      "metric_scans_note": "📱 Dynamic code scans",
+      "step1_title": "Create links and codes",
+      "step1_desc": "Transform any long URL into a short, trackable link or QR Code. It's quick, easy, and takes seconds.",
+      "step1_btn": "Create a link →",
+      "step2_title": "Share them anywhere",
+      "step2_desc": "Post on social, include in emails, or share however you want. Every click is tracked in real-time.",
+      "step2_btn": "Tips to drive engagement →",
+      "step3_title": "Come back for insights",
+      "step3_desc": "Bring your analytics to life—from weekly insights to detailed dashboards about clicks and audience.",
+      "step3_btn": "Export report 📥",
+      "top_channels_title": "Top Traffic Channels",
+      "device_split_title": "Device & Platform Split",
+      "channel_direct": "Direct / SMS / WhatsApp",
+      "channel_social": "Instagram & Threads",
+      "channel_search": "Google Search",
+      "device_mobile": "Mobile (iOS & Android)",
+      "device_desktop": "Desktop (Windows & Mac)",
+      "device_tablet": "Tablet"
+    },
+    "campaigns": {
+      "title": "Campaigns",
+      "new_btn": "+ New Campaign",
+      "hero_title": "Some links belong together",
+      "hero_desc": "Organize your links in HEA Campaigns and compare performance across channels. Available on the Premium plan."
+    },
+    "integrations": {
+      "title": "Integrations",
+      "manage_link": "Manage my integrations",
+      "shopify_banner": {
+        "title": "Automatically attribute orders to specific HEA links",
+        "desc": "Shorten links to products, collections, and more directly from Shopify to identify which campaigns generate real ROI.",
+        "btn": "Install Shopify app"
+      }
+    },
+    "settings": {
+      "title": "Settings",
+      "personal_settings": "Personal settings",
+      "profile": "Profile",
+      "integrations": "Integrations",
+      "account_settings": "Account settings",
+      "account_details": "Account details",
+      "billing_usage": "Billing and usage",
+      "users": "Users",
+      "groups": "Groups",
+      "sso": "Single sign-on",
+      "account_discovery": "Account discovery",
+      "mobile_deep_links": "Mobile deep links"
+    },
+    "pro_lock_screen": {
+      "pill": "EXCLUSIVE PRO FEATURE",
+      "is_locked": "{feature} is locked",
+      "pages_desc": "Free plan does not include custom landing pages or link-in-bio builders. Upgrade to HEA Link Pro to unlock all 12 mobile templates, custom branding, and social showcases!",
+      "domains_desc": "Free plan does not include custom domains. Connect your own brand URL (e.g. brand.link/drop) to increase trust and clicks by 2x. Upgrade to Pro!",
+      "upgrade_btn": "⚡ Upgrade to Pro Now",
+      "back_btn": "← Back to Dashboard"
+    }
+  },
+  "checkout_modal": {
+    "title": "Upgrade to HEA Link PRO",
+    "sub": "Unlock unlimited short links, custom domains, and 4K vector QR codes.",
+    "billing_toggle": {
+      "monthly": "Monthly Billing",
+      "annual": "Annual Billing",
+      "save": "Save 20%"
+    },
+    "form": {
+      "full_name": "Full Name",
+      "full_name_placeholder": "Alex Morgan",
+      "work_email": "Work Email",
+      "work_email_placeholder": "alex@yourbrand.com",
+      "card_info": "Card Information",
+      "card_placeholder": "4242 •••• •••• 4242",
+      "exp_date": "MM / YY",
+      "cvc": "CVC",
+      "guarantee": "🔒 Encrypted with 256-Bit SSL • 14-day money-back guarantee • Cancel anytime",
+      "submit_btn": "⚡ Activate PRO Plan Instantly"
+    }
+  }
+}

@@ -324,8 +324,8 @@ section[data-page="app"][hidden] {
   font-size: 12px;
 }
 .sidebar-collapse-btn:hover {
-  background: #e2e8f0;
-  color: #ffffff;
+  background: #eff6ff;
+  color: #0070f3;
 }
 
 /* "Create new" button */
@@ -374,14 +374,14 @@ section[data-page="app"][hidden] {
   border-left: 3px solid transparent;
 }
 .sidebar-nav-item:hover {
-  background: #f8fafc;
-  color: #ffffff;
+  background: #eff6ff;
+  color: #0070f3;
 }
 .sidebar-nav-item.active {
-  background: rgba(0, 102, 255, 0.15);
-  color: #38bdf8;
+  background: #eff6ff;
+  color: #0070f3;
   font-weight: 700;
-  border-left-color: #38bdf8;
+  border-left-color: #0070f3;
 }
 .sidebar-nav-icon {
   font-size: 16px;
@@ -1405,7 +1405,7 @@ section[data-page="app"][hidden] {
 .settings-subsidebar-group h5 {
   font-size: 12px;
   font-weight: 700;
-  color: #ffffff;
+  color: #0070f3 !important;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin: 0 0 8px;
@@ -1413,20 +1413,23 @@ section[data-page="app"][hidden] {
 .settings-subsidebar-link {
   display: block;
   padding: 8px 12px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 14px;
-  color: #000000;
+  color: #0b132b !important;
   text-decoration: none;
   cursor: pointer;
+  font-weight: 600;
+  transition: all 0.15s ease;
 }
 .settings-subsidebar-link:hover {
-  background: #f8fafc;
-  color: #ffffff;
+  background: #eff6ff !important;
+  color: #0070f3 !important;
 }
 .settings-subsidebar-link.active {
-  background: rgba(0, 102, 255, 0.15);
-  color: #38bdf8;
-  font-weight: 700;
+  background: #eff6ff !important;
+  color: #0070f3 !important;
+  font-weight: 700 !important;
+  border-left: 3px solid #0070f3 !important;
 }
 
 .settings-main-panel {
@@ -1576,8 +1579,8 @@ section[data-page="app"][hidden] {
   transition: all 0.15s ease;
 }
 .sidebar-collapse-btn:hover {
-  background: #cbd5e1;
-  color: #ffffff;
+  background: #eff6ff;
+  color: #0070f3;
 }
 .app-sidebar.collapsed {
   width: 68px !important;
@@ -1744,7 +1747,7 @@ section[data-page="app"][hidden] {
 .settings-email-table td {
   padding: 14px;
   font-size: 14px;
-  color: #ffffff;
+  color: #0b132b !important;
   border-bottom: 1px solid #e2e8f0;
 }
 
@@ -1803,7 +1806,7 @@ section[data-page="app"][hidden] {
   margin-bottom: 14px;
 }
 .verify-target-email {
-  color: #ffffff;
+  color: #0070f3 !important;
   font-weight: 700;
   word-break: break-all;
 }

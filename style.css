@@ -1279,8 +1279,8 @@ input[type=color] {
   white-space: nowrap;
 }
 #heroTabs button:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.05);
+  color: #0070f3;
+  background: #eff6ff;
 }
 #heroTabs button.on {
   background: linear-gradient(135deg, #0070f3, #00c6ff) !important;
@@ -1508,7 +1508,7 @@ input[type=color] {
   transition: color 0.2s;
 }
 .bulk-sample-btn:hover {
-  color: #ffffff;
+  color: #0070f3;
 }
 .bulk-submit-row {
   display: flex;
