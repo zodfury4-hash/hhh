@@ -302,12 +302,14 @@ function createLink({ url, slug, tag, expires, realShort }, editing) {
     id: rand(6) + Date.now().toString(36),
     slug,
     url: dest,
-    tag: (tag || '').trim(),
+    dest: dest,
+    title: (tag || '').trim() || 'Untitled Link',
+    tag: (tag || '').trim() || 'Website',
     expires: expires || '',
     created: Date.now(),
     owner: owner(),
     realShort: realShort || null,
-    clicks: []
+    clicks: 0
   };
 
   links.unshift(link);
@@ -321,14 +323,19 @@ const device = () =>
   /mobi|android|iphone/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop';
 
 function recordClick(l, extra = {}) {
-  if (!l || !l.clicks) return;
-  const region = ((navigator.language || '').split('-')[1] || 'US').toUpperCase();
-  l.clicks.push(Object.assign({
-    t: Date.now(),
-    d: device(),
-    r: document.referrer ? new URL(document.referrer).hostname : 'Direct',
-    c: region
-  }, extra));
+  if (!l) return;
+  if (Array.isArray(l.clicks)) {
+    const region = ((navigator.language || '').split('-')[1] || 'US').toUpperCase();
+    l.clicks.push(Object.assign({
+      t: Date.now(),
+      d: device(),
+      r: document.referrer ? new URL(document.referrer).hostname : 'Direct',
+      c: region
+    }, extra));
+  } else {
+    const cur = typeof l.clicks === 'number' ? l.clicks : 0;
+    l.clicks = cur + 1;
+  }
   saveLinks();
 }
 

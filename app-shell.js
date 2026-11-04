@@ -158,12 +158,46 @@
 
   function getStoredLinks() {
     try {
-      const s = localStorage.getItem('hea_links');
-      if (s) {
-        let p = JSON.parse(s);
+      const raw = localStorage.getItem('hea_links');
+      if (raw) {
+        let p = JSON.parse(raw);
         if (Array.isArray(p)) {
-          // Remove legacy dummy/sample links so dashboard stays 100% clean
+          let dirty = false;
+          // Filter legacy sample links
           p = p.filter(l => l && l.id !== 'lnk_1' && l.id !== 'lnk_2' && !(l.dest && l.dest.includes('claude.ai')) && !(l.dest && l.dest.includes('summer-drop-2026')));
+          p.forEach(l => {
+            if (!l) return;
+            // Clean clicks to always be a safe integer count (never [object Object])
+            if (Array.isArray(l.clicks)) {
+              l.clicks = l.clicks.length;
+              dirty = true;
+            } else if (typeof l.clicks !== 'number') {
+              const num = parseInt(l.clicks, 10);
+              l.clicks = isNaN(num) ? 0 : num;
+              dirty = true;
+            }
+            if (typeof l.scans !== 'number') {
+              const num = parseInt(l.scans, 10);
+              l.scans = isNaN(num) ? 0 : num;
+              dirty = true;
+            }
+            // Normalize dest and url so ↳ undefined never appears
+            if (!l.dest && l.url) {
+              l.dest = l.url;
+              dirty = true;
+            }
+            if (!l.url && l.dest) {
+              l.url = l.dest;
+              dirty = true;
+            }
+            if (!l.title) {
+              l.title = 'Untitled Link';
+              dirty = true;
+            }
+          });
+          if (dirty) {
+            try { localStorage.setItem('hea_links', JSON.stringify(p)); } catch (e) {}
+          }
           return p;
         }
       }
@@ -456,7 +490,7 @@
                 </div>
                 <div style="display:flex;align-items:center;gap:16px;flex-shrink:0;">
                   <div style="text-align:right;">
-                    <b style="color:#10b981;font-size:14px;">${l.clicks || 0}</b>
+                    <b style="color:#10b981;font-size:14px;">${typeof l.clicks === 'number' ? l.clicks : (Array.isArray(l.clicks) ? l.clicks.length : 0)}</b>
                     <span style="font-size:11px;color:#94a3b8;display:block;">clicks</span>
                   </div>
                   <button class="sso-btn" style="width:auto;padding:6px 12px;font-size:12px;" onclick="window.appShell.copy('${l.url}')">📋 Copy</button>
@@ -855,10 +889,10 @@
               </div>
               <h4 style="margin:0 0 4px;font-size:16px;color:#ffffff;">${l.title || 'Untitled Link'}</h4>
               <a href="${liveUrl}" target="_blank" rel="noopener" style="color:#38bdf8;font-weight:700;font-size:14px;text-decoration:none;" title="Click to visit original destination">${liveUrl} ↗</a>
-              <div style="font-size:13px;color:#94a3b8;margin-top:4px;">↳ <a href="${l.dest}" target="_blank" rel="noopener" style="color:#94a3b8;text-decoration:none;">${l.dest}</a></div>
+              ${(l.dest && l.dest !== liveUrl) ? `<div style="font-size:13px;color:#94a3b8;margin-top:4px;">↳ <a href="${l.dest}" target="_blank" rel="noopener" style="color:#94a3b8;text-decoration:none;">${l.dest}</a></div>` : ''}
             </div>
             <div style="display:flex;align-items:center;gap:12px;">
-              <span style="font-size:13px;font-weight:700;color:#10b981;">${l.clicks || 0} clicks</span>
+              <span style="font-size:13px;font-weight:700;color:#10b981;">${typeof l.clicks === 'number' ? l.clicks : (Array.isArray(l.clicks) ? l.clicks.length : 0)} clicks</span>
               <button class="sso-btn" style="width:auto;padding:6px 12px;font-size:12px;" onclick="window.appShell.copy('${liveUrl}')">📋 Copy</button>
               <button class="sso-btn" style="width:auto;padding:6px 12px;font-size:12px;" onclick="window.appShell.navigate('qr-detail', '${l.id || l.slug}')">▦ QR</button>
               <button style="background:none;border:0;color:#ef4444;cursor:pointer;font-size:16px;" onclick="window.appShell.deleteLink('${l.id}', '${l.slug}')" title="Delete link">🗑️</button>
@@ -2282,8 +2316,14 @@
   // ---------------- 7. ANALYTICS SCREEN (Frame 17 Bitly Flow) ---------------- //
   async function renderAnalytics(container) {
     const links = getStoredLinks();
-    let totalClicks = links.reduce((a, l) => a + (l.clicks || 0), 0);
-    let totalScans = links.reduce((a, l) => a + (l.scans || 0), 0);
+    let totalClicks = links.reduce((a, l) => {
+      const c = typeof l.clicks === 'number' ? l.clicks : (Array.isArray(l.clicks) ? l.clicks.length : 0);
+      return a + c;
+    }, 0);
+    let totalScans = links.reduce((a, l) => {
+      const sc = typeof l.scans === 'number' ? l.scans : (parseInt(l.scans, 10) || 0);
+      return a + sc;
+    }, 0);
 
     // Fetch live backend metrics
     try {
@@ -3174,7 +3214,10 @@
     const links = getStoredLinks();
     let csv = 'Slug,Title,Destination,Clicks,Scans,Created\n';
     links.forEach(l => {
-      csv += `"${l.slug}","${(l.title || '').replace(/"/g, '""')}","${(l.dest || '').replace(/"/g, '""')}",${l.clicks || 0},${l.scans || 0},"${l.createdAt || ''}"\n`;
+      const cCount = typeof l.clicks === 'number' ? l.clicks : (Array.isArray(l.clicks) ? l.clicks.length : 0);
+      const sCount = typeof l.scans === 'number' ? l.scans : (parseInt(l.scans, 10) || 0);
+      const targetDest = l.dest || l.url || '';
+      csv += `"${l.slug}","${(l.title || '').replace(/"/g, '""')}","${targetDest.replace(/"/g, '""')}",${cCount},${sCount},"${l.createdAt || ''}"\n`;
     });
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -3259,7 +3302,10 @@
       // 5. Analytics & conversion
       if (/analytic|click|traffic|conversion|stat|how are/i.test(text)) {
         const count = storedLinks.length;
-        const clicks = storedLinks.reduce((acc, l) => acc + (l.clicks || 0), 0);
+        const clicks = storedLinks.reduce((acc, l) => {
+          const c = typeof l.clicks === 'number' ? l.clicks : (Array.isArray(l.clicks) ? l.clicks.length : 0);
+          return acc + c;
+        }, 0);
         return `📊 <b>Your Live Workspace Performance:</b><br><br>
 • Total Active Links: <b>${count}</b><br>
 • Total Recorded Clicks: <b>${clicks}</b><br>
