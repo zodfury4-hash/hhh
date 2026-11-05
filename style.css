@@ -4537,3 +4537,25 @@ input[type="radio"] {
   width: 0 !important;
   height: 0 !important;
 }
+
+
+/* Pricing Plan Cards - Ensure all buttons are clearly visible and styled */
+.plans .card .btn,
+.plans .card .btn.ghost {
+  background: #0070f3 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-weight: 700 !important;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(0, 112, 243, 0.35) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: inline-flex !important;
+}
+.plans .card .btn:hover,
+.plans .card .btn.ghost:hover {
+  background: #005fe0 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  transform: translateY(-2px) !important;
+}

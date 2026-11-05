@@ -2585,7 +2585,7 @@ function initStaticSections() {
 
       </div>
 
-      <button type="button" class="btn ${p[4] ? '' : 'ghost'} wide" style="text-align:center;margin-top:20px;cursor:pointer;" onclick="window.openCheckoutModal('${planKey}')">${p[3]}</button>
+      <button type="button" class="btn wide" style="text-align:center;margin-top:20px;cursor:pointer;" onclick="window.openCheckoutModal('${planKey}')">${p[3]}</button>
 
     </div>
 
