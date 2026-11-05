@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="stylesheet" href="style.css?v=1793895001663">
-  <link rel="stylesheet" href="app-shell.css?v=1793862929680">
+  <link rel="stylesheet" href="app-shell.css?v=1793895960000">
   <script>
     (function() {
       try {
@@ -838,12 +838,13 @@
         <!-- RIGHT HEA ASSIST AI DRAWER (1:1 Exact Reference Match) -->
         <aside class="app-assist-drawer" id="appAssistDrawer" data-lenis-prevent="true">
           <div class="drawer-header">
-            <div class="drawer-title">
+            <div class="drawer-title" id="drawerTitle">
               <span>✨</span> HEA Assist
             </div>
             <button class="drawer-close" id="drawerCloseBtn" aria-label="Close assistant">✕</button>
           </div>
           <div class="drawer-body" data-lenis-prevent="true">
+            <div id="drawerAiContent">
             <!-- Mascot AI Banner Card -->
             <div class="assist-mascot-card">
               <div class="mascot-robot-col">
@@ -920,6 +921,30 @@
             <div class="drawer-chat-log" id="drawerChatLog">
               <div class="drawer-chat-bubble ai">
                 👋 Hi there! I'm HEA Assist. How can I help you optimize your links and campaigns today?
+              </div>
+            </div>
+            </div><!-- /#drawerAiContent -->
+
+            <!-- Settings subsidebar (replaces HEA Assist on Settings page) -->
+            <div id="drawerSettingsContent" class="drawer-settings-nav-wrap" hidden>
+              <div class="settings-subsidebar-group">
+                <h5>PERSONAL SETTINGS</h5>
+                <a class="settings-subsidebar-link active" data-nav="profile">Profile</a>
+                <a class="settings-subsidebar-link" data-nav="integrations" onclick="window.appShell.navigate('integrations')">Integrations</a>
+              </div>
+              <div class="settings-subsidebar-group">
+                <h5 class="settings-group-header-collapsible">
+                  <span>ACCOUNT SETTINGS</span>
+                  <span class="settings-group-arrow">▲</span>
+                </h5>
+                <div class="settings-org-id-badge" id="settingsOrgBadge">hea-org-default</div>
+                <a class="settings-subsidebar-link" data-nav="account-details">Account details</a>
+                <a class="settings-subsidebar-link" data-nav="billing" onclick="location.hash='#pricing'">Billing and usage</a>
+                <a class="settings-subsidebar-link" data-nav="users">Users</a>
+                <a class="settings-subsidebar-link" data-nav="groups">Groups</a>
+                <a class="settings-subsidebar-link" data-nav="sso">Single sign-on</a>
+                <a class="settings-subsidebar-link" data-nav="discovery">Account discovery</a>
+                <a class="settings-subsidebar-link" data-nav="deeplinks">Mobile deep links</a>
               </div>
             </div>
           </div>
@@ -1729,7 +1754,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script src="firebase-config.js?v=4"></script>
 <script src="heavy-fx.js?v=1793892314464"></script>
-<script src="app-shell.js?v=1793862275454"></script>
+<script src="app-shell.js?v=1793895960000"></script>
 <script src="app.js?v=1793895001663"></script>
 </body>
 </html>

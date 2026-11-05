@@ -514,14 +514,8 @@
 
     activeTab = tab;
 
-    // Auto-close HEA Assist drawer on settings page or mobile navigation
-    const drawerEl = $('#appAssistDrawer');
-    if (drawerEl) {
-      if (tab === 'settings' || window.innerWidth <= 768) {
-        drawerEl.hidden = true;
-        document.body.style.overflow = '';
-      }
-    }
+    // Update right sidebar drawer based on active tab
+    updateDrawerForTab(tab);
 
     $$('#sidebarNav .sidebar-nav-item').forEach(item => {
 
@@ -5120,353 +5114,428 @@
 
   }
 
-  // ---------------- 11. SETTINGS SCREEN (Screenshots 12.02.42 AM 2, 3, 12.02.43 AM, 1) ---------------- //
+  // ---------------- 11. SETTINGS SCREEN (Center Scroll & Right Sidebar Navigation) ---------------- //
+
+  function updateDrawerForTab(tab) {
+    const drawerEl = $('#appAssistDrawer');
+    const drawerAi = $('#drawerAiContent');
+    const drawerSettings = $('#drawerSettingsContent');
+    const drawerForm = $('#drawerChatForm');
+    const drawerTitle = $('#drawerTitle');
+    const drawerClose = $('#drawerCloseBtn');
+
+    if (tab === 'settings') {
+      if (drawerAi) drawerAi.hidden = true;
+      if (drawerForm) drawerForm.style.display = 'none';
+      if (drawerSettings) drawerSettings.hidden = false;
+      if (drawerTitle) drawerTitle.innerHTML = '<span>⚙️</span> Settings';
+      if (drawerClose && window.innerWidth > 768) drawerClose.style.display = 'none';
+
+      const orgBadge = $('#settingsOrgBadge');
+      if (orgBadge) orgBadge.textContent = appUser.orgId || 'hea-workspace-default';
+
+      if (drawerEl) {
+        if (window.innerWidth > 768) {
+          drawerEl.hidden = false;
+        } else {
+          drawerEl.hidden = true;
+        }
+      }
+      bindSettingsNavEvents();
+    } else {
+      if (drawerAi) drawerAi.hidden = false;
+      if (drawerForm) drawerForm.style.display = '';
+      if (drawerSettings) drawerSettings.hidden = true;
+      if (drawerTitle) drawerTitle.innerHTML = '<span>✨</span> HEA Assist';
+      if (drawerClose) drawerClose.style.display = '';
+
+      if (drawerEl && window.innerWidth <= 768) {
+        drawerEl.hidden = true;
+        document.body.style.overflow = '';
+      }
+    }
+  }
+
+  function bindSettingsNavEvents() {
+    const links = $$('#drawerSettingsContent .settings-subsidebar-link');
+    links.forEach(link => {
+      link.onclick = (e) => {
+        const nav = link.dataset.nav;
+        if (nav === 'integrations' || nav === 'billing') {
+          return;
+        }
+        e.preventDefault();
+
+        links.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+
+        const map = {
+          'profile': 'setSectionProfile',
+          'account-details': 'setSectionAccountDetails',
+          'billing': 'setSectionBilling',
+          'users': 'setSectionUsers',
+          'groups': 'setSectionUsers',
+          'sso': 'setSectionSso',
+          'discovery': 'setSectionSso',
+          'deeplinks': 'setSectionDeepLinks'
+        };
+
+        const targetId = map[nav] || 'setSectionProfile';
+        const targetEl = document.getElementById(targetId);
+        const pane = document.getElementById('appMainPane');
+        if (targetEl && pane) {
+          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      };
+    });
+  }
 
   function renderSettings(container) {
-
-    const drawerEl = $('#appAssistDrawer');
-    if (drawerEl) {
-      drawerEl.hidden = true;
-      document.body.style.overflow = '';
-    }
+    updateDrawerForTab('settings');
 
     container.innerHTML = `
-
-      <div class="settings-2col-layout">
-
-        <!-- Sub-sidebar (Left column) -->
-
-        <div class="settings-subsidebar">
-
-          <div class="settings-subsidebar-group">
-
-            <h5>Personal settings</h5>
-
-            <a class="settings-subsidebar-link active" style="color:#0070f3 !important; font-weight:700 !important; background:#eff6ff !important;">Profile</a>
-
-            <a class="settings-subsidebar-link" style="color:#0b132b !important;" onclick="window.appShell.navigate('integrations')">Integrations</a>
-
-          </div>
-
-          <div class="settings-subsidebar-group">
-
-            <h5 style="display:flex;justify-content:space-between;align-items:center;color:#0070f3 !important;font-weight:700;">
-
-              <span>Account settings</span>
-
-              <span>▴</span>
-
-            </h5>
-
-            <div style="font-size:12px;color:#64748b;padding:0 12px 6px;">${appUser.orgId}</div>
-
-            <a class="settings-subsidebar-link" style="color:#0b132b !important;font-weight:600;" onclick="alert('Account details')">Account details</a>
-
-            <a class="settings-subsidebar-link" style="color:#0b132b !important;font-weight:600;" onclick="location.hash='#pricing'">Billing and usage</a>
-
-            <a class="settings-subsidebar-link" style="color:#0b132b !important;font-weight:600;" onclick="alert('Team users')">Users</a>
-
-            <a class="settings-subsidebar-link" style="color:#0b132b !important;font-weight:600;" onclick="alert('Groups')">Groups</a>
-
-            <a class="settings-subsidebar-link" style="color:#0b132b !important;font-weight:600;" onclick="alert('Single sign-on config')">Single sign-on</a>
-
-            <a class="settings-subsidebar-link" style="color:#0b132b !important;font-weight:600;" onclick="alert('Account discovery')">Account discovery</a>
-
-            <a class="settings-subsidebar-link" style="color:#0b132b !important;font-weight:600;" onclick="alert('Mobile deep links')">Mobile deep links</a>
-
-          </div>
-
+      <div class="settings-center-pane-wrapper">
+        <!-- Mobile Quick Tabs -->
+        <div class="settings-mobile-tabs" id="settingsMobileTabs">
+          <button class="settings-m-tab active" data-nav="profile">Profile</button>
+          <button class="settings-m-tab" data-nav="account-details">Account</button>
+          <button class="settings-m-tab" data-nav="billing">Billing</button>
+          <button class="settings-m-tab" data-nav="users">Users</button>
+          <button class="settings-m-tab" data-nav="sso">SSO</button>
+          <button class="settings-m-tab" data-nav="deeplinks">Deep Links</button>
+          <button class="settings-m-tab" data-nav="emails">Emails</button>
+          <button class="settings-m-tab" data-nav="security">Security</button>
+          <button class="settings-m-tab" data-nav="sessions">Sessions</button>
         </div>
 
-        <!-- Settings Main Pane -->
+        <div class="settings-main-panel settings-center-card">
+          <!-- 1. Profile Section -->
+          <div id="setSectionProfile" class="settings-content-section">
+            <h2 style="font-size:30px;font-weight:800;color:#0070f3;margin:0 0 16px;">Profile</h2>
+            <h3 style="font-size:18px;font-weight:800;color:#0b132b;margin:0 0 14px;">Preferences</h3>
 
-        <div class="settings-main-panel">
-
-          <h2 style="font-size:32px;font-weight:800;color:#0070f3;margin:0 0 16px;">Profile</h2>
-
-          <!-- Preferences (Screenshot 12.02.42 AM 2) -->
-
-          <h3 style="font-size:20px;font-weight:800;color:#ffffff;margin:0 0 14px;">Preferences</h3>
-
-          <div class="create-link-field">
-
-            <label>Display name</label>
-
-            <input type="text" id="setDisplayName" value="${appUser.name}">
-
-          </div>
-
-          <button class="sso-btn" style="width:auto;padding:8px 18px;margin-bottom:28px;" onclick="window.appShell.updateDisplayName()">
-
-            Update display name
-
-          </button>
-
-          <div class="create-link-field">
-
-            <label>Language</label>
-
-            <div style="font-size:13px;color:#94a3b8;margin-bottom:8px;">
-
-              HEA Link uses your browser's language by default. Select a language below to override this setting. Applies to your HEA Link experience, emails you receive from HEA Link, and emails sent on your behalf.
-
+            <div class="create-link-field">
+              <label>Display name</label>
+              <input type="text" id="setDisplayName" value="${appUser.name}">
             </div>
 
-            <select class="home-domain-select" style="max-width:320px;">
-
-              <option selected>Automatic</option>
-
-              <option>English</option>
-
-              <option>Urdu</option>
-
-            </select>
-
-          </div>
-
-          <button class="sso-btn" style="width:auto;padding:8px 18px;margin-bottom:32px;" onclick="window.appShell.toast('Language preference saved')">
-
-            Update language
-
-          </button>
-
-          <div class="settings-section-divider"></div>
-
-          <!-- Email addresses table (Screenshot 12.02.42 AM 3) -->
-
-          <h3 style="font-size:20px;font-weight:800;color:#ffffff;margin:0 0 8px;">Email addresses</h3>
-
-          <p style="color:#94a3b8;font-size:13px;margin:0 0 16px;">
-
-            Select or add a new email address to receive notifications. Only verified emails can be designated as the primary email address, which is used to log in.
-
-          </p>
-
-          <table class="settings-email-table">
-
-            <thead>
-
-              <tr>
-
-                <th>Email address</th>
-
-                <th>Status</th>
-
-                <th>Primary</th>
-
-              </tr>
-
-            </thead>
-
-            <tbody>
-
-              <tr>
-
-                <td><b>${appUser.email}</b></td>
-
-                <td><span style="color:#10b981;font-size:13px;font-weight:700;">✓ Verified</span></td>
-
-                <td><input type="radio" name="primaryEmail" checked style="accent-color:#0066ff;"></td>
-
-              </tr>
-
-            </tbody>
-
-          </table>
-
-          <div style="display:flex;gap:12px;margin-bottom:32px;">
-
-            <button class="sso-btn" style="width:auto;padding:8px 16px;" onclick="alert('Add new email modal')">Add new email</button>
-
-            <button class="auth-submit-btn" style="margin:0;padding:8px 18px;" onclick="window.appShell.toast('Primary email updated')">Update primary email</button>
-
-          </div>
-
-          <div class="settings-section-divider"></div>
-
-          <!-- Security & Authentication (Screenshots 12.02.42 AM 3, 12.02.43 AM) -->
-
-          <h3 style="font-size:20px;font-weight:800;color:#ffffff;margin:0 0 8px;">Security &amp; authentication</h3>
-
-          <h4 style="font-size:16px;font-weight:700;color:#ffffff;margin:16px 0 6px;">Change password</h4>
-
-          <div style="font-size:13px;color:#94a3b8;margin-bottom:14px;">You will be required to login after changing your password</div>
-
-          <div class="create-link-field"><label>Current password</label><input type="password" id="setCurPass" placeholder="Enter your current password"></div>
-
-          <div class="create-link-field"><label>New password</label><input type="password" id="setNewPass" placeholder="Create a strong new password (min. 8 characters)"></div>
-
-          <div class="create-link-field"><label>Confirm new password</label><input type="password" id="setConfPass" placeholder="Re-enter your new password"></div>
-
-          <button class="auth-submit-btn" id="btnUpdatePass" style="width:max-content;padding:10px 24px;margin-bottom:32px;">
-
-            Change password
-
-          </button>
-
-          <div class="settings-section-divider"></div>
-
-          <!-- 2-Factor Authentication (Screenshot 12.02.43 AM) -->
-
-          <h3 style="font-size:20px;font-weight:800;color:#ffffff;margin:0 0 14px;">2-Factor authentication</h3>
-
-          <div class="create-link-field">
-
-            <label>Select country code</label>
-
-            <select class="home-domain-select" style="max-width:320px;">
-
-              <option selected>Pakistan (+92)</option>
-
-              <option>United States (+1)</option>
-
-              <option>United Kingdom (+44)</option>
-
-              <option>United Arab Emirates (+971)</option>
-
-            </select>
-
-          </div>
-
-          <div class="settings-section-divider"></div>
-
-          <!-- Active Sessions (Screenshot 12.02.43 AM 1) -->
-
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-
-            <h3 style="font-size:20px;font-weight:800;color:#ffffff;margin:0;">Active Sessions</h3>
-
-            <button class="auth-submit-btn" style="margin:0;padding:8px 16px;font-size:13px;" onclick="window.appShell.toast('Logged out of all other sessions')">
-
-              Log out of all sessions
-
+            <button class="sso-btn" style="width:auto;padding:8px 18px;margin-bottom:28px;" onclick="window.appShell.updateDisplayName()">
+              Update display name
             </button>
 
-          </div>
+            <div class="create-link-field">
+              <label>Language</label>
+              <div style="font-size:13px;color:#64748b;margin-bottom:8px;">
+                HEA Link uses your browser's language by default. Select a language below to override this setting. Applies to your HEA Link experience, emails you receive from HEA Link, and emails sent on your behalf.
+              </div>
+              <select class="home-domain-select" style="max-width:320px;">
+                <option selected>Automatic</option>
+                <option>English</option>
+                <option>Urdu</option>
+              </select>
+            </div>
 
-          <div style="font-size:13px;color:#ffffff;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.08);">
-
-            <b>Email Address Added</b>: ${appUser.email} <span style="float:right;color:#94a3b8;">Oct 30, 2026 7:26 AM PDT</span>
-
-            <div style="color:#94a3b8;font-size:12px;margin-top:2px;">(${appUser.isp}) (PK, PB, ${appUser.city})</div>
-
-          </div>
-
-          <div style="font-size:13px;color:#ffffff;padding:12px 0;">
-
-            <b>Log In</b> <span style="float:right;color:#94a3b8;">Oct 30, 2026 7:26 AM PDT</span>
-
-            <div style="color:#94a3b8;font-size:12px;margin-top:2px;">(${appUser.isp}) (PK, PB, ${appUser.city})</div>
-
+            <button class="sso-btn" style="width:auto;padding:8px 18px;margin-bottom:32px;" onclick="window.appShell.toast('Language preference saved')">
+              Update language
+            </button>
           </div>
 
           <div class="settings-section-divider"></div>
 
-          <!-- SAR Report (Screenshot 12.02.43 AM 1) -->
-
-          <h3 style="font-size:20px;font-weight:800;color:#ffffff;margin:0 0 8px;">SAR Report</h3>
-
-          <p style="color:#94a3b8;font-size:13px;margin:0 0 16px;line-height:1.5;">
-
-            Click to request a Subject Access Request (SAR) Report of all your Personal Information stored by HEA Link. Once requested, in compliance with your local regulations, we will reply to your request via email.
-
-          </p>
-
-          <button class="auth-submit-btn" style="width:max-content;padding:10px 24px;margin-bottom:32px;" onclick="window.appShell.toast('SAR Report request submitted')">
-
-            Request report
-
-          </button>
+          <!-- 2. Account Details Section -->
+          <div id="setSectionAccountDetails" class="settings-content-section">
+            <h3 style="font-size:20px;font-weight:800;color:#0b132b;margin:0 0 8px;">Account details</h3>
+            <p style="color:#64748b;font-size:13px;margin:0 0 16px;">
+              Manage your workspace identity, organization settings, and account identifiers.
+            </p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:16px;margin-bottom:24px;">
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px;">
+                <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;">Organization ID</div>
+                <div style="font-size:14px;font-weight:700;color:#0b132b;margin-top:4px;word-break:break-all;">${appUser.orgId || 'hea-workspace-default'}</div>
+              </div>
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px;">
+                <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;">Workspace Name</div>
+                <div style="font-size:14px;font-weight:700;color:#0b132b;margin-top:4px;">${appUser.org || 'My Workspace'}</div>
+              </div>
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px;">
+                <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;">Account Status</div>
+                <div style="font-size:14px;font-weight:700;color:#10b981;margin-top:4px;">Active (Free Tier)</div>
+              </div>
+            </div>
+          </div>
 
           <div class="settings-section-divider"></div>
 
-          <!-- Delete account (Screenshot 12.02.43 AM 1) -->
+          <!-- 3. Billing & Usage Section -->
+          <div id="setSectionBilling" class="settings-content-section">
+            <h3 style="font-size:20px;font-weight:800;color:#0b132b;margin:0 0 8px;">Billing and usage</h3>
+            <p style="color:#64748b;font-size:13px;margin:0 0 16px;">
+              Overview of your subscription tier, monthly link creation limits, and usage analytics.
+            </p>
+            <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:18px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+              <div>
+                <div style="font-size:15px;font-weight:800;color:#0070f3;">Current Plan: Free Starter</div>
+                <div style="font-size:13px;color:#475569;margin-top:3px;">You have used 3 of 10 monthly branded links.</div>
+              </div>
+              <button class="auth-submit-btn" style="margin:0;padding:8px 18px;width:auto;" onclick="location.hash='#pricing'">Upgrade Plan</button>
+            </div>
+          </div>
 
-          <button class="auth-submit-btn" style="background:#dc2626 !important;width:max-content;padding:10px 24px;" onclick="if(confirm('Are you sure you want to delete your account?')){ localStorage.clear(); location.hash='#login'; location.reload(); }">
+          <div class="settings-section-divider"></div>
 
-            Delete account
+          <!-- 4. Users Section -->
+          <div id="setSectionUsers" class="settings-content-section">
+            <h3 style="font-size:20px;font-weight:800;color:#0b132b;margin:0 0 8px;">Users &amp; Team</h3>
+            <p style="color:#64748b;font-size:13px;margin:0 0 16px;">
+              Collaborators and team members assigned to this workspace.
+            </p>
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:34px;height:34px;border-radius:50%;background:#0070f3;color:#ffffff;display:grid;place-items:center;font-weight:700;font-size:13px;">${(appUser.name||'HA').substring(0,2).toUpperCase()}</div>
+                <div>
+                  <div style="font-weight:700;color:#0b132b;font-size:14px;">${appUser.name} <span style="font-size:11px;color:#10b981;font-weight:700;background:#dcfce7;padding:2px 6px;border-radius:4px;margin-left:6px;">Owner</span></div>
+                  <div style="font-size:12px;color:#64748b;">${appUser.email}</div>
+                </div>
+              </div>
+              <button class="sso-btn" style="width:auto;padding:6px 14px;font-size:13px;" onclick="window.appShell.toast('Team invitation sent to clipboard')">Invite Member</button>
+            </div>
+          </div>
 
-          </button>
+          <div class="settings-section-divider"></div>
 
+          <!-- 5. Single Sign-on & Discovery -->
+          <div id="setSectionSso" class="settings-content-section">
+            <h3 style="font-size:20px;font-weight:800;color:#0b132b;margin:0 0 8px;">Single sign-on &amp; Account discovery</h3>
+            <p style="color:#64748b;font-size:13px;margin:0 0 16px;">
+              Enforce enterprise authentication and domain auto-discovery for your organization members.
+            </p>
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+              <div>
+                <div style="font-weight:700;color:#0b132b;font-size:14px;">SAML 2.0 / Okta / Azure AD</div>
+                <div style="font-size:12px;color:#64748b;margin-top:2px;">Available for Enterprise organization accounts.</div>
+              </div>
+              <span class="pro-chip" style="font-size:11px;padding:4px 10px;background:#0070f3;color:#ffffff;border-radius:99px;font-weight:700;">ENTERPRISE</span>
+            </div>
+          </div>
+
+          <div class="settings-section-divider"></div>
+
+          <!-- 6. Mobile Deep Links -->
+          <div id="setSectionDeepLinks" class="settings-content-section">
+            <h3 style="font-size:20px;font-weight:800;color:#0b132b;margin:0 0 8px;">Mobile deep links</h3>
+            <p style="color:#64748b;font-size:13px;margin:0 0 16px;">
+              Route your audience directly into iOS and Android apps with Universal Links and App Links.
+            </p>
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:16px;">
+              <div style="font-size:13px;color:#0b132b;font-weight:600;">Associated Domains Status: <span style="color:#10b981;font-weight:700;">Ready</span></div>
+              <div style="font-size:12px;color:#64748b;margin-top:4px;">iOS Universal Links &amp; Android App Links are routed automatically through healink.store shortlinks.</div>
+            </div>
+          </div>
+
+          <div class="settings-section-divider"></div>
+
+          <!-- 7. Email Addresses -->
+          <div id="setSectionEmails" class="settings-content-section">
+            <h3 style="font-size:20px;font-weight:800;color:#0b132b;margin:0 0 8px;">Email addresses</h3>
+            <p style="color:#64748b;font-size:13px;margin:0 0 16px;">
+              Select or add a new email address to receive notifications. Only verified emails can be designated as the primary email address, which is used to log in.
+            </p>
+
+            <table class="settings-email-table">
+              <thead>
+                <tr>
+                  <th>Email address</th>
+                  <th>Status</th>
+                  <th>Primary</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><b>${appUser.email}</b></td>
+                  <td><span style="color:#10b981;font-size:13px;font-weight:700;">✓ Verified</span></td>
+                  <td><input type="radio" name="primaryEmail" checked style="accent-color:#0066ff;"></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div style="display:flex;gap:12px;margin-bottom:32px;flex-wrap:wrap;">
+              <button class="sso-btn" style="width:auto;padding:8px 16px;" onclick="alert('Add new email modal')">Add new email</button>
+              <button class="auth-submit-btn" style="margin:0;padding:8px 18px;" onclick="window.appShell.toast('Primary email updated')">Update primary email</button>
+            </div>
+          </div>
+
+          <div class="settings-section-divider"></div>
+
+          <!-- 8. Security & Authentication -->
+          <div id="setSectionSecurity" class="settings-content-section">
+            <h3 style="font-size:20px;font-weight:800;color:#0b132b;margin:0 0 8px;">Security &amp; authentication</h3>
+            <h4 style="font-size:16px;font-weight:700;color:#0b132b;margin:16px 0 6px;">Change password</h4>
+            <div style="font-size:13px;color:#64748b;margin-bottom:14px;">You will be required to login after changing your password</div>
+
+            <div class="create-link-field"><label>Current password</label><input type="password" id="setCurPass" placeholder="Enter your current password"></div>
+            <div class="create-link-field"><label>New password</label><input type="password" id="setNewPass" placeholder="Create a strong new password (min. 8 characters)"></div>
+            <div class="create-link-field"><label>Confirm new password</label><input type="password" id="setConfPass" placeholder="Re-enter your new password"></div>
+
+            <button class="auth-submit-btn" id="btnUpdatePass" style="width:max-content;padding:10px 24px;margin-bottom:32px;">
+              Change password
+            </button>
+
+            <div class="settings-section-divider"></div>
+
+            <!-- 2-Factor Authentication -->
+            <div id="setSection2FA" class="settings-content-section">
+              <h3 style="font-size:20px;font-weight:800;color:#0b132b;margin:0 0 14px;">2-Factor authentication</h3>
+              <div class="create-link-field">
+                <label>Select country code</label>
+                <select class="home-domain-select" style="max-width:320px;">
+                  <option selected>Pakistan (+92)</option>
+                  <option>United States (+1)</option>
+                  <option>United Kingdom (+44)</option>
+                  <option>United Arab Emirates (+971)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section-divider"></div>
+
+          <!-- 9. Active Sessions -->
+          <div id="setSectionSessions" class="settings-content-section">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+              <h3 style="font-size:20px;font-weight:800;color:#0b132b;margin:0;">Active Sessions</h3>
+              <button class="auth-submit-btn" style="margin:0;padding:8px 16px;font-size:13px;" onclick="window.appShell.toast('Logged out of all other sessions')">
+                Log out of all sessions
+              </button>
+            </div>
+            <div style="font-size:13px;color:#0b132b;padding:12px 0;border-bottom:1px solid #e2e8f0;">
+              <b>Email Address Added</b>: ${appUser.email} <span style="float:right;color:#64748b;">Oct 30, 2026 7:26 AM PDT</span>
+              <div style="color:#64748b;font-size:12px;margin-top:2px;">(${appUser.isp || 'Broadband'}) (PK, PB, ${appUser.city || 'Lahore'})</div>
+            </div>
+            <div style="font-size:13px;color:#0b132b;padding:12px 0;">
+              <b>Current Active Session</b> <span style="float:right;color:#64748b;">Live Now</span>
+              <div style="color:#64748b;font-size:12px;margin-top:2px;">(${appUser.isp || 'Broadband'}) (PK, PB, ${appUser.city || 'Lahore'})</div>
+            </div>
+          </div>
+
+          <div class="settings-section-divider"></div>
+
+          <!-- 10. SAR Report -->
+          <div id="setSectionSar" class="settings-content-section">
+            <h3 style="font-size:20px;font-weight:800;color:#0b132b;margin:0 0 8px;">SAR Report</h3>
+            <p style="color:#64748b;font-size:13px;margin:0 0 16px;line-height:1.5;">
+              Click to request a Subject Access Request (SAR Report) of all your Personal Information stored by HEA Link. Once requested, in compliance with your local regulations, we will reply to your request via email.
+            </p>
+            <button class="auth-submit-btn" style="width:max-content;padding:10px 24px;margin-bottom:32px;" onclick="window.appShell.toast('SAR Report request submitted')">
+              Request report
+            </button>
+          </div>
+
+          <div class="settings-section-divider"></div>
+
+          <!-- 11. Delete Account -->
+          <div id="setSectionDelete" class="settings-content-section">
+            <button class="auth-submit-btn" style="background:#dc2626 !important;width:max-content;padding:10px 24px;" onclick="if(confirm('Are you sure you want to delete your account?')){ localStorage.clear(); location.hash='#login'; location.reload(); }">
+              Delete account
+            </button>
+          </div>
         </div>
-
       </div>
-
     `;
 
     const passBtn = $('#btnUpdatePass');
-
     if (passBtn) {
-
       passBtn.onclick = async () => {
-
         const curP = $('#setCurPass')?.value;
-
         const newP = $('#setNewPass')?.value;
-
         const confP = $('#setConfPass')?.value;
 
         if (!curP || !newP) { toast('Please enter current and new password'); return; }
-
         if (newP !== confP) { toast('New passwords do not match'); return; }
-
         if (newP.length < 6) { toast('Password must be at least 6 characters'); return; }
 
         try {
-
           const s = JSON.parse(localStorage.getItem('hea_session'));
-
           if (s && s.token) {
-
             const res = await fetch('/api/auth/change-password', {
-
               method: 'POST',
-
               headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.token },
-
               body: JSON.stringify({ currentPassword: curP, newPassword: newP })
-
             });
-
             const d = await res.json();
-
             if (res.ok) {
-
               toast('Password updated in MongoDB database! Please log in again.');
-
               setTimeout(() => {
-
                 localStorage.removeItem('hea_session');
-
                 location.hash = '#login';
-
               }, 1200);
-
             } else {
-
               toast(d.error || 'Failed to change password');
-
             }
-
           } else {
-
             toast('Password changed successfully');
-
           }
-
         } catch (e) {
-
           toast('Password updated');
-
         }
-
       };
-
     }
 
+    // Mobile tabs scroll handler
+    $$('#settingsMobileTabs .settings-m-tab').forEach(tabBtn => {
+      tabBtn.onclick = () => {
+        const nav = tabBtn.dataset.nav;
+        const map = {
+          'profile': 'setSectionProfile',
+          'account-details': 'setSectionAccountDetails',
+          'billing': 'setSectionBilling',
+          'users': 'setSectionUsers',
+          'sso': 'setSectionSso',
+          'deeplinks': 'setSectionDeepLinks',
+          'emails': 'setSectionEmails',
+          'security': 'setSectionSecurity',
+          'sessions': 'setSectionSessions'
+        };
+        const targetEl = document.getElementById(map[nav] || 'setSectionProfile');
+        if (targetEl) targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
+    });
+
+    // Sync scroll in center pane with right sidebar navigation
+    const pane = document.getElementById('appMainPane');
+    if (pane) {
+      const sectionTracker = [
+        { id: 'setSectionProfile', nav: 'profile' },
+        { id: 'setSectionAccountDetails', nav: 'account-details' },
+        { id: 'setSectionBilling', nav: 'billing' },
+        { id: 'setSectionUsers', nav: 'users' },
+        { id: 'setSectionSso', nav: 'sso' },
+        { id: 'setSectionDeepLinks', nav: 'deeplinks' },
+        { id: 'setSectionEmails', nav: 'profile' },
+        { id: 'setSectionSecurity', nav: 'profile' },
+        { id: 'setSectionSessions', nav: 'account-details' }
+      ];
+
+      pane.onscroll = () => {
+        const scrollPos = pane.scrollTop + 120;
+        for (let i = sectionTracker.length - 1; i >= 0; i--) {
+          const el = document.getElementById(sectionTracker[i].id);
+          if (el && el.offsetTop <= scrollPos) {
+            const navLinks = $$('#drawerSettingsContent .settings-subsidebar-link');
+            navLinks.forEach(l => {
+              l.classList.toggle('active', l.dataset.nav === sectionTracker[i].nav);
+            });
+            const mTabs = $$('#settingsMobileTabs .settings-m-tab');
+            mTabs.forEach(t => {
+              t.classList.toggle('active', t.dataset.nav === sectionTracker[i].nav);
+            });
+            break;
+          }
+        }
+      };
+    }
   }
 
-  // ---------------- MODAL & DRAWER CONTROLS ---------------- //
+// ---------------- MODAL & DRAWER CONTROLS ---------------- //
 
   function openWhatModal() {
 
@@ -6221,23 +6290,39 @@ Here are recommended optimizations for your links and campaigns:<br>
     const drawerClose = $('#drawerCloseBtn');
 
     if (assistToggle && drawer) {
-
       assistToggle.onclick = () => {
+        if (activeTab === 'settings') {
+          const drawerAi = $('#drawerAiContent');
+          const drawerSettings = $('#drawerSettingsContent');
+          const drawerForm = $('#drawerChatForm');
+          const drawerTitle = $('#drawerTitle');
 
-        drawer.hidden = !drawer.hidden;
-
-        if (!drawer.hidden && window.innerWidth <= 768) {
-
-          document.body.style.overflow = 'hidden';
-
+          if (window.innerWidth <= 768) {
+            drawer.hidden = !drawer.hidden;
+          } else {
+            // Toggle between AI view and Settings Navigation on desktop
+            if (drawerAi && drawerAi.hidden) {
+              drawerAi.hidden = false;
+              if (drawerForm) drawerForm.style.display = '';
+              if (drawerSettings) drawerSettings.hidden = true;
+              if (drawerTitle) drawerTitle.innerHTML = '<span>✨</span> HEA Assist';
+            } else {
+              if (drawerAi) drawerAi.hidden = true;
+              if (drawerForm) drawerForm.style.display = 'none';
+              if (drawerSettings) drawerSettings.hidden = false;
+              if (drawerTitle) drawerTitle.innerHTML = '<span>⚙️</span> Settings';
+            }
+          }
         } else {
-
-          document.body.style.overflow = '';
-
+          drawer.hidden = !drawer.hidden;
         }
 
+        if (!drawer.hidden && window.innerWidth <= 768) {
+          document.body.style.overflow = 'hidden';
+        } else {
+          document.body.style.overflow = '';
+        }
       };
-
     }
 
     if (drawerClose && drawer) {
