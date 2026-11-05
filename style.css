@@ -4760,12 +4760,4 @@ a[href="#signup"].btn {
   white-space: nowrap !important;
 }
 
-/* 5. Prefers-Reduced-Motion WCAG Compliance */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    scroll-behavior: auto !important;
-  }
-}
+
