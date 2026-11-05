@@ -457,7 +457,7 @@
         opacity: 0,
         duration: 0.8,
         ease: 'power3.out',
-        clearProps: 'transform'
+        clearProps: 'all'
       });
     }
 
@@ -471,7 +471,7 @@
         opacity: 0,
         duration: 1.05,
         ease: 'power4.out',
-        clearProps: 'transform'
+        clearProps: 'all'
       });
     }
 
@@ -481,7 +481,7 @@
         y: 25,
         opacity: 0,
         duration: 0.8,
-        clearProps: 'transform'
+        clearProps: 'all'
       }, '-=0.65');
     }
 
@@ -492,7 +492,7 @@
         opacity: 0,
         scale: 0.96,
         duration: 0.9,
-        clearProps: 'transform,scale'
+        clearProps: 'all'
       }, '-=0.6');
     }
 
@@ -503,7 +503,7 @@
         opacity: 0,
         duration: 1.1,
         ease: 'power3.out',
-        clearProps: 'transform,scale'
+        clearProps: 'all'
       }, '-=0.8');
     }
 
@@ -516,7 +516,7 @@
         stagger: 0.12,
         duration: 0.75,
         ease: 'back.out(1.6)',
-        clearProps: 'opacity,scale',
+        clearProps: 'all',
         onComplete: () => {
           // Signature continuous gentle floating animation for HUD cards
           gsap.to('.hud-card.hud-analytics', { y: '-=8', duration: 2.8, repeat: -1, yoyo: true, ease: 'sine.inOut' });
