@@ -514,11 +514,13 @@
 
     activeTab = tab;
 
-    // Safety: ensure mobile drawer is dismissed on navigation to prevent screen freeze
+    // Auto-close HEA Assist drawer on settings page or mobile navigation
     const drawerEl = $('#appAssistDrawer');
-    if (drawerEl && window.innerWidth <= 768) {
-      drawerEl.hidden = true;
-      document.body.style.overflow = '';
+    if (drawerEl) {
+      if (tab === 'settings' || window.innerWidth <= 768) {
+        drawerEl.hidden = true;
+        document.body.style.overflow = '';
+      }
     }
 
     $$('#sidebarNav .sidebar-nav-item').forEach(item => {
@@ -5121,6 +5123,12 @@
   // ---------------- 11. SETTINGS SCREEN (Screenshots 12.02.42 AM 2, 3, 12.02.43 AM, 1) ---------------- //
 
   function renderSettings(container) {
+
+    const drawerEl = $('#appAssistDrawer');
+    if (drawerEl) {
+      drawerEl.hidden = true;
+      document.body.style.overflow = '';
+    }
 
     container.innerHTML = `
 
