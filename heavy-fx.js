@@ -295,54 +295,238 @@
   }
 
   /* ---------------------------------------------------------
-     3. GSAP + SCROLLTRIGGER CHOREOGRAPHY
+     3. GSAP + SCROLLTRIGGER CHOREOGRAPHY (https://gsap.com/)
+     High-End Cinematic Entrance, Staggered Reveals, Floating HUDs & Micro-Interactions
      --------------------------------------------------------- */
+  let dynamicTriggersInitialized = false;
+
+  function setupDynamicGsapTriggers() {
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+
+    // 1. Features Grid Cards Stagger
+    const featCards = document.querySelectorAll('#features .fc');
+    if (featCards.length && !featCards[0]._gsapDone) {
+      featCards.forEach(c => c._gsapDone = true);
+      gsap.from(featCards, {
+        scrollTrigger: {
+          trigger: '#features',
+          start: 'top 85%',
+          once: true
+        },
+        y: 40,
+        opacity: 0,
+        stagger: 0.08,
+        duration: 0.75,
+        ease: 'power3.out',
+        clearProps: 'transform,opacity'
+      });
+    }
+
+    // 2. Advanced Split Section Cards
+    const advCards = document.querySelectorAll('#adv .fc');
+    if (advCards.length && !advCards[0]._gsapDone) {
+      advCards.forEach(c => c._gsapDone = true);
+      gsap.from(advCards, {
+        scrollTrigger: {
+          trigger: '#adv',
+          start: 'top 85%',
+          once: true
+        },
+        x: 35,
+        opacity: 0,
+        stagger: 0.09,
+        duration: 0.75,
+        ease: 'power3.out',
+        clearProps: 'transform,opacity'
+      });
+    }
+
+    // 3. Steps Sequential Cascade
+    const stepCards = document.querySelectorAll('#steps .fc');
+    if (stepCards.length && !stepCards[0]._gsapDone) {
+      stepCards.forEach(c => c._gsapDone = true);
+      gsap.from(stepCards, {
+        scrollTrigger: {
+          trigger: '#steps',
+          start: 'top 85%',
+          once: true
+        },
+        y: 35,
+        opacity: 0,
+        scale: 0.96,
+        stagger: 0.12,
+        duration: 0.8,
+        ease: 'power3.out',
+        clearProps: 'transform,opacity,scale'
+      });
+    }
+
+    // 4. Pricing Plans Cards Scale-in
+    const planCards = document.querySelectorAll('#plans .card');
+    if (planCards.length && !planCards[0]._gsapDone) {
+      planCards.forEach(c => c._gsapDone = true);
+      gsap.from(planCards, {
+        scrollTrigger: {
+          trigger: '#plans',
+          start: 'top 85%',
+          once: true
+        },
+        y: 45,
+        opacity: 0,
+        scale: 0.94,
+        stagger: 0.12,
+        duration: 0.85,
+        ease: 'back.out(1.2)',
+        clearProps: 'transform,opacity,scale'
+      });
+    }
+
+    // 5. FAQ Accordion Items
+    const faqItems = document.querySelectorAll('#faq details');
+    if (faqItems.length && !faqItems[0]._gsapDone) {
+      faqItems.forEach(c => c._gsapDone = true);
+      gsap.from(faqItems, {
+        scrollTrigger: {
+          trigger: '#faq',
+          start: 'top 88%',
+          once: true
+        },
+        y: 20,
+        opacity: 0,
+        stagger: 0.06,
+        duration: 0.55,
+        ease: 'power2.out',
+        clearProps: 'transform,opacity'
+      });
+    }
+
+    // 6. Bottom CTA Container
+    const bottomCta = document.querySelector('#homeBottomCta');
+    if (bottomCta && !bottomCta._gsapDone) {
+      bottomCta._gsapDone = true;
+      gsap.from(bottomCta, {
+        scrollTrigger: {
+          trigger: '#homeBottomCta',
+          start: 'top 88%',
+          once: true
+        },
+        y: 35,
+        scale: 0.95,
+        opacity: 0,
+        duration: 0.85,
+        ease: 'power3.out',
+        clearProps: 'transform,opacity,scale'
+      });
+    }
+
+    try {
+      ScrollTrigger.refresh();
+    } catch (e) {}
+  }
+
+  function initGsapButtonEffects() {
+    if (typeof gsap === 'undefined') return;
+    document.querySelectorAll('.btn:not(.no-gsap), .hero-submit-btn, .topbar-upgrade-btn').forEach(btn => {
+      if (btn._gsapBound) return;
+      btn._gsapBound = true;
+      btn.addEventListener('mouseenter', () => {
+        gsap.to(btn, { scale: 1.03, duration: 0.2, ease: 'power2.out' });
+      });
+      btn.addEventListener('mouseleave', () => {
+        gsap.to(btn, { scale: 1.0, duration: 0.2, ease: 'power2.out' });
+      });
+      btn.addEventListener('mousedown', () => {
+        gsap.to(btn, { scale: 0.97, duration: 0.1, ease: 'power2.out' });
+      });
+      btn.addEventListener('mouseup', () => {
+        gsap.to(btn, { scale: 1.03, duration: 0.15, ease: 'power2.out' });
+      });
+    });
+  }
+
   function initGsapAnimations() {
     if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
 
     gsap.registerPlugin(ScrollTrigger);
 
-    // 1. Hero Entrance Animation
-    const heroTl = gsap.timeline({ defaults: { ease: 'power4.out', duration: 1.0 } });
-
-    if (document.querySelector('.hero .pill')) {
-      heroTl.from('.hero .pill', {
-        y: -30,
+    // 1. Navigation Bar Gliding Entrance
+    const nav = document.querySelector('.nav');
+    if (nav) {
+      gsap.from(nav, {
+        y: -25,
         opacity: 0,
-        scale: 0.9,
-        duration: 0.8
+        duration: 0.8,
+        ease: 'power3.out',
+        clearProps: 'transform'
       });
     }
 
-    if (document.querySelector('.hero h1')) {
-      heroTl.from('.hero h1', {
-        y: 40,
+    // 2. Hero Section Cinematic Orchestration (GSAP Timeline)
+    const heroTl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 1.0 } });
+
+    const heroTitle = document.querySelector('.hero-title');
+    if (heroTitle) {
+      heroTl.from(heroTitle, {
+        y: 45,
+        opacity: 0,
+        duration: 1.05,
+        ease: 'power4.out',
+        clearProps: 'transform'
+      });
+    }
+
+    const heroLead = document.querySelector('.hero-col-left .lead');
+    if (heroLead) {
+      heroTl.from(heroLead, {
+        y: 25,
+        opacity: 0,
+        duration: 0.8,
+        clearProps: 'transform'
+      }, '-=0.65');
+    }
+
+    const heroCard = document.querySelector('#heroShortenCard');
+    if (heroCard) {
+      heroTl.from(heroCard, {
+        y: 35,
+        opacity: 0,
+        scale: 0.96,
+        duration: 0.9,
+        clearProps: 'transform,scale'
+      }, '-=0.6');
+    }
+
+    const heroImg = document.querySelector('.hero-infinity-img');
+    if (heroImg) {
+      heroTl.from(heroImg, {
+        scale: 0.88,
         opacity: 0,
         duration: 1.1,
-        filter: 'blur(8px)'
+        ease: 'power3.out',
+        clearProps: 'transform,scale'
+      }, '-=0.8');
+    }
+
+    const hudCards = document.querySelectorAll('.hud-card');
+    if (hudCards.length) {
+      heroTl.from(hudCards, {
+        y: 28,
+        opacity: 0,
+        scale: 0.86,
+        stagger: 0.12,
+        duration: 0.75,
+        ease: 'back.out(1.6)',
+        clearProps: 'opacity,scale',
+        onComplete: () => {
+          // Signature continuous gentle floating animation for HUD cards
+          gsap.to('.hud-card.hud-analytics', { y: '-=8', duration: 2.8, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+          gsap.to('.hud-card.hud-qr', { y: '+=10', duration: 3.2, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 0.4 });
+          gsap.to('.hud-card.hud-clicks', { y: '-=7', duration: 2.5, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 0.8 });
+        }
       }, '-=0.5');
     }
 
-    if (document.querySelector('.hero .lead')) {
-      heroTl.from('.hero .lead', {
-        y: 30,
-        opacity: 0,
-        duration: 0.9
-      }, '-=0.7');
-    }
-
-    if (document.querySelector('.hero .hero-card')) {
-      heroTl.from('.hero .hero-card', {
-        y: 50,
-        opacity: 0,
-        scale: 0.95,
-        duration: 1.1,
-        boxShadow: '0 0 0 rgba(0,0,0,0)'
-      }, '-=0.7');
-      heroTl.set('.hero h1, .hero .lead, .hero .hero-card, .hero .pill', { clearProps: 'all' });
-    }
-
-    // 2. Section Headers Reveal on Scroll
+    // 3. Section Eyebrow Headers Reveal on Scroll
     gsap.utils.toArray('.eyebrow').forEach((eyebrow) => {
       gsap.from(eyebrow, {
         scrollTrigger: {
@@ -352,28 +536,25 @@
         },
         opacity: 0,
         y: 20,
-        letterSpacing: '0.25em',
+        letterSpacing: '0.22em',
         duration: 0.7,
-        ease: 'power3.out'
+        ease: 'power3.out',
+        clearProps: 'all'
       });
     });
 
-    // Headings and section titles are kept 100% visible on scroll - never hidden with opacity 0!
-    document.querySelectorAll('h1, h2, h3, h4, .hero-title, .eyebrow').forEach(el => {
-      el.style.opacity = '1';
-      el.style.visibility = 'visible';
-    });
-
-    // 3. Features Cards Stagger (Unified Row Trigger with Full Props Cleanup)
-    if (document.querySelector('#features')) {
-      gsap.from('#features .fc', {
+    // 4. Hero Feature Badges (Horizontal Staggered Entrance)
+    const badges = document.querySelectorAll('.hero-badges .badge-item');
+    if (badges.length) {
+      gsap.from(badges, {
         scrollTrigger: {
-          trigger: '#features',
-          start: 'top 88%',
+          trigger: '.hero-badges',
+          start: 'top 92%',
           once: true
         },
+        y: 30,
         opacity: 0,
-        y: 35,
+        scale: 0.95,
         stagger: 0.08,
         duration: 0.7,
         ease: 'power2.out',
@@ -381,78 +562,52 @@
       });
     }
 
-    // 4. Advanced Split Section Cards
-    if (document.querySelector('#adv')) {
-      gsap.from('#adv .fc', {
+    // 5. Interactive Platform Showcase Section
+    const showcase = document.querySelector('#skipperShowcase');
+    if (showcase) {
+      gsap.from(showcase, {
         scrollTrigger: {
-          trigger: '#adv',
-          start: 'top 88%',
+          trigger: '#skipperShowcase',
+          start: 'top 85%',
           once: true
         },
-        opacity: 0,
-        x: 35,
-        stagger: 0.08,
-        duration: 0.7,
-        ease: 'power2.out',
-        clearProps: 'all'
-      });
-    }
-
-    // 5. Steps Cards Sequential Cascade (Unified Row Trigger with Full Props Cleanup)
-    if (document.querySelector('#steps')) {
-      gsap.from('#steps .fc', {
-        scrollTrigger: {
-          trigger: '#steps',
-          start: 'top 88%',
-          once: true
-        },
-        opacity: 0,
-        y: 35,
-        stagger: 0.1,
-        duration: 0.7,
-        ease: 'power2.out',
-        clearProps: 'all'
-      });
-    }
-
-    // 6. Pricing Plans Cards Scale-in (Unified Row Trigger with Full Props Cleanup)
-    if (document.querySelector('#plans')) {
-      gsap.from('#plans .card', {
-        scrollTrigger: {
-          trigger: '#plans',
-          start: 'top 88%',
-          once: true
-        },
-        opacity: 0,
         y: 40,
-        stagger: 0.1,
-        duration: 0.7,
-        ease: 'power2.out',
-        clearProps: 'all'
-      });
-    }
-
-    // 7. FAQ Accordion Items
-    if (document.querySelector('#faq')) {
-      gsap.from('#faq details', {
-        scrollTrigger: {
-          trigger: '#faq',
-          start: 'top 90%',
-          once: true
-        },
         opacity: 0,
-        y: 20,
-        stagger: 0.06,
-        duration: 0.5,
-        ease: 'power2.out',
+        duration: 0.9,
+        ease: 'power3.out',
         clearProps: 'all'
       });
     }
 
-    // Refresh ScrollTrigger when dynamic DOM content renders
-    window.addEventListener('load', () => ScrollTrigger.refresh());
-    setTimeout(() => ScrollTrigger.refresh(), 800);
+    // 6. Dynamic Grid & Accordion Sections
+    setupDynamicGsapTriggers();
+
+    // 7. Micro-Interactions on Interactive Elements
+    initGsapButtonEffects();
+
+    // Refresh ScrollTrigger when images and fonts finish loading
+    window.addEventListener('load', () => {
+      setupDynamicGsapTriggers();
+      initGsapButtonEffects();
+      ScrollTrigger.refresh();
+    });
+    setTimeout(() => {
+      setupDynamicGsapTriggers();
+      initGsapButtonEffects();
+      ScrollTrigger.refresh();
+    }, 700);
   }
+
+  window.initGsapAnimations = initGsapAnimations;
+  window.setupDynamicGsapTriggers = setupDynamicGsapTriggers;
+  window.initGsapButtonEffects = initGsapButtonEffects;
+  window.refreshGsap = function() {
+    if (typeof ScrollTrigger !== 'undefined') {
+      setupDynamicGsapTriggers();
+      initGsapButtonEffects();
+      ScrollTrigger.refresh();
+    }
+  };
 
   /* ---------------------------------------------------------
      4. SKIPPR FEATURE SHOWCASE SLIDER

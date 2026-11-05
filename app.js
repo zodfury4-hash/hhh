@@ -2605,10 +2605,10 @@ function initStaticSections() {
 
   `).join('');
 
-  if (typeof ScrollTrigger !== 'undefined') {
-
+  if (typeof window.refreshGsap === 'function') {
+    window.refreshGsap();
+  } else if (typeof ScrollTrigger !== 'undefined') {
     setTimeout(() => ScrollTrigger.refresh(), 100);
-
   }
 
 }
