@@ -3074,7 +3074,8 @@ body.modal-scroll-lock {
   font-size: 11px;
   font-weight: 800;
   background: linear-gradient(135deg, #1e3a8a, #0070f3);
-  color: #ffffff;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
   padding: 3px 6px;
   border-radius: 4px;
   letter-spacing: 0.05em;
@@ -4558,4 +4559,19 @@ input[type="radio"] {
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
   transform: translateY(-2px) !important;
+}
+
+
+/* Checkout Buttons & Badges - Force pure white text */
+.checkout-submit-btn,
+.checkout-submit-btn *,
+#btnStripeCheckout,
+#btnStripeCheckout *,
+#checkoutSubmitBtn,
+#checkoutSubmitBtn *,
+.card-brand,
+#payCardBrand,
+.card-input-wrap .card-brand {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }

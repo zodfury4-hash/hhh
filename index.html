@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="logo.png">
-  <link rel="stylesheet" href="style.css?v=1793862072923">
-  <link rel="stylesheet" href="app-shell.css?v=1793862072923">
+  <link rel="stylesheet" href="style.css?v=1793862435022">
+  <link rel="stylesheet" href="app-shell.css?v=1793862435022">
   <script>
     (function() {
       try {
@@ -1306,8 +1306,8 @@
       <!-- Payment Details Form -->
       <form id="checkoutPaymentForm" class="checkout-form">
         <!-- 1. Stripe Hosted Checkout (Official PCI-DSS Level 1 Encrypted) -->
-        <button type="button" class="checkout-submit-btn" id="btnStripeCheckout" style="background:linear-gradient(135deg,#6366f1,#4f46e5);margin-bottom:14px;box-shadow:0 4px 20px rgba(99,102,241,0.4);border:1px solid rgba(255,255,255,0.2);">
-          <span style="display:flex;align-items:center;justify-content:center;gap:10px;font-weight:700;">
+        <button type="button" class="checkout-submit-btn" id="btnStripeCheckout" style="background:linear-gradient(135deg,#6366f1,#4f46e5);margin-bottom:14px;box-shadow:0 4px 20px rgba(99,102,241,0.4);border:1px solid rgba(255,255,255,0.2);color:#ffffff !important;">
+          <span style="display:flex;align-items:center;justify-content:center;gap:10px;font-weight:700;color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;">
             <svg width="22" height="22" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="8" fill="#4f46e5"/><path d="M19.7 14.8c0-1.2 1-1.7 2.6-1.7 2.3 0 5.2.7 7.5 2V9.6c-2.5-1-5.1-1.4-7.5-1.4-6.3 0-10.5 3.3-10.5 8.9 0 8.7 12 7.3 12 11 0 1.4-1.2 1.9-2.9 1.9-2.6 0-5.9-1.1-8.5-2.6v5.7c2.8 1.2 5.7 1.7 8.5 1.7 6.5 0 10.9-3.2 10.9-9 0-9.4-12.1-7.8-12.1-11z" fill="#fff"/></svg>
             Pay with Stripe ↗ (Visa, MasterCard, Apple Pay)
           </span>
@@ -1332,7 +1332,7 @@
           <div class="card-input-wrap">
             <span class="card-icon">💳</span>
             <input type="text" id="payCardNum" placeholder="4242 •••• •••• 4242 (16 digits)" maxlength="19" required>
-            <span class="card-brand" id="payCardBrand">VISA</span>
+            <span class="card-brand" id="payCardBrand" style="color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;">VISA</span>
           </div>
         </label>
 
@@ -1350,8 +1350,8 @@
           <span>Powered by Stripe · 256-bit SSL encrypted · 14-day money-back guarantee · Cancel anytime.</span>
         </div>
 
-        <button type="submit" class="checkout-submit-btn" id="checkoutSubmitBtn">
-          <span>👑 Confirm &amp; Activate Subscription</span>
+        <button type="submit" class="checkout-submit-btn" id="checkoutSubmitBtn" style="color:#ffffff !important;">
+          <span style="color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;">👑 Confirm &amp; Activate Subscription</span>
         </button>
       </form>
     </div>
