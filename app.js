@@ -2479,17 +2479,17 @@ const FEATURES = [
 
 const ADVANCED = [
 
-  ['AI Assistant', 'Analyzes past click traffic and recommends memorable slugs.'],
+  ['🤖', 'AI Assistant', 'Analyzes past click traffic and recommends memorable slugs.'],
 
-  ['Password & Expiry', 'Protect confidential links or let campaigns expire automatically.'],
+  ['🔒', 'Password & Expiry', 'Protect confidential links or let campaigns expire automatically.'],
 
-  ['Dynamic Routing', 'Redirect users based on country, language, or mobile OS.'],
+  ['🌐', 'Dynamic Routing', 'Redirect users based on country, language, or mobile OS.'],
 
-  ['UTM Builder', 'Campaign-ready tracking parameters built in seconds.'],
+  ['🏷️', 'UTM Builder', 'Campaign-ready tracking parameters built in seconds.'],
 
-  ['Team Workspaces', 'Roles and permissions with complete audit trail.'],
+  ['👥', 'Team Workspaces', 'Roles and permissions with complete audit trail.'],
 
-  ['Safe Link Preview', 'Protects users by showing a clean redirect preview.']
+  ['🛡️', 'Safe Link Preview', 'Protects users by showing a clean redirect preview.']
 
 ];
 
@@ -2545,9 +2545,11 @@ function initStaticSections() {
 
     <div class="fc">
 
-      <h3>${a[0]}</h3>
+      <div class="ic">${a[0]}</div>
 
-      <p>${a[1]}</p>
+      <h3>${a[1]}</h3>
+
+      <p>${a[2]}</p>
 
     </div>
 
