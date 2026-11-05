@@ -4195,3 +4195,38 @@ body.app-mode #appShell,
   -webkit-text-fill-color: #64748b !important;
   font-weight: 400 !important;
 }
+
+
+/* Sidebar Logo Match Home Screen Exactly */
+.sidebar-logo {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  text-decoration: none !important;
+}
+.sidebar-logo .logo-infinity-svg {
+  display: block !important;
+  flex-shrink: 0 !important;
+}
+.sidebar-logo .sidebar-logo-text {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+.sidebar-logo .logo-hea {
+  color: #0b132b !important;
+  -webkit-text-fill-color: #0b132b !important;
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+}
+.sidebar-logo .logo-link {
+  color: #0070f3 !important;
+  -webkit-text-fill-color: #0070f3 !important;
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+}
+.app-sidebar.collapsed .sidebar-logo-text {
+  display: none !important;
+}
