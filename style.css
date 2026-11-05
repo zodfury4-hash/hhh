@@ -4403,6 +4403,14 @@ input[type="radio"] {
   border-radius: 0 !important;
   padding: 8px 6px !important;
   -webkit-appearance: none !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+.drawer-chat-bubble.user,
+.drawer-chat-bubble.me {
+  background: #0070f3 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 #drawerChatInput:focus,
 .drawer-input-capsule input:focus {

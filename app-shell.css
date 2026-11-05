@@ -2503,9 +2503,11 @@ body.app-mode label,
   border: 1px solid #e2e8f0 !important;
   color: #000000 !important;
 }
-.drawer-chat-bubble.user {
+.drawer-chat-bubble.user,
+.drawer-chat-bubble.me {
   background: #0070f3 !important;
-  color: #0070f3 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 .drawer-input-row, .drawer-input-card {
   background: #ffffff !important;
