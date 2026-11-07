@@ -54,7 +54,7 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
           } catch {}
           setSuccessMsg('Email verified successfully! Launching dashboard...');
           setTimeout(() => {
-            window.location.href = '/index.html#dashboard';
+            window.location.href = '/app.html#dashboard';
           }, 800);
         } else {
           setError(data.error || 'Invalid verification code. Please try again.');
@@ -144,7 +144,7 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
           } catch {}
           setSuccessMsg('Welcome back! Launching dashboard...');
           setTimeout(() => {
-            window.location.href = '/index.html#dashboard';
+            window.location.href = '/app.html#dashboard';
           }, 800);
         }
       } else {
@@ -159,7 +159,7 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
 
   const handleGoogleSso = () => {
     // Forward to full authentication page which initializes Google Identity SDK
-    window.location.href = '/index.html#login';
+    window.location.href = '/app.html#login';
   };
 
   const autoFillCode = () => {
@@ -372,7 +372,7 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
                   <div className="flex items-center justify-between mb-1">
                     <label className="text-xs font-semibold text-slate-700">Password</label>
                     {mode === 'login' && (
-                      <a href="/index.html#login" className="text-[11px] text-[#0070f3] hover:underline">
+                      <a href="/app.html#login" className="text-[11px] text-[#0070f3] hover:underline">
                         Forgot password?
                       </a>
                     )}
@@ -432,7 +432,7 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
           {/* Footer Navigation */}
           <div className="pt-2 text-center border-t border-slate-100 text-xs text-slate-500">
             <a
-              href="/index.html#login"
+              href="/app.html#login"
               className="text-[#0070f3] hover:underline font-semibold"
             >
               Or open standalone full-screen auth page →

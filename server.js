@@ -4442,10 +4442,10 @@ if (fs.existsSync(landingDistPath)) {
 }
 
 // Explicit auth and dashboard routes
-app.get('/login', (req, res) => res.redirect('/index.html#login'));
-app.get('/signup', (req, res) => res.redirect('/index.html#signup'));
-app.get('/dashboard', (req, res) => res.redirect('/index.html#dashboard'));
-app.get('/app', (req, res) => res.redirect('/index.html#dashboard'));
+app.get('/login', (req, res) => res.redirect('/app.html#login'));
+app.get('/signup', (req, res) => res.redirect('/app.html#signup'));
+app.get('/dashboard', (req, res) => res.redirect('/app.html#dashboard'));
+app.get('/app', (req, res) => res.redirect('/app.html#dashboard'));
 
 app.get('/', (req, res) => {
   const landingIndex = path.join(__dirname, 'landing', 'dist', 'index.html');
