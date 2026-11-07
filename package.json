@@ -4,6 +4,7 @@
   "description": "Full Glassmorphism landing page + real functional PHP backend + SQLite database + Admin Control Panel.",
   "main": "app-shell.js",
   "scripts": {
+    "build": "npm --prefix landing install && npm --prefix landing run build",
     "start": "node server.js",
     "server": "node server.js",
     "dev": "node server.js",

@@ -1,18 +1,15 @@
 import { Suspense, useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Environment, Lightformer } from '@react-three/drei';
-import { InfinityKnot } from './Infinity';
-import { OrbitRing } from './Ring';
-import { DriftingParticles } from './Particles';
-import { GroundShadow } from './GroundShadow';
+import { ScrollRig } from './ScrollRig';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { useAppStore } from '../lib/store';
 
-interface HeroSceneProps {
+interface MasterSceneProps {
   mousePosition: { x: number; y: number };
 }
 
-export function HeroScene({ mousePosition }: HeroSceneProps) {
+export function MasterScene({ mousePosition }: MasterSceneProps) {
   const isMobile = useIsMobile();
   const setWebglAvailable = useAppStore((s) => s.setWebglAvailable);
   const [hasWebGL, setHasWebGL] = useState(true);
@@ -32,23 +29,11 @@ export function HeroScene({ mousePosition }: HeroSceneProps) {
   }, [setWebglAvailable]);
 
   if (!hasWebGL) {
-    return (
-      <div className="relative w-full h-full flex items-center justify-center">
-        <picture>
-          <source srcSet="/images/hero-infinity-hd.webp" type="image/webp" />
-          <img
-            src="/images/hero-infinity-hd.png"
-            alt="HEA Link 3D Blue Infinity"
-            className="w-full max-w-[540px] h-auto object-contain select-none pointer-events-none drop-shadow-xl"
-            loading="eager"
-          />
-        </picture>
-      </div>
-    );
+    return null;
   }
 
   return (
-    <div className="relative w-full h-full min-h-[440px] flex items-center justify-center">
+    <div className="fixed inset-0 w-full h-full pointer-events-none z-0 overflow-hidden">
       <Canvas
         camera={{ position: [0, 0, 7.8], fov: 42 }}
         dpr={[1, isMobile ? 1.5 : 2]}
@@ -60,19 +45,13 @@ export function HeroScene({ mousePosition }: HeroSceneProps) {
         className="pointer-events-none"
       >
         <Suspense fallback={null}>
-          {/* Lighting Rig */}
+          {/* Studio Lighting Rig */}
           <ambientLight intensity={0.8} />
-
-          {/* Key Light: Vibrant cyan/sky-blue */}
           <directionalLight position={[5, 6, 7]} intensity={2.2} color="#00d2ff" />
-
-          {/* Rim Backlight: Crisp White */}
           <directionalLight position={[-6, -3, -5]} intensity={2.6} color="#ffffff" />
-
-          {/* Fill Light: Vibrant Electric Blue */}
           <pointLight position={[0, 1, 5]} intensity={1.8} distance={25} color="#0066ff" />
 
-          {/* Lightweight Drei Environment with Lightformers for Glossy Reflections */}
+          {/* Lightweight Environment Reflections */}
           <Environment resolution={128}>
             <group rotation={[-Math.PI / 3, 0, 1]}>
               <Lightformer
@@ -100,19 +79,13 @@ export function HeroScene({ mousePosition }: HeroSceneProps) {
             </group>
           </Environment>
 
-          {/* 3D Infinity Knot with Mouse Lerp */}
-          <InfinityKnot mousePosition={mousePosition} />
-
-          {/* Orbiting Thin Ring */}
-          <OrbitRing />
-
-          {/* Drifting Ambient Particles */}
-          <DriftingParticles />
-
-          {/* Subtle Ground Shadow */}
-          <GroundShadow />
+          {/* Master 3D Scroll Rig (Persistent Object + Scrollytelling Transitions) */}
+          <ScrollRig mousePosition={mousePosition} />
         </Suspense>
       </Canvas>
     </div>
   );
 }
+
+// Alias for convenience
+export const HeroScene = MasterScene;

@@ -4433,6 +4433,28 @@ app.use((req, res, next) => {
 
 });
 
+// Serve compiled 3D Vite landing page at "/" for visitors
+const fs = require('fs');
+const landingDistPath = path.join(__dirname, 'landing', 'dist');
+if (fs.existsSync(landingDistPath)) {
+  app.use('/assets', express.static(path.join(landingDistPath, 'assets')));
+  app.use(express.static(landingDistPath, { index: false }));
+}
+
+// Explicit auth and dashboard routes
+app.get('/login', (req, res) => res.redirect('/index.html#login'));
+app.get('/signup', (req, res) => res.redirect('/index.html#signup'));
+app.get('/dashboard', (req, res) => res.redirect('/index.html#dashboard'));
+app.get('/app', (req, res) => res.redirect('/index.html#dashboard'));
+
+app.get('/', (req, res) => {
+  const landingIndex = path.join(__dirname, 'landing', 'dist', 'index.html');
+  if (fs.existsSync(landingIndex)) {
+    return res.sendFile(landingIndex);
+  }
+  return res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 app.use(express.static(path.join(__dirname), { dotfiles: 'ignore' }));
 
 app.use((req, res) => {

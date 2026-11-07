@@ -972,8 +972,7 @@ input[type=color] {
   gap: 12px !important;
   cursor: default !important;
   box-sizing: border-box !important;
-  animation: none !important;
-  transform: none !important;
+  /* animation override enabled for clean landing */
 }
 .hud-card:hover {
   box-shadow: 0 16px 36px -4px rgba(0, 70, 200, 0.16) !important;

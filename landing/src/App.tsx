@@ -2,28 +2,85 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Navbar } from './components/Navbar';
 import { Hero } from './sections/Hero';
+import { HeroBadges } from './sections/HeroBadges';
+import { SkipperCarousel } from './sections/SkipperCarousel';
+import { ShortLinksSection } from './sections/ShortLinks';
+import { QrCodesSection } from './sections/QrCodes';
+import { BioPagesSection } from './sections/BioPages';
+import { AnalyticsSection } from './sections/Analytics';
+import { CoreFeatures } from './sections/CoreFeatures';
+import { AiAdvanced } from './sections/AiAdvanced';
+import { StepsSection } from './sections/Steps';
+import { FeaturesSection } from './sections/Features';
+import { PricingSection } from './sections/Pricing';
+import { FaqSection } from './sections/Faq';
+import { FinalCtaSection } from './sections/FinalCta';
+import { Footer } from './components/Footer';
+import { MasterScene } from './canvas/Scene';
+import { CustomCursor } from './components/CustomCursor';
+import { AuthModal } from './components/AuthModal';
+import { useLenis } from './hooks/useLenis';
+import { useReducedMotion } from './hooks/useReducedMotion';
 
 export function App() {
   const [loading, setLoading] = useState(true);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [authModal, setAuthModal] = useState<{ isOpen: boolean; mode: 'login' | 'signup' }>({
+    isOpen: false,
+    mode: 'login',
+  });
+  const isReduced = useReducedMotion();
+
+  // Initialize smooth momentum scrolling via Lenis & GSAP ScrollTrigger
+  useLenis();
 
   useEffect(() => {
-    // Elegant fast preloader (<= 1.0s)
+    // Fast brand preloader (<= 0.8s)
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 900);
+    }, 750);
     return () => clearTimeout(timer);
   }, []);
 
+  // Listen to hash changes for #login and #signup to pop up auth modal
+  useEffect(() => {
+    const handleHash = () => {
+      const h = window.location.hash.toLowerCase();
+      if (h === '#login') {
+        setAuthModal({ isOpen: true, mode: 'login' });
+      } else if (h === '#signup') {
+        setAuthModal({ isOpen: true, mode: 'signup' });
+      }
+    };
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
+
+  useEffect(() => {
+    if (isReduced) return;
+    const handleGlobalMouseMove = (e: MouseEvent) => {
+      const x = (e.clientX / window.innerWidth) * 2 - 1;
+      const y = (e.clientY / window.innerHeight) * 2 - 1;
+      setMousePos({ x, y });
+    };
+    window.addEventListener('mousemove', handleGlobalMouseMove, { passive: true });
+    return () => window.removeEventListener('mousemove', handleGlobalMouseMove);
+  }, [isReduced]);
+
   return (
-    <div className="min-h-screen relative selection:bg-[#0070f3] selection:text-white">
-      {/* 1. Fast Preloader */}
+    <div className="relative min-h-screen selection:bg-[#0070f3] selection:text-white overflow-x-hidden">
+      {/* 1. Desktop Custom Follow Cursor */}
+      <CustomCursor />
+
+      {/* 2. Fast Fluid Preloader */}
       <AnimatePresence>
         {loading && (
           <motion.div
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.45, ease: 'easeInOut' }}
-            className="fixed inset-0 z-50 bg-[#eef6ff] flex flex-col items-center justify-center gap-4"
+            transition={{ duration: 0.35, ease: 'easeInOut' }}
+            className="fixed inset-0 z-[100] bg-[#eef6ff] flex flex-col items-center justify-center gap-4"
           >
             <div className="relative w-16 h-12 flex items-center justify-center">
               <svg
@@ -41,34 +98,78 @@ export function App() {
                 />
               </svg>
             </div>
-            <div className="text-sm font-semibold tracking-wider text-[#0070f3] uppercase animate-pulse">
+            <div className="text-xs font-bold tracking-widest text-[#0070f3] uppercase animate-pulse">
               HEA Link
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* 2. Glass Navbar */}
-      <Navbar />
+      {/* 3. Persistent Fixed 3D Canvas Behind HTML (Hero -> Scrollytelling transitions) */}
+      <MasterScene mousePosition={mousePos} />
 
-      {/* 3. Hero Section (3D Lemniscate Knot + Parallax HUD Cards + Working Shorten Box) */}
-      <main>
+      {/* 4. Sticky Glass Navbar with Full Mega Menus */}
+      <Navbar onOpenAuth={(mode) => setAuthModal({ isOpen: true, mode })} />
+
+      {/* 5. Complete Rich Landing UI */}
+      <main className="relative z-10">
+        {/* 5.1 Hero: Title, Tabbed ShortenBox (Short Link, QR, Bulk), HUD Cards, 3D Loop */}
         <Hero />
 
-        {/* Step 1 Preview Indicator of Upcoming Scrollytelling Sections */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-[#0070f3] text-xs font-semibold uppercase tracking-wider mb-3">
-            ✨ Step 1 Completed: 3D Lemniscate + Hero Rig
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0b132b] mb-4">
-            Next: Pinned 3D Scrollytelling & Morph Rig
-          </h2>
-          <p className="text-slate-600 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
-            In Step 2, the GSAP ScrollTrigger + Lenis rig will seamlessly guide the 3D infinity object
-            down into the centered URL collapse scene and the 21×21 QR particle assembly.
-          </p>
-        </section>
+        {/* 5.2 4 Hero Feature Badges: Instant & Reliable, Powerful Analytics, Branded Experience, Global Reach */}
+        <HeroBadges />
+
+        {/* 5.3 Interactive Skipper Feature Showcase Carousel (4 interactive slides + stats + mockups) */}
+        <SkipperCarousel />
+
+        {/* 5.4 3D Scrollytelling: Short Links URL Collapse */}
+        <ShortLinksSection />
+
+        {/* 5.5 3D Scrollytelling: QR Codes 21x21 Particle Matrix */}
+        <QrCodesSection />
+
+        {/* 5.6 3D Scrollytelling: Bio Pages 3D Smartphone Link Hub */}
+        <BioPagesSection />
+
+        {/* 5.7 3D Scrollytelling: Analytics 3D Globe & Live Stream Telemetry */}
+        <AnalyticsSection />
+
+        {/* 5.8 Everything You Need: 4 Core Platform Features */}
+        <CoreFeatures />
+
+        {/* 5.9 Only On HEA Link: AI Slug Suggester + 6 Advanced Control Cards */}
+        <AiAdvanced />
+
+        {/* 5.10 How It Works: 3 Easy Steps */}
+        <StepsSection />
+
+        {/* 5.11 Enterprise Scalability Features */}
+        <FeaturesSection />
+
+        {/* 5.12 Simple, Transparent Pricing: Free (Rs 0), Pro (Rs 1,499), Enterprise (Custom) */}
+        <PricingSection />
+
+        {/* 5.13 Frequently Asked Questions Accordion */}
+        <FaqSection />
+
+        {/* 5.14 Final Bottom CTA ("Ready to share smarter links?" -> #signup) */}
+        <FinalCtaSection />
       </main>
+
+      {/* 6. Comprehensive Glass Footer */}
+      <Footer />
+
+      {/* 7. Interactive Login & Sign Up Modal */}
+      <AuthModal
+        isOpen={authModal.isOpen}
+        initialMode={authModal.mode}
+        onClose={() => {
+          setAuthModal((prev) => ({ ...prev, isOpen: false }));
+          if (window.location.hash === '#login' || window.location.hash === '#signup') {
+            history.replaceState(null, '', window.location.pathname);
+          }
+        }}
+      />
     </div>
   );
 }
