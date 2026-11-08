@@ -50,7 +50,7 @@ export function ScrollRig({ mousePosition }: ScrollRigProps) {
 
     if (isReduced) {
       // In reduced motion, keep stationary default position
-      knotGroupRef.current.position.set(isMobile ? 0 : 2.2, 0, 0);
+      knotGroupRef.current.position.set(isMobile ? 0 : 2.2, -0.45, 0);
       knotGroupRef.current.scale.set(1, 1, 1);
       return;
     }
@@ -61,15 +61,15 @@ export function ScrollRig({ mousePosition }: ScrollRigProps) {
 
     // 1. Position & Scale the Infinity Knot based on current scene
     let targetX = isMobile ? 0 : 2.2;
-    let targetY = 0;
+    let targetY = -0.45;
     let targetZ = 0;
     let targetScale = 1;
     let knotOpacity = 1;
 
     if (isHeroScene) {
-      // Hero: Right column
+      // Hero: Right column, positioned with comfortable breathing room from top navbar
       targetX = isMobile ? 0 : 2.2;
-      targetY = 0;
+      targetY = -0.45;
       targetScale = 1;
     } else if (isShortLinksScene) {
       // Short Links: Object moves to center and scales up smoothly
@@ -117,7 +117,7 @@ export function ScrollRig({ mousePosition }: ScrollRigProps) {
   return (
     <>
       {/* 1. Persistent 3D Infinity Knot Group */}
-      <group ref={knotGroupRef} position={[isMobile ? 0 : 2.2, 0, 0]}>
+      <group ref={knotGroupRef} position={[isMobile ? 0 : 2.2, -0.45, 0]}>
         <InfinityKnot mousePosition={mousePosition} />
         <OrbitRing />
         <DriftingParticles />
