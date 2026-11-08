@@ -525,6 +525,12 @@
 
     // 2. 3D Card Scroll Entrance (Staggered rotateX + translateZ)
     const cardSelectors = [
+      '.bento-card',
+      '.bento-welcome-hero',
+      '.bento-calendar-card',
+      '.bento-stat-card',
+      '.bento-recent-card',
+      '.bento-activity-card',
       '.dash-white-card',
       '.home-create-card',
       '.create-link-card',
@@ -592,6 +598,18 @@
           card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0)';
         };
       });
+    }
+
+    
+    // Animate Vertical Bar Gauges on Scroll into view
+    const gaugeBars = pane.querySelectorAll('.stat-gauge-bar');
+    if (gaugeBars.length > 0 && !prefersReducedMotion) {
+      setTimeout(() => {
+        gaugeBars.forEach((bar) => {
+          const targetH = bar.style.getPropertyValue('--gauge-height') || '60%';
+          bar.style.height = targetH;
+        });
+      }, 200);
     }
 
     // 4. Count-up Numbers for Stats & Analytics
@@ -681,9 +699,11 @@
 
     if (!pane) return;
 
-    pane.scrollTop = 0;
-
-    try {
+    // Smooth blur + fade + slight scale transition
+    pane.classList.add('is-view-switching');
+    setTimeout(() => {
+      pane.scrollTop = 0;
+      try {
 
       switch (tab) {
 
@@ -784,7 +804,9 @@
     }
 
     // 3D Motion & Card Stagger Refresh
-    setTimeout(() => initDashboard3DMotion(), 40);
+      pane.classList.remove('is-view-switching');
+      setTimeout(() => initDashboard3DMotion(), 40);
+    }, 110);
 
     // Clean, zero-jitter instant rendering for dashboard views
     // animatePageText removed here to prevent UI shifts and element bounce
@@ -794,139 +816,379 @@
   // ---------------- 1. HOME SCREEN (Frame 1 & Frame 6 - 1:1 with reference) ---------------- //
 
   function renderHome(container) {
-
     let activeType = 'link'; // 'link' or 'qr'
+    const links = getStoredLinks();
+    const pages = getStoredPages();
+
+    // Time-based dynamic greeting
+    const hour = new Date().getHours();
+    const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+    const firstName = (appUser.name || 'Fury').split(' ')[0];
+
+    // Compute live click stats
+    let totalClicks = links.reduce((sum, l) => sum + (parseInt(l.clicks, 10) || 0), 0);
+    if (totalClicks === 0) totalClicks = 24892; // Demo baseline if brand new
+
+    const qrCount = links.filter(l => l.qrColor || l.qrStyle).length || 4210;
+    const activeLinksCount = links.length || 18;
+    const activePagesCount = pages.length || 3;
+
+    // Calendar day pills calculation (Current Week)
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const now = new Date();
+    const currentDayIdx = (now.getDay() + 6) % 7; // 0 for Mon, 6 for Sun
+    const currentMonthStr = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    const currentDateNum = now.getDate();
 
     container.innerHTML = `
+      <div class="bento-dashboard-wrap">
+        
+        <!-- ====================================================
+             1. TOP ROW: WIDE WELCOME HERO + CALENDAR DATE STRIP
+             ==================================================== -->
+        <div class="bento-top-row">
+          
+          <!-- Wide Welcome Hero Card -->
+          <div class="bento-card bento-welcome-hero card-3d-reveal" style="transition-delay: 50ms;">
+            <div class="bento-hero-bg-orb" aria-hidden="true"></div>
+            
+            <div class="bento-hero-header-row">
+              <div class="bento-hero-badge-wrap">
+                <span class="live-activity-beacon">
+                  <span class="beacon-dot-pulse"></span>
+                  <span class="beacon-text">Live Activity · 42 visitors right now</span>
+                </span>
+                <div class="bento-avatar-stack">
+                  <div class="bento-avatar" style="background:#0A6CFF;">FZ</div>
+                  <div class="bento-avatar" style="background:#7928ca;">AK</div>
+                  <div class="bento-avatar" style="background:#10b981;">EM</div>
+                  <span class="bento-avatar-more">+1.4k active</span>
+                </div>
+              </div>
+              <button class="bento-hero-pro-btn" onclick="window.openCheckoutModal('pro')">
+                <span>👑</span> ${appUser.isPro ? 'Core PRO Active' : 'Upgrade to Pro'}
+              </button>
+            </div>
 
-      <!-- Card 1: "What do you want to create?" (1:1 Exact Reference Match) -->
-      <div class="home-create-card">
-        <div class="home-icon-3d-wrap">
-  <svg width="84" height="84" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <!-- Burst Spark Lines -->
-    <path d="M50 4V12" stroke="#93c5fd" stroke-width="3" stroke-linecap="round"/>
-    <path d="M22 16L28 22" stroke="#93c5fd" stroke-width="3" stroke-linecap="round"/>
-    <path d="M78 16L72 22" stroke="#93c5fd" stroke-width="3" stroke-linecap="round"/>
-    <path d="M88 42L80 44" stroke="#93c5fd" stroke-width="3" stroke-linecap="round"/>
-    <path d="M12 42L20 44" stroke="#93c5fd" stroke-width="3" stroke-linecap="round"/>
-    <!-- 3D Squircle Base Shadow -->
-    <rect x="18" y="24" width="64" height="64" rx="20" fill="rgba(0,112,243,0.18)" transform="rotate(-6 50 56)"/>
-    <!-- 3D Squircle Main Body -->
-    <rect x="18" y="20" width="64" height="64" rx="20" fill="url(#squircleGradHome)" stroke="#bfdbfe" stroke-width="2" transform="rotate(-6 50 52)"/>
-    <!-- Glossy Highlight Sheen -->
-    <path d="M26 28C26 23 30 19 35 18L58 16C63 15 67 19 67 24C67 24 50 25 38 34C28 42 26 52 26 52L26 28Z" fill="url(#sheenGradHome)" opacity="0.6" transform="rotate(-6 50 52)"/>
-    <!-- Chain Link Icon -->
-    <g transform="rotate(-6 50 52) translate(30, 32)">
-      <path d="M16 22L22 16C25.3 12.7 25.3 7.3 22 4C18.7 0.7 13.3 0.7 10 4L4 10C0.7 13.3 0.7 18.7 4 22C6 24 8.7 25 11.3 25" stroke="#0070f3" stroke-width="4.5" stroke-linecap="round"/>
-      <path d="M24 18L18 24C14.7 27.3 9.3 27.3 6 24C2.7 20.7 2.7 15.3 6 12L12 6C15.3 2.7 20.7 2.7 24 6C26 8 27 10.7 27 13.3" stroke="#0050d0" stroke-width="4.5" stroke-linecap="round"/>
-    </g>
-    <defs>
-      <linearGradient id="squircleGradHome" x1="18" y1="20" x2="82" y2="84" gradientUnits="userSpaceOnUse">
-        <stop stop-color="#ffffff"/>
-        <stop offset="0.4" stop-color="#eff6ff"/>
-        <stop offset="1" stop-color="#dbeafe"/>
-      </linearGradient>
-      <linearGradient id="sheenGradHome" x1="26" y1="16" x2="67" y2="52" gradientUnits="userSpaceOnUse">
-        <stop stop-color="#ffffff" stop-opacity="0.9"/>
-        <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-      </linearGradient>
-    </defs>
-  </svg>
-</div>
+            <div class="bento-hero-main">
+              <h2 class="bento-hero-title">
+                ${greeting}, ${firstName}, <span class="hero-gradient-text">your links are growing</span> 🚀
+              </h2>
+              <p class="bento-hero-sub">
+                99.9% network uptime across custom domains. Branded short links, vector QR codes and bio pages.
+              </p>
+            </div>
 
-        <!-- Title with curved blue underline under "create?" -->
-        <h3 class="home-hero-title">
-          What do you want to <span class="curved-underline-wrap">create?<svg class="curved-underline-svg" viewBox="0 0 130 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 13C32 4 92 3 127 11" stroke="#0070f3" stroke-width="3.5" stroke-linecap="round"/></svg></span>
-        </h3>
+            <!-- Integrated Quick Shorten Capsule (100% Functionality Preserved) -->
+            <div class="bento-hero-shorten-panel">
+              <div class="home-type-tabs bento-hero-tabs">
+                <button class="home-type-tab active" type="button" id="tabShortLinkOpt">
+                  <span>🔗</span> Short link &amp; URL
+                </button>
+                <button class="home-type-tab" type="button" id="tabQrCodeOpt">
+                  <span>▦</span> Vector QR Code
+                </button>
+              </div>
 
-        <!-- 2 Tab Options -->
-        <div class="home-type-tabs">
-          <button class="home-type-tab active" type="button" id="tabShortLinkOpt">
-            <span>🔗</span> Short link &amp; URL
-          </button>
-          <button class="home-type-tab" type="button" id="tabQrCodeOpt">
-            <span>▦</span> QR Code
-          </button>
-        </div>
+              <form id="homeShortenForm" class="bento-shorten-form">
+                <div class="bento-input-group">
+                  <span id="homeInputIcon" class="bento-input-icon">🔗</span>
+                  <input type="url" id="homeShortenInput" class="bento-hero-input" placeholder="Paste destination URL to generate 3D short link..." required autocomplete="off">
+                </div>
+                <div class="bento-btn-group">
+                  <select class="home-domain-select" id="homeDomainSelect" style="display:none !important;">
+                    <option value="healink.store" selected>healink.store</option>
+                  </select>
+                  <button type="submit" class="bento-cta-submit" id="homeSubmitBtn">
+                    <span>Create Now</span> →
+                  </button>
+                </div>
+              </form>
 
-        <!-- Clean Capsule Shorten Input -->
-        <form id="homeShortenForm" class="home-shorten-box">
-          <div class="home-shorten-left-grp">
-            <span id="homeInputIcon" class="shorten-chain-icon">🔗</span>
-            <input type="url" id="homeShortenInput" class="home-shorten-input" placeholder="Paste a long URL to shorten it..." style="border:none !important;outline:none !important;box-shadow:none !important;background:transparent !important;" required>
+              <div id="homeShortenResult" class="home-shorten-result" style="display:none;margin-top:16px;"></div>
+            </div>
+
+            <div class="bento-quick-chips">
+              <span class="chip-label">Quick actions:</span>
+              <button type="button" class="bento-action-chip" onclick="if(window.appShell) window.appShell.openCreateModal('link')">
+                <span>⚡</span> Personalize custom slug
+              </button>
+              <button type="button" class="bento-action-chip" onclick="if(window.appShell) window.appShell.navigate('qr')">
+                <span>🎨</span> Custom QR design
+              </button>
+              <button type="button" class="bento-action-chip" onclick="if(window.appShell) window.appShell.navigate('pages')">
+                <span>📄</span> New Bio Page
+              </button>
+            </div>
           </div>
-          <div class="home-shorten-right-grp">
-            <select class="home-domain-select" id="homeDomainSelect" style="display:none !important;">
-              <option value="healink.store" selected>healink.store</option>
-              <option value="bit.ly">bit.ly</option>
-            </select>
-            <button type="submit" class="home-shorten-btn" id="homeSubmitBtn" title="Shorten URL">→</button>
+
+          <!-- Compact Calendar & Date Strip Card -->
+          <div class="bento-card bento-calendar-card card-3d-reveal" style="transition-delay: 110ms;">
+            <div class="calendar-card-header">
+              <div class="cal-title-grp">
+                <div class="cal-month-text">${currentMonthStr}</div>
+                <div class="cal-subtitle">High Traffic Window · Week ${Math.ceil(currentDateNum / 7)}</div>
+              </div>
+              <div class="cal-live-badge">
+                <span class="cal-pulse-ring"></span>
+                <span>${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} PKT</span>
+              </div>
+            </div>
+
+            <!-- 7-Day Interactive Day Strip -->
+            <div class="calendar-week-strip">
+              ${days.map((d, idx) => {
+                const isActive = idx === currentDayIdx;
+                const dateOffset = currentDateNum - (currentDayIdx - idx);
+                return `
+                  <div class="cal-day-pill ${isActive ? 'active' : ''}">
+                    <span class="cal-day-name">${d}</span>
+                    <span class="cal-day-num">${dateOffset > 0 ? dateOffset : (30 + dateOffset)}</span>
+                    ${isActive ? '<span class="cal-active-dot"></span>' : ''}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+
+            <div class="cal-event-summary">
+              <div class="cal-event-icon">🎯</div>
+              <div class="cal-event-text">
+                <div class="cal-event-title">Peak Visitor Velocity</div>
+                <div class="cal-event-desc">+42% spike projected on weekend bio pages</div>
+              </div>
+            </div>
           </div>
-        </form>
 
-        <div id="homeShortenResult" class="home-shorten-result" style="display:none;"></div>
-
-        <!-- Promo Banner Pill -->
-        <div class="home-promo-banner" onclick="window.openCheckoutModal('pro')">
-          <span class="promo-crown">👑</span>
-          <span>Get custom links and a complimentary domain. <b class="promo-link-text">Upgrade now &gt;</b></span>
         </div>
 
-        <!-- Quota Text -->
-        <div class="home-quota-text">
-          ${appUser.isPro ? '<span style="color:#10b981;font-weight:700;">👑 Core PRO Active: Unlimited short links &amp; Vector QR Codes</span>' : 'You can create <b style="color:#0070f3; font-weight:800;">5 more</b> short links this month. 🚀'}
+        <!-- ====================================================
+             2. BENTO STAT CARDS (Clicks, QR Scans, Active Links)
+             ==================================================== -->
+        <div class="bento-stats-row">
+          
+          <!-- Stat 1: Total Clicks with Animated Sparkline -->
+          <div class="bento-card bento-stat-card card-3d-reveal" style="transition-delay: 160ms;">
+            <div class="stat-card-top">
+              <div class="stat-icon-bubble" style="background:rgba(10,108,255,0.12);color:#0A6CFF;">🔗</div>
+              <span class="stat-growth-pill positive">+24.8% ↗</span>
+            </div>
+            <div class="stat-card-middle">
+              <div class="stat-label">Total Clicks Tracked</div>
+              <div class="stat-number count-up" data-count-up="${totalClicks}">${totalClicks.toLocaleString()}</div>
+            </div>
+            <!-- Sparkline Chart SVG -->
+            <div class="stat-sparkline-wrap">
+              <svg viewBox="0 0 180 40" class="sparkline-svg" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="sparkGradBlue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#0A6CFF" stop-opacity="0.35"/>
+                    <stop offset="100%" stop-color="#0A6CFF" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <path d="M0 32 Q 25 18, 50 24 T 100 12 T 145 16 T 180 6 L 180 40 L 0 40 Z" fill="url(#sparkGradBlue)"/>
+                <path d="M0 32 Q 25 18, 50 24 T 100 12 T 145 16 T 180 6" fill="none" stroke="#0A6CFF" stroke-width="2.6" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="stat-progress-line-wrap">
+              <div class="stat-progress-fill" style="width: 78%; background: linear-gradient(90deg, #0A6CFF, #00c8ff);"></div>
+            </div>
+            <div class="stat-card-bottom-sub">78% of monthly growth milestone achieved</div>
+          </div>
+
+          <!-- Stat 2: QR Scans with Vertical Bar Gauge -->
+          <div class="bento-card bento-stat-card card-3d-reveal" style="transition-delay: 210ms;">
+            <div class="stat-card-top">
+              <div class="stat-icon-bubble" style="background:rgba(0,200,255,0.12);color:#00a3d4;">▦</div>
+              <span class="stat-growth-pill positive">+18.4% ↗</span>
+            </div>
+            <div class="stat-card-middle">
+              <div class="stat-label">Vector QR Code Scans</div>
+              <div class="stat-number count-up" data-count-up="${qrCount}">${qrCount.toLocaleString()}</div>
+            </div>
+            <!-- Vertical Bar Gauge Visualization -->
+            <div class="stat-bar-gauge-row">
+              <div class="stat-gauge-bar" style="--gauge-height: 45%;" title="Mon"></div>
+              <div class="stat-gauge-bar" style="--gauge-height: 62%;" title="Tue"></div>
+              <div class="stat-gauge-bar" style="--gauge-height: 38%;" title="Wed"></div>
+              <div class="stat-gauge-bar" style="--gauge-height: 85%;" title="Thu"></div>
+              <div class="stat-gauge-bar" style="--gauge-height: 72%;" title="Fri"></div>
+              <div class="stat-gauge-bar active" style="--gauge-height: 94%;" title="Sat"></div>
+              <div class="stat-gauge-bar" style="--gauge-height: 58%;" title="Sun"></div>
+            </div>
+            <div class="stat-card-bottom-sub">Peak scan velocity: <b>Saturday afternoon</b></div>
+          </div>
+
+          <!-- Stat 3: Active Links & Pages Radial Progress -->
+          <div class="bento-card bento-stat-card card-3d-reveal" style="transition-delay: 260ms;">
+            <div class="stat-card-top">
+              <div class="stat-icon-bubble" style="background:rgba(16,185,129,0.12);color:#10b981;">📄</div>
+              <span class="stat-growth-pill" style="background:rgba(16,185,129,0.12);color:#10b981;">${appUser.isPro ? 'PRO 👑' : 'FREE'}</span>
+            </div>
+            <div class="stat-card-middle">
+              <div class="stat-label">Published Assets</div>
+              <div class="stat-number">${activeLinksCount} <span style="font-size:16px;color:#94a3b8;font-weight:600;">Links</span> · ${activePagesCount} <span style="font-size:16px;color:#94a3b8;font-weight:600;">Bio</span></div>
+            </div>
+            <div class="stat-radial-wrap">
+              <svg width="60" height="60" viewBox="0 0 60 60" class="radial-svg">
+                <circle cx="30" cy="30" r="24" stroke="rgba(10,108,255,0.1)" stroke-width="5" fill="none"/>
+                <circle cx="30" cy="30" r="24" stroke="#10b981" stroke-width="5" stroke-dasharray="150" stroke-dashoffset="35" stroke-linecap="round" fill="none"/>
+              </svg>
+              <div class="radial-text">
+                <div class="radial-num">92%</div>
+                <div class="radial-label">Health</div>
+              </div>
+            </div>
+            <div class="stat-card-bottom-sub">${appUser.isPro ? 'All custom slugs active with SSL encryption' : 'Upgrade for unlimited custom back-halves'}</div>
+          </div>
+
         </div>
+
+        <!-- ====================================================
+             3. BENTO BOTTOM ROW: RECENT ASSETS + ACTIVITY TABS
+             ==================================================== -->
+        <div class="bento-bottom-row">
+          
+          <!-- Recent Links & QR Codes Row Card -->
+          <div class="bento-card bento-recent-card card-3d-reveal" style="transition-delay: 310ms;">
+            <div class="bento-card-title-row">
+              <div class="card-title-grp">
+                <h3 class="bento-card-title">Recent Links &amp; QR Codes</h3>
+                <span class="bento-card-sub">Recently shortened URLs with live click telemetry</span>
+              </div>
+              <button class="bento-card-action-link" onclick="window.appShell.navigate('links')">
+                View all (${links.length}) →
+              </button>
+            </div>
+
+            <div class="bento-recent-list">
+              ${links.slice(0, 3).map((item, idx) => {
+                const shortUrl = item.realShort || (item.slug ? 'https://healink.store/' + item.slug : 'https://healink.store/v22');
+                const destUrl = item.dest || item.url || 'https://google.com';
+                const clicks = item.clicks || Math.floor(12 + idx * 45);
+                return `
+                  <div class="recent-link-row">
+                    <div class="recent-qr-mini">
+                      <div class="mini-qr-box">▦</div>
+                    </div>
+                    <div class="recent-link-info">
+                      <div class="recent-title-line">
+                        <span class="recent-title">${item.title || item.slug || 'Campaign Drop'}</span>
+                        <span class="recent-click-pill">👁️ ${clicks} clicks</span>
+                      </div>
+                      <a href="${shortUrl}" target="_blank" rel="noopener" class="recent-short-link">${shortUrl}</a>
+                      <div class="recent-dest-link" title="${destUrl}">→ ${destUrl}</div>
+                    </div>
+                    <div class="recent-link-actions">
+                      <button type="button" class="recent-btn-icon" title="Copy Short Link" onclick="window.appShell.copy('${shortUrl}')">📋</button>
+                      <button type="button" class="recent-btn-icon" title="View QR Code" onclick="window.appShell.navigate('qr')">▦</button>
+                      <a href="${shortUrl}" target="_blank" rel="noopener" class="recent-btn-icon" title="Visit Live Destination">↗</a>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+              ${links.length === 0 ? `
+                <div class="recent-empty-hint">
+                  <span>✨</span>
+                  <div>No links shortened yet. Paste a destination URL above to create your first link!</div>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+
+          <!-- Notifications & Activity Card with Tabs (Overview, Shared, Comments) -->
+          <div class="bento-card bento-activity-card card-3d-reveal" style="transition-delay: 360ms;">
+            <div class="bento-card-title-row">
+              <h3 class="bento-card-title">Live Activity Feed</h3>
+              <!-- 3 Interactive Tabs -->
+              <div class="bento-activity-tabs">
+                <button type="button" class="bento-tab-btn active" data-activity-tab="overview">Overview</button>
+                <button type="button" class="bento-tab-btn" data-activity-tab="shared">Shared</button>
+                <button type="button" class="bento-tab-btn" data-activity-tab="comments">Comments</button>
+              </div>
+            </div>
+
+            <!-- Tab 1: Overview Panel -->
+            <div class="activity-panel active" id="actPanelOverview">
+              <div class="activity-feed-list">
+                <div class="activity-item">
+                  <div class="activity-badge-dot" style="background:#0A6CFF;"></div>
+                  <div class="activity-content">
+                    <div class="activity-text">Direct visit from <b>New York, United States</b></div>
+                    <div class="activity-time">2 mins ago · Safari on iOS 18</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-badge-dot" style="background:#10b981;"></div>
+                  <div class="activity-content">
+                    <div class="activity-text">QR Scan event: <b>Vector QR Code #4</b> scanned in <b>London, UK</b></div>
+                    <div class="activity-time">14 mins ago · Mobile Camera</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-badge-dot" style="background:#7928ca;"></div>
+                  <div class="activity-content">
+                    <div class="activity-text">Bio Page visited: <b>CyberPulse Creator Hub</b></div>
+                    <div class="activity-time">32 mins ago · Instagram Referral</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-badge-dot" style="background:#f59e0b;"></div>
+                  <div class="activity-content">
+                    <div class="activity-text">Campaign <b>'Black Friday Sale'</b> reached milestone of 1,000 clicks</div>
+                    <div class="activity-time">1 hour ago · High Conversion</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab 2: Shared Panel -->
+            <div class="activity-panel" id="actPanelShared" style="display:none;">
+              <div class="activity-feed-list">
+                <div class="activity-item">
+                  <div class="activity-badge-dot" style="background:#0A6CFF;"></div>
+                  <div class="activity-content">
+                    <div class="activity-text"><b>High-Resolution Vector QR (.SVG)</b> exported for print catalog</div>
+                    <div class="activity-time">3 hours ago · Downloaded by Fury</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-badge-dot" style="background:#10b981;"></div>
+                  <div class="activity-content">
+                    <div class="activity-text">Analytics report shared with marketing team via public link</div>
+                    <div class="activity-time">Yesterday · 7 team views</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab 3: Comments Panel -->
+            <div class="activity-panel" id="actPanelComments" style="display:none;">
+              <div class="activity-feed-list">
+                <div class="activity-item">
+                  <div class="activity-badge-dot" style="background:#7928ca;"></div>
+                  <div class="activity-content">
+                    <div class="activity-text"><b>Internal Note</b>: "Remember to update holiday redirect destination on Dec 1"</div>
+                    <div class="activity-time">Nov 5 by Fury · Workspace Notes</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-badge-dot" style="background:#00c8ff;"></div>
+                  <div class="activity-content">
+                    <div class="activity-text"><b>HEA Assist AI</b> generated 3 personalized slug suggestions for bio page</div>
+                    <div class="activity-time">Nov 4 · AI Assist Panel</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
       </div>
-
-      <!-- Card 2: "Simplify your workflow" (1:1 Exact Reference Match) -->
-      <div class="home-workflow-card">
-        <div class="workflow-left-col">
-          <div class="workflow-title-row">
-            <span class="workflow-sparkle">✨</span>
-            <h4 class="workflow-heading">Simplify your workflow</h4>
-            <span class="workflow-subtext">Explore smarter ways to create links.</span>
-          </div>
-          <div class="workflow-chips-row">
-            <button type="button" class="workflow-chip-btn" onclick="if(window.appShell) window.appShell.openCreateModal('link')">
-              <span>✏️</span> Personalize a short link
-            </button>
-            <button type="button" class="workflow-chip-btn" onclick="if(window.appShell) window.appShell.openCreateModal('link')">
-              <span>⭐</span> Make a unique link for every post
-            </button>
-          </div>
-          <button type="button" class="workflow-upgrade-cta" onclick="window.openCheckoutModal('pro')">
-            <span>👑</span> Upgrade to Create with AI <span>→</span>
-          </button>
-        </div>
-        <div class="workflow-right-col">
-  <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <!-- Spark Burst Lines -->
-    <path d="M52 8L50 16" stroke="#93c5fd" stroke-width="2.5" stroke-linecap="round"/>
-    <path d="M72 14L66 20" stroke="#93c5fd" stroke-width="2.5" stroke-linecap="round"/>
-    <path d="M84 32L76 34" stroke="#93c5fd" stroke-width="2.5" stroke-linecap="round"/>
-    <path d="M26 34L34 38" stroke="#93c5fd" stroke-width="2.5" stroke-linecap="round"/>
-    <!-- Card Drop Shadow -->
-    <rect x="28" y="24" width="46" height="62" rx="14" fill="rgba(0,112,243,0.18)" transform="rotate(18 51 55)"/>
-    <!-- Card Body -->
-    <rect x="28" y="20" width="46" height="62" rx="14" fill="url(#cardGradHome)" stroke="#bfdbfe" stroke-width="2" transform="rotate(18 51 51)"/>
-    <!-- Link Icon Inside Tilted Card -->
-    <g transform="rotate(18 51 51) translate(37, 37)">
-      <path d="M12 18L17 13C19.8 10.2 19.8 5.8 17 3C14.2 0.2 9.8 0.2 7 3L2 8C-0.8 10.8 -0.8 15.2 2 18C3.7 19.7 6 20.5 8.2 20.5" stroke="#0070f3" stroke-width="3.5" stroke-linecap="round"/>
-      <path d="M18 14L13 19C10.2 21.8 5.8 21.8 3 19C0.2 16.2 0.2 11.8 3 9L8 4C10.8 1.2 15.2 1.2 18 4C19.7 5.7 20.5 8 20.5 10.2" stroke="#0050d0" stroke-width="3.5" stroke-linecap="round"/>
-    </g>
-    <defs>
-      <linearGradient id="cardGradHome" x1="28" y1="20" x2="74" y2="82" gradientUnits="userSpaceOnUse">
-        <stop stop-color="#ffffff"/>
-        <stop offset="1" stop-color="#eff6ff"/>
-      </linearGradient>
-    </defs>
-  </svg>
-</div>
-      </div>
-
     `;
 
-    // Tab Switching Logic
+    // Tab Switching Logic for Quick Shorten
     const tabLink = $('#tabShortLinkOpt');
     const tabQr = $('#tabQrCodeOpt');
     const input = $('#homeShortenInput');
@@ -937,7 +1199,7 @@
         activeType = 'link';
         tabLink.classList.add('active');
         tabQr.classList.remove('active');
-        input.placeholder = 'Paste a long URL to shorten it...';
+        input.placeholder = 'Paste destination URL to generate 3D short link...';
         if (icon) icon.textContent = '🔗';
       };
 
@@ -945,7 +1207,7 @@
         activeType = 'qr';
         tabQr.classList.add('active');
         tabLink.classList.remove('active');
-        input.placeholder = 'Enter a URL to create a QR Code...';
+        input.placeholder = 'Enter a URL to create a Vector QR Code...';
         if (icon) icon.textContent = '▦';
       };
     }
@@ -962,7 +1224,7 @@
         const btn = $('#homeSubmitBtn');
         if (btn) {
           btn.disabled = true;
-          btn.textContent = '...';
+          btn.innerHTML = '<span>Creating...</span>';
         }
 
         if (activeType === 'qr') {
@@ -975,7 +1237,7 @@
           if (resBox && newL) {
             const liveUrl = (newL.realShort && newL.realShort !== dest) ? newL.realShort : (newL.url && newL.url !== dest ? newL.url : `https://${dom}/${newL.slug}`);
             resBox.innerHTML = `
-              <div class="result-title">Your Live Short Link (Click to open destination):</div>
+              <div class="result-title">Your Live 3D Short Link (Click to open destination):</div>
               <a href="${liveUrl}" target="_blank" rel="noopener" class="result-url">${liveUrl}</a>
               <div class="result-dest">Destination: <span>${dest}</span></div>
               <div class="result-actions">
@@ -988,14 +1250,27 @@
             if ($('#homeShortenInput')) $('#homeShortenInput').value = '';
           }
         }
-
         if (btn) {
           btn.disabled = false;
-          btn.textContent = '→';
+          btn.innerHTML = '<span>Create Now</span> →';
         }
       };
     }
 
+    // Interactive Tab Switching for Activity Card (Overview, Shared, Comments)
+    $('.bento-tab-btn').forEach(btn => {
+      btn.onclick = () => {
+        $('.bento-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const target = btn.dataset.activityTab;
+        const pOverview = $('#actPanelOverview');
+        const pShared = $('#actPanelShared');
+        const pComments = $('#actPanelComments');
+        if (pOverview) pOverview.style.display = (target === 'overview') ? 'block' : 'none';
+        if (pShared) pShared.style.display = (target === 'shared') ? 'block' : 'none';
+        if (pComments) pComments.style.display = (target === 'comments') ? 'block' : 'none';
+      };
+    });
   }
 
   function renderCreateLink(container) {
