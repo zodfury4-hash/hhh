@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Zap, QrCode, Smartphone, BarChart3, ArrowRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Zap, QrCode, Smartphone, BarChart3, ArrowRight, ShieldCheck, Sparkles, Copy, Check } from 'lucide-react';
 
 interface Slide {
   badgeIcon: React.ReactNode;
@@ -11,6 +11,331 @@ interface Slide {
   ctaText: string;
   ctaHref: string;
   visual: React.ReactNode;
+}
+
+function ShortlinksVisual() {
+  return (
+    <div className="w-full max-w-md mx-auto">
+      <div className="relative rounded-2xl bg-white/90 backdrop-blur-xl border border-white p-5 sm:p-6 shadow-[0_12px_40px_-10px_rgba(0,112,243,0.14)] space-y-4">
+        {/* Window Topbar */}
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-rose-400" />
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+          </div>
+          <span className="text-[11px] font-mono text-slate-400 bg-slate-50 px-2.5 py-0.5 rounded-md border border-slate-200/60">
+            hea.link • link_builder
+          </span>
+          <span className="flex items-center gap-1 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
+          </span>
+        </div>
+
+        {/* Long Destination URL */}
+        <div className="space-y-1">
+          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Destination URL</span>
+          <div className="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200/70 text-xs text-slate-500 font-mono truncate">
+            https://my-store.com/products/summer-sale?utm_source=promo&amp;ref=affiliate
+          </div>
+        </div>
+
+        {/* AI Transformation badge */}
+        <div className="flex items-center justify-center -my-1">
+          <div className="px-3 py-1 rounded-full bg-blue-50 border border-blue-200/80 text-[11px] font-bold text-[#0070f3] flex items-center gap-1.5 shadow-xs">
+            <Sparkles className="w-3 h-3 text-[#0070f3]" />
+            <span>AI Suggested Back-Half</span>
+          </div>
+        </div>
+
+        {/* Generated Short Link */}
+        <div className="space-y-1">
+          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Branded Short Link</span>
+          <div className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-blue-50/90 via-sky-50/80 to-blue-50/90 border border-blue-200 text-xs font-mono">
+            <span className="font-bold text-[#0070f3] text-sm tracking-tight">hea.link/summer-sale</span>
+            <span className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#0070f3] text-white text-[11px] font-sans font-semibold shadow-xs">
+              <Check className="w-3 h-3" /> Copied
+            </span>
+          </div>
+        </div>
+
+        {/* Security & Routing pills */}
+        <div className="grid grid-cols-3 gap-2 pt-1 text-center">
+          <div className="p-2 rounded-xl bg-white border border-slate-100 shadow-xs">
+            <span className="block text-[10px] text-slate-400 font-medium">Protection</span>
+            <span className="text-xs font-bold text-slate-700">🔒 AES-256</span>
+          </div>
+          <div className="p-2 rounded-xl bg-white border border-slate-100 shadow-xs">
+            <span className="block text-[10px] text-slate-400 font-medium">Device Route</span>
+            <span className="text-xs font-bold text-slate-700">📱 Smart iOS</span>
+          </div>
+          <div className="p-2 rounded-xl bg-white border border-slate-100 shadow-xs">
+            <span className="block text-[10px] text-slate-400 font-medium">Clicks</span>
+            <span className="text-xs font-bold text-blue-600">2,480 🔥</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function QrCodeVisual() {
+  return (
+    <div className="w-full max-w-md mx-auto">
+      <div className="relative rounded-2xl bg-white/90 backdrop-blur-xl border border-white p-6 shadow-[0_12px_40px_-10px_rgba(0,200,255,0.16)] flex flex-col items-center">
+        {/* Top Header */}
+        <div className="w-full flex items-center justify-between pb-3.5 border-b border-slate-100 mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-[#0070f3] to-[#00c8ff] flex items-center justify-center text-white shadow-xs">
+              <QrCode className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-slate-800 block">Vector Studio</span>
+              <span className="text-[10px] text-slate-400 block font-mono">Dynamic Destination</span>
+            </div>
+          </div>
+          <span className="text-[11px] font-semibold text-[#0070f3] bg-blue-50 border border-blue-100 px-2.5 py-0.5 rounded-full">
+            300 DPI Export
+          </span>
+        </div>
+
+        {/* QR Code Graphic with Scan Beam */}
+        <div className="relative p-5 rounded-2xl bg-white border border-blue-100/90 shadow-sm">
+          {/* Laser Scan line animation */}
+          <div className="absolute left-2 right-2 h-0.5 bg-gradient-to-r from-transparent via-[#00c8ff] to-transparent shadow-[0_0_12px_#00c8ff] animate-[bounce_3s_infinite] pointer-events-none z-10" />
+
+          {/* Authentic Vector QR Code */}
+          <svg className="w-44 h-44" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="qrGrad" x1="0" y1="0" x2="160" y2="160" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stopColor="#0070f3" />
+                <stop offset="100%" stopColor="#00c8ff" />
+              </linearGradient>
+            </defs>
+
+            {/* Position Detection Patterns */}
+            <rect x="10" y="10" width="40" height="40" rx="8" stroke="url(#qrGrad)" strokeWidth="6" />
+            <rect x="20" y="20" width="20" height="20" rx="4" fill="url(#qrGrad)" />
+
+            <rect x="110" y="10" width="40" height="40" rx="8" stroke="url(#qrGrad)" strokeWidth="6" />
+            <rect x="120" y="20" width="20" height="20" rx="4" fill="url(#qrGrad)" />
+
+            <rect x="10" y="110" width="40" height="40" rx="8" stroke="url(#qrGrad)" strokeWidth="6" />
+            <rect x="20" y="120" width="20" height="20" rx="4" fill="url(#qrGrad)" />
+
+            {/* Data Modules */}
+            <rect x="60" y="14" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="74" y="14" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="88" y="14" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="60" y="28" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="88" y="28" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="74" y="42" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+
+            <rect x="14" y="60" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="28" y="60" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="42" y="60" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="60" y="60" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="88" y="60" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="102" y="60" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="130" y="60" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+
+            <rect x="14" y="74" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="42" y="74" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="102" y="74" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="116" y="74" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="138" y="74" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+
+            <rect x="14" y="88" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="28" y="88" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="42" y="88" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="60" y="88" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="88" y="88" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="116" y="88" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+
+            <rect x="60" y="110" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="74" y="110" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="88" y="110" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="102" y="110" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="130" y="110" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+
+            <rect x="60" y="124" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="88" y="124" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="116" y="124" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="138" y="124" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+
+            <rect x="74" y="138" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="102" y="138" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+            <rect x="130" y="138" width="8" height="8" rx="2" fill="url(#qrGrad)" />
+          </svg>
+
+          {/* Center Brand Badge */}
+          <div className="absolute inset-0 m-auto w-11 h-11 rounded-xl bg-gradient-to-tr from-[#0070f3] to-[#00c8ff] text-white flex items-center justify-center font-extrabold text-xs shadow-md border-2 border-white">
+            <span className="tracking-tighter">HEA</span>
+          </div>
+        </div>
+
+        {/* Destination Target */}
+        <div className="w-full mt-4 flex items-center justify-between px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200/80 text-xs">
+          <span className="text-slate-500 font-medium">Scan target:</span>
+          <span className="font-mono font-bold text-[#0070f3]">healink.store/@brand</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BioVisual() {
+  return (
+    <div className="w-full max-w-xs mx-auto">
+      {/* Smartphone Frame */}
+      <div className="relative rounded-[36px] bg-slate-900 p-3 shadow-[0_20px_50px_-10px_rgba(0,112,243,0.22)] border-[4px] border-slate-800">
+        {/* Dynamic Island */}
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 w-20 h-4 bg-black rounded-full z-20 flex items-center justify-end px-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-500/80" />
+        </div>
+
+        {/* Screen */}
+        <div className="rounded-[28px] bg-gradient-to-b from-[#eef6ff] via-sky-50 to-[#eef6ff] p-4 pt-8 text-center space-y-3 overflow-hidden">
+          {/* Avatar & Profile */}
+          <div className="relative mx-auto w-13 h-13 rounded-full bg-gradient-to-tr from-[#0070f3] to-[#00d2ff] p-0.5 shadow-sm">
+            <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-lg">
+              ✨
+            </div>
+            <span className="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-blue-500 text-white text-[9px] font-bold flex items-center justify-center border-2 border-white">
+              ✓
+            </span>
+          </div>
+
+          <div>
+            <h4 className="font-extrabold text-sm text-[#0b132b]">Alex Morgan</h4>
+            <span className="text-[11px] font-mono text-[#0070f3] block">@alexcreatives</span>
+            <p className="text-[10px] text-slate-500 mt-0.5">Creator • Designer • Building in public</p>
+          </div>
+
+          {/* Links list */}
+          <div className="space-y-2 pt-0.5 text-xs">
+            <div className="p-2.5 rounded-xl bg-white/95 backdrop-blur-md border border-white shadow-xs flex items-center justify-between font-semibold text-slate-700 hover:scale-[1.02] transition-transform">
+              <span className="flex items-center gap-1.5">
+                <span>🛍️</span> Summer Drop 2026
+              </span>
+              <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
+                1.4k
+              </span>
+            </div>
+
+            <div className="p-2.5 rounded-xl bg-white/95 backdrop-blur-md border border-white shadow-xs flex items-center justify-between font-semibold text-slate-700">
+              <span className="flex items-center gap-1.5">
+                <span>💬</span> Discord Community
+              </span>
+              <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+                Join
+              </span>
+            </div>
+
+            <div className="p-2.5 rounded-xl bg-white/95 backdrop-blur-md border border-white shadow-xs flex items-center justify-between font-semibold text-slate-700">
+              <span className="flex items-center gap-1.5">
+                <span>🎥</span> New YouTube Video
+              </span>
+              <span className="text-[10px] text-slate-400">Watch</span>
+            </div>
+          </div>
+
+          {/* Social Icons Strip */}
+          <div className="flex items-center justify-center gap-3 pt-1 text-slate-400 text-xs">
+            <span className="w-6 h-6 rounded-full bg-white shadow-xs flex items-center justify-center text-slate-700 font-bold text-[10px]">𝕏</span>
+            <span className="w-6 h-6 rounded-full bg-white shadow-xs flex items-center justify-center text-slate-700 font-bold text-[10px]">📷</span>
+            <span className="w-6 h-6 rounded-full bg-white shadow-xs flex items-center justify-center text-slate-700 font-bold text-[10px]">🐙</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AnalyticsVisual() {
+  return (
+    <div className="w-full max-w-md mx-auto">
+      <div className="relative rounded-2xl bg-white/90 backdrop-blur-xl border border-white p-5 sm:p-6 shadow-[0_12px_40px_-10px_rgba(0,112,243,0.14)] space-y-4">
+        {/* Top Header */}
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-emerald-500 text-white flex items-center justify-center shadow-xs">
+              <BarChart3 className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-slate-800 block">Real-Time Traffic</span>
+              <span className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> 148 active right now
+              </span>
+            </div>
+          </div>
+          <span className="text-xs font-extrabold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
+            +34.8% ↑
+          </span>
+        </div>
+
+        {/* SVG Area Line Chart */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-[11px] text-slate-400 font-medium px-1">
+            <span>Hourly Clicks Stream</span>
+            <span className="font-bold text-[#0070f3]">Peak: 1,840 clicks</span>
+          </div>
+          <div className="relative h-28 w-full rounded-xl bg-gradient-to-b from-blue-50/50 to-transparent p-2 border border-blue-50">
+            <svg className="w-full h-full overflow-visible" viewBox="0 0 300 80" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#0070f3" stopOpacity="0.25" />
+                  <stop offset="100%" stopColor="#00c8ff" stopOpacity="0.0" />
+                </linearGradient>
+              </defs>
+              <line x1="0" y1="20" x2="300" y2="20" stroke="#e2e8f0" strokeDasharray="3 3" strokeWidth="1" />
+              <line x1="0" y1="50" x2="300" y2="50" stroke="#e2e8f0" strokeDasharray="3 3" strokeWidth="1" />
+              <polygon
+                points="0,65 30,55 60,60 90,40 120,45 150,25 180,30 210,15 240,20 270,8 300,12 300,80 0,80"
+                fill="url(#chartFill)"
+              />
+              <polyline
+                fill="none"
+                stroke="#0070f3"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                points="0,65 30,55 60,60 90,40 120,45 150,25 180,30 210,15 240,20 270,8 300,12"
+              />
+              <circle cx="270" cy="8" r="4" fill="#0070f3" stroke="#ffffff" strokeWidth="2" />
+            </svg>
+          </div>
+        </div>
+
+        {/* Breakdown stats */}
+        <div className="grid grid-cols-2 gap-3 pt-1 text-xs">
+          <div className="p-2.5 rounded-xl bg-slate-50/90 border border-slate-200/60 space-y-1.5">
+            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Top Channels</span>
+            <div className="flex items-center justify-between text-[11px]">
+              <span className="text-slate-600 font-medium">Instagram</span>
+              <span className="font-bold text-slate-800">48%</span>
+            </div>
+            <div className="flex items-center justify-between text-[11px]">
+              <span className="text-slate-600 font-medium">X / Twitter</span>
+              <span className="font-bold text-slate-800">32%</span>
+            </div>
+          </div>
+
+          <div className="p-2.5 rounded-xl bg-slate-50/90 border border-slate-200/60 space-y-1.5">
+            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Top Geo</span>
+            <div className="flex items-center justify-between text-[11px]">
+              <span className="text-slate-600 font-medium">🇺🇸 United States</span>
+              <span className="font-bold text-slate-800">42%</span>
+            </div>
+            <div className="flex items-center justify-between text-[11px]">
+              <span className="text-slate-600 font-medium">🇬🇧 United Kingdom</span>
+              <span className="font-bold text-slate-800">28%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 const SLIDES: Slide[] = [
@@ -26,28 +351,7 @@ const SLIDES: Slide[] = [
     ],
     ctaText: 'Try Shortener Now',
     ctaHref: '#home',
-    visual: (
-      <div className="relative w-full max-w-md mx-auto group">
-        <div className="absolute -inset-1 bg-gradient-to-r from-[#0070f3]/20 to-[#00d2ff]/20 rounded-3xl blur-xl opacity-70 group-hover:opacity-100 transition duration-500 pointer-events-none" />
-        <div className="relative overflow-hidden rounded-2xl border border-white/90 bg-white/60 shadow-xl backdrop-blur-md">
-          <img
-            src="/images/carousel-shortlinks.jpg"
-            alt="AI-Powered Short Links"
-            className="w-full h-64 sm:h-72 object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-            loading="lazy"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 via-transparent to-transparent pointer-events-none" />
-          <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/90 backdrop-blur-md border border-white/90 shadow-sm text-xs font-semibold text-slate-800">
-            <span className="flex items-center gap-1.5 text-[#0070f3]">
-              <Zap className="w-3.5 h-3.5 fill-[#0070f3]" /> hea.link/ai
-            </span>
-            <span className="text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full font-bold">
-              Active • 2.4k Clicks
-            </span>
-          </div>
-        </div>
-      </div>
-    ),
+    visual: <ShortlinksVisual />,
   },
   {
     badgeIcon: <QrCode className="w-3.5 h-3.5 text-[#00c8ff]" />,
@@ -61,28 +365,7 @@ const SLIDES: Slide[] = [
     ],
     ctaText: 'Launch QR Studio',
     ctaHref: '#qr',
-    visual: (
-      <div className="relative w-full max-w-md mx-auto group">
-        <div className="absolute -inset-1 bg-gradient-to-r from-[#00c8ff]/20 to-blue-500/20 rounded-3xl blur-xl opacity-70 group-hover:opacity-100 transition duration-500 pointer-events-none" />
-        <div className="relative overflow-hidden rounded-2xl border border-white/90 bg-white/60 shadow-xl backdrop-blur-md">
-          <img
-            src="/images/carousel-qrcode.jpg"
-            alt="Dynamic Gradient Vector QR Code Studio"
-            className="w-full h-64 sm:h-72 object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-            loading="lazy"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 via-transparent to-transparent pointer-events-none" />
-          <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/90 backdrop-blur-md border border-white/90 shadow-sm text-xs font-semibold text-slate-800">
-            <span className="flex items-center gap-1.5 text-[#0070f3]">
-              <QrCode className="w-3.5 h-3.5" /> Vector HD Scan
-            </span>
-            <span className="text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full font-bold">
-              Dynamic Target
-            </span>
-          </div>
-        </div>
-      </div>
-    ),
+    visual: <QrCodeVisual />,
   },
   {
     badgeIcon: <Smartphone className="w-3.5 h-3.5 text-purple-600" />,
@@ -96,28 +379,7 @@ const SLIDES: Slide[] = [
     ],
     ctaText: 'Create Bio Page',
     ctaHref: '#pages',
-    visual: (
-      <div className="relative w-full max-w-md mx-auto group">
-        <div className="absolute -inset-1 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-3xl blur-xl opacity-70 group-hover:opacity-100 transition duration-500 pointer-events-none" />
-        <div className="relative overflow-hidden rounded-2xl border border-white/90 bg-white/60 shadow-xl backdrop-blur-md">
-          <img
-            src="/images/carousel-bio.jpg"
-            alt="Link-in-Bio Social Showcase"
-            className="w-full h-64 sm:h-72 object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-            loading="lazy"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 via-transparent to-transparent pointer-events-none" />
-          <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/90 backdrop-blur-md border border-white/90 shadow-sm text-xs font-semibold text-slate-800">
-            <span className="flex items-center gap-1.5 text-purple-600">
-              <Smartphone className="w-3.5 h-3.5" /> @yourbrand
-            </span>
-            <span className="text-purple-600 bg-purple-50 px-2.5 py-0.5 rounded-full font-bold">
-              Glassmorphic Bio
-            </span>
-          </div>
-        </div>
-      </div>
-    ),
+    visual: <BioVisual />,
   },
   {
     badgeIcon: <BarChart3 className="w-3.5 h-3.5 text-emerald-600" />,
@@ -131,28 +393,7 @@ const SLIDES: Slide[] = [
     ],
     ctaText: 'View Analytics',
     ctaHref: '#analytics',
-    visual: (
-      <div className="relative w-full max-w-md mx-auto group">
-        <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500/20 to-[#0070f3]/20 rounded-3xl blur-xl opacity-70 group-hover:opacity-100 transition duration-500 pointer-events-none" />
-        <div className="relative overflow-hidden rounded-2xl border border-white/90 bg-white/60 shadow-xl backdrop-blur-md">
-          <img
-            src="/images/carousel-analytics.jpg"
-            alt="Real-Time Deep Analytics"
-            className="w-full h-64 sm:h-72 object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-            loading="lazy"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 via-transparent to-transparent pointer-events-none" />
-          <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/90 backdrop-blur-md border border-white/90 shadow-sm text-xs font-semibold text-slate-800">
-            <span className="flex items-center gap-1.5 text-emerald-600">
-              <BarChart3 className="w-3.5 h-3.5" /> Live Traffic Stream
-            </span>
-            <span className="text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full font-bold">
-              +34.8% Growth
-            </span>
-          </div>
-        </div>
-      </div>
-    ),
+    visual: <AnalyticsVisual />,
   },
 ];
 
