@@ -27,24 +27,23 @@ const SLIDES: Slide[] = [
     ctaText: 'Try Shortener Now',
     ctaHref: '#home',
     visual: (
-      <div className="w-full max-w-sm rounded-2xl bg-white/80 backdrop-blur-md border border-white/90 p-5 shadow-glass space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-full bg-rose-400" />
-            <span className="w-3 h-3 rounded-full bg-amber-400" />
-            <span className="w-3 h-3 rounded-full bg-emerald-400" />
-          </div>
-          <span className="text-xs font-mono text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md">
-            hea.link/summer-sale
-          </span>
-        </div>
-        <div className="space-y-3">
-          <div className="h-2.5 w-full rounded-full bg-gradient-to-r from-[#0070f3] to-[#00d2ff] animate-pulse" />
-          <div className="flex items-center justify-between pt-1 text-xs">
-            <span className="font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
-              ✨ AI Generated
+      <div className="relative w-full max-w-md mx-auto group">
+        <div className="absolute -inset-1 bg-gradient-to-r from-[#0070f3]/20 to-[#00d2ff]/20 rounded-3xl blur-xl opacity-70 group-hover:opacity-100 transition duration-500 pointer-events-none" />
+        <div className="relative overflow-hidden rounded-2xl border border-white/90 bg-white/60 shadow-xl backdrop-blur-md">
+          <img
+            src="/images/carousel-shortlinks.jpg"
+            alt="AI-Powered Short Links"
+            className="w-full h-64 sm:h-72 object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 via-transparent to-transparent pointer-events-none" />
+          <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/90 backdrop-blur-md border border-white/90 shadow-sm text-xs font-semibold text-slate-800">
+            <span className="flex items-center gap-1.5 text-[#0070f3]">
+              <Zap className="w-3.5 h-3.5 fill-[#0070f3]" /> hea.link/ai
             </span>
-            <span className="font-bold text-slate-700">2,480 Clicks Today</span>
+            <span className="text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full font-bold">
+              Active • 2.4k Clicks
+            </span>
           </div>
         </div>
       </div>
@@ -63,16 +62,25 @@ const SLIDES: Slide[] = [
     ctaText: 'Launch QR Studio',
     ctaHref: '#qr',
     visual: (
-      <div className="w-full max-w-sm rounded-2xl bg-white/80 backdrop-blur-md border border-white/90 p-6 shadow-glass flex flex-col items-center justify-center">
-        <div className="relative w-36 h-36 rounded-2xl bg-gradient-to-tr from-[#0070f3]/10 to-[#00d2ff]/20 p-3 border border-blue-200/50 flex items-center justify-center shadow-inner">
-          <div className="w-full h-full border-2 border-dashed border-[#0070f3] rounded-xl flex items-center justify-center">
-            <span className="text-4xl text-[#0070f3]">▦</span>
-          </div>
-          <div className="absolute inset-0 m-auto w-10 h-10 rounded-lg bg-[#0070f3] text-white flex items-center justify-center font-extrabold text-xs shadow-md tracking-wider">
-            HEA
+      <div className="relative w-full max-w-md mx-auto group">
+        <div className="absolute -inset-1 bg-gradient-to-r from-[#00c8ff]/20 to-blue-500/20 rounded-3xl blur-xl opacity-70 group-hover:opacity-100 transition duration-500 pointer-events-none" />
+        <div className="relative overflow-hidden rounded-2xl border border-white/90 bg-white/60 shadow-xl backdrop-blur-md">
+          <img
+            src="/images/carousel-qrcode.jpg"
+            alt="Dynamic Gradient Vector QR Code Studio"
+            className="w-full h-64 sm:h-72 object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 via-transparent to-transparent pointer-events-none" />
+          <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/90 backdrop-blur-md border border-white/90 shadow-sm text-xs font-semibold text-slate-800">
+            <span className="flex items-center gap-1.5 text-[#0070f3]">
+              <QrCode className="w-3.5 h-3.5" /> Vector HD Scan
+            </span>
+            <span className="text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full font-bold">
+              Dynamic Target
+            </span>
           </div>
         </div>
-        <span className="mt-3 text-xs font-semibold text-slate-500">Live Scannable Vector</span>
       </div>
     ),
   },
@@ -89,20 +97,23 @@ const SLIDES: Slide[] = [
     ctaText: 'Create Bio Page',
     ctaHref: '#pages',
     visual: (
-      <div className="w-full max-w-sm rounded-2xl bg-white/80 backdrop-blur-md border border-white/90 p-5 shadow-glass text-center space-y-3">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#0070f3] to-[#00d2ff] mx-auto flex items-center justify-center text-white text-xl shadow-md">
-          ✨
-        </div>
-        <div>
-          <b className="text-sm font-bold text-[#0070f3]">@yourbrand</b>
-          <p className="text-xs text-slate-500 mt-0.5">All our official links &amp; releases</p>
-        </div>
-        <div className="space-y-2 pt-1">
-          <div className="p-2 rounded-xl bg-blue-50/80 border border-blue-100 text-xs font-semibold text-slate-700">
-            Summer Drop Collection 2026 🔥
-          </div>
-          <div className="p-2 rounded-xl bg-white border border-slate-200/70 text-xs font-medium text-slate-500">
-            Join Official Discord Community 💬
+      <div className="relative w-full max-w-md mx-auto group">
+        <div className="absolute -inset-1 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-3xl blur-xl opacity-70 group-hover:opacity-100 transition duration-500 pointer-events-none" />
+        <div className="relative overflow-hidden rounded-2xl border border-white/90 bg-white/60 shadow-xl backdrop-blur-md">
+          <img
+            src="/images/carousel-bio.jpg"
+            alt="Link-in-Bio Social Showcase"
+            className="w-full h-64 sm:h-72 object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 via-transparent to-transparent pointer-events-none" />
+          <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/90 backdrop-blur-md border border-white/90 shadow-sm text-xs font-semibold text-slate-800">
+            <span className="flex items-center gap-1.5 text-purple-600">
+              <Smartphone className="w-3.5 h-3.5" /> @yourbrand
+            </span>
+            <span className="text-purple-600 bg-purple-50 px-2.5 py-0.5 rounded-full font-bold">
+              Glassmorphic Bio
+            </span>
           </div>
         </div>
       </div>
@@ -121,25 +132,24 @@ const SLIDES: Slide[] = [
     ctaText: 'View Analytics',
     ctaHref: '#analytics',
     visual: (
-      <div className="w-full max-w-sm rounded-2xl bg-white/80 backdrop-blur-md border border-white/90 p-5 shadow-glass space-y-4">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-[#0070f3]">Total Traffic</span>
-          <span className="text-xs font-extrabold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-            +34.8% ↑
-          </span>
-        </div>
-        <div className="h-3 w-full rounded-full bg-slate-100 overflow-hidden">
-          <div className="h-full bg-gradient-to-r from-[#0070f3] via-[#00c8ff] to-emerald-500 w-[72%] rounded-full animate-pulse" />
-        </div>
-        <div className="flex items-center justify-between text-xs text-slate-600 font-medium pt-1">
-          <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#0070f3]" />
-            Mobile 68%
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#00c8ff]" />
-            Desktop 32%
-          </span>
+      <div className="relative w-full max-w-md mx-auto group">
+        <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500/20 to-[#0070f3]/20 rounded-3xl blur-xl opacity-70 group-hover:opacity-100 transition duration-500 pointer-events-none" />
+        <div className="relative overflow-hidden rounded-2xl border border-white/90 bg-white/60 shadow-xl backdrop-blur-md">
+          <img
+            src="/images/carousel-analytics.jpg"
+            alt="Real-Time Deep Analytics"
+            className="w-full h-64 sm:h-72 object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 via-transparent to-transparent pointer-events-none" />
+          <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/90 backdrop-blur-md border border-white/90 shadow-sm text-xs font-semibold text-slate-800">
+            <span className="flex items-center gap-1.5 text-emerald-600">
+              <BarChart3 className="w-3.5 h-3.5" /> Live Traffic Stream
+            </span>
+            <span className="text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full font-bold">
+              +34.8% Growth
+            </span>
+          </div>
         </div>
       </div>
     ),
@@ -148,7 +158,6 @@ const SLIDES: Slide[] = [
 
 export function SkipperCarousel() {
   const [activeSlide, setActiveSlide] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const nextSlide = () => {
@@ -159,17 +168,16 @@ export function SkipperCarousel() {
     setActiveSlide((prev) => (prev - 1 + SLIDES.length) % SLIDES.length);
   };
 
-  // 5-second automatic progression
+  // 3-second automatic progression
   useEffect(() => {
-    if (isPaused) return;
     timerRef.current = setInterval(() => {
       setActiveSlide((prev) => (prev + 1) % SLIDES.length);
-    }, 5500);
+    }, 3000);
 
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isPaused]);
+  }, [activeSlide]);
 
   const slide = SLIDES[activeSlide];
 
@@ -177,8 +185,6 @@ export function SkipperCarousel() {
     <section
       id="skipperShowcase"
       className="relative py-20 lg:py-28 z-10 overflow-hidden"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
