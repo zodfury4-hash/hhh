@@ -4651,7 +4651,12 @@ input[type="radio"] {
   display: block !important;
   flex-shrink: 0 !important;
 }
-.sidebar-logo .sidebar-logo-text {
+.sidebar-logo .sidebar-logo-text,
+.app-sidebar:not(.expanded) .sidebar-logo-text,
+.app-sidebar:not(.expanded) .sidebar-logo .sidebar-logo-text {
+  display: none !important;
+}
+.app-sidebar.expanded .sidebar-logo .sidebar-logo-text {
   display: inline-flex !important;
   align-items: center !important;
   gap: 5px !important;
@@ -4659,19 +4664,16 @@ input[type="radio"] {
 .sidebar-logo .logo-hea {
   color: #0b132b !important;
   -webkit-text-fill-color: #0b132b !important;
-  font-size: 22px !important;
+  font-size: 20px !important;
   font-weight: 800 !important;
   letter-spacing: -0.02em !important;
 }
 .sidebar-logo .logo-link {
   color: #0070f3 !important;
   -webkit-text-fill-color: #0070f3 !important;
-  font-size: 22px !important;
+  font-size: 20px !important;
   font-weight: 800 !important;
   letter-spacing: -0.02em !important;
-}
-.app-sidebar.collapsed .sidebar-logo-text {
-  display: none !important;
 }
 
 

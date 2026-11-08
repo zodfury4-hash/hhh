@@ -4209,27 +4209,15 @@ body.app-mode #appShell,
   display: block !important;
   flex-shrink: 0 !important;
 }
-.sidebar-logo .sidebar-logo-text {
+.sidebar-logo .sidebar-logo-text,
+.app-sidebar:not(.expanded) .sidebar-logo-text,
+.app-sidebar:not(.expanded) .sidebar-logo .sidebar-logo-text {
+  display: none !important;
+}
+.app-sidebar.expanded .sidebar-logo .sidebar-logo-text {
   display: inline-flex !important;
   align-items: center !important;
   gap: 5px !important;
-}
-.sidebar-logo .logo-hea {
-  color: #0b132b !important;
-  -webkit-text-fill-color: #0b132b !important;
-  font-size: 22px !important;
-  font-weight: 800 !important;
-  letter-spacing: -0.02em !important;
-}
-.sidebar-logo .logo-link {
-  color: #0070f3 !important;
-  -webkit-text-fill-color: #0070f3 !important;
-  font-size: 22px !important;
-  font-weight: 800 !important;
-  letter-spacing: -0.02em !important;
-}
-.app-sidebar.collapsed .sidebar-logo-text {
-  display: none !important;
 }
 
 
@@ -4586,16 +4574,10 @@ body.dark-mode .dashboard-ambient-orbs .orb {
   font-weight: 700 !important;
   box-shadow: 0 2px 10px rgba(0, 112, 243, 0.08), inset 0 0 12px rgba(0, 112, 243, 0.05) !important;
 }
-.sidebar-nav-item.active::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 18%;
-  bottom: 18%;
-  width: 3.5px;
-  border-radius: 4px;
-  background: var(--hea-primary, #0070f3);
-  box-shadow: 0 0 8px var(--hea-primary);
+.sidebar-nav-item.active::before,
+.sidebar-nav-item::before {
+  display: none !important;
+  content: none !important;
 }
 
 .sidebar-bottom { background: transparent !important; }
@@ -5841,7 +5823,6 @@ body.app-mode #appShell {
 /* Custom 6px Thin Scrollbars */
 .app-main-pane,
 .drawer-body,
-.sidebar-nav,
 .bento-dashboard-wrap,
 #linksListContainer {
   scrollbar-width: thin !important;
@@ -5849,7 +5830,6 @@ body.app-mode #appShell {
 }
 .app-main-pane::-webkit-scrollbar,
 .drawer-body::-webkit-scrollbar,
-.sidebar-nav::-webkit-scrollbar,
 .bento-dashboard-wrap::-webkit-scrollbar,
 #linksListContainer::-webkit-scrollbar {
   width: 6px !important;
@@ -5857,14 +5837,12 @@ body.app-mode #appShell {
 }
 .app-main-pane::-webkit-scrollbar-track,
 .drawer-body::-webkit-scrollbar-track,
-.sidebar-nav::-webkit-scrollbar-track,
 .bento-dashboard-wrap::-webkit-scrollbar-track,
 #linksListContainer::-webkit-scrollbar-track {
   background: transparent !important;
 }
 .app-main-pane::-webkit-scrollbar-thumb,
 .drawer-body::-webkit-scrollbar-thumb,
-.sidebar-nav::-webkit-scrollbar-thumb,
 .bento-dashboard-wrap::-webkit-scrollbar-thumb,
 #linksListContainer::-webkit-scrollbar-thumb {
   background: rgba(148, 163, 184, 0.22) !important;
@@ -5873,7 +5851,6 @@ body.app-mode #appShell {
 }
 .app-main-pane:hover::-webkit-scrollbar-thumb,
 .drawer-body:hover::-webkit-scrollbar-thumb,
-.sidebar-nav:hover::-webkit-scrollbar-thumb,
 .bento-dashboard-wrap:hover::-webkit-scrollbar-thumb,
 #linksListContainer:hover::-webkit-scrollbar-thumb {
   background: rgba(148, 163, 184, 0.5) !important;
@@ -6967,4 +6944,180 @@ body.app-mode #appShell {
     box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.15) !important;
     z-index: 1200 !important;
   }
+}
+
+/* ========================================================
+   SIDEBAR POLISH V22 — ZERO SCROLLBAR, PERFECT LOGO & HEA ASSIST
+   ======================================================== */
+.app-sidebar {
+  overflow: visible !important;
+}
+
+/* Hide text strictly when collapsed, show only infinity icon */
+.app-sidebar:not(.expanded) .sidebar-logo-text,
+.app-sidebar:not(.expanded) .sidebar-logo .sidebar-logo-text {
+  display: none !important;
+}
+.app-sidebar:not(.expanded) .sidebar-logo {
+  justify-content: center !important;
+  width: 100% !important;
+}
+.app-sidebar.expanded .sidebar-logo-text,
+.app-sidebar.expanded .sidebar-logo .sidebar-logo-text {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+
+/* Floating Edge Toggle - Clean 22px Pill */
+.sidebar-edge-toggle {
+  position: absolute !important;
+  right: -11px !important;
+  top: 20px !important;
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 50% !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(203, 213, 225, 0.95) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+  color: #64748b !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  z-index: 100 !important;
+  padding: 0 !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.sidebar-edge-toggle:hover {
+  background: #0A6CFF !important;
+  color: #ffffff !important;
+  border-color: #0A6CFF !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 4px 12px rgba(10, 108, 255, 0.35) !important;
+}
+
+/* Zero scrollbars inside sidebar navigation */
+.sidebar-nav {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 5px !important;
+  width: 100% !important;
+  align-items: center !important;
+  padding: 2px 4px 12px !important;
+  box-sizing: border-box !important;
+}
+.sidebar-nav::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Nav items - Crisp centered 44px circles */
+.sidebar-nav-item {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #475569 !important;
+  text-decoration: none !important;
+  position: relative !important;
+  margin: 0 auto !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  flex-shrink: 0 !important;
+  box-sizing: border-box !important;
+}
+.sidebar-nav-item .sidebar-nav-icon svg {
+  stroke: #475569 !important;
+  width: 20px !important;
+  height: 20px !important;
+}
+
+/* Active Nav Item - Smooth glow, zero bump artifact */
+.sidebar-nav-item.active {
+  background: linear-gradient(135deg, #0A6CFF, #00c8ff) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(10, 108, 255, 0.4) !important;
+  transform: scale(1.02) !important;
+  border-radius: 50% !important;
+}
+.sidebar-nav-item.active .sidebar-nav-icon svg {
+  stroke: #ffffff !important;
+}
+.sidebar-nav-item.active::before,
+.sidebar-nav-item::before {
+  display: none !important;
+  content: none !important;
+}
+
+.sidebar-nav-item:hover:not(.active) {
+  background: rgba(10, 108, 255, 0.08) !important;
+  color: #0A6CFF !important;
+}
+.sidebar-nav-item:hover:not(.active) .sidebar-nav-icon svg {
+  stroke: #0A6CFF !important;
+  transform: scale(1.08) !important;
+}
+
+/* HEA Assist AI Item in Sidebar */
+.sidebar-assist-item {
+  color: #0A6CFF !important;
+  background: rgba(10, 108, 255, 0.06) !important;
+  border: 1px solid rgba(10, 108, 255, 0.16) !important;
+}
+.sidebar-assist-item .sidebar-nav-icon svg {
+  stroke: #0A6CFF !important;
+}
+.sidebar-assist-item:hover,
+.sidebar-assist-item.active-drawer {
+  background: linear-gradient(135deg, #0A6CFF, #00c8ff) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+  box-shadow: 0 4px 14px rgba(10, 108, 255, 0.35) !important;
+}
+.sidebar-assist-item:hover .sidebar-nav-icon svg,
+.sidebar-assist-item.active-drawer .sidebar-nav-icon svg {
+  stroke: #ffffff !important;
+}
+.ai-spark-chip {
+  margin-left: auto !important;
+  font-size: 9px !important;
+  padding: 2px 6px !important;
+  background: linear-gradient(135deg, #0A6CFF, #00c8ff) !important;
+  color: #ffffff !important;
+  border-radius: 99px !important;
+  font-weight: 800 !important;
+  display: none !important;
+}
+.app-sidebar.expanded .ai-spark-chip {
+  display: inline-block !important;
+}
+
+.app-sidebar.expanded .sidebar-nav-item {
+  width: 100% !important;
+  border-radius: 12px !important;
+  justify-content: flex-start !important;
+  padding: 0 12px !important;
+  gap: 12px !important;
+}
+
+/* Sidebar Footer (Pinned, zero cutoffs) */
+.sidebar-bottom {
+  width: 100% !important;
+  margin-top: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-shrink: 0 !important;
+  padding: 10px 0 2px !important;
+  border-top: 1px solid rgba(226, 232, 240, 0.8) !important;
+  background: transparent !important;
 }

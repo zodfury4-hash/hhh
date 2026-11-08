@@ -6703,6 +6703,17 @@ Here are recommended optimizations for your links and campaigns:<br>
 
         const tab = btn.dataset.tab;
 
+        if (tab === 'assist') {
+          const drawer = document.querySelector('#appAssistDrawer');
+          if (drawer) {
+            drawer.hidden = !drawer.hidden;
+            btn.classList.toggle('active-drawer', !drawer.hidden);
+            const input = document.querySelector('#drawerChatInput');
+            if (!drawer.hidden && input) setTimeout(() => input.focus(), 100);
+          }
+          return;
+        }
+
         location.hash = (tab === 'home') ? '#dashboard' : '#' + tab;
 
         navigate(tab);
@@ -6821,6 +6832,8 @@ Here are recommended optimizations for your links and campaigns:<br>
       const closeAssistDrawer = () => {
         drawer.hidden = true;
         document.body.style.overflow = '';
+        const assistBtn = document.querySelector('#sidebarAssistItem');
+        if (assistBtn) assistBtn.classList.remove('active-drawer');
       };
 
       drawerClose.onclick = closeAssistDrawer;
