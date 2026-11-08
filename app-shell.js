@@ -2355,6 +2355,22 @@
 
   function renderPages(container, initialMode) {
 
+    function isHexLight(hex) {
+      if (!hex || typeof hex !== "string") return false;
+      const clean = hex.replace("#", "").trim();
+      if (clean.length < 6) return false;
+      const r = parseInt(clean.substring(0, 2), 16);
+      const g = parseInt(clean.substring(2, 4), 16);
+      const b = parseInt(clean.substring(4, 6), 16);
+      return ((r * 299 + g * 587 + b * 114) / 1000) > 140;
+    }
+
+    function isTemplateLight(t) {
+      if (t.textColor && t.textColor !== "#ffffff" && t.textColor !== "#fff") return true;
+      return isHexLight(t.bgColor);
+    }
+
+
     const pages = getStoredPages();
 
     const origin = window.location.origin;
@@ -3303,7 +3319,7 @@
 
         <div class="template-phone-preview" style="background:${t.bgColor}; color:${t.textColor || '#ffffff'};">
 
-          <div class="mini-notch"></div>
+          <div class="mini-notch" style="${isTemplateLight(t) ? 'background:rgba(0,0,0,0.18);' : 'background:rgba(0,0,0,0.45);'}"></div>
 
           ${renderTemplateAvatar(t)}
 
@@ -3413,35 +3429,37 @@
 
           <div class="template-grid" id="templateGrid">
 
-            ${filtered.map(t => `
+            ${filtered.map(t => {
+              const isLight = isTemplateLight(t);
+              const cardBg = t.bgColor || (isLight ? "#ffffff" : "#0f172a");
+              const footerBg = isLight
+                ? `linear-gradient(180deg, ${t.bgColor} 0%, ${t.cardBg || "#ffffff"} 100%)`
+                : `linear-gradient(180deg, ${t.bgColor} 0%, ${t.cardBg || "#111827"} 100%)`;
+              const titleColor = isLight ? (t.textColor || "#1e293b") : "#ffffff";
+              const descColor = isLight ? "#64748b" : "#94a3b8";
+              const badgeBg = isLight ? `${t.accent}14` : `${t.accent}1a`;
+              const badgeBorder = isLight ? `${t.accent}30` : `${t.accent}38`;
+              const cardBorder = isLight ? `${t.accent}30` : `${t.accent}33`;
+              const btnShadow = t.btnShadow && t.btnShadow !== "none"
+                ? t.btnShadow
+                : `0 4px 16px ${t.accent}35`;
 
-              <div class="template-card" data-id="${t.id}">
-
+              return `
+              <div class="template-card ${isLight ? "template-card-light" : "template-card-dark"}" data-id="${t.id}" style="--tmpl-accent:${t.accent}; --tmpl-border:${cardBorder}; --tmpl-hover-shadow:${t.accent}38; --tmpl-footer-bg:${footerBg}; --tmpl-card-bg:${cardBg}; --tmpl-divider:${isLight ? t.accent + "20" : "rgba(255,255,255,0.08)"}; border:1.5px solid ${cardBorder}; background:${cardBg}; box-shadow: 0 10px 28px ${t.accent}12, 0 2px 6px rgba(0,0,0,0.04);">
                 ${renderPhonePreview(t, false)}
-
-                <div class="template-card-footer">
-
+                <div class="template-card-footer" style="background:${footerBg} !important; border-top: 1px solid ${isLight ? t.accent + "20" : "rgba(255,255,255,0.08)"};">
                   <div>
-
-                    <span style="font-size:10px;font-weight:800;color:${t.accent};letter-spacing:1px;text-transform:uppercase;">${t.badge}</span>
-
-                    <h4 style="margin:4px 0 6px;color:#0070f3;font-size:15px;font-weight:700;">${t.title}</h4>
-
-                    <p style="font-size:12px;color:#64748b;line-height:1.4;margin:0 0 14px;">${t.desc}</p>
-
+                    <span class="template-badge-pill" style="font-size:10px;font-weight:800;color:${t.accent};background:${badgeBg};border:1px solid ${badgeBorder};padding:3px 8px;border-radius:6px;letter-spacing:1px;text-transform:uppercase;display:inline-block;margin-bottom:6px;">${t.badge}</span>
+                    <h4 style="margin:4px 0 6px;color:${titleColor};font-size:16px;font-weight:700;letter-spacing:-0.01em;">${t.title}</h4>
+                    <p style="font-size:12px;color:${descColor};line-height:1.45;margin:0 0 14px;">${t.desc}</p>
                   </div>
-
-                  <button class="auth-submit-btn btn-use-template" data-id="${t.id}" style="width:100%;margin:0;padding:10px 14px;font-size:13px;background:linear-gradient(135deg, #0070f3, #00c6ff);">
-
+                  <button class="auth-submit-btn btn-use-template" data-id="${t.id}" style="width:100%;margin:0;padding:10px 14px;font-size:13px;font-weight:700;background:${t.btnBg};color:${t.btnColor};box-shadow:${btnShadow};border:none;border-radius:9999px;cursor:pointer;">
                     Use this template →
-
                   </button>
-
                 </div>
-
               </div>
-
-            `).join('')}
+              `;
+            }).join('')}
 
           </div>
 

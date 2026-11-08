@@ -1226,23 +1226,23 @@ input[type="radio"] {
   margin-top: 24px;
 }
 .template-card {
-  background: rgba(10, 18, 38, 0.75);
+  background: var(--tmpl-card-bg, rgba(10, 18, 38, 0.75));
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(56, 189, 248, 0.18);
+  border: 1.5px solid var(--tmpl-border, rgba(56, 189, 248, 0.18));
   border-radius: 24px;
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
   cursor: pointer;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
   position: relative;
 }
 .template-card:hover {
-  border-color: #00c6ff;
+  border-color: var(--tmpl-accent, #00c6ff) !important;
   transform: translateY(-8px);
-  box-shadow: 0 20px 48px rgba(0, 198, 255, 0.22), 0 0 25px rgba(0, 198, 255, 0.12);
+  box-shadow: 0 20px 48px var(--tmpl-hover-shadow, rgba(0, 198, 255, 0.25)) !important;
 }
 .template-phone-preview {
   height: 410px;
@@ -1252,23 +1252,24 @@ input[type="radio"] {
   flex-direction: column;
   align-items: center;
   padding: 12px 14px 14px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--tmpl-divider, rgba(0, 0, 0, 0.06));
 }
 .template-phone-preview .mini-notch {
   width: 76px;
   height: 9px;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.35);
   border-radius: 0 0 8px 8px;
   margin-bottom: 8px;
   flex-shrink: 0;
 }
 .template-card-footer {
-  padding: 16px 18px;
+  padding: 18px 20px 20px;
   display: flex;
   flex-direction: column;
   flex: 1;
   justify-content: space-between;
-  background: rgba(4, 9, 22, 0.75);
+  background: var(--tmpl-footer-bg, rgba(4, 9, 22, 0.75));
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 /* Smartphone Mockup Preview (Frame 14) */
