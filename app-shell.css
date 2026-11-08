@@ -5066,3 +5066,113 @@ body.dark-mode .dashboard-ambient-orbs .orb {
     display: none !important;
   }
 }
+
+
+/* ========================================================
+   DASHBOARD SEARCH BARS — CLEAN ZERO INNER BORDER SYSTEM
+   Fixes nested input box-shadow & border bevel
+   ======================================================== */
+.dash-search-box,
+.links-search-wrap {
+  flex: 1 !important;
+  min-width: 260px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 12px !important;
+  padding: 0 14px !important;
+  height: 44px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+}
+
+.dash-search-box:focus-within,
+.links-search-wrap:focus-within {
+  border-color: #0070f3 !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.14), 0 4px 12px rgba(0, 112, 243, 0.06) !important;
+}
+
+.dash-search-box .search-icon-svg,
+.links-search-wrap .search-icon-svg {
+  flex-shrink: 0 !important;
+  stroke: #64748b !important;
+  transition: stroke 0.2s ease !important;
+  display: block !important;
+}
+
+.dash-search-box:focus-within .search-icon-svg,
+.links-search-wrap:focus-within .search-icon-svg {
+  stroke: #0070f3 !important;
+}
+
+.dash-search-input,
+#linksSearchInput,
+#qrSearchInput,
+#pageSearchInput {
+  flex: 1 !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 100% !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  font-family: inherit !important;
+  color: #0b132b !important;
+  -webkit-text-fill-color: #0b132b !important;
+  line-height: normal !important;
+  -webkit-appearance: none !important;
+}
+
+.dash-search-input:focus,
+#linksSearchInput:focus,
+#qrSearchInput:focus,
+#pageSearchInput:focus {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.dash-search-input::placeholder,
+#linksSearchInput::placeholder,
+#qrSearchInput::placeholder,
+#pageSearchInput::placeholder {
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+  font-weight: 400 !important;
+}
+
+.dash-filter-select,
+#linksTagSelect {
+  padding: 0 16px !important;
+  height: 44px !important;
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 12px !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  font-family: inherit !important;
+  color: #334155 !important;
+  outline: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+  cursor: pointer !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+  box-sizing: border-box !important;
+}
+
+.dash-filter-select:focus,
+#linksTagSelect:focus {
+  border-color: #0070f3 !important;
+  box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.14) !important;
+}

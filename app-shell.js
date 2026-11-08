@@ -1547,12 +1547,15 @@
 
       <div class="links-filter-bar" style="display:flex;gap:12px;align-items:center;margin-bottom:24px;flex-wrap:wrap;">
 
-        <div style="flex:1;min-width:280px;position:relative;display:flex;align-items:center;background:#ffffff;border:1.5px solid #e2e8f0;border-radius:12px;padding:0 14px;box-shadow:0 2px 6px rgba(0,0,0,0.02);">
-          <span style="font-size:15px;color:#94a3b8;margin-right:10px;">🔍</span>
-          <input type="text" id="linksSearchInput" placeholder="Search links by title, slug, tag, or destination..." style="width:100%;border:none;outline:none;background:transparent;padding:12px 0;font-size:14px;color:#0f172a;font-family:inherit;">
+        <div class="dash-search-box">
+          <svg class="search-icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" class="dash-search-input" id="linksSearchInput" placeholder="Search links by title, slug, tag, or destination..." autocomplete="off">
         </div>
 
-        <select id="linksTagSelect" style="padding:12px 16px;background:#ffffff;border:1.5px solid #e2e8f0;border-radius:12px;font-size:13.5px;font-weight:600;color:#334155;outline:none;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.02);font-family:inherit;">
+        <select id="linksTagSelect" class="dash-filter-select">
           <option value="">All tags</option>
           <option value="Website">Website</option>
           <option value="Social">Social</option>
@@ -1937,7 +1940,13 @@
 
         <div class="qr-filter-bar">
 
-          <input type="text" class="topbar-search-input" id="qrSearchInput" style="flex:1;" placeholder="Search QR codes by label, destination, or color...">
+          <div class="dash-search-box" style="flex:1;">
+            <svg class="search-icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" class="dash-search-input" id="qrSearchInput" placeholder="Search QR codes by label, destination, or color..." autocomplete="off">
+          </div>
 
           <button class="sso-btn" style="width:auto;padding:8px 14px;font-size:13px;">📅 Filter by created date</button>
 
@@ -4145,7 +4154,13 @@
 
         <div class="page-search-bar-row">
 
-          <input type="text" class="topbar-search-input page-search-input" id="pageSearchInput" placeholder="Search bio pages by title, handle, or bio...">
+          <div class="dash-search-box" style="max-width:380px;">
+            <svg class="search-icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" class="dash-search-input page-search-input" id="pageSearchInput" placeholder="Search bio pages by title, handle, or bio..." autocomplete="off">
+          </div>
 
           <span class="page-count-badge" id="pageCountBadge">${pages.length} published page${pages.length === 1 ? '' : 's'}</span>
 
