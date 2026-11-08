@@ -564,6 +564,9 @@
         card.style.transitionDelay = Math.min(index * 70, 350) + 'ms';
         observer.observe(card);
       });
+      setTimeout(() => {
+        cards.forEach((c) => c.classList.add('is-revealed'));
+      }, 80);
     } else {
       cards.forEach((c) => c.classList.add('is-revealed'));
     }
