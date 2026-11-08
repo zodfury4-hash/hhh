@@ -6951,6 +6951,7 @@ body.app-mode #appShell {
    ======================================================== */
 .app-sidebar {
   overflow: visible !important;
+  padding: 14px 8px 12px !important;
 }
 
 /* Hide text strictly when collapsed, show only infinity icon */
@@ -6969,11 +6970,16 @@ body.app-mode #appShell {
   gap: 5px !important;
 }
 
-/* Floating Edge Toggle - Clean 22px Pill */
+.sidebar-header-box {
+  margin-bottom: 6px !important;
+  height: 32px !important;
+}
+
+/* Floating Edge Toggle - Clean 22px Pill on Straight Vertical Edge */
 .sidebar-edge-toggle {
   position: absolute !important;
   right: -11px !important;
-  top: 20px !important;
+  top: 64px !important;
   width: 22px !important;
   height: 22px !important;
   border-radius: 50% !important;
@@ -6998,7 +7004,19 @@ body.app-mode #appShell {
   box-shadow: 0 4px 12px rgba(10, 108, 255, 0.35) !important;
 }
 
-/* Zero scrollbars inside sidebar navigation */
+/* Action button (+ Create new) */
+.sidebar-action-btn {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 12px !important;
+  margin: 0 auto 6px !important;
+}
+.app-sidebar.expanded .sidebar-action-btn {
+  width: 100% !important;
+  height: 40px !important;
+}
+
+/* Zero scrollbars inside sidebar navigation, flex strictly constrained */
 .sidebar-nav {
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
@@ -7006,10 +7024,12 @@ body.app-mode #appShell {
   overflow-x: hidden !important;
   display: flex !important;
   flex-direction: column !important;
-  gap: 5px !important;
+  gap: 3px !important;
   width: 100% !important;
   align-items: center !important;
-  padding: 2px 4px 12px !important;
+  flex: 1 1 0% !important;
+  min-height: 0 !important;
+  padding: 2px 2px 6px !important;
   box-sizing: border-box !important;
 }
 .sidebar-nav::-webkit-scrollbar {
@@ -7018,10 +7038,10 @@ body.app-mode #appShell {
   height: 0 !important;
 }
 
-/* Nav items - Crisp centered 44px circles */
+/* Nav items - Crisp centered 38px circles (Guaranteed to fit 10 items comfortably) */
 .sidebar-nav-item {
-  width: 44px !important;
-  height: 44px !important;
+  width: 38px !important;
+  height: 38px !important;
   border-radius: 50% !important;
   display: flex !important;
   align-items: center !important;
@@ -7030,21 +7050,29 @@ body.app-mode #appShell {
   text-decoration: none !important;
   position: relative !important;
   margin: 0 auto !important;
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
   flex-shrink: 0 !important;
   box-sizing: border-box !important;
 }
+.sidebar-nav-item .sidebar-nav-icon {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 18px !important;
+  height: 18px !important;
+}
 .sidebar-nav-item .sidebar-nav-icon svg {
   stroke: #475569 !important;
-  width: 20px !important;
-  height: 20px !important;
+  width: 18px !important;
+  height: 18px !important;
+  display: block !important;
 }
 
 /* Active Nav Item - Smooth glow, zero bump artifact */
 .sidebar-nav-item.active {
   background: linear-gradient(135deg, #0A6CFF, #00c8ff) !important;
   color: #ffffff !important;
-  box-shadow: 0 4px 14px rgba(10, 108, 255, 0.4) !important;
+  box-shadow: 0 4px 12px rgba(10, 108, 255, 0.4) !important;
   transform: scale(1.02) !important;
   border-radius: 50% !important;
 }
@@ -7102,22 +7130,43 @@ body.app-mode #appShell {
 
 .app-sidebar.expanded .sidebar-nav-item {
   width: 100% !important;
+  height: 40px !important;
   border-radius: 12px !important;
   justify-content: flex-start !important;
   padding: 0 12px !important;
   gap: 12px !important;
 }
 
-/* Sidebar Footer (Pinned, zero cutoffs) */
+/* Sidebar Footer (Pinned, zero cutoffs, 100% visible on all heights) */
 .sidebar-bottom {
   width: 100% !important;
   margin-top: auto !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
-  gap: 6px !important;
+  gap: 4px !important;
   flex-shrink: 0 !important;
-  padding: 10px 0 2px !important;
+  padding: 8px 0 2px !important;
   border-top: 1px solid rgba(226, 232, 240, 0.8) !important;
   background: transparent !important;
+}
+
+.sidebar-user-avatar {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #0A6CFF, #00c8ff) !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  font-size: 12px !important;
+  display: grid !important;
+  place-items: center !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 3px 10px rgba(10, 108, 255, 0.28) !important;
+  cursor: pointer !important;
+  transition: transform 0.2s ease !important;
+  position: relative !important;
+}
+.sidebar-user-avatar:hover {
+  transform: scale(1.08) !important;
 }
