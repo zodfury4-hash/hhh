@@ -1260,9 +1260,9 @@
     }
 
     // Interactive Tab Switching for Activity Card (Overview, Shared, Comments)
-    $('.bento-tab-btn').forEach(btn => {
+    $$('.bento-tab-btn').forEach(btn => {
       btn.onclick = () => {
-        $('.bento-tab-btn').forEach(b => b.classList.remove('active'));
+        $$('.bento-tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         const target = btn.dataset.activityTab;
         const pOverview = $('#actPanelOverview');
