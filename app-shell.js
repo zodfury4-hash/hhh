@@ -1817,17 +1817,26 @@
     container.innerHTML = `
 
       <div class="view-header">
-
-        <h2>Links</h2>
-
-        <button class="header-primary-btn" onclick="window.appShell.navigate('create-link')">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-          <span>Create link</span>
-        </button>
-
+        <div class="header-title-col">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <h2>Links</h2>
+            <span class="view-header-badge" style="background:rgba(10,108,255,0.1);color:#0A6CFF;border:1px solid rgba(10,108,255,0.2);">
+              <span>🔗</span> ${links.length} Active
+            </span>
+          </div>
+          <p class="view-subtitle">
+            Manage, customize, and analyze your branded short links with custom back-halves.
+          </p>
+        </div>
+        <div class="header-actions-col">
+          <button class="header-primary-btn" onclick="window.appShell.navigate('create-link')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>Create link</span>
+          </button>
+        </div>
       </div>
 
       <div class="links-filter-bar" style="display:flex;gap:12px;align-items:center;margin-bottom:24px;flex-wrap:wrap;">
@@ -1933,15 +1942,22 @@
         container.innerHTML = `
 
           <div class="view-header">
-
-            <h2>QR Codes</h2>
-
-            <button class="sso-btn" style="width:auto;padding:8px 16px;" id="btnViewAllQr">
-
-              View All Codes (${links.length})
-
-            </button>
-
+            <div class="header-title-col">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <h2>QR Codes</h2>
+                <span class="view-header-badge" style="background:rgba(16,185,129,0.1);color:#059669;border:1px solid rgba(16,185,129,0.25);">
+                  <span>▦</span> Dynamic Vector
+                </span>
+              </div>
+              <p class="view-subtitle">
+                Design dynamic vector QR codes with custom colors, embedded logos, and real-time scan analytics.
+              </p>
+            </div>
+            <div class="header-actions-col">
+              <button class="header-secondary-btn" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:12px;border:1px solid #cbd5e1;background:#ffffff;font-size:13px;font-weight:700;cursor:pointer;" id="btnViewAllQr">
+                View All Codes (${links.length})
+              </button>
+            </div>
           </div>
 
           <!-- Empty / Welcome State matching Frame 8 -->
@@ -2208,21 +2224,26 @@
       container.innerHTML = `
 
         <div class="view-header">
-
-          <h2>QR Codes</h2>
-
-          <div style="display:flex;gap:10px;">
-
-            <button class="header-primary-btn" id="btnNewQrHero">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            <span>Create QR Code</span>
-          </button>
-
+          <div class="header-title-col">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <h2>QR Codes</h2>
+              <span class="view-header-badge" style="background:rgba(16,185,129,0.1);color:#059669;border:1px solid rgba(16,185,129,0.25);">
+                <span>▦</span> Dynamic Vector
+              </span>
+            </div>
+            <p class="view-subtitle">
+              Design dynamic vector QR codes with custom colors, embedded logos, and real-time scan analytics.
+            </p>
           </div>
-
+          <div class="header-actions-col">
+            <button class="header-primary-btn" id="btnNewQrHero">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              <span>Create QR Code</span>
+            </button>
+          </div>
         </div>
 
         <div class="qr-filter-bar">
@@ -4388,17 +4409,24 @@
         container.innerHTML = `
 
           <div class="view-header">
-
-            <h2>HEA Pages (Link-in-Bio)</h2>
-
-            <button class="header-primary-btn" id="btnLaunchTemplateCatalog">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            <span>Create page</span>
-          </button>
-
+            <div class="header-title-col">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <h2>Bio Pages</h2>
+                <span class="pro-chip nav-pro-badge" style="font-size:11px;padding:2px 8px;">PRO</span>
+              </div>
+              <p class="view-subtitle">
+                Mobile-optimized bio landing pages, link collections, social channels, and product showcases.
+              </p>
+            </div>
+            <div class="header-actions-col">
+              <button class="header-primary-btn" id="btnLaunchTemplateCatalog">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Create page
+              </button>
+            </div>
           </div>
 
           <div style="text-align:center;padding:50px 24px;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:16px;max-width:560px;margin:32px auto;">
@@ -4430,18 +4458,25 @@
       container.innerHTML = `
 
         <div class="view-header">
-
-          <h2>HEA Pages (Link-in-Bio)</h2>
-
-          <button class="header-primary-btn" id="btnLaunchTemplateCatalog">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            <span>Create page</span>
-          </button>
-
-        </div>
+            <div class="header-title-col">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <h2>Bio Pages</h2>
+                <span class="pro-chip nav-pro-badge" style="font-size:11px;padding:2px 8px;">PRO</span>
+              </div>
+              <p class="view-subtitle">
+                Mobile-optimized bio landing pages, link collections, social channels, and product showcases.
+              </p>
+            </div>
+            <div class="header-actions-col">
+              <button class="header-primary-btn" id="btnLaunchTemplateCatalog">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Create page
+              </button>
+            </div>
+          </div>
 
         <div class="page-search-bar-row">
 
@@ -4627,25 +4662,26 @@
     container.innerHTML = `
 
       <div class="view-header">
-
-        <h2>Live Analytics Overview</h2>
-
-        <div style="display:flex;gap:12px;">
-
-          <button class="sso-btn" id="btnExportCSV" style="width:auto;padding:8px 16px;color:#38bdf8;border-color:rgba(56,189,248,0.4);font-weight:700;">
-
-            📥 Export CSV Report
-
-          </button>
-
-          <button class="sso-btn" id="btnAIAnalyze" style="width:auto;padding:8px 16px;color:#D4FF24;border-color:rgba(212,255,36,0.4);font-weight:700;">
-
-            ✨ Analyze with AI
-
-          </button>
-
+        <div class="header-title-col">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <h2>Live Analytics Overview</h2>
+            <span class="view-header-badge" style="background:rgba(0,180,255,0.1);color:#0284c7;border:1px solid rgba(0,180,255,0.25);">
+              <span>📊</span> Live Telemetry
+            </span>
+          </div>
+          <p class="view-subtitle">
+            Real-time click tracking, visitor velocity, geographic distribution, and device breakdown.
+          </p>
         </div>
-
+        <div class="header-actions-col" style="display:flex;align-items:center;gap:12px;">
+          <div class="assist-status-pill" style="padding:6px 14px;">
+            <span class="status-pulse-dot"></span>
+            <span>Real-time Sync</span>
+          </div>
+          <button class="header-secondary-btn" id="btnExportCSV" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:12px;border:1px solid #cbd5e1;background:#ffffff;color:#0b132b;font-size:13px;font-weight:700;cursor:pointer;">
+            <span>📥</span> Export CSV Report
+          </button>
+        </div>
       </div>
 
       <!-- 3 Metrics Top Cards -->
@@ -4923,15 +4959,26 @@
     container.innerHTML = `
 
       <div class="view-header">
-
-        <h2>Campaigns &amp; UTM Builder</h2>
-
-        <button class="sso-btn" style="width:auto;padding:8px 16px;color:#38bdf8;font-weight:700;" onclick="window.appShell.navigate('create-link')">
-
-          + New Campaign
-
-        </button>
-
+        <div class="header-title-col">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <h2>Campaigns &amp; UTM Builder</h2>
+            <span class="view-header-badge" style="background:rgba(121,40,202,0.1);color:#7928ca;border:1px solid rgba(121,40,202,0.25);">
+              <span>🎯</span> Multi-Channel
+            </span>
+          </div>
+          <p class="view-subtitle">
+            Architect bulletproof UTM parameters for Meta, Google Ads, TikTok, and influencer sponsorships.
+          </p>
+        </div>
+        <div class="header-actions-col">
+          <button class="header-primary-btn" onclick="window.appShell.navigate('create-link')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            New Campaign
+          </button>
+        </div>
       </div>
 
       <!-- Hero Banner matching Frame 20 -->
@@ -5694,6 +5741,24 @@
     updateDrawerForTab('settings');
 
     container.innerHTML = `
+      <div class="view-header">
+        <div class="header-title-col">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <h2>Settings &amp; Workspace</h2>
+            <span class="view-header-badge" style="background:rgba(100,116,139,0.1);color:#475569;border:1px solid rgba(100,116,139,0.25);">
+              <span>⚙️</span> Workspace
+            </span>
+          </div>
+          <p class="view-subtitle">
+            Manage your personal profile, team members, organization details, custom domains, and billing.
+          </p>
+        </div>
+        <div class="header-actions-col">
+          <div class="assist-status-pill" style="background:rgba(245,158,11,0.1);color:#b45309;border-color:rgba(245,158,11,0.3);">
+            <span>👑</span> Core PRO Active
+          </div>
+        </div>
+      </div>
       <div class="settings-center-pane-wrapper">
         <!-- Mobile Quick Tabs -->
         <div class="settings-mobile-tabs" id="settingsMobileTabs">
