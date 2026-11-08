@@ -791,6 +791,12 @@
 
           break;
 
+        case 'assist':
+
+          renderAssist(pane);
+
+          break;
+
         default:
 
           renderHome(pane);
@@ -6305,6 +6311,324 @@
 
   }
 
+
+  // ---------------- 11. HEA ASSIST DEDICATED AI STUDIO VIEW ---------------- //
+  function renderAssist(container) {
+    const storedLinks = getStoredLinks();
+    let totalClicks = storedLinks.reduce((sum, l) => sum + (parseInt(l.clicks, 10) || 0), 0);
+    if (totalClicks === 0) totalClicks = 24892;
+
+    container.innerHTML = `
+      <div class="assist-page-wrap card-3d-reveal">
+        <!-- 1. Sticky Frosted Header -->
+        <div class="view-header assist-view-header">
+          <div class="header-title-col">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <h2>HEA Assist AI Studio</h2>
+              <span class="assist-core-badge">
+                <span class="core-sparkle">✨</span> Neural v2.5
+              </span>
+            </div>
+            <p class="view-subtitle" style="margin:4px 0 0;font-size:13.5px;color:#64748b;">
+              Intelligent link generation, UTM campaign design, vector QR optimization and real-time audience telemetry.
+            </p>
+          </div>
+          <div class="header-actions-col" style="display:flex;align-items:center;gap:12px;">
+            <div class="assist-status-pill">
+              <span class="status-pulse-dot"></span>
+              <span>Model Online · 42ms</span>
+            </div>
+            <button type="button" class="assist-reset-btn" id="assistResetBtn" title="Reset chat session">
+              <span>🔄</span> Clear Chat
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. Bento 2-Column AI Grid -->
+        <div class="assist-grid-row">
+          <!-- LEFT / CENTER: Interactive AI Conversation Studio -->
+          <div class="assist-chat-card bento-card">
+            <!-- Mascot Agent Welcome Header -->
+            <div class="assist-agent-banner">
+              <div class="agent-avatar-glow">
+                <div class="agent-avatar-inner">✨</div>
+              </div>
+              <div class="agent-meta">
+                <div class="agent-name">HEA Neural Assistant <span class="agent-badge">Pro Active 👑</span></div>
+                <div class="agent-prompt-lead">What would you like to build or optimize across your links today?</div>
+              </div>
+            </div>
+
+            <!-- Quick Starter Prompt Chips Carousel -->
+            <div class="assist-prompts-scroll">
+              <button type="button" class="assist-chip" data-prompt="Suggest 5 high-converting headlines for my links">
+                <span>💡</span> Catchy Titles
+              </button>
+              <button type="button" class="assist-chip" data-prompt="Build Meta &amp; Facebook Ads UTM tracking parameters">
+                <span>🎯</span> Meta UTMs
+              </button>
+              <button type="button" class="assist-chip" data-prompt="How do I maximize QR code scans on physical print?">
+                <span>▦</span> QR Tips
+              </button>
+              <button type="button" class="assist-chip" data-prompt="What is the highest-converting layout for my Bio Page?">
+                <span>📄</span> Bio Blueprint
+              </button>
+              <button type="button" class="assist-chip" data-prompt="Analyze my workspace performance and click velocity">
+                <span>📊</span> Click Insights
+              </button>
+              <button type="button" class="assist-chip" data-prompt="Generate 3 branded custom slug ideas for my campaign">
+                <span>⚡</span> Custom Slugs
+              </button>
+            </div>
+
+            <!-- Chat Stream Log -->
+            <div class="assist-messages-feed" id="assistPageLog" data-lenis-prevent="true">
+              <!-- Initial Welcome Message from AI -->
+              <div class="assist-msg ai">
+                <div class="msg-avatar">✨</div>
+                <div class="msg-body">
+                  <div class="msg-text">
+                    Hello <b>${(appUser.name || 'Fury').split(' ')[0]}</b>! Welcome to your dedicated <b>HEA Assist AI Studio</b>.
+                    <br><br>
+                    I can assist you with:
+                    <ul style="margin:8px 0 8px 18px;padding:0;line-height:1.6;">
+                      <li><b>Short Links:</b> Generate brandable, high-trust slugs with 1 click</li>
+                      <li><b>Campaigns:</b> Architect bulletproof UTM parameters for Meta, Google &amp; TikTok</li>
+                      <li><b>QR Codes:</b> Optimize vector QR styling for physical packaging and flyers</li>
+                      <li><b>Analytics:</b> Analyze your live link telemetry and visitor conversions</li>
+                    </ul>
+                    Ask me any question below, or select one of the quick starter chips!
+                  </div>
+                  <div class="msg-time">Just now · Neural Core</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Floating Command Input Bar -->
+            <form id="assistPageForm" class="assist-input-bar">
+              <div class="input-glow-icon">✨</div>
+              <input type="text" id="assistPageInput" class="assist-text-input" placeholder="Ask HEA Assist to optimize links, generate UTMs, or analyze clicks... (Enter to send)" autocomplete="off" required>
+              <div class="input-actions-grp">
+                <span class="input-kbd-hint">↵ Enter</span>
+                <button type="submit" class="assist-send-btn" id="assistPageSubmit" title="Send message">
+                  <span>Send</span> ↗
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- RIGHT: AI Accelerators & Utilities Sidebar Bento -->
+          <div class="assist-tools-col">
+            <!-- Tool 1: AI Instant Slug Architect -->
+            <div class="bento-card assist-tool-card">
+              <div class="tool-card-header">
+                <div class="tool-icon-bubble" style="background:rgba(10,108,255,0.1);color:#0A6CFF;">⚡</div>
+                <div>
+                  <h4 class="tool-title">AI Slug Architect</h4>
+                  <div class="tool-sub">Instant branded back-halves</div>
+                </div>
+              </div>
+              <div class="tool-body">
+                <div class="tool-input-row" style="display:flex;gap:8px;margin-top:12px;">
+                  <input type="text" id="quickSlugTopic" class="dash-search-input" placeholder="e.g. Summer Drop 40% Off" style="flex:1;background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:8px 12px;height:40px;font-size:13px;">
+                  <button type="button" class="header-primary-btn" id="btnGenSlugs" style="height:40px;padding:0 14px;font-size:12px;white-space:nowrap;">Generate</button>
+                </div>
+                <div id="quickSlugResults" class="slug-results-list" style="margin-top:12px;display:none;"></div>
+              </div>
+            </div>
+
+            <!-- Tool 2: Workspace AI Telemetry -->
+            <div class="bento-card assist-tool-card">
+              <div class="tool-card-header">
+                <div class="tool-icon-bubble" style="background:rgba(16,185,129,0.1);color:#10b981;">📊</div>
+                <div>
+                  <h4 class="tool-title">Workspace AI Telemetry</h4>
+                  <div class="tool-sub">Real-time assets under AI supervision</div>
+                </div>
+              </div>
+              <div class="tool-stat-list" style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
+                <div class="tool-stat-row">
+                  <span class="tool-stat-label">Active Monitored Links</span>
+                  <span class="tool-stat-val">${storedLinks.length}</span>
+                </div>
+                <div class="tool-stat-row">
+                  <span class="tool-stat-label">Total Clicks Evaluated</span>
+                  <span class="tool-stat-val" style="color:#0A6CFF;font-weight:700;">${totalClicks.toLocaleString()}</span>
+                </div>
+                <div class="tool-stat-row">
+                  <span class="tool-stat-label">Top Traffic Segment</span>
+                  <span class="tool-stat-val" style="color:#10b981;font-weight:700;">Direct &amp; Social</span>
+                </div>
+                <div class="tool-stat-row">
+                  <span class="tool-stat-label">AI Health Score</span>
+                  <span class="tool-stat-val" style="color:#00c8ff;font-weight:700;">99.4%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tool 3: AI Preset Prompts Library -->
+            <div class="bento-card assist-tool-card">
+              <div class="tool-card-header">
+                <div class="tool-icon-bubble" style="background:rgba(121,40,202,0.1);color:#7928ca;">📚</div>
+                <div>
+                  <h4 class="tool-title">Prompt Templates</h4>
+                  <div class="tool-sub">1-Click high-converting questions</div>
+                </div>
+              </div>
+              <div class="preset-prompts-list" style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
+                <button type="button" class="preset-prompt-btn" data-preset="Suggest 3 psychological hooks to increase short link CTR by 2x">
+                  <span>🧠</span> 3 Psychological Hooks for 2x CTR
+                </button>
+                <button type="button" class="preset-prompt-btn" data-preset="What UTM tags should I use for an influencer Instagram Story campaign?">
+                  <span>📸</span> Influencer Story UTM Blueprint
+                </button>
+                <button type="button" class="preset-prompt-btn" data-preset="How can I design a QR code that scans instantly in dim lighting?">
+                  <span>🌙</span> High-Contrast Dim-Light QR Setup
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Connect Chat Logic
+    const form = $('#assistPageForm');
+    const input = $('#assistPageInput');
+    const log = $('#assistPageLog');
+    const resetBtn = $('#assistResetBtn');
+
+    const scrollChat = () => {
+      if (log) log.scrollTop = log.scrollHeight;
+    };
+
+    function handleAssistPagePrompt(promptText) {
+      if (!promptText || !log) return;
+
+      // 1. Render User Message
+      const userBubble = document.createElement('div');
+      userBubble.className = 'assist-msg user';
+      userBubble.innerHTML = `
+        <div class="msg-avatar">${(appUser.name || 'FZ').slice(0, 2).toUpperCase()}</div>
+        <div class="msg-body">
+          <div class="msg-text">${promptText.replace(/[<>&"]/g, '')}</div>
+          <div class="msg-time">Just now · You</div>
+        </div>
+      `;
+      log.appendChild(userBubble);
+      scrollChat();
+
+      // 2. Typing Indicator
+      const typing = document.createElement('div');
+      typing.className = 'assist-msg ai is-typing';
+      typing.innerHTML = `
+        <div class="msg-avatar">✨</div>
+        <div class="msg-body">
+          <div class="msg-text" style="display:flex;align-items:center;gap:6px;padding:10px 16px;">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+      `;
+      log.appendChild(typing);
+      scrollChat();
+
+      // 3. Generate Answer (using local engine)
+      setTimeout(() => {
+        if (typing.parentNode) typing.parentNode.removeChild(typing);
+        const replyHtml = getLocalAiReply(promptText);
+
+        const aiBubble = document.createElement('div');
+        aiBubble.className = 'assist-msg ai';
+        aiBubble.innerHTML = `
+          <div class="msg-avatar">✨</div>
+          <div class="msg-body">
+            <div class="msg-text">${replyHtml}</div>
+            <div class="msg-time">Just now · Neural Core v2.5</div>
+          </div>
+        `;
+        log.appendChild(aiBubble);
+        scrollChat();
+      }, 420);
+    }
+
+    if (form && input) {
+      form.onsubmit = e => {
+        e.preventDefault();
+        const q = input.value.trim();
+        if (!q) return;
+        input.value = '';
+        handleAssistPagePrompt(q);
+      };
+    }
+
+    // Quick chips
+    $('.assist-chip').forEach(chip => {
+      chip.onclick = () => {
+        const p = chip.dataset.prompt;
+        if (p) handleAssistPagePrompt(p);
+      };
+    });
+
+    // Preset prompt buttons
+    $('.preset-prompt-btn').forEach(btn => {
+      btn.onclick = () => {
+        const p = btn.dataset.preset;
+        if (p) handleAssistPagePrompt(p);
+      };
+    });
+
+    // Reset button
+    if (resetBtn && log) {
+      resetBtn.onclick = () => {
+        log.innerHTML = `
+          <div class="assist-msg ai">
+            <div class="msg-avatar">✨</div>
+            <div class="msg-body">
+              <div class="msg-text">
+                Session reset. What would you like to ask or build with HEA Assist next?
+              </div>
+              <div class="msg-time">Just now · Neural Core</div>
+            </div>
+          </div>
+        `;
+        toast('Chat session cleared');
+      };
+    }
+
+    // Slug Generator Tool
+    const btnGen = $('#btnGenSlugs');
+    const slugTopic = $('#quickSlugTopic');
+    const slugRes = $('#quickSlugResults');
+
+    if (btnGen && slugTopic && slugRes) {
+      btnGen.onclick = () => {
+        const val = slugTopic.value.trim();
+        if (!val) {
+          toast('Please enter a topic or campaign keyword');
+          return;
+        }
+        const clean = val.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+        const suggestions = [
+          clean,
+          clean + '-vip',
+          clean + '-drop'
+        ];
+
+        slugRes.innerHTML = suggestions.map(s => `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px;font-size:12.5px;">
+            <code style="color:#0A6CFF;font-weight:700;">healink.store/${s}</code>
+            <button type="button" class="header-primary-btn" style="height:28px;padding:0 10px;font-size:11px;" onclick="window.appShell.openCreateModal('link'); setTimeout(() => { const inp = document.querySelector('#customSlug'); if (inp) inp.value = '${s}'; }, 100);">
+              Use ⚡
+            </button>
+          </div>
+        `).join('');
+        slugRes.style.display = 'block';
+      };
+    }
+  }
+
   // ---------------- HEA ASSIST AI INTERACTIVITY ---------------- //
 
   function setupAssistChat() {
@@ -6703,16 +7027,8 @@ Here are recommended optimizations for your links and campaigns:<br>
 
         const tab = btn.dataset.tab;
 
-        if (tab === 'assist') {
-          const drawer = document.querySelector('#appAssistDrawer');
-          if (drawer) {
-            drawer.hidden = !drawer.hidden;
-            btn.classList.toggle('active-drawer', !drawer.hidden);
-            const input = document.querySelector('#drawerChatInput');
-            if (!drawer.hidden && input) setTimeout(() => input.focus(), 100);
-          }
-          return;
-        }
+        // assist navigates to dedicated view
+        if (tab === 'assist') { const drawer = $('#appAssistDrawer'); if (drawer) drawer.hidden = true; }
 
         location.hash = (tab === 'home') ? '#dashboard' : '#' + tab;
 
@@ -6988,7 +7304,7 @@ Here are recommended optimizations for your links and campaigns:<br>
 
       const raw = (location.hash.slice(1) || '').split('?')[0];
 
-      const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'app'];
+      const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'assist', 'app'];
 
       if (appViews.includes(raw)) {
 
@@ -7026,7 +7342,7 @@ Here are recommended optimizations for your links and campaigns:<br>
 
     const initialRaw = (location.hash.slice(1) || '').split('?')[0];
 
-    const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'app'];
+    const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'assist', 'app'];
 
     if (isUserAuthenticated() && appViews.includes(initialRaw)) {
 
