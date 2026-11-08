@@ -25,7 +25,7 @@ import { useReducedMotion } from './hooks/useReducedMotion';
 export function App() {
   const [loading, setLoading] = useState(true);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [authModal, setAuthModal] = useState<{ isOpen: boolean; mode: 'login' | 'signup' }>({
+  const [authModal, setAuthModal] = useState<{ isOpen: boolean; mode: 'login' | 'signup' | 'forgot' }>({
     isOpen: false,
     mode: 'login',
   });
@@ -50,6 +50,8 @@ export function App() {
         setAuthModal({ isOpen: true, mode: 'login' });
       } else if (h === '#signup') {
         setAuthModal({ isOpen: true, mode: 'signup' });
+      } else if (h === '#forgot' || h === '#forgot-password') {
+        setAuthModal({ isOpen: true, mode: 'forgot' });
       }
     };
     handleHash();
@@ -165,7 +167,7 @@ export function App() {
         initialMode={authModal.mode}
         onClose={() => {
           setAuthModal((prev) => ({ ...prev, isOpen: false }));
-          if (window.location.hash === '#login' || window.location.hash === '#signup') {
+          if (window.location.hash === '#login' || window.location.hash === '#signup' || window.location.hash === '#forgot' || window.location.hash === '#forgot-password') {
             history.replaceState(null, '', window.location.pathname);
           }
         }}

@@ -6,23 +6,28 @@ import {
   Lock,
   User,
   ArrowRight,
+  ArrowLeft,
+  KeyRound,
   ShieldCheck,
   AlertCircle,
   CheckCircle2,
 } from 'lucide-react';
 import { signInWithGooglePopup } from '../firebase';
 
+export type AuthMode = 'login' | 'signup' | 'verify' | 'forgot' | 'reset';
+
 interface AuthModalProps {
   isOpen: boolean;
-  initialMode?: 'login' | 'signup' | 'verify';
+  initialMode?: AuthMode;
   onClose: () => void;
 }
 
 export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalProps) {
-  const [mode, setMode] = useState<'login' | 'signup' | 'verify'>(initialMode);
+  const [mode, setMode] = useState<AuthMode>(initialMode);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [verifyCode, setVerifyCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -172,6 +177,48 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
         } else {
           setError(data.error || 'Invalid or expired code. Please try again.');
         }
+      } else if (mode === 'forgot') {
+        const res = await fetch('/api/auth/forgot-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          setMode('reset');
+          setSuccessMsg('Reset code sent! Check your inbox or use code below.');
+          if (data.devCode) {
+            setDevCode(data.devCode);
+          }
+        } else {
+          setError(data.error || 'No account found with this email.');
+        }
+      } else if (mode === 'reset') {
+        if (!newPassword || newPassword.length < 8) {
+          setError('Password must be at least 8 characters long.');
+          setIsLoading(false);
+          return;
+        }
+
+        const res = await fetch('/api/auth/reset-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, code: verifyCode, newPassword }),
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          setSuccessMsg('Password reset successful! Please log in with your new password.');
+          setTimeout(() => {
+            setMode('login');
+            setPassword('');
+            setVerifyCode('');
+            setNewPassword('');
+          }, 1200);
+        } else {
+          setError(data.error || 'Invalid or expired reset code.');
+        }
       }
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred. Please try again.');
@@ -237,16 +284,20 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
                 {mode === 'login' && 'Welcome Back'}
                 {mode === 'signup' && 'Create Free Account'}
                 {mode === 'verify' && 'Verify Your Email'}
+                {mode === 'forgot' && 'Reset Password'}
+                {mode === 'reset' && 'Set New Password'}
               </h3>
               <p className="text-[11px] text-slate-500 max-w-xs mx-auto leading-relaxed">
                 {mode === 'login' && 'Log in to manage your short links, QR codes, and analytics.'}
                 {mode === 'signup' && 'Start shortening links with custom branding in seconds.'}
                 {mode === 'verify' && `Enter the 6-digit OTP verification code sent to ${email}.`}
+                {mode === 'forgot' && "Enter your registered email and we'll send you a 6-digit code."}
+                {mode === 'reset' && `Enter the 6-digit code sent to ${email} and set your new password.`}
               </p>
             </div>
 
             {/* Mode Switcher Tabs (Login / Signup) */}
-            {mode !== 'verify' && (
+            {(mode === 'login' || mode === 'signup') && (
               <div className="flex bg-slate-200/40 backdrop-blur-sm p-1 rounded-2xl text-xs font-bold border border-white/60">
                 <button
                   type="button"
@@ -254,7 +305,7 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
                     setMode('login');
                     setError('');
                   }}
-                  className={`flex-1 py-1 rounded-xl transition-all ${
+                  className={`flex-1 py-1 rounded-xl transition-all cursor-pointer ${
                     mode === 'login'
                       ? 'bg-white/95 text-[#0070f3] shadow-xs'
                       : 'text-slate-500 hover:text-slate-800'
@@ -268,7 +319,7 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
                     setMode('signup');
                     setError('');
                   }}
-                  className={`flex-1 py-1 rounded-xl transition-all ${
+                  className={`flex-1 py-1 rounded-xl transition-all cursor-pointer ${
                     mode === 'signup'
                       ? 'bg-white/95 text-[#0070f3] shadow-xs'
                       : 'text-slate-500 hover:text-slate-800'
@@ -280,7 +331,7 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
             )}
 
             {/* Google SSO Button */}
-            {mode !== 'verify' && (
+            {(mode === 'login' || mode === 'signup') && (
               <div>
                 <button
                   type="button"
@@ -320,7 +371,7 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
             )}
 
             {/* Dev Test Code Banner (When SMTP is not configured) */}
-            {mode === 'verify' && devCode && (
+            {(mode === 'verify' || mode === 'reset') && devCode && (
               <div className="p-2.5 bg-blue-50/80 backdrop-blur-sm border border-blue-200 rounded-xl text-xs text-blue-900 space-y-1">
                 <div className="flex items-center justify-between font-bold">
                   <span>⚡ Test Verification Code:</span>
@@ -331,7 +382,7 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
                 <button
                   type="button"
                   onClick={autoFillCode}
-                  className="w-full py-1 text-center bg-[#0070f3] text-white rounded font-semibold text-[11px] hover:bg-blue-600 transition-colors"
+                  className="w-full py-1 text-center bg-[#0070f3] text-white rounded font-semibold text-[11px] hover:bg-blue-600 transition-colors cursor-pointer"
                 >
                   Auto-fill Code
                 </button>
@@ -371,47 +422,58 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
                 </div>
               )}
 
-              {mode !== 'verify' && (
-                <>
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-700 mb-0.5">Email Address</label>
-                    <div className="relative">
-                      <Mail className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                      <input
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="you@company.com"
-                        className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200/80 bg-white/70 focus:bg-white text-xs focus:outline-none focus:ring-2 focus:ring-[#0070f3] focus:border-transparent transition-all"
-                      />
-                    </div>
+              {/* Email Input for Login, Signup & Forgot Password */}
+              {(mode === 'login' || mode === 'signup' || mode === 'forgot') && (
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-700 mb-0.5">Email Address</label>
+                  <div className="relative">
+                    <Mail className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@company.com"
+                      className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200/80 bg-white/70 focus:bg-white text-xs focus:outline-none focus:ring-2 focus:ring-[#0070f3] focus:border-transparent transition-all"
+                    />
                   </div>
-
-                  <div>
-                    <div className="flex items-center justify-between mb-0.5">
-                      <label className="text-[11px] font-semibold text-slate-700">Password</label>
-                      {mode === 'login' && (
-                        <a href="/app.html#login" className="text-[10px] text-[#0070f3] hover:underline font-medium">
-                          Forgot password?
-                        </a>
-                      )}
-                    </div>
-                    <div className="relative">
-                      <Lock className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                      <input
-                        type="password"
-                        required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200/80 bg-white/70 focus:bg-white text-xs focus:outline-none focus:ring-2 focus:ring-[#0070f3] focus:border-transparent transition-all"
-                      />
-                    </div>
-                  </div>
-                </>
+                </div>
               )}
 
+              {/* Password Input for Login & Signup */}
+              {(mode === 'login' || mode === 'signup') && (
+                <div>
+                  <div className="flex items-center justify-between mb-0.5">
+                    <label className="text-[11px] font-semibold text-slate-700">Password</label>
+                    {mode === 'login' && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMode('forgot');
+                          setError('');
+                          setSuccessMsg('');
+                        }}
+                        className="text-[10px] text-[#0070f3] hover:underline font-medium cursor-pointer"
+                      >
+                        Forgot password?
+                      </button>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <Lock className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="password"
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200/80 bg-white/70 focus:bg-white text-xs focus:outline-none focus:ring-2 focus:ring-[#0070f3] focus:border-transparent transition-all"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Verify OTP Code Input */}
               {mode === 'verify' && (
                 <div>
                   <label className="block text-[11px] font-semibold text-slate-700 mb-0.5">
@@ -429,6 +491,43 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
                 </div>
               )}
 
+              {/* Reset Mode: OTP Code + New Password */}
+              {mode === 'reset' && (
+                <>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-700 mb-0.5">
+                      6-Digit Reset Code
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={6}
+                      required
+                      value={verifyCode}
+                      onChange={(e) => setVerifyCode(e.target.value)}
+                      placeholder="123456"
+                      className="w-full py-2 px-3 text-center tracking-widest font-mono text-base font-bold rounded-xl border border-slate-200/80 bg-white/70 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0070f3] transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-700 mb-0.5">
+                      New Password
+                    </label>
+                    <div className="relative">
+                      <KeyRound className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input
+                        type="password"
+                        required
+                        minLength={8}
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="At least 8 characters"
+                        className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200/80 bg-white/70 focus:bg-white text-xs focus:outline-none focus:ring-2 focus:ring-[#0070f3] focus:border-transparent transition-all"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+
               <button
                 type="submit"
                 disabled={isLoading}
@@ -441,12 +540,32 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
                     'Log in to Account'
                   ) : mode === 'signup' ? (
                     'Create Free Account'
-                  ) : (
+                  ) : mode === 'verify' ? (
                     'Verify & Launch Dashboard'
+                  ) : mode === 'forgot' ? (
+                    'Send Reset Code'
+                  ) : (
+                    'Set New Password & Log In'
                   )}
                 </span>
                 <ArrowRight className="w-4 h-4" />
               </button>
+
+              {/* Back to Login link for Forgot / Reset modes */}
+              {(mode === 'forgot' || mode === 'reset') && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode('login');
+                    setError('');
+                    setSuccessMsg('');
+                  }}
+                  className="w-full text-center text-[11px] font-semibold text-slate-500 hover:text-[#0070f3] flex items-center justify-center gap-1.5 pt-1 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Back to Log In</span>
+                </button>
+              )}
             </form>
 
             {/* Footer Security Badge */}
