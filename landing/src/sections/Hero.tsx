@@ -24,15 +24,15 @@ export function Hero() {
     <section
       id="home"
       onMouseMove={handleMouseMove}
-      className="relative pt-6 pb-8 lg:pt-10 lg:pb-12 overflow-hidden"
+      className="relative pt-2 pb-8 lg:pt-4 lg:pb-12 overflow-hidden"
     >
       {/* Background Soft Glow Accents */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-blue-300/20 via-sky-300/25 to-transparent rounded-full blur-3xl pointer-events-none -z-10" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-start">
           {/* Left Column: Headline, Subtitle & Interactive Shorten Card */}
-          <div className="lg:col-span-6 z-20 space-y-6 sm:space-y-8">
+          <div className="lg:col-span-6 z-20 space-y-6 sm:space-y-8 pt-2 sm:pt-4">
             <div className="space-y-4">
               <h1 className="text-4xl sm:text-5xl lg:text-[3.5rem] font-extrabold text-[#0b132b] leading-[1.14] tracking-tight">
                 <SplitText>Short links & URLs,</SplitText>
