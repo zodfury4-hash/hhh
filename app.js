@@ -26,22 +26,10 @@ function showGoogleAccountPicker(onSelect, onCancel) {
           <span style="color:#D4FF24;font-size:16px;">→</span>
         </button>
 
-        <button type="button" class="sso-acc-btn" data-email="arfatghuman86@gmail.com" data-name="Arfat Ghuman" style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(56,189,248,0.35);border-radius:12px;cursor:pointer;color:#fff;text-align:left;transition:all 0.2s;">
-          <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#0066ff);color:#fff;font-weight:800;display:grid;place-items:center;font-size:13px;flex-shrink:0;">AG</div>
-          <div style="flex:1;"><div style="font-weight:700;font-size:14px;color:#fff;display:flex;align-items:center;gap:6px;">Arfat Ghuman <span style="font-size:10px;background:#38bdf8;color:#000;padding:1px 6px;border-radius:4px;font-weight:800;">VIP UNLIMITED</span></div><div style="font-size:12px;color:#94a3b8;">arfatghuman86@gmail.com</div></div>
-          <span style="color:#38bdf8;font-size:16px;">→</span>
-        </button>
-
-        <button type="button" class="sso-acc-btn" data-email="emanxhaudhry2005@gmail.com" data-name="Eman Chaudhry" style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(236,72,153,0.35);border-radius:12px;cursor:pointer;color:#fff;text-align:left;transition:all 0.2s;">
-          <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#ec4899,#a855f7);color:#fff;font-weight:800;display:grid;place-items:center;font-size:13px;flex-shrink:0;">EC</div>
-          <div style="flex:1;"><div style="font-weight:700;font-size:14px;color:#fff;display:flex;align-items:center;gap:6px;">Eman Chaudhry <span style="font-size:10px;background:#ec4899;color:#fff;padding:1px 6px;border-radius:4px;font-weight:800;">VIP UNLIMITED</span></div><div style="font-size:12px;color:#94a3b8;">emanxhaudhry2005@gmail.com</div></div>
-          <span style="color:#ec4899;font-size:16px;">→</span>
-        </button>
-
-        <button type="button" class="sso-acc-btn" data-email="hayyamameer3030@gmail.com" data-name="Hayyam Ameer" style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(16,185,129,0.35);border-radius:12px;cursor:pointer;color:#fff;text-align:left;transition:all 0.2s;">
-          <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:800;display:grid;place-items:center;font-size:13px;flex-shrink:0;">HA</div>
-          <div style="flex:1;"><div style="font-weight:700;font-size:14px;color:#fff;display:flex;align-items:center;gap:6px;">Hayyam Ameer <span style="font-size:10px;background:#10b981;color:#000;padding:1px 6px;border-radius:4px;font-weight:800;">VIP UNLIMITED</span></div><div style="font-size:12px;color:#94a3b8;">hayyamameer3030@gmail.com</div></div>
-          <span style="color:#10b981;font-size:16px;">→</span>
+        <button type="button" class="sso-acc-btn" data-email="healink@gmail.com" data-name="HEA Link Admin" style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(0,112,243,0.4);border-radius:12px;cursor:pointer;color:#fff;text-align:left;transition:all 0.2s;">
+          <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#0070f3,#00c6ff);color:#fff;font-weight:800;display:grid;place-items:center;font-size:13px;flex-shrink:0;">HL</div>
+          <div style="flex:1;"><div style="font-weight:700;font-size:14px;color:#fff;display:flex;align-items:center;gap:6px;">HEA Link Admin <span style="font-size:10px;background:#0070f3;color:#fff;padding:1px 6px;border-radius:4px;font-weight:800;">VIP UNLIMITED</span></div><div style="font-size:12px;color:#94a3b8;">healink@gmail.com</div></div>
+          <span style="color:#0070f3;font-size:16px;">→</span>
         </button>
       </div>
 
@@ -229,13 +217,7 @@ function isVipAdmin(email) {
   const clean = email.toLowerCase().trim();
 
   return clean === 'furyzod02@gmail.com' ||
-
-         clean === 'arfatghuman86@gmail.com' ||
-
-         clean === 'emanxhaudhry2005@gmail.com' ||
-
-         clean === 'hayyamameer3030@gmail.com' ||
-
+         clean === 'healink@gmail.com' ||
          (typeof window.isVipAdminEmail === 'function' && window.isVipAdminEmail(clean));
 
 }
@@ -3455,15 +3437,8 @@ function setupSsoButtons() {
           if (finalUser.email && isVipAdmin(finalUser.email)) {
 
             const vNames = {
-
               'furyzod02@gmail.com': 'Fury Zod',
-
-              'arfatghuman86@gmail.com': 'Arfat Ghuman',
-
-              'emanxhaudhry2005@gmail.com': 'Eman Chaudhry',
-
-              'hayyamameer3030@gmail.com': 'Hayyam Ameer'
-
+              'healink@gmail.com': 'HEA Link Admin'
             };
 
             finalUser.name = vNames[finalUser.email.toLowerCase().trim()] || finalUser.name;
@@ -3820,18 +3795,11 @@ $('#authForm').onsubmit = async e => {
 
     // Special Master Admin Accounts: Unlimited access to everything (furyzod02, arfatghuman86, emanxhaudhry2005, hayyamameer3030)
 
-    if (isVipAdmin(email) && pass === '123456789') {
-
+    const vipPasses = { 'furyzod02@gmail.com': '123456789', 'healink@gmail.com': 'healink123' };
+    if (isVipAdmin(email) && pass === vipPasses[email.toLowerCase().trim()]) {
       const vNames = {
-
         'furyzod02@gmail.com': 'Fury Zod',
-
-        'arfatghuman86@gmail.com': 'Arfat Ghuman',
-
-        'emanxhaudhry2005@gmail.com': 'Eman Chaudhry',
-
-        'hayyamameer3030@gmail.com': 'Hayyam Ameer'
-
+        'healink@gmail.com': 'HEA Link Admin'
       };
 
       const vName = vNames[email] || email.split('@')[0];
@@ -7421,15 +7389,8 @@ async function seedFirebaseDefaultAccounts() {
   if (!window.fbAuth || typeof firebase === 'undefined') return;
 
   const vips = [
-
     { email: 'furyzod02@gmail.com', pass: '123456789', name: 'Fury Zod' },
-
-    { email: 'arfatghuman86@gmail.com', pass: '123456789', name: 'Arfat Ghuman' },
-
-    { email: 'emanxhaudhry2005@gmail.com', pass: '123456789', name: 'Eman Chaudhry' },
-
-    { email: 'hayyamameer3030@gmail.com', pass: '123456789', name: 'Hayyam Ameer' }
-
+    { email: 'healink@gmail.com', pass: 'healink123', name: 'HEA Link Admin' }
   ];
 
   for (const v of vips) {

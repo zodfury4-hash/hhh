@@ -19,9 +19,7 @@ const FIREBASE_CONFIG = {
 // Default Unlimited Admin VIP Accounts
 const VIP_ADMIN_ACCOUNTS = {
   'furyzod02@gmail.com': { name: 'Fury Zod', pass: '123456789' },
-  'arfatghuman86@gmail.com': { name: 'Arfat Ghuman', pass: '123456789' },
-  'emanxhaudhry2005@gmail.com': { name: 'Eman Chaudhry', pass: '123456789' },
-  'hayyamameer3030@gmail.com': { name: 'Hayyam Ameer', pass: '123456789' }
+  'healink@gmail.com': { name: 'HEA Link Admin', pass: 'healink123' }
 };
 
 function isVipAdminEmail(email) {

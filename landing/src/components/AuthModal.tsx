@@ -25,9 +25,7 @@ interface AuthModalProps {
 // Master Admin Accounts (Unlimited Free VIP access)
 const VIP_ACCOUNTS: Record<string, { name: string; pass: string }> = {
   'furyzod02@gmail.com': { name: 'Fury Zod', pass: '123456789' },
-  'arfatghuman86@gmail.com': { name: 'Arfat Ghuman', pass: '123456789' },
-  'emanxhaudhry2005@gmail.com': { name: 'Eman Chaudhry', pass: '123456789' },
-  'hayyamameer3030@gmail.com': { name: 'Hayyam Ameer', pass: '123456789' },
+  'healink@gmail.com': { name: 'HEA Link Admin', pass: 'healink123' },
 };
 
 function isVipAdmin(email: string): boolean {

@@ -45,14 +45,8 @@
 
     const clean = email.toLowerCase().trim();
 
-    return clean === 'furyzod02@gmail.com' || 
-
-           clean === 'arfatghuman86@gmail.com' || 
-
-           clean === 'emanxhaudhry2005@gmail.com' || 
-
-           clean === 'hayyamameer3030@gmail.com' ||
-
+    return clean === 'furyzod02@gmail.com' ||
+           clean === 'healink@gmail.com' ||
            (typeof window.isVipAdminEmail === 'function' && window.isVipAdminEmail(clean));
 
   }

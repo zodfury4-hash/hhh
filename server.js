@@ -31,15 +31,8 @@ const firebaseRtdb = require('./firebase-service');
 // Default Unlimited Admin VIP Accounts
 
 const VIP_ADMIN_ACCOUNTS = {
-
   'furyzod02@gmail.com': { name: 'Fury Zod', pass: '123456789' },
-
-  'arfatghuman86@gmail.com': { name: 'Arfat Ghuman', pass: '123456789' },
-
-  'emanxhaudhry2005@gmail.com': { name: 'Eman Chaudhry', pass: '123456789' },
-
-  'hayyamameer3030@gmail.com': { name: 'Hayyam Ameer', pass: '123456789' }
-
+  'healink@gmail.com': { name: 'HEA Link Admin', pass: 'healink123' }
 };
 
 function isVipAdminEmail(email) {
@@ -1238,7 +1231,7 @@ app.post('/api/auth/login', async (req, res) => {
 
     // Special Master Admin Account: Unlimited access to everything (furyzod02, arfatghuman86, emanxhaudhry2005, hayyamameer3030)
 
-    if (isVipAdminEmail(cleanEmail) && password === '123456789') {
+    if (isVipAdminEmail(cleanEmail) && password === VIP_ADMIN_ACCOUNTS[cleanEmail]?.pass) {
 
       const vip = VIP_ADMIN_ACCOUNTS[cleanEmail];
 
