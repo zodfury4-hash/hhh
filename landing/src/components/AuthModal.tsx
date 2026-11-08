@@ -25,6 +25,34 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
     setSuccessMsg('');
   }, [initialMode, isOpen]);
 
+  // Lock background page scroll (both native body and Lenis smooth scroll) when modal is open
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const lenis = (window as any).lenis;
+    if (lenis && typeof lenis.stop === 'function') {
+      lenis.stop();
+    }
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      if (lenis && typeof lenis.start === 'function') {
+        lenis.start();
+      }
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -170,33 +198,35 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+      <div className="fixed inset-0 z-[100] overflow-y-auto overscroll-contain">
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 bg-[#0b132b]/60 backdrop-blur-md"
+          className="fixed inset-0 bg-[#0b132b]/65 backdrop-blur-md"
         />
 
-        {/* Modal Window */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 15 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 15 }}
-          transition={{ duration: 0.25, ease: 'easeOut' }}
-          className="relative w-full max-w-md bg-white/95 backdrop-blur-2xl rounded-3xl p-7 sm:p-9 shadow-2xl border border-white/80 z-10 space-y-6"
-        >
-          {/* Close Button */}
-          <button
-            onClick={onClose}
-            type="button"
-            className="absolute top-5 right-5 p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-            aria-label="Close"
+        {/* Scroll Centering Wrapper */}
+        <div className="min-h-full flex items-center justify-center p-4 py-8 sm:py-12">
+          {/* Modal Window */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 15 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            className="relative w-full max-w-md bg-white/95 backdrop-blur-2xl rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/80 z-10 space-y-5 my-auto"
           >
-            <X className="w-5 h-5" />
-          </button>
+            {/* Prominent Close Cross Button */}
+            <button
+              onClick={onClose}
+              type="button"
+              className="absolute top-4 right-4 sm:top-5 sm:right-5 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center transition-all z-20 cursor-pointer shadow-xs"
+              aria-label="Close"
+            >
+              <X className="w-5 h-5 stroke-[2.5]" />
+            </button>
 
           {/* Brand Header */}
           <div className="text-center space-y-2">
@@ -439,6 +469,7 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
             </a>
           </div>
         </motion.div>
+        </div>
       </div>
     </AnimatePresence>
   );
