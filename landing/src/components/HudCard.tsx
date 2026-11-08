@@ -29,7 +29,7 @@ export function HudCards({ mousePosition }: HudCardProps) {
           y: { duration: 3.2, repeat: Infinity, ease: 'easeInOut' },
           x: { type: 'spring', stiffness: 100, damping: 20 },
         }}
-        className="absolute top-[5%] sm:top-[7%] lg:top-[8%] -left-14 sm:-left-16 lg:-left-24 glass-panel rounded-2xl px-4 py-3 flex items-center gap-3 shadow-glass"
+        className="absolute top-[10%] sm:top-[12%] lg:top-[14%] -left-14 sm:-left-16 lg:-left-24 glass-panel rounded-2xl px-4 py-3 flex items-center gap-3 shadow-glass"
       >
         <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-end justify-center p-2 gap-1">
           <span className="w-1.5 h-3 bg-[#0070f3] rounded-sm animate-pulse" />
