@@ -6,12 +6,14 @@ interface TiltCardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   className?: string;
   maxTilt?: number;
+  overflowHidden?: boolean;
 }
 
 export function TiltCard({
   children,
   className = '',
   maxTilt = 8,
+  overflowHidden,
   ...props
 }: TiltCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -45,6 +47,8 @@ export function TiltCard({
     setGlow({ x: 50, y: 50, opacity: 0 });
   };
 
+  const shouldHideOverflow = overflowHidden ?? !className.includes('overflow-visible');
+
   return (
     <div
       ref={cardRef}
@@ -54,12 +58,12 @@ export function TiltCard({
         transform: `perspective(1000px) rotateX(${rot.x}deg) rotateY(${rot.y}deg)`,
         transition: 'transform 0.15s ease-out',
       }}
-      className={`relative glass-panel rounded-2xl overflow-hidden ${className}`}
+      className={`relative glass-panel rounded-2xl ${shouldHideOverflow ? 'overflow-hidden' : 'overflow-visible'} ${className}`}
       {...props}
     >
       {/* Dynamic Cursor-Follow Radial Glow */}
       <div
-        className="pointer-events-none absolute -inset-px transition-opacity duration-300"
+        className="pointer-events-none absolute -inset-px transition-opacity duration-300 rounded-[inherit] overflow-hidden"
         style={{
           opacity: glow.opacity,
           background: `radial-gradient(400px circle at ${glow.x}% ${glow.y}%, rgba(0, 112, 243, 0.25), transparent 70%)`,

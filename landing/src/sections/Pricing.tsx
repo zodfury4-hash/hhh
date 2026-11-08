@@ -112,19 +112,20 @@ export function PricingSection() {
         </div>
 
         {/* 3 Tier Cards Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch" id="plans">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch pt-4" id="plans">
           {PLANS.map((plan, i) => (
             <TiltCard
               key={i}
               maxTilt={plan.popular ? 8 : 5}
-              className={`p-8 sm:p-9 flex flex-col justify-between rounded-3xl transition-all relative ${
+              overflowHidden={false}
+              className={`p-8 sm:p-9 flex flex-col justify-between rounded-3xl transition-all relative overflow-visible ${
                 plan.popular
                   ? 'bg-white/85 shadow-2xl border-2 border-[#0070f3] lg:-translate-y-2'
                   : 'bg-white/70 shadow-glass border border-white/80'
               }`}
             >
               {plan.popular && (
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-[#0070f3] to-[#00d2ff] text-white text-xs font-extrabold shadow-md flex items-center gap-1.5 uppercase tracking-wider">
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-gradient-to-r from-[#0070f3] to-[#00d2ff] text-white text-xs font-extrabold shadow-md flex items-center gap-1.5 uppercase tracking-wider z-20 whitespace-nowrap">
                   <Sparkles className="w-3.5 h-3.5" />
                   Most Popular
                 </div>
