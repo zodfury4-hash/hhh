@@ -200,13 +200,12 @@
     }
 
     const sideAv = $('#sidebarAvatar');
-
     if (sideAv) {
-
       const initials = displayName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'HA';
-
       sideAv.textContent = initials;
-
+      sideAv.setAttribute('data-tooltip', `${displayName} · ${appUser.email || ''}`);
+      const link = $('#sidebarUserLink');
+      if (link) link.setAttribute('data-tooltip', `${displayName} · ${appUser.email || ''}`);
     }
 
     const sOrg = $('#sidebarUserOrg');
@@ -1812,10 +1811,12 @@
 
         <h2>Links</h2>
 
-        <button class="sidebar-create-btn" style="margin:0;" onclick="window.appShell.navigate('create-link')">
-
-          Create link
-
+        <button class="header-primary-btn" onclick="window.appShell.navigate('create-link')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>Create link</span>
         </button>
 
       </div>
@@ -2203,11 +2204,13 @@
 
           <div style="display:flex;gap:10px;">
 
-            <button class="sidebar-create-btn" id="btnNewQrHero" style="margin:0;">
-
-              + Create code
-
-            </button>
+            <button class="header-primary-btn" id="btnNewQrHero">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>Create QR Code</span>
+          </button>
 
           </div>
 
@@ -4379,11 +4382,13 @@
 
             <h2>HEA Pages (Link-in-Bio)</h2>
 
-            <button class="sidebar-create-btn" id="btnLaunchTemplateCatalog" style="margin:0;">
-
-              + Create Page
-
-            </button>
+            <button class="header-primary-btn" id="btnLaunchTemplateCatalog">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>Create page</span>
+          </button>
 
           </div>
 
@@ -4419,10 +4424,12 @@
 
           <h2>HEA Pages (Link-in-Bio)</h2>
 
-          <button class="sidebar-create-btn" id="btnLaunchTemplateCatalog" style="margin:0;">
-
-            + Create Page
-
+          <button class="header-primary-btn" id="btnLaunchTemplateCatalog">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>Create page</span>
           </button>
 
         </div>
@@ -6308,11 +6315,9 @@
     if (!form || !input || !log) return;
 
     const scrollChatToBottom = () => {
-
       const scroller = log.closest('.drawer-body') || log;
-
       scroller.scrollTop = scroller.scrollHeight;
-
+      log.scrollTop = log.scrollHeight;
     };
 
     const drawerBody = log.closest('.drawer-body');
@@ -6709,14 +6714,13 @@ Here are recommended optimizations for your links and campaigns:<br>
 
     if (collapseBtn && sidebar) {
 
-      collapseBtn.onclick = () => {
-
-        sidebar.classList.toggle('collapsed');
-
-        collapseBtn.textContent = sidebar.classList.contains('collapsed') ? '›' : '‹';
-
-        collapseBtn.title = sidebar.classList.contains('collapsed') ? 'Expand sidebar' : 'Collapse sidebar';
-
+      collapseBtn.onclick = (e) => {
+        if (e) e.stopPropagation();
+        sidebar.classList.toggle('expanded');
+        sidebar.classList.toggle('collapsed', !sidebar.classList.contains('expanded'));
+        const isExp = sidebar.classList.contains('expanded');
+        collapseBtn.textContent = isExp ? '‹' : '›';
+        collapseBtn.title = isExp ? 'Collapse sidebar' : 'Expand sidebar';
       };
 
     }
