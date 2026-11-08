@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Zap, QrCode, Smartphone, BarChart3, ArrowRight } from 'lucide-react';
-import { TiltCard } from '../components/TiltCard';
 
 interface Slide {
   badgeIcon: React.ReactNode;
@@ -197,10 +196,7 @@ export function SkipperCarousel() {
 
         {/* Carousel Container */}
         <div className="relative max-w-5xl mx-auto">
-          <TiltCard
-            maxTilt={6}
-            className="p-8 sm:p-12 shadow-glass border border-white/80 rounded-3xl backdrop-blur-xl bg-white/70 overflow-hidden"
-          >
+          <div className="p-8 sm:p-12 shadow-glass border border-white/80 rounded-3xl backdrop-blur-xl bg-white/70 overflow-hidden">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeSlide}
@@ -297,7 +293,7 @@ export function SkipperCarousel() {
                 ))}
               </div>
             </div>
-          </TiltCard>
+          </div>
         </div>
       </div>
     </section>
