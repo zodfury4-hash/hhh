@@ -5649,7 +5649,7 @@
       if (drawerTitle) drawerTitle.innerHTML = '<span>✨</span> HEA Assist';
       if (drawerClose) drawerClose.style.display = '';
 
-      if (drawerEl && window.innerWidth <= 768) {
+      if (drawerEl) {
         drawerEl.hidden = true;
         document.body.style.overflow = '';
       }
@@ -6564,7 +6564,7 @@
     }
 
     // Quick chips
-    $('.assist-chip').forEach(chip => {
+    $$('.assist-chip').forEach(chip => {
       chip.onclick = () => {
         const p = chip.dataset.prompt;
         if (p) handleAssistPagePrompt(p);
@@ -6572,7 +6572,7 @@
     });
 
     // Preset prompt buttons
-    $('.preset-prompt-btn').forEach(btn => {
+    $$('.preset-prompt-btn').forEach(btn => {
       btn.onclick = () => {
         const p = btn.dataset.preset;
         if (p) handleAssistPagePrompt(p);
