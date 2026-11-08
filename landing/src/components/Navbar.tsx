@@ -22,7 +22,11 @@ export function Navbar({ onOpenAuth }: NavbarProps) {
 
   return (
     <header
-      className="sticky top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100/90 shadow-[0_1px_3px_rgba(0,0,0,0.03)] py-3 transition-all duration-200"
+      className={`sticky top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled
+          ? 'bg-white/60 backdrop-blur-xl border-b border-white/60 shadow-[0_4px_24px_rgba(0,112,243,0.06)] py-2.5'
+          : 'bg-white/20 backdrop-blur-md border-b border-white/30 py-3'
+      }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
         {/* Brand Logo matching media_1793954313394_7bcdc1e9.png */}
