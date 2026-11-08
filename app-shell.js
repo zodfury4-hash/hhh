@@ -1388,17 +1388,38 @@
 
       </div>
 
-      <div class="qr-filter-bar">
+      <div class="links-filter-bar" style="display:flex;gap:12px;align-items:center;margin-bottom:24px;flex-wrap:wrap;">
 
-        <input type="text" class="topbar-search-input" id="linksSearchInput" style="flex:1;" placeholder="Search links by title, slug, tag, or destination...">
+        <div style="flex:1;min-width:280px;position:relative;display:flex;align-items:center;background:#ffffff;border:1.5px solid #e2e8f0;border-radius:12px;padding:0 14px;box-shadow:0 2px 6px rgba(0,0,0,0.02);">
+          <span style="font-size:15px;color:#94a3b8;margin-right:10px;">🔍</span>
+          <input type="text" id="linksSearchInput" placeholder="Search links by title, slug, tag, or destination..." style="width:100%;border:none;outline:none;background:transparent;padding:12px 0;font-size:14px;color:#0f172a;font-family:inherit;">
+        </div>
 
-        <select class="home-domain-select" id="linksTagSelect"><option value="">All tags</option><option value="Website">Website</option><option value="Social">Social</option><option value="Campaign">Campaign</option></select>
+        <select id="linksTagSelect" style="padding:12px 16px;background:#ffffff;border:1.5px solid #e2e8f0;border-radius:12px;font-size:13.5px;font-weight:600;color:#334155;outline:none;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.02);font-family:inherit;">
+          <option value="">All tags</option>
+          <option value="Website">Website</option>
+          <option value="Social">Social</option>
+          <option value="Campaign">Campaign</option>
+        </select>
 
       </div>
 
       <div id="linksListContainer">
 
-        ${links.length === 0 ? '<div style="text-align:center;padding:50px;color:#94a3b8;">No links created yet. Click "Create link" to shorten your first URL!</div>' : links.map(l => {
+        ${links.length === 0 ? `
+          <div class="dash-white-card" style="text-align:center;padding:54px 24px;max-width:620px;margin:24px auto;background:#ffffff;border:1.5px solid #e2e8f0;border-radius:24px;box-shadow:0 10px 30px rgba(0,112,243,0.06);">
+            <div style="width:110px;height:110px;margin:0 auto 20px;background:linear-gradient(135deg,rgba(0,112,243,0.08),rgba(0,200,255,0.12));border:2px solid rgba(0,112,243,0.2);border-radius:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 24px rgba(0,112,243,0.1);">
+              <span style="font-size:48px;">🔗</span>
+            </div>
+            <h3 style="font-size:22px;font-weight:800;color:#0b132b;margin:0 0 8px;letter-spacing:-0.02em;">No links created yet</h3>
+            <p style="color:#64748b;font-size:14px;max-width:440px;margin:0 auto 24px;line-height:1.6;">
+              Shorten long URLs with custom AI slugs, password protection, and track your visitor analytics in real-time.
+            </p>
+            <button class="auth-submit-btn" onclick="window.appShell.navigate('create-link')" style="width:auto;display:inline-flex;align-items:center;gap:8px;padding:12px 28px;font-size:14px;font-weight:700;border-radius:9999px;background:#0070f3;color:#ffffff;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(0,112,243,0.3);margin:0 auto;">
+              <span>+ Create your first link</span>
+            </button>
+          </div>
+        ` : links.map(l => {
 
           const shortUrl = (l.realShort && l.realShort !== l.dest && !l.realShort.includes('firebase.google.com') && l.realShort.length < 60)
             ? l.realShort
@@ -1433,24 +1454,22 @@
     `;
 
     const sIn = $('#linksSearchInput');
+    const sTag = $('#linksTagSelect');
 
-    if (sIn) {
+    const filterLinks = () => {
+      const q = (sIn ? sIn.value : '').toLowerCase().trim();
+      const tag = (sTag ? sTag.value : '').toLowerCase().trim();
 
-      sIn.oninput = () => {
+      $$('.qr-card-item').forEach(card => {
+        const text = card.textContent.toLowerCase();
+        const matchesQ = !q || text.includes(q);
+        const matchesTag = !tag || text.includes(tag);
+        card.style.display = (matchesQ && matchesTag) ? 'flex' : 'none';
+      });
+    };
 
-        const q = sIn.value.toLowerCase();
-
-        $$('.qr-card-item').forEach(card => {
-
-          const text = card.textContent.toLowerCase();
-
-          card.style.display = text.includes(q) ? 'flex' : 'none';
-
-        });
-
-      };
-
-    }
+    if (sIn) sIn.oninput = filterLinks;
+    if (sTag) sTag.onchange = filterLinks;
 
   }
 
