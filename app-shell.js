@@ -478,6 +478,166 @@
 
   }
 
+  
+  // ========================================================
+  // 3D DEPTH MOTION CONTROLLER & SCROLL SYSTEM (60fps, GPU Accelerated)
+  // ========================================================
+  function initDashboard3DMotion() {
+    const pane = document.getElementById('appMainPane');
+    if (!pane) return;
+
+    const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isTouchDevice = (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) || window.innerWidth < 768;
+
+    // 1. Sticky Condensed Header on Scroll & Parallax Orbs
+    const header = pane.querySelector('.view-header');
+    const ambientOrbs = document.querySelector('.dashboard-ambient-orbs');
+
+    const onScroll = () => {
+      const st = pane.scrollTop;
+
+      // Header blur & condense
+      if (header) {
+        if (st > 18) {
+          header.classList.add('is-scrolled');
+        } else {
+          header.classList.remove('is-scrolled');
+        }
+      }
+
+      // Parallax on ambient background orbs (GPU translate)
+      if (ambientOrbs && !prefersReducedMotion && !isTouchDevice) {
+        const orb1 = ambientOrbs.querySelector('.orb-1');
+        const orb2 = ambientOrbs.querySelector('.orb-2');
+        const orb3 = ambientOrbs.querySelector('.orb-3');
+        if (orb1) orb1.style.transform = 'translate3d(0, ' + (st * -0.09) + 'px, 0)';
+        if (orb2) orb2.style.transform = 'translate3d(0, ' + (st * 0.07) + 'px, 0)';
+        if (orb3) orb3.style.transform = 'translate3d(0, ' + (st * -0.04) + 'px, 0)';
+      }
+    };
+
+    if (pane._motionScrollHandler) {
+      pane.removeEventListener('scroll', pane._motionScrollHandler);
+    }
+    pane._motionScrollHandler = onScroll;
+    pane.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    // 2. 3D Card Scroll Entrance (Staggered rotateX + translateZ)
+    const cardSelectors = [
+      '.dash-white-card',
+      '.home-create-card',
+      '.create-link-card',
+      '.qr-card-item',
+      '.page-row-card',
+      '.campaigns-hero-wrap',
+      '.settings-center-card',
+      '.integration-card-white',
+      '.links-filter-bar',
+      '.analytics-metric-box',
+      '.stat-tile',
+      '.links-list-item'
+    ].join(', ');
+
+    const cards = Array.from(pane.querySelectorAll(cardSelectors));
+
+    if (!prefersReducedMotion && 'IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-revealed');
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { root: pane, threshold: 0.05, rootMargin: '0px 0px -20px 0px' }
+      );
+
+      cards.forEach((card, index) => {
+        card.classList.add('card-3d-reveal');
+        card.style.transitionDelay = Math.min(index * 70, 350) + 'ms';
+        observer.observe(card);
+      });
+    } else {
+      cards.forEach((c) => c.classList.add('is-revealed'));
+    }
+
+    // 3. Hover Tilt with Cursor Glare (Desktop only)
+    if (!isTouchDevice && !prefersReducedMotion) {
+      cards.forEach((card) => {
+        if (!card.querySelector('.card-glare')) {
+          const glare = document.createElement('div');
+          glare.className = 'card-glare';
+          card.appendChild(glare);
+        }
+
+        card.classList.add('card-3d-tilt');
+
+        card.onmousemove = (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const cx = rect.width / 2;
+          const cy = rect.height / 2;
+          const rx = ((y - cy) / cy) * -6;
+          const ry = ((x - cx) / cx) * 6;
+
+          card.style.transform = 'perspective(1000px) rotateX(' + rx.toFixed(2) + 'deg) rotateY(' + ry.toFixed(2) + 'deg) translateZ(6px)';
+          card.style.setProperty('--mouse-x', ((x / rect.width) * 100).toFixed(1) + '%');
+          card.style.setProperty('--mouse-y', ((y / rect.height) * 100).toFixed(1) + '%');
+        };
+
+        card.onmouseleave = () => {
+          card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0)';
+        };
+      });
+    }
+
+    // 4. Count-up Numbers for Stats & Analytics
+    const numElements = Array.from(pane.querySelectorAll('.count-up, [data-count-up]'));
+    if (numElements.length > 0 && !prefersReducedMotion) {
+      numElements.forEach((el) => {
+        const raw = el.dataset.countUp || el.textContent.trim().replace(/[^0-9.]/g, '');
+        const target = parseFloat(raw);
+        if (isNaN(target) || target <= 0) return;
+
+        const duration = 850;
+        const startTime = performance.now();
+
+        const updateCount = (currentTime) => {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+          const current = Math.floor(easeProgress * target);
+          el.textContent = current.toLocaleString();
+
+          if (progress < 1) {
+            requestAnimationFrame(updateCount);
+          } else {
+            el.textContent = target.toLocaleString();
+          }
+        };
+
+        requestAnimationFrame(updateCount);
+      });
+    }
+
+    // 5. Enhance Empty States with Floating 3D Elements
+    const emptyCards = pane.querySelectorAll('.dash-white-card');
+    emptyCards.forEach((box) => {
+      const qrScanBox = box.querySelector('div[style*="rgba(56,189,248"]');
+      if (qrScanBox && !box.querySelector('.empty-state-shadow')) {
+        box.classList.add('empty-state-container');
+        qrScanBox.classList.add('empty-state-floating-card');
+        const shadow = document.createElement('div');
+        shadow.className = 'empty-state-shadow';
+        qrScanBox.parentNode.insertBefore(shadow, qrScanBox.nextSibling);
+      }
+    });
+  }
+
+
   // ---------------- ROUTING ENGINE ---------------- //
 
   function navigate(tab, param) {
@@ -622,6 +782,9 @@
       try { renderHome(pane); } catch (e) {}
 
     }
+
+    // 3D Motion & Card Stagger Refresh
+    setTimeout(() => initDashboard3DMotion(), 40);
 
     // Clean, zero-jitter instant rendering for dashboard views
     // animatePageText removed here to prevent UI shifts and element bounce

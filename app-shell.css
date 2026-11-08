@@ -4374,3 +4374,694 @@ body.app-mode #appShell,
     padding: 20px 18px 60px !important;
   }
 }
+
+
+
+/* ========================================================
+   HEA LINK — 3D DEPTH & GLASSMORPHISM VISUAL LAYER
+   Matches the modern 3D scroll-driven style of the homepage
+   ======================================================== */
+
+/* 1. Global App Mode Canvas & Ambient Depth */
+body.app-mode {
+  background: var(--bg-app-ambient, #f4f8fc) !important;
+  color: var(--text-main, #0b132b) !important;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  perspective: var(--perspective, 1000px);
+}
+
+body.app-mode #appShell {
+  position: relative !important;
+  background: transparent !important;
+  overflow: hidden !important;
+}
+
+/* Ambient 3D Gradient Orbs (Floating Depth Behind Dashboard) */
+.dashboard-ambient-orbs {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.dashboard-ambient-orbs .orb {
+  position: absolute;
+  border-radius: 50%;
+  mix-blend-mode: multiply;
+  will-change: transform;
+}
+
+.dashboard-ambient-orbs .orb-1 {
+  top: 5%;
+  right: 15%;
+  width: 540px;
+  height: 540px;
+  background: radial-gradient(circle, rgba(0, 200, 255, 0.18) 0%, rgba(0, 112, 243, 0.08) 50%, transparent 70%);
+  filter: blur(65px);
+  animation: orbDrift1 26s ease-in-out infinite alternate;
+}
+
+.dashboard-ambient-orbs .orb-2 {
+  bottom: 8%;
+  left: 8%;
+  width: 580px;
+  height: 580px;
+  background: radial-gradient(circle, rgba(121, 40, 202, 0.12) 0%, rgba(0, 112, 243, 0.1) 50%, transparent 70%);
+  filter: blur(75px);
+  animation: orbDrift2 30s ease-in-out infinite alternate;
+}
+
+.dashboard-ambient-orbs .orb-3 {
+  top: 45%;
+  left: 35%;
+  width: 460px;
+  height: 460px;
+  background: radial-gradient(circle, rgba(0, 112, 243, 0.12) 0%, rgba(14, 165, 233, 0.06) 50%, transparent 70%);
+  filter: blur(60px);
+  animation: orbDrift3 22s ease-in-out infinite alternate;
+}
+
+@keyframes orbDrift1 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-30px, 40px) scale(1.08); }
+  100% { transform: translate(40px, -20px) scale(0.95); }
+}
+
+@keyframes orbDrift2 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, -35px) scale(1.05); }
+  100% { transform: translate(-25px, 30px) scale(0.94); }
+}
+
+@keyframes orbDrift3 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-20px, -30px) scale(1.1); }
+  100% { transform: translate(30px, 25px) scale(0.92); }
+}
+
+[data-theme="dark"] .dashboard-ambient-orbs .orb,
+body.dark-mode .dashboard-ambient-orbs .orb {
+  mix-blend-mode: screen;
+  opacity: 0.7;
+}
+
+/* 2. Glassmorphic Sidebar Redesign */
+.app-sidebar {
+  width: 240px !important;
+  background: var(--bg-sidebar, rgba(255, 255, 255, 0.78)) !important;
+  backdrop-filter: var(--blur-glass-md, blur(20px)) !important;
+  -webkit-backdrop-filter: var(--blur-glass-md, blur(20px)) !important;
+  border-right: 1px solid var(--border-sidebar, rgba(226, 232, 240, 0.85)) !important;
+  box-shadow: var(--shadow-glass-sm) !important;
+  transition: width var(--duration-base, 280ms) var(--ease-spring, cubic-bezier(0.175, 0.885, 0.32, 1.15)) !important;
+  z-index: 50 !important;
+}
+
+.app-sidebar.collapsed {
+  width: 76px !important;
+}
+
+.app-sidebar.collapsed .sidebar-logo-text,
+.app-sidebar.collapsed .sidebar-create-text,
+.app-sidebar.collapsed .sidebar-nav-item span:not(.sidebar-nav-icon),
+.app-sidebar.collapsed .sidebar-bottom {
+  display: none !important;
+}
+
+.app-sidebar.collapsed .sidebar-create-btn {
+  padding: 11px !important;
+  margin: 4px 10px 16px !important;
+}
+
+.app-sidebar.collapsed .sidebar-collapse-btn {
+  transform: rotate(180deg);
+}
+
+.sidebar-logo {
+  text-decoration: none !important;
+  transition: transform 0.2s ease;
+}
+.sidebar-logo:hover {
+  transform: scale(1.02);
+}
+
+.sidebar-collapse-btn {
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid var(--border-sidebar, #e2e8f0) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+  transition: all 0.2s var(--ease-spring) !important;
+}
+.sidebar-collapse-btn:hover {
+  background: #ffffff !important;
+  border-color: var(--hea-primary, #0070f3) !important;
+  color: var(--hea-primary, #0070f3) !important;
+  transform: scale(1.1);
+}
+
+.sidebar-create-btn {
+  background: var(--grad-primary, linear-gradient(135deg, #0070f3, #00c8ff)) !important;
+  border-radius: var(--radius-md, 18px) !important;
+  box-shadow: var(--shadow-btn-glow) !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em !important;
+  transition: all 0.22s var(--ease-spring) !important;
+  position: relative;
+  overflow: hidden;
+}
+.sidebar-create-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.6s ease;
+}
+.sidebar-create-btn:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 12px 28px -4px rgba(0, 112, 243, 0.45) !important;
+}
+.sidebar-create-btn:hover::after {
+  left: 150%;
+}
+.sidebar-create-btn:active {
+  transform: translateY(0) scale(0.98) !important;
+}
+
+.sidebar-nav-item {
+  position: relative !important;
+  margin: 1px 10px !important;
+  padding: 10px 14px !important;
+  border-radius: var(--radius-sm, 12px) !important;
+  border-left: none !important;
+  color: var(--text-muted, #64748b) !important;
+  transition: all var(--duration-fast, 160ms) var(--ease-smooth) !important;
+  font-weight: 500 !important;
+}
+.sidebar-nav-item:hover {
+  background: rgba(0, 112, 243, 0.06) !important;
+  color: var(--hea-primary, #0070f3) !important;
+  transform: translateX(3px) !important;
+}
+.sidebar-nav-item:hover .sidebar-nav-icon {
+  transform: scale(1.18) rotate(4deg);
+}
+.sidebar-nav-icon {
+  transition: transform 0.2s var(--ease-spring) !important;
+  display: inline-block;
+}
+
+.sidebar-nav-item.active {
+  background: linear-gradient(90deg, rgba(0, 112, 243, 0.12) 0%, rgba(0, 200, 255, 0.04) 100%) !important;
+  color: var(--hea-primary, #0070f3) !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 10px rgba(0, 112, 243, 0.08), inset 0 0 12px rgba(0, 112, 243, 0.05) !important;
+}
+.sidebar-nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 18%;
+  bottom: 18%;
+  width: 3.5px;
+  border-radius: 4px;
+  background: var(--hea-primary, #0070f3);
+  box-shadow: 0 0 8px var(--hea-primary);
+}
+
+.sidebar-bottom {
+  background: rgba(255, 255, 255, 0.4) !important;
+  backdrop-filter: var(--blur-glass-sm) !important;
+  border-top: 1px solid var(--border-sidebar, #e2e8f0) !important;
+}
+
+/* 3. Topbar Glassmorphic Redesign */
+.app-topbar {
+  background: var(--bg-topbar, rgba(255, 255, 255, 0.8)) !important;
+  backdrop-filter: var(--blur-glass-md, blur(20px)) !important;
+  -webkit-backdrop-filter: var(--blur-glass-md, blur(20px)) !important;
+  border-bottom: 1px solid var(--border-topbar, rgba(226, 232, 240, 0.8)) !important;
+  box-shadow: var(--shadow-glass-sm) !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 40 !important;
+}
+
+.topbar-search-box {
+  width: 400px !important;
+  background: rgba(255, 255, 255, 0.82) !important;
+  border: 1.5px solid var(--border-card, #e2e8f0) !important;
+  border-radius: var(--radius-pill) !important;
+  box-shadow: var(--shadow-glass-sm) !important;
+  padding: 6px 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  transition: all 0.2s var(--ease-smooth) !important;
+}
+.topbar-search-box:focus-within {
+  background: #ffffff !important;
+  border-color: var(--hea-primary, #0070f3) !important;
+  box-shadow: 0 0 0 4px var(--ring-focus, rgba(0, 112, 243, 0.15)), var(--shadow-glass-md) !important;
+  transform: translateY(-1px);
+}
+.topbar-search-input {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  color: var(--text-main, #0b132b) !important;
+  font-size: 13.5px !important;
+  font-family: inherit !important;
+  width: 100% !important;
+}
+
+.topbar-upgrade-btn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  border-radius: var(--radius-pill) !important;
+  padding: 8px 18px !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3) !important;
+  transition: all 0.2s var(--ease-spring) !important;
+}
+.topbar-upgrade-btn:hover {
+  transform: translateY(-2px) scale(1.03) !important;
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.45) !important;
+}
+
+.topbar-assist-pill-btn {
+  background: linear-gradient(135deg, rgba(0, 112, 243, 0.1), rgba(0, 200, 255, 0.15)) !important;
+  border: 1px solid rgba(0, 112, 243, 0.25) !important;
+  color: var(--hea-primary, #0070f3) !important;
+  border-radius: var(--radius-pill) !important;
+  padding: 7px 16px !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-spring) !important;
+}
+.topbar-assist-pill-btn:hover {
+  background: var(--hea-primary, #0070f3) !important;
+  color: #ffffff !important;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-btn-glow) !important;
+}
+
+.topbar-circle-icon-btn {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid var(--border-sidebar, #e2e8f0) !important;
+  box-shadow: var(--shadow-glass-sm) !important;
+  display: grid !important;
+  place-items: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s var(--ease-spring) !important;
+}
+.topbar-circle-icon-btn:hover {
+  background: #ffffff !important;
+  color: var(--hea-primary, #0070f3) !important;
+  border-color: var(--hea-primary, #0070f3) !important;
+  transform: translateY(-2px) scale(1.08) !important;
+}
+
+.topbar-avatar {
+  background: var(--grad-primary, linear-gradient(135deg, #0070f3, #00c8ff)) !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: var(--shadow-glass-sm) !important;
+  transition: transform 0.2s var(--ease-spring) !important;
+}
+.topbar-avatar:hover {
+  transform: scale(1.1) rotate(2deg) !important;
+  box-shadow: var(--shadow-glass-md) !important;
+}
+
+/* 4. Content Pane & Sticky Condensed View Header */
+.app-main-pane {
+  position: relative !important;
+  z-index: 1 !important;
+  scroll-behavior: smooth !important;
+  padding: 32px 40px 60px !important;
+}
+
+.view-header {
+  position: sticky !important;
+  top: -1px !important;
+  z-index: 30 !important;
+  padding: 12px 0 16px !important;
+  margin-bottom: 24px !important;
+  transition: all 0.25s var(--ease-smooth) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.view-header.is-scrolled {
+  background: var(--bg-topbar, rgba(255, 255, 255, 0.82)) !important;
+  backdrop-filter: var(--blur-glass-md, blur(20px)) !important;
+  -webkit-backdrop-filter: var(--blur-glass-md, blur(20px)) !important;
+  padding: 12px 24px !important;
+  margin: 0 -24px 24px -24px !important;
+  border-radius: var(--radius-lg, 24px) !important;
+  border: 1px solid var(--border-topbar, #e2e8f0) !important;
+  box-shadow: var(--shadow-glass-md) !important;
+  transform: scale(0.99) !important;
+}
+
+.view-header h2 {
+  font-size: 28px !important;
+  font-weight: 800 !important;
+  color: var(--text-main, #0b132b) !important;
+  letter-spacing: -0.025em !important;
+  margin: 0 !important;
+}
+
+/* 5. 3D Glassmorphism Cards Across All Views */
+.dash-white-card,
+.home-create-card,
+.create-link-card,
+.qr-card-item,
+.page-row-card,
+.campaigns-hero-wrap,
+.settings-main-panel,
+.settings-center-card,
+.integration-card-white,
+.analytics-summary-card,
+.analytics-metric-box,
+.stat-tile {
+  background: var(--bg-card, rgba(255, 255, 255, 0.82)) !important;
+  backdrop-filter: var(--blur-glass-md, blur(20px)) !important;
+  -webkit-backdrop-filter: var(--blur-glass-md, blur(20px)) !important;
+  border: 1px solid var(--border-card, rgba(255, 255, 255, 0.9)) !important;
+  border-radius: var(--radius-xl, 28px) !important;
+  color: var(--text-main, #0b132b) !important;
+  box-shadow: var(--shadow-3d-card) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  transform-style: preserve-3d !important;
+  transition: transform var(--duration-base, 280ms) var(--ease-spring),
+              box-shadow var(--duration-base, 280ms) var(--ease-smooth),
+              border-color var(--duration-base, 280ms) var(--ease-smooth) !important;
+}
+
+.dash-white-card:hover,
+.home-create-card:hover,
+.create-link-card:hover,
+.qr-card-item:hover,
+.page-row-card:hover,
+.campaigns-hero-wrap:hover,
+.settings-main-panel:hover,
+.settings-center-card:hover,
+.integration-card-white:hover {
+  border-color: var(--border-card-hover, rgba(0, 112, 243, 0.3)) !important;
+  box-shadow: var(--shadow-3d-hover) !important;
+}
+
+/* 3D Card Hover Glare */
+.card-glare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: var(--grad-card-glare);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  mix-blend-mode: overlay;
+  z-index: 2;
+}
+.card-3d-tilt:hover .card-glare {
+  opacity: var(--glare-opacity, 0.18);
+}
+
+/* 3D Scroll Entrance Stagger */
+.card-3d-reveal {
+  opacity: 0;
+  transform: perspective(var(--perspective, 1000px)) translateY(28px) rotateX(6deg) translateZ(-10px);
+  transition: opacity 0.52s var(--ease-smooth), transform 0.58s var(--ease-spring);
+  will-change: transform, opacity;
+}
+.card-3d-reveal.is-revealed {
+  opacity: 1;
+  transform: perspective(var(--perspective, 1000px)) translateY(0) rotateX(0deg) translateZ(0);
+}
+
+/* 6. "What do you want to create?" Hero Card */
+.home-create-card {
+  padding: 40px 32px !important;
+  text-align: center !important;
+  margin-bottom: 28px !important;
+  box-shadow: var(--shadow-3d-card) !important;
+}
+
+.home-hero-title {
+  font-size: 32px !important;
+  font-weight: 800 !important;
+  color: var(--text-main, #0b132b) !important;
+  letter-spacing: -0.03em !important;
+}
+
+.home-type-tabs {
+  background: rgba(241, 245, 249, 0.7) !important;
+  backdrop-filter: var(--blur-glass-sm) !important;
+  padding: 5px !important;
+  border-radius: var(--radius-pill) !important;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+}
+
+.home-type-tab {
+  border-radius: var(--radius-pill) !important;
+  padding: 8px 20px !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  border: none !important;
+  background: transparent !important;
+  color: var(--text-muted, #64748b) !important;
+  transition: all 0.2s var(--ease-spring) !important;
+}
+.home-type-tab:hover {
+  color: var(--hea-primary, #0070f3) !important;
+}
+.home-type-tab.active {
+  background: #ffffff !important;
+  color: var(--hea-primary, #0070f3) !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 12px rgba(0, 112, 243, 0.12) !important;
+}
+
+.home-shorten-box {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1.5px solid var(--border-card, #cbd5e1) !important;
+  border-radius: var(--radius-pill) !important;
+  box-shadow: var(--shadow-glass-md) !important;
+  padding: 8px 12px 8px 24px !important;
+  transition: all 0.22s var(--ease-smooth) !important;
+}
+.home-shorten-box:focus-within {
+  border-color: var(--hea-primary, #0070f3) !important;
+  box-shadow: 0 0 0 4px var(--ring-focus, rgba(0, 112, 243, 0.18)), var(--shadow-glass-lg) !important;
+  transform: translateY(-1px);
+}
+.home-shorten-btn {
+  background: var(--grad-primary, linear-gradient(135deg, #0070f3, #00c8ff)) !important;
+  box-shadow: var(--shadow-btn-glow) !important;
+  border-radius: 50% !important;
+  width: 44px !important;
+  height: 44px !important;
+  transition: transform 0.2s var(--ease-spring) !important;
+}
+.home-shorten-btn:hover {
+  transform: scale(1.08) !important;
+}
+
+/* 7. Floating 3D Empty States (QR Codes, Links, Pages) */
+.empty-state-container {
+  padding: 56px 28px !important;
+  text-align: center !important;
+  position: relative !important;
+}
+
+.empty-state-3d-wrap {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  margin: 0 auto 24px;
+}
+
+.empty-state-floating-card {
+  animation: floatIdle 4.5s ease-in-out infinite alternate !important;
+  transform-style: preserve-3d !important;
+}
+
+.empty-state-shadow {
+  position: relative;
+  width: 110px;
+  height: 14px;
+  margin: -6px auto 24px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(0, 112, 243, 0.22) 0%, transparent 70%);
+  animation: shadowPulse 4.5s ease-in-out infinite alternate;
+}
+
+@keyframes floatIdle {
+  0% { transform: translateY(0px) rotate(0deg) rotateX(4deg); }
+  50% { transform: translateY(-12px) rotate(1.5deg) rotateX(-2deg); }
+  100% { transform: translateY(0px) rotate(0deg) rotateX(4deg); }
+}
+
+@keyframes shadowPulse {
+  0% { transform: scale(1); opacity: 0.35; }
+  50% { transform: scale(0.8); opacity: 0.14; }
+  100% { transform: scale(1); opacity: 0.35; }
+}
+
+.auth-submit-btn,
+.res-btn-action,
+.btn-primary-glow {
+  background: var(--grad-primary, linear-gradient(135deg, #0070f3, #00c8ff)) !important;
+  box-shadow: var(--shadow-btn-glow) !important;
+  border: none !important;
+  color: #ffffff !important;
+  border-radius: var(--radius-pill) !important;
+  font-weight: 700 !important;
+  cursor: pointer;
+  transition: transform 0.2s var(--ease-spring), box-shadow 0.2s var(--ease-smooth) !important;
+}
+.auth-submit-btn:hover,
+.res-btn-action:hover,
+.btn-primary-glow:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 12px 30px -4px rgba(0, 112, 243, 0.5) !important;
+}
+
+/* 8. QR Codes List Cards & Frames */
+.qr-card-item {
+  border-radius: var(--radius-xl, 28px) !important;
+  padding: 20px !important;
+  transition: all 0.25s var(--ease-spring) !important;
+}
+.qr-card-item:hover {
+  transform: translateY(-4px) scale(1.01) !important;
+  box-shadow: var(--shadow-3d-hover) !important;
+}
+
+.qr-framed-thumbnail {
+  border-radius: var(--radius-md, 18px) !important;
+  background: #ffffff !important;
+  padding: 14px !important;
+  box-shadow: var(--shadow-glass-sm) !important;
+  border: 1px solid var(--border-sidebar, #e2e8f0) !important;
+  transition: transform 0.2s var(--ease-spring) !important;
+}
+.qr-framed-thumbnail:hover {
+  transform: scale(1.03) !important;
+}
+
+/* 9. Links Filter & Items */
+.links-filter-bar {
+  background: var(--bg-card, rgba(255, 255, 255, 0.8)) !important;
+  backdrop-filter: var(--blur-glass-md) !important;
+  border-radius: var(--radius-lg, 24px) !important;
+  padding: 12px 18px !important;
+  border: 1px solid var(--border-card, #e2e8f0) !important;
+  box-shadow: var(--shadow-glass-sm) !important;
+}
+
+.links-list-item {
+  border-radius: var(--radius-lg, 24px) !important;
+  padding: 16px 20px !important;
+  transition: all 0.2s var(--ease-spring) !important;
+}
+.links-list-item:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: var(--shadow-3d-hover) !important;
+}
+
+/* 10. HEA Assist Right Panel Redesign */
+.app-assist-drawer {
+  width: 360px !important;
+  background: var(--bg-sidebar, rgba(255, 255, 255, 0.82)) !important;
+  backdrop-filter: var(--blur-glass-lg, blur(28px)) !important;
+  -webkit-backdrop-filter: var(--blur-glass-lg, blur(28px)) !important;
+  border-left: 1px solid var(--border-sidebar, rgba(226, 232, 240, 0.85)) !important;
+  box-shadow: -16px 0 48px rgba(0, 112, 243, 0.1) !important;
+  transition: transform 0.42s var(--ease-spring, cubic-bezier(0.175, 0.885, 0.32, 1.15)) !important;
+}
+
+.assist-mascot-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(239, 246, 255, 0.85)) !important;
+  border: 1.5px solid rgba(0, 112, 243, 0.2) !important;
+  border-radius: var(--radius-xl, 28px) !important;
+  box-shadow: var(--shadow-3d-card) !important;
+  padding: 20px !important;
+}
+
+.assist-prompt-pill {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border: 1px solid var(--border-card, #e2e8f0) !important;
+  border-radius: var(--radius-pill) !important;
+  box-shadow: var(--shadow-glass-sm) !important;
+  padding: 10px 16px !important;
+  transition: all 0.22s var(--ease-spring) !important;
+  cursor: pointer;
+}
+.assist-prompt-pill:hover {
+  background: #ffffff !important;
+  border-color: var(--hea-primary, #0070f3) !important;
+  color: var(--hea-primary, #0070f3) !important;
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: var(--shadow-glass-md) !important;
+}
+.assist-prompt-pill:hover .pill-chev {
+  transform: translateX(4px) !important;
+}
+.pill-chev {
+  transition: transform 0.2s var(--ease-spring) !important;
+}
+
+.drawer-input-card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1.5px solid var(--border-card, #e2e8f0) !important;
+  border-radius: var(--radius-lg, 24px) !important;
+  box-shadow: var(--shadow-glass-md) !important;
+}
+.drawer-input-card:focus-within {
+  border-color: var(--hea-primary, #0070f3) !important;
+  box-shadow: 0 0 0 3px var(--ring-focus) !important;
+}
+
+/* 11. Responsive Ergonomics & Reduced Motion */
+@media (max-width: 900px) {
+  .app-sidebar {
+    position: fixed !important;
+    left: -250px;
+    height: 100vh !important;
+    transition: left 0.3s var(--ease-spring) !important;
+  }
+  .app-sidebar.mobile-open {
+    left: 0 !important;
+  }
+  .app-main-pane {
+    padding: 20px 16px 48px !important;
+  }
+  .topbar-search-box {
+    width: 200px !important;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .card-3d-tilt {
+    transform: none !important;
+  }
+  .card-glare {
+    display: none !important;
+  }
+}

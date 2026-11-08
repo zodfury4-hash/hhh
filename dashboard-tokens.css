@@ -1,0 +1,195 @@
+/**
+ * HEA Link — Dashboard Design Tokens
+ * Modern 3D Depth, Layered Glassmorphism & Motion System
+ * 
+ * Tuning Guide:
+ * - Card Tilt Intensity: Edit --tilt-max (default 7deg)
+ * - 3D Perspective: Edit --perspective (default 1000px)
+ * - Glass Translucency: Edit --bg-card and --bg-card-glass
+ * - Card Corner Rounding: Edit --radius-lg (default 24px) & --radius-xl (default 28px)
+ * - Motion Timing: Edit --duration-base (280ms) and --ease-spring
+ */
+
+:root {
+  /* ========================================================
+     1. COLOR SYSTEM (HEA Brand Blue & Accents)
+     ======================================================== */
+  --hea-primary: #0070f3;
+  --hea-primary-rgb: 0, 112, 243;
+  --hea-primary-hover: #0060df;
+  --hea-primary-light: #eff6ff;
+  --hea-primary-glow: rgba(0, 112, 243, 0.35);
+
+  --hea-cyan: #00c8ff;
+  --hea-cyan-rgb: 0, 200, 255;
+  --hea-purple: #7928ca;
+  --hea-purple-rgb: 121, 40, 202;
+  --hea-emerald: #10b981;
+  --hea-emerald-rgb: 16, 185, 129;
+  --hea-amber: #f59e0b;
+  --hea-rose: #ef4444;
+
+  /* Brand Gradients */
+  --grad-primary: linear-gradient(135deg, #0070f3 0%, #00c8ff 100%);
+  --grad-purple: linear-gradient(135deg, #7928ca 0%, #0070f3 100%);
+  --grad-emerald: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+  --grad-card-glare: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.45) 0%, transparent 60%);
+
+  /* ========================================================
+     2. LIGHT MODE SURFACES (Default)
+     ======================================================== */
+  --bg-app: #f4f8fc;
+  --bg-app-ambient: radial-gradient(at 15% 15%, rgba(191, 219, 254, 0.5) 0px, transparent 55%),
+                    radial-gradient(at 85% 20%, rgba(224, 242, 254, 0.6) 0px, transparent 50%),
+                    radial-gradient(at 50% 85%, rgba(238, 242, 255, 0.7) 0px, transparent 60%),
+                    #f4f8fc;
+
+  /* Glassmorphism Surfaces */
+  --bg-card: rgba(255, 255, 255, 0.82);
+  --bg-card-hover: rgba(255, 255, 255, 0.94);
+  --bg-card-glass: rgba(255, 255, 255, 0.72);
+  --bg-card-solid: #ffffff;
+  --border-card: rgba(255, 255, 255, 0.88);
+  --border-card-subtle: rgba(0, 112, 243, 0.1);
+  --border-card-hover: rgba(0, 112, 243, 0.3);
+
+  /* Sidebar & Topbar Surfaces */
+  --bg-sidebar: rgba(255, 255, 255, 0.78);
+  --border-sidebar: rgba(226, 232, 240, 0.85);
+  --bg-topbar: rgba(255, 255, 255, 0.8);
+  --border-topbar: rgba(226, 232, 240, 0.8);
+
+  /* Typography */
+  --text-main: #0b132b;
+  --text-body: #334155;
+  --text-muted: #64748b;
+  --text-subtle: #94a3b8;
+
+  /* Input & Controls */
+  --bg-input: rgba(255, 255, 255, 0.85);
+  --border-input: rgba(203, 213, 225, 0.8);
+  --border-input-focus: #0070f3;
+  --ring-focus: rgba(0, 112, 243, 0.2);
+
+  /* ========================================================
+     3. MULTI-LAYER DEPTH SHADOWS (3-Layer Real Depth)
+     ======================================================== */
+  --shadow-glass-sm: 0 2px 6px -1px rgba(0, 112, 243, 0.05),
+                     0 1px 3px rgba(11, 19, 43, 0.03);
+
+  --shadow-glass-md: 0 10px 25px -4px rgba(0, 112, 243, 0.08),
+                     0 4px 10px -2px rgba(11, 19, 43, 0.04),
+                     0 0 0 1px rgba(255, 255, 255, 0.7) inset;
+
+  --shadow-glass-lg: 0 18px 40px -8px rgba(0, 112, 243, 0.12),
+                     0 8px 18px -4px rgba(11, 19, 43, 0.05),
+                     0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+
+  --shadow-3d-card: 0 20px 50px -10px rgba(0, 112, 243, 0.16),
+                    0 10px 24px -5px rgba(11, 19, 43, 0.06),
+                    0 0 0 1px rgba(255, 255, 255, 0.95) inset;
+
+  --shadow-3d-hover: 0 28px 65px -12px rgba(0, 112, 243, 0.24),
+                     0 14px 30px -6px rgba(11, 19, 43, 0.08),
+                     0 0 0 1px rgba(255, 255, 255, 1) inset;
+
+  --shadow-3d-float: 0 32px 70px -15px rgba(0, 112, 243, 0.28),
+                     0 16px 32px -6px rgba(11, 19, 43, 0.1),
+                     0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+
+  --shadow-btn-glow: 0 8px 24px -4px rgba(0, 112, 243, 0.42),
+                     0 2px 6px rgba(0, 112, 243, 0.2);
+
+  /* ========================================================
+     4. CORNER RADII (20px - 28px Hierarchy)
+     ======================================================== */
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 24px;   /* Standard card rounding */
+  --radius-xl: 28px;   /* Hero / modal / primary card rounding */
+  --radius-2xl: 32px;
+  --radius-pill: 9999px;
+
+  /* ========================================================
+     5. BLUR & FROSTED GLASS EFFECTS
+     ======================================================== */
+  --blur-glass-sm: blur(12px) saturate(160%);
+  --blur-glass-md: blur(20px) saturate(180%);
+  --blur-glass-lg: blur(28px) saturate(190%);
+
+  /* ========================================================
+     6. 3D PERSPECTIVE & MOTION SYSTEM
+     ======================================================== */
+  --perspective: 1000px;
+  --tilt-max: 7deg;
+  --glare-opacity: 0.18;
+
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.15);
+  --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --duration-fast: 160ms;
+  --duration-base: 280ms;
+  --duration-smooth: 420ms;
+  --duration-slow: 650ms;
+}
+
+/* ========================================================
+   7. DARK MODE THEME TOKENS
+   ======================================================== */
+[data-theme="dark"],
+body.dark-mode {
+  --bg-app: #080f20;
+  --bg-app-ambient: radial-gradient(at 15% 15%, rgba(14, 30, 68, 0.65) 0px, transparent 55%),
+                    radial-gradient(at 85% 20%, rgba(12, 24, 52, 0.75) 0px, transparent 50%),
+                    radial-gradient(at 50% 85%, rgba(10, 20, 44, 0.85) 0px, transparent 60%),
+                    #080f20;
+
+  --bg-card: rgba(15, 27, 52, 0.72);
+  --bg-card-hover: rgba(22, 38, 72, 0.86);
+  --bg-card-glass: rgba(15, 27, 52, 0.6);
+  --bg-card-solid: #0d1933;
+  --border-card: rgba(255, 255, 255, 0.12);
+  --border-card-subtle: rgba(56, 189, 248, 0.14);
+  --border-card-hover: rgba(56, 189, 248, 0.35);
+
+  --bg-sidebar: rgba(11, 20, 40, 0.78);
+  --border-sidebar: rgba(255, 255, 255, 0.08);
+  --bg-topbar: rgba(11, 20, 40, 0.8);
+  --border-topbar: rgba(255, 255, 255, 0.08);
+
+  --text-main: #f8fafc;
+  --text-body: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-subtle: #64748b;
+
+  --bg-input: rgba(20, 34, 64, 0.75);
+  --border-input: rgba(255, 255, 255, 0.15);
+  --border-input-focus: #38bdf8;
+  --ring-focus: rgba(56, 189, 248, 0.25);
+
+  --shadow-glass-sm: 0 2px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-glass-md: 0 10px 25px -4px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+  --shadow-glass-lg: 0 18px 40px -8px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  --shadow-3d-card: 0 20px 50px -10px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  --shadow-3d-hover: 0 28px 65px -12px rgba(0, 112, 243, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.16) inset;
+  --shadow-3d-float: 0 32px 70px -15px rgba(0, 112, 243, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.18) inset;
+
+  --grad-card-glare: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.18) 0%, transparent 60%);
+  --glare-opacity: 0.1;
+}
+
+/* ========================================================
+   8. ACCESSIBILITY & PREFERS-REDUCED-MOTION
+   ======================================================== */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --tilt-max: 0deg !important;
+    --perspective: none !important;
+    --duration-fast: 0ms !important;
+    --duration-base: 0ms !important;
+    --duration-smooth: 0ms !important;
+    --duration-slow: 0ms !important;
+  }
+}
