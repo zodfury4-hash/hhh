@@ -496,7 +496,7 @@
 
       if (as) as.hidden = true;
 
-      location.hash = '#login';
+      window.location.href = '/#login';
 
       return;
 

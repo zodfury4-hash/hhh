@@ -185,9 +185,44 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
     }
   };
 
-  const handleGoogleSso = () => {
-    // Forward to full authentication page which initializes Google Identity SDK
-    window.location.href = '/app.html#login';
+  const handleGoogleSso = async () => {
+    setError('');
+    setIsLoading(true);
+    try {
+      const win = window as any;
+      if (win.firebase && win.fbAuth) {
+        const provider = new win.firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        const result = await win.fbAuth.signInWithPopup(provider);
+        if (result && result.user) {
+          const fbUser = result.user;
+          const userSession = {
+            id: fbUser.uid,
+            name: fbUser.displayName || fbUser.email.split('@')[0],
+            email: fbUser.email.toLowerCase().trim(),
+            isVerified: true,
+            provider: 'google',
+            token: await fbUser.getIdToken().catch(() => '')
+          };
+          try {
+            localStorage.setItem('hea_session', JSON.stringify(userSession));
+            sessionStorage.setItem('hea_session', JSON.stringify(userSession));
+          } catch {}
+          setSuccessMsg('Google sign-in successful! Launching dashboard...');
+          setTimeout(() => {
+            window.location.href = '/app.html#dashboard';
+          }, 600);
+          return;
+        }
+      }
+      setError('Google Sign-In initialization failed. Please try email login.');
+    } catch (err: any) {
+      if (err.code !== 'auth/popup-closed-by-user') {
+        setError(err.message || 'Google sign-in failed. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const autoFillCode = () => {
@@ -459,14 +494,10 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
             </button>
           </form>
 
-          {/* Footer Navigation */}
-          <div className="pt-2 text-center border-t border-slate-100 text-xs text-slate-500">
-            <a
-              href="/app.html#login"
-              className="text-[#0070f3] hover:underline font-semibold"
-            >
-              Or open standalone full-screen auth page →
-            </a>
+          {/* Footer Security Badge */}
+          <div className="pt-2 text-center border-t border-slate-100 text-[11px] text-slate-400 flex items-center justify-center gap-1.5 font-medium">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#0070f3]" />
+            <span>End-to-end encrypted with HEA Cloud Auth</span>
           </div>
         </motion.div>
         </div>

@@ -7182,9 +7182,29 @@ function route() {
 
   updateHomeCtaForAuth();
 
-  const rawHash = location.hash.slice(1) || 'home';
+  const rawHash = (location.hash.slice(1) || '').split('?')[0];
 
-  const page = rawHash.split('?')[0];
+  if (!rawHash || rawHash === 'home') {
+    if (session && session.isVerified) {
+      location.hash = '#dashboard';
+      return;
+    } else {
+      window.location.replace('/');
+      return;
+    }
+  }
+
+  if (rawHash === 'login' || rawHash === 'signup') {
+    if (session && session.isVerified) {
+      location.hash = '#dashboard';
+      return;
+    } else {
+      window.location.replace('/#' + rawHash);
+      return;
+    }
+  }
+
+  const page = rawHash;
 
   if (rawHash.startsWith('go-')) {
 
