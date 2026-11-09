@@ -5808,28 +5808,23 @@
     if (tab === 'settings') {
       if (drawerAi) drawerAi.hidden = true;
       if (drawerForm) drawerForm.style.display = 'none';
-      if (drawerSettings) drawerSettings.hidden = false;
-      if (drawerTitle) drawerTitle.innerHTML = '<span>⚙️</span> Settings';
-      if (drawerClose && window.innerWidth > 768) drawerClose.style.display = 'none';
-
-      const orgBadge = $('#settingsOrgBadge');
-      if (orgBadge) orgBadge.textContent = appUser.orgId || 'hea-workspace-default';
-
+      if (drawerSettings) drawerSettings.hidden = true;
+      if (drawerEl) drawerEl.hidden = true; // Settings has clean 2-column in-page layout
+    } else if (tab === 'assist') {
+      if (drawerAi) drawerAi.hidden = false;
+      if (drawerForm) drawerForm.style.display = '';
+      if (drawerSettings) drawerSettings.hidden = true;
+      if (drawerTitle) drawerTitle.innerHTML = '<span>✨</span> HEA Assist';
+      if (drawerClose) drawerClose.style.display = '';
       if (drawerEl) {
-        if (window.innerWidth > 768) {
-          drawerEl.hidden = false;
-        } else {
-          drawerEl.hidden = true;
-        }
+        drawerEl.hidden = false;
       }
-      bindSettingsNavEvents();
     } else {
       if (drawerAi) drawerAi.hidden = false;
       if (drawerForm) drawerForm.style.display = '';
       if (drawerSettings) drawerSettings.hidden = true;
       if (drawerTitle) drawerTitle.innerHTML = '<span>✨</span> HEA Assist';
       if (drawerClose) drawerClose.style.display = '';
-
       if (drawerEl) {
         drawerEl.hidden = true;
         document.body.style.overflow = '';
@@ -5893,7 +5888,59 @@
           </div>
         </div>
       </div>
-      <div class="settings-center-pane-wrapper">
+      <div class="settings-layout-wrap">
+        <!-- In-Page Settings Sub-Navigation Card -->
+        <aside class="settings-subnav-aside">
+          <div class="settings-nav-group">
+            <div class="settings-nav-group-title">PERSONAL</div>
+            <button type="button" class="settings-nav-btn active" data-target="setSectionProfile">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              <span>Profile</span>
+            </button>
+            <button type="button" class="settings-nav-btn" data-target="setSectionSecurity">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              <span>Security &amp; Password</span>
+            </button>
+            <button type="button" class="settings-nav-btn" onclick="window.appShell.navigate('integrations')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6m0 8v6M4.93 4.93l4.24 4.24m5.66 5.66 4.24 4.24M2 12h6m8 0h6M4.93 19.07l4.24-4.24m5.66-5.66 4.24-4.24"></path></svg>
+              <span>Integrations</span>
+            </button>
+          </div>
+
+          <div class="settings-nav-group">
+            <div class="settings-nav-group-title">WORKSPACE &amp; ACCOUNT</div>
+            <div class="settings-org-badge">
+              <span>🏢</span> <span>${appUser.orgId || 'hea-workspace-default'}</span>
+            </div>
+            <button type="button" class="settings-nav-btn" data-target="setSectionAccountDetails">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+              <span>Account details</span>
+            </button>
+            <button type="button" class="settings-nav-btn" data-target="setSectionBilling">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+              <span>Billing and usage</span>
+            </button>
+            <button type="button" class="settings-nav-btn" data-target="setSectionUsers">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              <span>Users &amp; Team</span>
+            </button>
+            <button type="button" class="settings-nav-btn" data-target="setSectionSso">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-1-1l2 2M11 13l3.5-3.5a2.12 2.12 0 1 0-3-3L8 10l-4 4v4h4l3-3z"></path></svg>
+              <span>Single sign-on</span>
+            </button>
+            <button type="button" class="settings-nav-btn" data-target="setSectionDeepLinks">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+              <span>Mobile deep links</span>
+            </button>
+            <button type="button" class="settings-nav-btn" data-target="setSectionEmails">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+              <span>Email Preferences</span>
+            </button>
+          </div>
+        </aside>
+
+        <!-- Right Content Area -->
+        <div class="settings-content-main">
         <!-- Mobile Quick Tabs -->
         <div class="settings-mobile-tabs" id="settingsMobileTabs">
           <button class="settings-m-tab active" data-nav="profile">Profile</button>
@@ -6179,6 +6226,18 @@
       };
     }
 
+    // In-page sidebar button click handlers
+    $$('.settings-subnav-aside .settings-nav-btn').forEach(btn => {
+      btn.onclick = () => {
+        const targetId = btn.dataset.target;
+        if (!targetId) return;
+        $$('.settings-subnav-aside .settings-nav-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const targetEl = document.getElementById(targetId);
+        if (targetEl) targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
+    });
+
     // Mobile tabs scroll handler
     $$('#settingsMobileTabs .settings-m-tab').forEach(tabBtn => {
       tabBtn.onclick = () => {
@@ -6199,29 +6258,29 @@
       };
     });
 
-    // Sync scroll in center pane with right sidebar navigation
+    // Sync scroll in settings pane with sub-sidebar navigation
     const pane = document.getElementById('appMainPane');
     if (pane) {
       const sectionTracker = [
-        { id: 'setSectionProfile', nav: 'profile' },
-        { id: 'setSectionAccountDetails', nav: 'account-details' },
-        { id: 'setSectionBilling', nav: 'billing' },
-        { id: 'setSectionUsers', nav: 'users' },
-        { id: 'setSectionSso', nav: 'sso' },
-        { id: 'setSectionDeepLinks', nav: 'deeplinks' },
-        { id: 'setSectionEmails', nav: 'profile' },
-        { id: 'setSectionSecurity', nav: 'profile' },
-        { id: 'setSectionSessions', nav: 'account-details' }
+        { id: 'setSectionProfile', target: 'setSectionProfile', nav: 'profile' },
+        { id: 'setSectionSecurity', target: 'setSectionSecurity', nav: 'security' },
+        { id: 'setSectionAccountDetails', target: 'setSectionAccountDetails', nav: 'account-details' },
+        { id: 'setSectionBilling', target: 'setSectionBilling', nav: 'billing' },
+        { id: 'setSectionUsers', target: 'setSectionUsers', nav: 'users' },
+        { id: 'setSectionSso', target: 'setSectionSso', nav: 'sso' },
+        { id: 'setSectionDeepLinks', target: 'setSectionDeepLinks', nav: 'deeplinks' },
+        { id: 'setSectionEmails', target: 'setSectionEmails', nav: 'emails' },
+        { id: 'setSectionSessions', target: 'setSectionAccountDetails', nav: 'sessions' }
       ];
 
       pane.onscroll = () => {
-        const scrollPos = pane.scrollTop + 120;
+        const scrollPos = pane.scrollTop + 140;
         for (let i = sectionTracker.length - 1; i >= 0; i--) {
           const el = document.getElementById(sectionTracker[i].id);
           if (el && el.offsetTop <= scrollPos) {
-            const navLinks = $$('#drawerSettingsContent .settings-subsidebar-link');
-            navLinks.forEach(l => {
-              l.classList.toggle('active', l.dataset.nav === sectionTracker[i].nav);
+            const subBtns = $$('.settings-subnav-aside .settings-nav-btn');
+            subBtns.forEach(b => {
+              b.classList.toggle('active', b.dataset.target === sectionTracker[i].target);
             });
             const mTabs = $$('#settingsMobileTabs .settings-m-tab');
             mTabs.forEach(t => {
