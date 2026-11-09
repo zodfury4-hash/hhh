@@ -280,9 +280,9 @@ h3 { font-size: 18px; font-weight: 600; color: #ffffff !important; }
   position: absolute;
   top: 100%;
   left: 0;
-  background: rgba(11, 17, 32, 0.96);
-  backdrop-filter: blur(28px) saturate(200%);
-  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  background: #ffffff;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   border: 1px solid rgba(56, 189, 248, 0.35);
   border-radius: 20px;
   box-shadow: 0 25px 65px rgba(0, 0, 0, 0.8), 0 0 35px rgba(56, 189, 248, 0.16), var(--glass-inset);
@@ -3528,9 +3528,9 @@ p, .lead, .lead2, .fc p, .faq details p, .plans ul, .card p, .hero-col-left .lea
 
 /* Mega Menus Dropdown */
 .drop {
-  background: rgba(255, 255, 255, 0.98) !important;
-  backdrop-filter: blur(28px) saturate(200%) !important;
-  -webkit-backdrop-filter: blur(28px) saturate(200%) !important;
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   border: 1px solid rgba(226, 232, 240, 0.9) !important;
   border-radius: 20px !important;
   box-shadow: 0 25px 65px -10px rgba(0, 50, 150, 0.12), 0 4px 16px rgba(0, 0, 0, 0.04) !important;
@@ -4765,3 +4765,34 @@ a[href="#signup"].btn {
 }
 
 
+
+
+/* =========================================================
+   SOLID OPAQUE MEGA MENUS & CARDS (ZERO BACKGROUND BLEED)
+   ========================================================= */
+.drop,
+.mega-dropdown,
+.nav-dropdown,
+.mega-menu,
+.nav-mega-box,
+.dropdown-sheet {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 20px !important;
+  box-shadow: 0 25px 65px -10px rgba(0, 50, 150, 0.16), 0 4px 16px rgba(0, 0, 0, 0.05) !important;
+}
+
+.card,
+.dash-white-card,
+.modal-box,
+.modal-card,
+.shorten-box,
+.pricing-card {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+}

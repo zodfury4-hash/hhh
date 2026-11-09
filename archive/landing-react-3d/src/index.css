@@ -14,10 +14,10 @@ body {
 
 /* Custom Glassmorphism Utility */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  background: #ffffff;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid #e2e8f0;
   box-shadow: 0 20px 45px -10px rgba(0, 112, 243, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5);
 }
 
@@ -26,7 +26,7 @@ body {
 }
 
 .glass-panel-interactive:hover {
-  background: rgba(255, 255, 255, 0.88);
+  background: #ffffff;
   box-shadow: 0 25px 60px -12px rgba(0, 112, 243, 0.16), 0 0 0 1px rgba(0, 112, 243, 0.25);
   transform: translateY(-2px);
 }
@@ -58,4 +58,16 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #64748b;
+}
+
+
+/* Force Solid Opaque White Cards in React App */
+.glass-panel,
+.glass-panel-interactive {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 20px 45px -10px rgba(0, 50, 150, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
 }

@@ -24,8 +24,8 @@ export function Navbar({ onOpenAuth }: NavbarProps) {
     <header
       className={`sticky top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? 'bg-white/60 backdrop-blur-xl border-b border-white/60 shadow-[0_4px_24px_rgba(0,112,243,0.06)] py-2.5'
-          : 'bg-white/20 backdrop-blur-md border-b border-white/30 py-3'
+          ? 'bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-[0_4px_24px_rgba(0,112,243,0.06)] py-2.5'
+          : 'bg-white/90 backdrop-blur-sm border-b border-slate-100 py-3'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
@@ -70,7 +70,7 @@ export function Navbar({ onOpenAuth }: NavbarProps) {
             </button>
 
             {activeDropdown === 'platform' && (
-              <div className="absolute top-full left-0 mt-2 w-[540px] glass-panel rounded-2xl p-6 shadow-2xl border border-white/80 grid grid-cols-2 gap-6 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="absolute top-full left-0 mt-2 w-[540px] bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 shadow-2xl border border-white/80 grid grid-cols-2 gap-6 animate-in fade-in slide-in-from-top-2 duration-200">
                 <div>
                   <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">Products</div>
                   <div className="space-y-3">
@@ -169,7 +169,7 @@ export function Navbar({ onOpenAuth }: NavbarProps) {
             </button>
 
             {activeDropdown === 'ai' && (
-              <div className="absolute top-full left-0 mt-2 w-80 glass-panel rounded-2xl p-5 shadow-2xl border border-white/80 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="absolute top-full left-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 p-5 shadow-2xl border border-white/80 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
                 <a href="#ai" className="flex items-start gap-3 p-2 rounded-xl hover:bg-white/80 transition-colors group">
                   <div className="p-2 rounded-lg bg-blue-50 text-[#0070f3] shrink-0 group-hover:bg-[#0070f3] group-hover:text-white transition-colors">
                     <Sparkles className="w-4 h-4" />
@@ -218,7 +218,7 @@ export function Navbar({ onOpenAuth }: NavbarProps) {
             </button>
 
             {activeDropdown === 'solutions' && (
-              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[560px] glass-panel rounded-2xl p-6 shadow-2xl border border-white/80 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[560px] bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 shadow-2xl border border-white/80 animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="flex gap-2 p-1 bg-slate-100/80 rounded-xl mb-4 text-xs font-semibold">
                   <button
                     onClick={() => setActiveSolTab('industry')}
@@ -326,7 +326,7 @@ export function Navbar({ onOpenAuth }: NavbarProps) {
             </button>
 
             {activeDropdown === 'resources' && (
-              <div className="absolute top-full left-0 mt-2 w-72 glass-panel rounded-2xl p-5 shadow-2xl border border-white/80 space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="absolute top-full left-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 p-5 shadow-2xl border border-white/80 space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
                 <a href="#features" className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/80 transition-colors text-xs font-semibold text-[#0b132b]">
                   <Layers className="w-4 h-4 text-[#0070f3]" /> Integrations Hub
                 </a>

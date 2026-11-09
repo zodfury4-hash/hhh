@@ -14,8 +14,8 @@ export function GlassCard({
 }: GlassCardProps) {
   return (
     <div
-      className={`glass-panel rounded-2xl ${
-        interactive ? 'glass-panel-interactive' : ''
+      className={`bg-white shadow-lg border border-slate-200 rounded-2xl ${
+        interactive ? 'bg-white shadow-lg border border-slate-200-interactive' : ''
       } ${className}`}
       {...props}
     >

@@ -29,7 +29,7 @@ export function HudCards({ mousePosition }: HudCardProps) {
           y: { duration: 3.2, repeat: Infinity, ease: 'easeInOut' },
           x: { type: 'spring', stiffness: 100, damping: 20 },
         }}
-        className="absolute top-[10%] sm:top-[12%] lg:top-[14%] -left-14 sm:-left-16 lg:-left-24 glass-panel rounded-2xl px-4 py-3 flex items-center gap-3 shadow-glass"
+        className="absolute top-[10%] sm:top-[12%] lg:top-[14%] -left-14 sm:-left-16 lg:-left-24 bg-white rounded-2xl px-4 py-3 flex items-center gap-3 shadow-xl border border-slate-200"
       >
         <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-end justify-center p-2 gap-1">
           <span className="w-1.5 h-3 bg-[#0070f3] rounded-sm animate-pulse" />
@@ -55,7 +55,7 @@ export function HudCards({ mousePosition }: HudCardProps) {
           y: { duration: 3.6, repeat: Infinity, ease: 'easeInOut', delay: 0.3 },
           x: { type: 'spring', stiffness: 100, damping: 20 },
         }}
-        className="absolute bottom-[14%] left-[0%] sm:left-[4%] glass-panel rounded-2xl px-4 py-3 flex items-center gap-3 shadow-glass"
+        className="absolute bottom-[14%] left-[0%] sm:left-[4%] bg-white rounded-2xl px-4 py-3 flex items-center gap-3 shadow-xl border border-slate-200"
       >
         <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-[#0070f3]">
           <QrCode className="w-5 h-5 text-[#0070f3]" />
@@ -76,7 +76,7 @@ export function HudCards({ mousePosition }: HudCardProps) {
           y: { duration: 3.0, repeat: Infinity, ease: 'easeInOut', delay: 0.6 },
           x: { type: 'spring', stiffness: 100, damping: 20 },
         }}
-        className="absolute top-[28%] right-[0%] sm:right-[4%] glass-panel rounded-2xl px-4 py-3 flex items-center gap-3 shadow-glass"
+        className="absolute top-[28%] right-[0%] sm:right-[4%] bg-white rounded-2xl px-4 py-3 flex items-center gap-3 shadow-xl border border-slate-200"
       >
         <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-[#0070f3]">
           <Users className="w-5 h-5 text-[#0070f3]" />

@@ -54,22 +54,22 @@
                     #f2f7fc;
 
   /* Floating Rounded Container (28-32px glass frame) */
-  --bg-frame-glass: rgba(255, 255, 255, 0.86);
+  --bg-frame-glass: #ffffff;
   --border-frame: rgba(255, 255, 255, 0.95);
   --radius-frame: 30px;
   --padding-frame: 14px;
 
   /* Glassmorphism Cards & Bento Surfaces */
-  --bg-card: rgba(255, 255, 255, 0.88);
-  --bg-card-hover: rgba(255, 255, 255, 0.98);
-  --bg-card-glass: rgba(255, 255, 255, 0.75);
+  --bg-card: #ffffff;
+  --bg-card-hover: #ffffff;
+  --bg-card-glass: #ffffff;
   --bg-card-solid: #ffffff;
-  --border-card: rgba(255, 255, 255, 0.92);
+  --border-card: #e2e8f0;
   --border-card-subtle: rgba(10, 108, 255, 0.08);
   --border-card-hover: rgba(10, 108, 255, 0.28);
 
   /* Topbar Surfaces */
-  --bg-topbar: rgba(255, 255, 255, 0.78);
+  --bg-topbar: #ffffff;
   --border-topbar: rgba(226, 232, 240, 0.85);
 
   /* Typography */
@@ -157,13 +157,13 @@ body.dark-mode {
                     radial-gradient(at 50% 85%, rgba(10, 20, 44, 0.95) 0px, transparent 60%),
                     #050914;
 
-  --bg-frame-glass: rgba(11, 20, 42, 0.85);
+  --bg-frame-glass: #ffffff;
   --border-frame: rgba(255, 255, 255, 0.1);
 
-  --bg-card: rgba(15, 27, 52, 0.78);
-  --bg-card-hover: rgba(22, 38, 72, 0.9);
-  --bg-card-glass: rgba(15, 27, 52, 0.65);
-  --bg-card-solid: #0d1933;
+  --bg-card: #ffffff;
+  --bg-card-hover: #ffffff;
+  --bg-card-glass: #ffffff;
+  --bg-card-solid: #ffffff;
   --border-card: rgba(255, 255, 255, 0.12);
   --border-card-subtle: rgba(56, 189, 248, 0.14);
   --border-card-hover: rgba(56, 189, 248, 0.35);
@@ -172,7 +172,7 @@ body.dark-mode {
   --sidebar-navy-surface: #0a1124;
   --sidebar-navy-border: rgba(255, 255, 255, 0.08);
 
-  --bg-topbar: rgba(11, 20, 40, 0.82);
+  --bg-topbar: #ffffff;
   --border-topbar: rgba(255, 255, 255, 0.08);
 
   --text-main: #f8fafc;
