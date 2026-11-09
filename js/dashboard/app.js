@@ -2211,7 +2211,7 @@ function initNav() {
 
       <button type="button" aria-expanded="false">${name} <span class="arrow">▾</span></button>
 
-      <div class="drop">${MEGA[name]}</div>
+      <div class="drop" style="background:#ffffff;background-color:#ffffff;opacity:1;backdrop-filter:none;-webkit-backdrop-filter:none;">${MEGA[name]}</div>
 
     </div>
 

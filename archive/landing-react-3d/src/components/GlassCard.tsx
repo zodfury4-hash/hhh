@@ -15,7 +15,7 @@ export function GlassCard({
   return (
     <div
       className={`bg-white shadow-lg border border-slate-200 rounded-2xl ${
-        interactive ? 'bg-white shadow-lg border border-slate-200-interactive' : ''
+        interactive ? 'hover:shadow-xl transition-shadow' : ''
       } ${className}`}
       {...props}
     >

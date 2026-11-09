@@ -61,13 +61,20 @@ body {
 }
 
 
-/* Force Solid Opaque White Cards in React App */
+/* Force Solid Opaque White Cards & Sheets in React App */
 .glass-panel,
-.glass-panel-interactive {
+.glass-panel-interactive,
+header,
+header nav div[class*="absolute"],
+header [class*="absolute"],
+header .drop,
+header [role="dialog"],
+header [aria-expanded="true"] + div {
   background: #ffffff !important;
   background-color: #ffffff !important;
+  opacity: 1 !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   border: 1px solid #e2e8f0 !important;
-  box-shadow: 0 20px 45px -10px rgba(0, 50, 150, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+  box-shadow: 0 25px 60px -10px rgba(0, 50, 150, 0.16), 0 4px 16px rgba(0, 0, 0, 0.05) !important;
 }
