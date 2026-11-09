@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>HEA Link | Short links &amp; URLs, QR codes &amp; bio pages</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,8 +37,9 @@
   </script>
 </head>
 <body class="app-mode">
+  <div class="scroll-progress-bar" id="scrollProgressBar" aria-hidden="true"></div>
 <div class="bg-glow-curves"></div>
-<canvas id="webgl-bg"></canvas>
+
 
 <!-- HEADER NAVBAR -->
 <header class="nav">
@@ -497,7 +498,7 @@
       <div class="wrap">
         <p class="eyebrow">EVERYTHING YOU NEED</p>
         <h2>One platform for every link you share</h2>
-        <div class="grid4" id="features"></div>
+        <div class="grid4" data-reveal-group id="features"></div>
       </div>
     </div>
 
@@ -521,7 +522,7 @@
       <div class="wrap">
         <p class="eyebrow">HOW IT WORKS</p>
         <h2>Get started in three easy steps</h2>
-        <div class="grid3" id="steps"></div>
+        <div class="grid3" data-reveal-group id="steps"></div>
       </div>
     </div>
 
@@ -576,7 +577,7 @@
             <svg class="sso-icon" width="18" height="18" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 12s.7 2.3 1.9 4.7l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/></svg>
             Continue with Google
           </button>
-          <button type="button" class="sso-btn" id="ssoAppleBtn" style="display: none !important;">
+          <button type="button" class="sso-btn" id="ssoAppleBtn">
             <svg class="sso-icon" width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.84c.64-.78 1.08-1.87.96-2.84-.93.04-2.05.62-2.7 1.39-.58.67-1.09 1.76-.95 2.81 1.03.08 2.06-.58 2.69-1.36z"/></svg>
             Continue with Apple
           </button>
@@ -684,7 +685,7 @@
   <!-- =========================================================
        HEA LINK APP SHELL (Bitly-Style Professional Dashboard)
        ========================================================= -->
-  <section data-page="app" id="appShell" data-lenis-prevent="true">
+  <section data-page="app" id="appShell">
     <!-- Ambient 3D Depth Gradient Orbs -->
     <div class="dashboard-ambient-orbs" aria-hidden="true">
       <div class="orb orb-1"></div>
@@ -692,7 +693,7 @@
       <div class="orb orb-3"></div>
     </div>
     <!-- LEFT SIDEBAR -->
-    <aside class="app-sidebar" id="appSidebar" data-lenis-prevent="true">
+    <aside class="app-sidebar expanded" id="appSidebar" data-lenis-prevent="true" aria-label="Sidebar navigation">
       <!-- Floating Sidebar Collapse/Expand Toggle on Edge -->
       <div class="sidebar-header-box">
         <a href="#dashboard" class="sidebar-logo logo" title="HEA Link">
@@ -802,7 +803,7 @@
     </aside>
 
     <!-- APP BODY WRAP -->
-    <div class="app-body-wrap" data-lenis-prevent="true">
+    <div class="app-body-wrap">
       <!-- APP TOPBAR (1:1 Reference Match) -->
       <header class="app-topbar" id="appTopbar">
         <div class="topbar-left-col">
@@ -817,21 +818,21 @@
             <span>👑</span> PRO Active
           </div>
           <div class="topbar-divider"></div>
-          <button class="topbar-assist-pill-btn" id="assistToggleBtn" title="HEA Assist AI">
+          <button class="topbar-assist-pill-btn" id="assistToggleBtn" title="HEA Assist AI" aria-label="Toggle HEA Assist AI">
             <span>✨</span> HEA Assist
           </button>
           <div class="topbar-notif-wrap">
-            <button class="topbar-circle-icon-btn" id="topbarNotifBtn" title="Notifications">🔔</button>
+            <button class="topbar-circle-icon-btn" id="topbarNotifBtn" title="Notifications" aria-label="View notifications">🔔</button>
             <span class="topbar-notif-badge">3</span>
           </div>
-          <button class="topbar-circle-icon-btn topbar-help-btn" id="topbarHelpBtn" title="Help &amp; Guides" onclick="location.hash='#resources'">❓</button>
-          <a href="#settings" class="topbar-avatar" id="topbarAvatar" title="Account">FZ</a>
+          <button class="topbar-circle-icon-btn topbar-help-btn" id="topbarHelpBtn" title="Help &amp; Guides" aria-label="Help and resources" onclick="location.hash='#resources'">❓</button>
+          <a href="#settings" class="topbar-avatar" id="topbarAvatar" title="Account" aria-label="Account settings">FZ</a>
         </div>
       </header>
 
       <!-- CONTENT ROW (MAIN PANE + RIGHT ASSIST DRAWER) -->
-      <div class="app-content-row" data-lenis-prevent="true">
-        <div class="app-main-pane" id="appMainPane" data-lenis-prevent="true">
+      <div class="app-content-row">
+        <main class="app-main-pane" id="appMainPane" data-lenis-prevent="true" role="main" aria-label="Dashboard Content">
 
       <div class="dashboard-v2-container">
         
@@ -1311,10 +1312,11 @@
 
       </div>
 
-        </div>
+        </main>
 
         <!-- RIGHT HEA ASSIST AI DRAWER (1:1 Exact Reference Match) -->
         <aside class="app-assist-drawer" id="appAssistDrawer" data-lenis-prevent="true" hidden>
+          <div class="drawer-drag-handle" aria-hidden="true"></div>
           <div class="drawer-header">
             <div class="drawer-title" id="drawerTitle">
               <span>✨</span> HEA Assist
@@ -1435,6 +1437,33 @@
         </aside>
       </div>
     </div>
+    <!-- MOBILE BOTTOM NAVIGATION (Active on < 768px) -->
+    <nav class="app-mobile-bottom-nav" id="appMobileBottomNav" aria-label="Mobile Navigation">
+      <a href="#dashboard" class="mobile-tab-item active" data-tab="home">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <span>Home</span>
+      </a>
+      <a href="#links" class="mobile-tab-item" data-tab="links">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+        <span>Links</span>
+      </a>
+      <button type="button" class="mobile-tab-create-btn" id="mobileTabCreateBtn" aria-label="Create New">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      </button>
+      <a href="#qr" class="mobile-tab-item" data-tab="qr">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="5" height="5" x="3" y="3" rx="1"></rect><rect width="5" height="5" x="16" y="3" rx="1"></rect><rect width="5" height="5" x="3" y="16" rx="1"></rect><path d="M21 16h-3a2 2 0 0 0-2 2v3"></path><path d="M21 21v.01"></path><path d="M12 7v3a2 2 0 0 1-2 2H7"></path></svg>
+        <span>QR</span>
+      </a>
+      <a href="#analytics" class="mobile-tab-item" data-tab="analytics">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="18" y1="20" y2="10"></line><line x1="12" x2="12" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="14"></line></svg>
+        <span>Stats</span>
+      </a>
+      <button type="button" class="mobile-tab-item" id="mobileTabMoreBtn" aria-label="More Menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+        <span>More</span>
+      </button>
+    </nav>
+    <div class="sidebar-backdrop" id="sidebarBackdrop" hidden></div>
   </section>
 
   <!-- "WHAT DO YOU WANT TO CREATE?" MODAL (Screenshot 12.02.37 AM 1) -->
@@ -1442,7 +1471,7 @@
     <div class="create-modal-card">
       <div class="create-modal-header">
         <h3 style="font-size:24px;font-weight:800;color:#0070f3;margin:0;">What do you want to create?</h3>
-        <button class="create-modal-close" id="whatModalClose" style="background:none;border:0;font-size:22px;color:#000000;cursor:pointer;">✕</button>
+        <button class="create-modal-close" id="whatModalClose" aria-label="Close modal" style="background:none;border:0;font-size:22px;color:#000000;cursor:pointer;">✕</button>
       </div>
       <div class="create-modal-grid">
         <div class="create-option-card" id="optCreateLink">
@@ -1521,7 +1550,7 @@
     <div class="wrap">
       <h2 class="left">Analytics Dashboard</h2>
       <p class="muted" id="anSub">Detailed click performance across all campaigns.</p>
-      <div class="grid4" id="stats"></div>
+      <div class="grid4" data-reveal-group id="stats"></div>
       <div class="card pad" style="margin-top:20px">
         <h3>Clicks — Last 14 Days</h3>
         <div id="chart"></div>
@@ -1556,7 +1585,7 @@
         <div id="resTabs" class="tabs"></div>
         <input id="resSearch" placeholder="Search knowledge base, tutorials, and API docs..." aria-label="Search guides" style="max-width:280px">
       </div>
-      <div class="grid3" id="resGrid"></div>
+      <div class="grid3" data-reveal-group id="resGrid"></div>
     </div>
   </section>
 
@@ -1626,7 +1655,7 @@
           <button data-sol="business">By Business Size</button>
         </div>
       </div>
-      <div class="grid3" id="solCards"></div>
+      <div class="grid3" data-reveal-group id="solCards"></div>
     </div>
   </section>
 
@@ -1674,7 +1703,7 @@
         <h2>Connect HEA Link with your favourite tools</h2>
         <p class="muted lead">Seamlessly generate links and QR codes directly inside Shopify, Canva, HubSpot and more.</p>
       </div>
-      <div class="grid3" id="integrationsGrid"></div>
+      <div class="grid3" data-reveal-group id="integrationsGrid"></div>
     </div>
   </section>
 </main>
@@ -1896,7 +1925,7 @@
           <p class="checkout-sub">Deep-link directly into iOS/Android apps with zero browser friction.</p>
         </div>
       </div>
-      <button type="button" class="checkout-close" onclick="closeAllCustomModals()">✕</button>
+      <button type="button" class="checkout-close" aria-label="Close modal" onclick="closeAllCustomModals()">✕</button>
     </div>
     <div class="checkout-body" style="padding:22px 28px;">
       <form id="mobileLinksForm" class="checkout-form">
@@ -1935,7 +1964,7 @@
           <p class="checkout-sub">Integrate link shortening, QR generation, and click telemetry into your codebase.</p>
         </div>
       </div>
-      <button type="button" class="checkout-close" onclick="closeAllCustomModals()">✕</button>
+      <button type="button" class="checkout-close" aria-label="Close modal" onclick="closeAllCustomModals()">✕</button>
     </div>
     <div class="checkout-body" style="padding:22px 28px;">
       <!-- Tabs for languages -->
@@ -1967,7 +1996,7 @@
           <p class="checkout-sub">Enterprise-grade encryption, privacy compliance, and continuous monitoring.</p>
         </div>
       </div>
-      <button type="button" class="checkout-close" onclick="closeAllCustomModals()">✕</button>
+      <button type="button" class="checkout-close" aria-label="Close modal" onclick="closeAllCustomModals()">✕</button>
     </div>
     <div class="checkout-body" style="padding:22px 28px;">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;">
@@ -2018,7 +2047,7 @@
           <p class="checkout-sub">Proprietary benchmark findings from 120,000,000+ link clicks and QR scans.</p>
         </div>
       </div>
-      <button type="button" class="checkout-close" onclick="closeAllCustomModals()">✕</button>
+      <button type="button" class="checkout-close" aria-label="Close modal" onclick="closeAllCustomModals()">✕</button>
     </div>
     <div class="checkout-body" style="padding:22px 28px;">
       <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:18px;margin-bottom:16px;">
@@ -2053,7 +2082,7 @@
           <p class="checkout-sub">Connect your AI coding agents directly to HEA Link tools.</p>
         </div>
       </div>
-      <button type="button" class="checkout-close" onclick="closeAllCustomModals()">✕</button>
+      <button type="button" class="checkout-close" aria-label="Close modal" onclick="closeAllCustomModals()">✕</button>
     </div>
     <div class="checkout-body" style="padding:22px 28px;">
       <p style="color:#000000;font-size:13px;line-height:1.6;margin-bottom:12px;">
@@ -2090,7 +2119,7 @@
           <p class="checkout-sub">Dedicated account manager, custom SSO, and 99.99% SLA guarantee.</p>
         </div>
       </div>
-      <button type="button" class="checkout-close" onclick="closeAllCustomModals()">✕</button>
+      <button type="button" class="checkout-close" aria-label="Close modal" onclick="closeAllCustomModals()">✕</button>
     </div>
     <div class="checkout-body" style="padding:22px 28px;">
       <form id="salesConsultForm" class="checkout-form" onsubmit="event.preventDefault();toast('Thank you! An enterprise specialist will contact you within 2 hours.');closeAllCustomModals();">
@@ -2126,7 +2155,7 @@
           <p class="checkout-sub">Live mobile-first landing page with instant theme switching.</p>
         </div>
       </div>
-      <button type="button" class="checkout-close" onclick="closeAllCustomModals()">✕</button>
+      <button type="button" class="checkout-close" aria-label="Close modal" onclick="closeAllCustomModals()">✕</button>
     </div>
     <div class="checkout-body" style="padding:20px 24px;">
       <!-- Interactive Phone Mockup -->
@@ -2158,7 +2187,7 @@
           <p class="checkout-sub">Live visitor intelligence with device, location, and referrer charts.</p>
         </div>
       </div>
-      <button type="button" class="checkout-close" onclick="closeAllCustomModals()">✕</button>
+      <button type="button" class="checkout-close" aria-label="Close modal" onclick="closeAllCustomModals()">✕</button>
     </div>
     <div class="checkout-body" style="padding:22px 28px;">
       <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;margin-bottom:18px;">
@@ -2232,6 +2261,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script src="firebase-config.js?v=4"></script>
 <script src="heavy-fx.js?v=1793902579256"></script>
+<script src="motion.config.js"></script>
 <script src="landing-clean.js?v=1"></script>
 <script src="app-shell.js?v=1794230000000"></script>
 <script src="app.js?v=1793895001663"></script>

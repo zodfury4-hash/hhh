@@ -70,13 +70,22 @@
   }
 
   function initAll() {
-    initShaderBackground();
-    init3DCyberChainStage();
+    // 0% 3D Bloat: Clean CSS Ambient Mesh replaces WebGL shaders
+    initMiniQrCode();
     initLenisScroll();
     initGsapAnimations();
     initSkipprSlider();
     initInteractive3DTilt();
     initFramerMotionEngine();
+  }
+
+  function initMiniQrCode() {
+    setTimeout(() => {
+      const miniCv = document.getElementById('stageQrMini');
+      if (miniCv && typeof window.drawQR === 'function') {
+        window.drawQR(miniCv, 'https://healink.store', '#0070f3', '#ffffff', 48);
+      }
+    }, 200);
   }
 
   /* ---------------------------------------------------------
@@ -250,8 +259,16 @@
   function initLenisScroll() {
     if (typeof Lenis === 'undefined') return;
 
+    // Part B1: Lenis ONLY when (hover: hover) and (pointer: fine) and NOT prefers-reduced-motion
+    const isDesktopFine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!isDesktopFine || prefersReduced) {
+      // Native smooth scroll fallback for mobile & touch
+      return;
+    }
+
     const lenis = new Lenis({
-      duration: 1.2,
+      duration: 1.0,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
       smoothTouch: false,
@@ -288,7 +305,7 @@
         const targetEl = document.querySelector(href);
         if (targetEl && !targetEl.closest('#appShell')) {
           e.preventDefault();
-          lenis.scrollTo(targetEl, { offset: -80, duration: 1.2 });
+          const navH = (document.querySelector(".nav")?.offsetHeight || 64) + 12; lenis.scrollTo(targetEl, { offset: -navH, duration: 1.0 });
         }
       } catch (err) {}
     });

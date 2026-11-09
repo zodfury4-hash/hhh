@@ -585,6 +585,8 @@
 
         card.classList.add('card-3d-tilt');
 
+        if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches || prefersReducedMotion) return;
+
         card.onmousemove = (e) => {
           const rect = card.getBoundingClientRect();
           const x = e.clientX - rect.left;
@@ -699,6 +701,21 @@
       item.classList.toggle('active', item.dataset.tab === tab);
 
     });
+
+    // Sync Mobile Bottom Navigation Tabs (< 768px)
+    $$('.mobile-tab-item[data-tab]').forEach(tabBtn => {
+      const t = tabBtn.dataset.tab;
+      const isActive = (t === tab) || (t === 'home' && (tab === 'dashboard' || tab === 'app')) || (t === 'links' && tab === 'create-link') || (t === 'qr' && tab === 'qr-detail');
+      tabBtn.classList.toggle('active', isActive);
+    });
+
+    // Auto-close off-canvas drawer on navigation
+    const mSidebar = $('#appSidebar') || $('.app-sidebar');
+    if (mSidebar) {
+      mSidebar.classList.remove('mobile-open', 'open');
+    }
+    const mBackdrop = $('#sidebarBackdrop');
+    if (mBackdrop) mBackdrop.hidden = true;
 
     const topTitle = $('#topbarTitle');
     const topSubtitle = $('#topbarSubtitle');
@@ -840,6 +857,45 @@
     }
 
     try { initDashboard3DMotion(); } catch (e) {}
+
+    // Phase 4: Dashboard Page Switch (Fade + 8px Rise in 250ms, opacity always ends at 1)
+    const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!isReducedMotion && pane) {
+      pane.classList.remove('page-switching');
+      void pane.offsetWidth; // force reflow
+      pane.classList.add('page-switching');
+      setTimeout(() => {
+        pane.classList.remove('page-switching');
+        pane.style.opacity = '1';
+        pane.style.transform = 'none';
+      }, 250);
+    } else if (pane) {
+      pane.style.opacity = '1';
+      pane.style.transform = 'none';
+    }
+
+    // Sticky Header Shadow after 8px scroll
+    if (pane && !pane._hasScrollShadowListener) {
+      pane._hasScrollShadowListener = true;
+      pane.addEventListener('scroll', () => {
+        const isScrolled = pane.scrollTop > 8;
+        const stickyHeader = pane.querySelector('.view-header');
+        if (stickyHeader) {
+          stickyHeader.classList.toggle('has-scroll-shadow', isScrolled);
+        }
+      }, { passive: true });
+    }
+
+    if (!window._hasDashScrollShadowListener) {
+      window._hasDashScrollShadowListener = true;
+      window.addEventListener('scroll', () => {
+        const isScrolled = (window.scrollY || window.pageYOffset || 0) > 8;
+        const topbar = document.querySelector('.app-topbar');
+        if (topbar) {
+          topbar.classList.toggle('has-scroll-shadow', isScrolled);
+        }
+      }, { passive: true });
+    }
 
     // Clean, zero-jitter instant rendering for dashboard views
     // animatePageText removed here to prevent UI shifts and element bounce
@@ -1479,7 +1535,7 @@
 
           <!-- Short link domain & back-half -->
 
-          <div style="display:grid;grid-template-columns:1fr 20px 1.4fr;gap:12px;align-items:flex-end;margin-bottom:20px;">
+          <div class="create-slug-grid" style="display:grid;grid-template-columns:1fr 20px 1.4fr;gap:12px;align-items:flex-end;margin-bottom:20px;">
 
             <div class="create-link-field" style="margin:0;">
 
@@ -2198,7 +2254,7 @@
 
               <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
 
-                <span style="color:#cbd5e1;font-size:13px;">{ } UTM parameters 👑</span>
+                <span style="color:#0b132b;font-weight:600;font-size:13px;">{ } UTM parameters 👑</span>
 
                 <label class="app-toggle-switch"><input type="checkbox" checked><span class="app-toggle-slider"></span></label>
 
@@ -2206,7 +2262,7 @@
 
               <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
 
-                <span style="color:#cbd5e1;font-size:13px;">⏱️ Code expiration 👑</span>
+                <span style="color:#0b132b;font-weight:600;font-size:13px;">⏱️ Code expiration 👑</span>
 
                 <label class="app-toggle-switch"><input type="checkbox"><span class="app-toggle-slider"></span></label>
 
@@ -2216,7 +2272,7 @@
 
                 <div>
 
-                  <div style="color:#cbd5e1;font-size:13px;">🔀 Dynamic routing 👑</div>
+                  <div style="color:#0b132b;font-weight:600;font-size:13px;">🔀 Dynamic routing 👑</div>
 
                   <div style="font-size:11px;color:#94a3b8;">Send visitors to different destinations based on device</div>
 
@@ -4856,7 +4912,7 @@
 
       <!-- 3-Step Guided Journey matching Frame 17 -->
 
-      <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:16px;margin-bottom:24px;">
+      <div class="dash-grid-3 analytics-steps-grid" style="display:grid;grid-template-columns:repeat(3, 1fr);gap:16px;margin-bottom:24px;">
 
         <div class="dash-white-card" style="padding:20px;display:flex;flex-direction:column;justify-content:space-between;">
 
@@ -4922,7 +4978,7 @@
 
       <!-- Top Referrers & Channels -->
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
+      <div class="dash-grid-2 analytics-channels-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
 
         <div class="dash-white-card">
 
@@ -5149,11 +5205,11 @@
 
       <div class="dash-white-card" style="margin-bottom:24px;padding:24px;">
 
-        <h3 style="color:#ffffff;margin-top:0;font-size:18px;">⚡ UTM Campaign URL Builder</h3>
+        <h3 style="color:#0070f3;margin-top:0;font-size:18px;font-weight:700;">⚡ UTM Campaign URL Builder</h3>
 
-        <p style="color:#94a3b8;font-size:13px;margin-bottom:16px;">Add trackable campaign tags to your links to monitor conversions across TikTok, Google Ads, Meta, and newsletters in MongoDB.</p>
+        <p style="color:#64748b;font-size:13px;margin-bottom:16px;">Add trackable campaign tags to your links to monitor conversions across TikTok, Google Ads, Meta, and newsletters in MongoDB.</p>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div class="dash-grid-2 camp-grid-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
 
           <div class="create-link-field" style="margin:0;">
 
@@ -5173,7 +5229,7 @@
 
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div class="dash-grid-2 camp-grid-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
 
           <div class="create-link-field" style="margin:0;">
 
@@ -5307,7 +5363,7 @@
 
         <div style="margin-bottom:24px;">
 
-          <h2 style="font-size:28px;font-weight:800;color:#ffffff;margin:0 0 16px;">Brand your links with a custom domain</h2>
+          <h2 style="font-size:28px;font-weight:800;color:#0b132b;margin:0 0 16px;">Brand your links with a custom domain</h2>
 
           <!-- Tabs matching Frame 22 -->
 
@@ -5773,7 +5829,7 @@
 
       <!-- Apps Grid (Screenshot 12.02.42 AM 1) -->
 
-      <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:20px;">
+      <div class="dash-grid-3 integrations-grid" style="display:grid;grid-template-columns:repeat(3, 1fr);gap:20px;">
 
         ${apps.map(a => `
 
@@ -5804,6 +5860,22 @@
     const drawerForm = $('#drawerChatForm');
     const drawerTitle = $('#drawerTitle');
     const drawerClose = $('#drawerCloseBtn');
+
+    // Drag handle touch dismiss for mobile bottom sheet (< 768px)
+    const dragHandle = $('.drawer-drag-handle');
+    if (dragHandle && drawer) {
+      let startY = 0;
+      dragHandle.addEventListener('touchstart', (e) => {
+        startY = e.touches[0].clientY;
+      }, { passive: true });
+      dragHandle.addEventListener('touchmove', (e) => {
+        const deltaY = e.touches[0].clientY - startY;
+        if (deltaY > 60) {
+          drawer.hidden = true;
+          document.body.style.overflow = '';
+        }
+      }, { passive: true });
+    }
 
     if (tab === 'settings') {
       if (drawerAi) drawerAi.hidden = true;
@@ -7250,28 +7322,61 @@ Here are recommended optimizations for your links and campaigns:<br>
     const sidebar = $('#appSidebar') || $('.app-sidebar');
 
     const toggleBtn = $('#sidebarToggleBtn');
+    const sidebarBackdrop = $('#sidebarBackdrop');
+
+    function toggleMobileDrawer(forceState) {
+      if (!sidebar) return;
+      const isOpen = (typeof forceState === 'boolean') ? forceState : !sidebar.classList.contains('mobile-open');
+      sidebar.classList.toggle('mobile-open', isOpen);
+      sidebar.classList.toggle('open', isOpen);
+      if (sidebarBackdrop) {
+        sidebarBackdrop.hidden = !isOpen;
+      }
+    }
+
+    if (sidebarBackdrop) {
+      sidebarBackdrop.onclick = () => toggleMobileDrawer(false);
+    }
 
     if (toggleBtn && sidebar) {
-
       toggleBtn.onclick = (e) => {
-
         e.stopPropagation();
-
-        sidebar.classList.toggle('open');
-
+        toggleMobileDrawer();
       };
-
       document.addEventListener('click', (e) => {
-
-        if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== toggleBtn) {
-
-          sidebar.classList.remove('open');
-
+        if (sidebar.classList.contains('mobile-open') && !sidebar.contains(e.target) && e.target !== toggleBtn) {
+          toggleMobileDrawer(false);
         }
-
       });
-
     }
+
+    // Connect Mobile Bottom Navigation Tabs (< 768px)
+    const mobileCreate = $('#mobileTabCreateBtn');
+    if (mobileCreate) {
+      mobileCreate.onclick = () => {
+        toggleMobileDrawer(false);
+        openWhatModal();
+      };
+    }
+
+    const mobileMore = $('#mobileTabMoreBtn');
+    if (mobileMore) {
+      mobileMore.onclick = () => {
+        toggleMobileDrawer();
+      };
+    }
+
+    $$('.mobile-tab-item[data-tab]').forEach(tabBtn => {
+      tabBtn.onclick = (e) => {
+        e.preventDefault();
+        toggleMobileDrawer(false);
+        const tab = tabBtn.dataset.tab;
+        $$('.mobile-tab-item').forEach(b => b.classList.remove('active'));
+        tabBtn.classList.add('active');
+        location.hash = (tab === 'home') ? '#dashboard' : '#' + tab;
+        navigate(tab);
+      };
+    });
 
     // Sidebar nav clicks
 

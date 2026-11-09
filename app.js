@@ -2583,7 +2583,15 @@ function initStaticSections() {
 
       <summary>${f[0]}</summary>
 
-      <p>${f[1]}</p>
+      <div class="faq-answer-wrap">
+
+        <div class="faq-answer-content">
+
+          <p>${f[1]}</p>
+
+        </div>
+
+      </div>
 
     </details>
 
@@ -3279,7 +3287,50 @@ function setupSsoButtons() {
 
       const origHtml = ssoGoogle.innerHTML;
 
-      // Show sleek Google Account Chooser immediately for guaranteed 100% login success
+      // 0. Priority: Official Firebase Google Auth with Popup and Mobile Redirect Fallback
+      if (window.fbAuth && typeof firebase !== 'undefined') {
+        try {
+          ssoGoogle.disabled = true;
+          ssoGoogle.innerHTML = `<span style="display:inline-block;animation:spin 0.8s linear infinite;">⏳</span> Signing in with Google...`;
+          const provider = new firebase.auth.GoogleAuthProvider();
+          provider.setCustomParameters({ prompt: 'select_account' });
+          const result = await window.fbAuth.signInWithPopup(provider);
+          if (result && result.user) {
+            const fbUser = result.user;
+            await handleGoogleLoginSuccess({
+              userInfo: {
+                name: fbUser.displayName || fbUser.email.split('@')[0],
+                email: fbUser.email.toLowerCase().trim(),
+                isVerified: true,
+                avatar: fbUser.photoURL || '',
+                provider: 'firebase-google',
+                uid: fbUser.uid
+              }
+            });
+            return;
+          }
+        } catch (fbErr) {
+          console.warn('Firebase Google Auth popup notice:', fbErr);
+          if (fbErr.code === 'auth/popup-blocked' || fbErr.code === 'auth/operation-not-supported-in-this-environment') {
+            console.log('Mobile popup blocked, falling back to signInWithRedirect');
+            try {
+              const provider = new firebase.auth.GoogleAuthProvider();
+              await window.fbAuth.signInWithRedirect(provider);
+              return;
+            } catch (redirErr) {
+              console.warn('Redirect error:', redirErr);
+            }
+          }
+          if (fbErr.code === 'auth/popup-closed-by-user') {
+            ssoGoogle.disabled = false;
+            ssoGoogle.innerHTML = origHtml;
+            toast('Google Sign-In popup was closed.');
+            return;
+          }
+        }
+      }
+
+      // Fallback: Account Chooser Picker
       showGoogleAccountPicker(async (chosenEmail, chosenName) => {
         ssoGoogle.disabled = true;
         ssoGoogle.innerHTML = `<span style="display:inline-block;animation:spin 0.8s linear infinite;">⏳</span> Signing in...`;
@@ -7156,18 +7207,12 @@ function route() {
     if (session && session.isVerified) {
       location.hash = '#dashboard';
       return;
-    } else {
-      window.location.replace('/');
-      return;
     }
   }
 
   if (rawHash === 'login' || rawHash === 'signup') {
     if (session && session.isVerified) {
       location.hash = '#dashboard';
-      return;
-    } else {
-      window.location.replace('/#' + rawHash);
       return;
     }
   }
@@ -7428,3 +7473,17 @@ async function seedFirebaseDefaultAccounts() {
 }
 
 setTimeout(seedFirebaseDefaultAccounts, 1000);
+
+  // Mobile keyboard accommodation: ensure focused inputs remain centered
+  if (typeof document !== 'undefined') {
+    document.addEventListener('focusin', (e) => {
+      const inp = e.target;
+      if (inp && (inp.tagName === 'INPUT' || inp.tagName === 'TEXTAREA' || inp.tagName === 'SELECT')) {
+        if (window.innerWidth < 768) {
+          setTimeout(() => {
+            try { inp.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e){}
+          }, 250);
+        }
+      }
+    });
+  }
