@@ -694,6 +694,7 @@
     });
 
     const topTitle = $('#topbarTitle');
+    const topSubtitle = $('#topbarSubtitle');
     if (topTitle) {
       const titles = {
         home: 'Dashboard',
@@ -710,6 +711,14 @@
         resources: 'Help & Resources'
       };
       topTitle.textContent = titles[tab] || 'Dashboard';
+    }
+    if (topSubtitle) {
+      if (tab === 'home') {
+        topSubtitle.textContent = 'Track, manage and grow your links';
+        topSubtitle.style.display = 'block';
+      } else {
+        topSubtitle.style.display = 'none';
+      }
     }
 
     const pane = $('#appMainPane');
@@ -837,367 +846,489 @@
     const links = getStoredLinks();
     const pages = getStoredPages();
 
-    // Time-based dynamic greeting
+    // Time-based dynamic greeting & user name
     const hour = new Date().getHours();
     const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
     const firstName = (appUser.name || 'Fury').split(' ')[0];
 
-    // Compute live click stats
+    // Compute live click stats (with baseline matching reference)
     let totalClicks = links.reduce((sum, l) => sum + (parseInt(l.clicks, 10) || 0), 0);
-    if (totalClicks === 0) totalClicks = 24892; // Demo baseline if brand new
-
-    const qrCount = links.filter(l => l.qrColor || l.qrStyle).length || 4210;
-    const activeLinksCount = links.length || 18;
-    const activePagesCount = pages.length || 3;
-
-    // Calendar day pills calculation (Current Week)
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const now = new Date();
-    const currentDayIdx = (now.getDay() + 6) % 7; // 0 for Mon, 6 for Sun
-    const currentMonthStr = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-    const currentDateNum = now.getDate();
+    const displayClicks = totalClicks > 0 ? (totalClicks >= 1000 ? (totalClicks/1000).toFixed(1) + 'K' : totalClicks) : '48.7K';
+    const totalLinksCount = links.length > 0 ? links.length : 247;
 
     container.innerHTML = `
-      <div class="bento-dashboard-wrap">
+      <div class="dashboard-v2-container">
         
         <!-- ====================================================
-             1. TOP ROW: WIDE WELCOME HERO + CALENDAR DATE STRIP
+             1. TOP KPI STAT CARDS (4 Columns)
              ==================================================== -->
-        <div class="bento-top-row">
+        <div class="dash-kpi-grid">
           
-          <!-- Wide Welcome Hero Card -->
-          <div class="bento-card bento-welcome-hero card-3d-reveal" style="transition-delay: 50ms;">
-            <div class="bento-hero-bg-orb" aria-hidden="true"></div>
+          <!-- KPI 1: Total Links -->
+          <div class="kpi-card">
+            <div class="kpi-left-group">
+              <div class="kpi-icon-box" style="background:#e0f2fe;color:#0284c7;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+              </div>
+              <div class="kpi-meta">
+                <span class="kpi-label">Total Links</span>
+                <div class="kpi-value-row">
+                  <span class="kpi-value">${totalLinksCount}</span>
+                  <span class="kpi-trend">↑ +12%</span>
+                </div>
+              </div>
+            </div>
+            <div class="kpi-sparkline">
+              <svg width="68" height="28" viewBox="0 0 68 28" fill="none">
+                <path d="M2 22 Q 18 28, 30 16 T 50 12 T 66 4" stroke="#0A6CFF" stroke-width="2.6" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- KPI 2: Total Clicks -->
+          <div class="kpi-card">
+            <div class="kpi-left-group">
+              <div class="kpi-icon-box" style="background:#f3e8ff;color:#9333ea;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              </div>
+              <div class="kpi-meta">
+                <span class="kpi-label">Total Clicks</span>
+                <div class="kpi-value-row">
+                  <span class="kpi-value">${displayClicks}</span>
+                  <span class="kpi-trend">↑ +18%</span>
+                </div>
+              </div>
+            </div>
+            <div class="kpi-sparkline">
+              <svg width="68" height="28" viewBox="0 0 68 28" fill="none">
+                <path d="M2 24 Q 18 16, 32 20 T 52 14 T 66 8" stroke="#a855f7" stroke-width="2.6" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- KPI 3: Unique Visitors -->
+          <div class="kpi-card">
+            <div class="kpi-left-group">
+              <div class="kpi-icon-box" style="background:#dcfce7;color:#16a34a;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="18" y1="20" y2="10"></line><line x1="12" x2="12" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="14"></line></svg>
+              </div>
+              <div class="kpi-meta">
+                <span class="kpi-label">Unique Visitors</span>
+                <div class="kpi-value-row">
+                  <span class="kpi-value">32.4K</span>
+                  <span class="kpi-trend">↑ +16%</span>
+                </div>
+              </div>
+            </div>
+            <div class="kpi-sparkline">
+              <svg width="68" height="28" viewBox="0 0 68 28" fill="none">
+                <path d="M2 22 Q 18 25, 30 14 T 50 16 T 66 6" stroke="#10b981" stroke-width="2.6" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- KPI 4: Top Performer -->
+          <div class="kpi-card">
+            <div class="kpi-left-group">
+              <div class="kpi-icon-box" style="background:#fef3c7;color:#d97706;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+              </div>
+              <div class="kpi-meta">
+                <span class="kpi-label">Top Performer</span>
+                <div class="kpi-value-row">
+                  <span class="kpi-value">2.8K Clicks</span>
+                </div>
+              </div>
+            </div>
+            <div class="kpi-sparkline">
+              <svg width="68" height="28" viewBox="0 0 68 28" fill="none">
+                <path d="M2 20 Q 16 12, 30 22 T 50 14 T 66 8" stroke="#f59e0b" stroke-width="2.6" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ====================================================
+             2. MIDDLE HERO ROW (Hero Shortener + Calendar/Velocity)
+             ==================================================== -->
+        <div class="dash-hero-grid">
+          
+          <!-- Left: Hero Shortener Card -->
+          <div class="hero-shorten-card">
+            <div class="hero-top-badges">
+              <div class="live-activity-pill">
+                <span class="live-dot"></span>
+                <span class="live-text">Live Activity · 42 visitors right now</span>
+                <div class="live-avatars">
+                  <div class="live-avatar-item" style="background:#0A6CFF;">FZ</div>
+                  <div class="live-avatar-item" style="background:#7928ca;">AK</div>
+                  <div class="live-avatar-item" style="background:#10b981;">EM</div>
+                </div>
+                <span class="live-more-text">+1.4k active</span>
+              </div>
+              <div class="core-pro-badge" onclick="window.openCheckoutModal('pro')" style="cursor:pointer;">
+                <span>👑</span> Core PRO Active
+              </div>
+            </div>
+
+            <div class="hero-main-row">
+              <div class="hero-text-block">
+                <h2 class="hero-greeting-title">${greeting}, ${firstName}! 🚀</h2>
+                <p class="hero-greeting-sub">Shorten your links, track performance and grow your audience with ease.</p>
+              </div>
+              
+              <!-- 3D Glossy Blue Chain Link Illustration -->
+              <div class="hero-3d-graphic-wrap" aria-hidden="true">
+                <svg width="170" height="150" viewBox="0 0 170 150" fill="none">
+                  <defs>
+                    <linearGradient id="linkBody3D" x1="20" y1="20" x2="150" y2="130" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stop-color="#38bdf8"/>
+                      <stop offset="35%" stop-color="#0A6CFF"/>
+                      <stop offset="70%" stop-color="#0284c7"/>
+                      <stop offset="100%" stop-color="#1e3a8a"/>
+                    </linearGradient>
+                    <linearGradient id="linkSpec3D" x1="40" y1="30" x2="140" y2="110" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+                      <stop offset="35%" stop-color="#ffffff" stop-opacity="0.25"/>
+                      <stop offset="70%" stop-color="#38bdf8" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <!-- Base Ambient Drop Shadow -->
+                  <ellipse cx="85" cy="130" rx="55" ry="14" fill="rgba(10, 108, 255, 0.22)" filter="blur(6px)"/>
+                  <!-- 3D Tilted Torus / Chain Ring -->
+                  <g transform="rotate(-28 85 75)">
+                    <path d="M 42 42 C 42 22, 62 14, 88 14 C 114 14, 134 22, 134 42 L 134 102 C 134 122, 114 130, 88 130 C 62 130, 42 122, 42 102 Z" 
+                          stroke="url(#linkBody3D)" stroke-width="26" stroke-linejoin="round" fill="none"/>
+                    <path d="M 44 44 C 44 26, 64 18, 88 18 C 112 18, 132 26, 132 44 L 132 68" 
+                          stroke="url(#linkSpec3D)" stroke-width="7" stroke-linecap="round" fill="none"/>
+                  </g>
+                  <!-- Floating 3D Accent Sparks -->
+                  <rect x="24" y="42" width="11" height="4" rx="2" fill="#818cf8" transform="rotate(-35 24 42)"/>
+                  <circle cx="16" cy="60" r="2.5" fill="#38bdf8"/>
+                  <rect x="142" y="24" width="10" height="3.5" rx="1.75" fill="#60a5fa" transform="rotate(25 142 24)"/>
+                  <circle cx="156" cy="52" r="2.5" fill="#a855f7"/>
+                  <rect x="150" y="68" width="11" height="3.5" rx="1.75" fill="#38bdf8" transform="rotate(-15 150 68)"/>
+                  <circle cx="32" cy="102" r="2.5" fill="#60a5fa"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Toggle Tabs (Short Link vs Vector QR) -->
+            <div class="hero-type-pills">
+              <button type="button" class="hero-type-pill active" id="tabShortLinkOpt">
+                <span>🔗</span> Short link &amp; URL
+              </button>
+              <button type="button" class="hero-type-pill" id="tabQrCodeOpt">
+                <span>▦</span> Vector QR Code
+              </button>
+            </div>
+
+            <!-- Shorten Input Box -->
+            <form id="homeShortenForm" class="hero-shorten-form-wrap">
+              <span class="hero-input-icon" id="homeInputIcon">🔗</span>
+              <input type="url" id="homeShortenInput" class="hero-shorten-input" placeholder="Paste destination URL to generate a short link..." required autocomplete="off">
+              <button type="submit" class="hero-submit-btn" id="homeSubmitBtn">
+                <span>Create Now</span> →
+              </button>
+            </form>
+
+            <div id="homeShortenResult" class="home-shorten-result" style="display:none;margin-bottom:14px;"></div>
+
+            <!-- Quick Actions Line -->
+            <div class="hero-quick-actions-row">
+              <span class="hero-quick-label">Quick actions:</span>
+              <button type="button" class="hero-action-pill" onclick="if(window.appShell) window.appShell.openCreateModal('link')">
+                <span style="color:#f59e0b;">⚡</span> Customize Link
+              </button>
+              <button type="button" class="hero-action-pill" onclick="if(window.appShell) window.appShell.navigate('qr')">
+                <span style="color:#d97706;">🎨</span> Custom QR Design
+              </button>
+              <button type="button" class="hero-action-pill" onclick="if(window.appShell) window.appShell.navigate('pages')">
+                <span style="color:#0284c7;">📄</span> New Bio Page
+              </button>
+            </div>
+          </div>
+
+          <!-- Right: Stacked Calendar & Velocity Widgets -->
+          <div class="dash-right-stack">
             
-            <div class="bento-hero-header-row">
-              <div class="bento-hero-badge-wrap">
-                <span class="live-activity-beacon">
-                  <span class="beacon-dot-pulse"></span>
-                  <span class="beacon-text">Live Activity · 42 visitors right now</span>
-                </span>
-                <div class="bento-avatar-stack">
-                  <div class="bento-avatar" style="background:#0A6CFF;">FZ</div>
-                  <div class="bento-avatar" style="background:#7928ca;">AK</div>
-                  <div class="bento-avatar" style="background:#10b981;">EM</div>
-                  <span class="bento-avatar-more">+1.4k active</span>
+            <!-- Widget 1: Calendar Week -->
+            <div class="calendar-widget-card">
+              <div class="widget-header-row">
+                <div class="widget-title">📅 November 2026</div>
+                <button type="button" class="widget-dropdown-btn">This Week ˇ</button>
+              </div>
+              <div class="cal-week-grid">
+                <div class="cal-day-col active">
+                  <span class="cal-day-name">MON</span>
+                  <span class="cal-day-number">9</span>
+                </div>
+                <div class="cal-day-col">
+                  <span class="cal-day-name">TUE</span>
+                  <span class="cal-day-number">10</span>
+                </div>
+                <div class="cal-day-col">
+                  <span class="cal-day-name">WED</span>
+                  <span class="cal-day-number">11</span>
+                </div>
+                <div class="cal-day-col">
+                  <span class="cal-day-name">THU</span>
+                  <span class="cal-day-number">12</span>
+                </div>
+                <div class="cal-day-col">
+                  <span class="cal-day-name">FRI</span>
+                  <span class="cal-day-number">13</span>
+                </div>
+                <div class="cal-day-col">
+                  <span class="cal-day-name">SAT</span>
+                  <span class="cal-day-number">14</span>
+                </div>
+                <div class="cal-day-col">
+                  <span class="cal-day-name">SUN</span>
+                  <span class="cal-day-number">15</span>
                 </div>
               </div>
-              <button class="bento-hero-pro-btn" onclick="window.openCheckoutModal('pro')">
-                <span>👑</span> ${appUser.isPro ? 'Core PRO Active' : 'Upgrade to Pro'}
-              </button>
             </div>
 
-            <div class="bento-hero-main">
-              <h2 class="bento-hero-title">
-                ${greeting}, ${firstName}, <span class="hero-gradient-text">your links are growing</span> 🚀
-              </h2>
-              <p class="bento-hero-sub">
-                99.9% network uptime across custom domains. Branded short links, vector QR codes and bio pages.
-              </p>
-            </div>
-
-            <!-- Integrated Quick Shorten Capsule (100% Functionality Preserved) -->
-            <div class="bento-hero-shorten-panel">
-              <div class="home-type-tabs bento-hero-tabs">
-                <button class="home-type-tab active" type="button" id="tabShortLinkOpt">
-                  <span>🔗</span> Short link &amp; URL
-                </button>
-                <button class="home-type-tab" type="button" id="tabQrCodeOpt">
-                  <span>▦</span> Vector QR Code
-                </button>
+            <!-- Widget 2: Visitor Velocity Chart -->
+            <div class="velocity-widget-card">
+              <div class="widget-header-row">
+                <div class="widget-title">📈 Visitor Velocity</div>
+                <span style="background:#dcfce7;color:#16a34a;padding:3px 8px;border-radius:9999px;font-size:11.5px;font-weight:700;">↑ +42%</span>
               </div>
-
-              <form id="homeShortenForm" class="bento-shorten-form">
-                <div class="bento-input-group">
-                  <span id="homeInputIcon" class="bento-input-icon">🔗</span>
-                  <input type="url" id="homeShortenInput" class="bento-hero-input" placeholder="Paste destination URL to generate 3D short link..." required autocomplete="off">
+              
+              <!-- SVG Velocity Chart with Axes & Peak Tooltip -->
+              <div class="velocity-chart-wrap">
+                <!-- Peak Tooltip pinned right above Saturday 14 point -->
+                <div style="position:absolute;left:82%;top:5px;transform:translateX(-50%);background:#0f172a;color:#ffffff;padding:2px 7px;border-radius:6px;font-size:10px;font-weight:800;box-shadow:0 2px 6px rgba(0,0,0,0.2);z-index:2;">
+                  2.8K
                 </div>
-                <div class="bento-btn-group">
-                  <select class="home-domain-select" id="homeDomainSelect" style="display:none !important;">
-                    <option value="healink.store" selected>healink.store</option>
-                  </select>
-                  <button type="submit" class="bento-cta-submit" id="homeSubmitBtn">
-                    <span>Create Now</span> →
-                  </button>
+                <svg width="100%" height="95" viewBox="0 0 340 95" fill="none" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="velocityGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#0A6CFF" stop-opacity="0.32"/>
+                      <stop offset="100%" stop-color="#0A6CFF" stop-opacity="0.0"/>
+                    </linearGradient>
+                  </defs>
+                  <!-- Horizontal Grid Lines -->
+                  <line x1="28" y1="18" x2="335" y2="18" stroke="#f1f5f9" stroke-width="1"/>
+                  <line x1="28" y1="40" x2="335" y2="40" stroke="#f1f5f9" stroke-width="1"/>
+                  <line x1="28" y1="62" x2="335" y2="62" stroke="#f1f5f9" stroke-width="1"/>
+                  <line x1="28" y1="80" x2="335" y2="80" stroke="#f1f5f9" stroke-width="1"/>
+
+                  <!-- Y-Axis Labels -->
+                  <text x="5" y="21" fill="#94a3b8" font-size="9" font-weight="600">3K</text>
+                  <text x="5" y="43" fill="#94a3b8" font-size="9" font-weight="600">2K</text>
+                  <text x="5" y="65" fill="#94a3b8" font-size="9" font-weight="600">1K</text>
+                  <text x="8" y="82" fill="#94a3b8" font-size="9" font-weight="600">0</text>
+
+                  <!-- Area Fill -->
+                  <path d="M 38 65 C 55 52, 70 48, 86 50 C 102 52, 118 60, 134 56 C 150 52, 166 40, 182 42 C 198 44, 214 50, 230 46 C 255 42, 265 18, 278 18 C 295 18, 310 52, 325 58 L 325 80 L 38 80 Z" fill="url(#velocityGrad)"/>
+
+                  <!-- Smooth Curve Line -->
+                  <path d="M 38 65 C 55 52, 70 48, 86 50 C 102 52, 118 60, 134 56 C 150 52, 166 40, 182 42 C 198 44, 214 50, 230 46 C 255 42, 265 18, 278 18 C 295 18, 310 52, 325 58" 
+                        stroke="#0A6CFF" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+
+                  <!-- Data Point Dots -->
+                  <circle cx="38" cy="65" r="3" fill="#0A6CFF" stroke="#ffffff" stroke-width="1.5"/>
+                  <circle cx="86" cy="50" r="3" fill="#0A6CFF" stroke="#ffffff" stroke-width="1.5"/>
+                  <circle cx="134" cy="56" r="3" fill="#0A6CFF" stroke="#ffffff" stroke-width="1.5"/>
+                  <circle cx="182" cy="42" r="3" fill="#0A6CFF" stroke="#ffffff" stroke-width="1.5"/>
+                  <circle cx="230" cy="46" r="3" fill="#0A6CFF" stroke="#ffffff" stroke-width="1.5"/>
+                  <circle cx="278" cy="18" r="4.5" fill="#0A6CFF" stroke="#ffffff" stroke-width="2"/>
+                  <circle cx="325" cy="58" r="3" fill="#0A6CFF" stroke="#ffffff" stroke-width="1.5"/>
+                </svg>
+
+                <!-- X-Axis Labels -->
+                <div style="display:flex;justify-content:space-between;padding:0 4px 0 28px;margin-top:2px;">
+                  <span style="font-size:9.5px;color:#94a3b8;font-weight:600;">Mon<br>9</span>
+                  <span style="font-size:9.5px;color:#94a3b8;font-weight:600;">Tue<br>10</span>
+                  <span style="font-size:9.5px;color:#94a3b8;font-weight:600;">Wed<br>11</span>
+                  <span style="font-size:9.5px;color:#94a3b8;font-weight:600;">Thu<br>12</span>
+                  <span style="font-size:9.5px;color:#94a3b8;font-weight:600;">Fri<br>13</span>
+                  <span style="font-size:9.5px;color:#0A6CFF;font-weight:800;">Sat<br>14</span>
+                  <span style="font-size:9.5px;color:#94a3b8;font-weight:600;">Sun<br>15</span>
                 </div>
-              </form>
-
-              <div id="homeShortenResult" class="home-shorten-result" style="display:none;margin-top:16px;"></div>
-            </div>
-
-            <div class="bento-quick-chips">
-              <span class="chip-label">Quick actions:</span>
-              <button type="button" class="bento-action-chip" onclick="if(window.appShell) window.appShell.openCreateModal('link')">
-                <span>⚡</span> Personalize custom slug
-              </button>
-              <button type="button" class="bento-action-chip" onclick="if(window.appShell) window.appShell.navigate('qr')">
-                <span>🎨</span> Custom QR design
-              </button>
-              <button type="button" class="bento-action-chip" onclick="if(window.appShell) window.appShell.navigate('pages')">
-                <span>📄</span> New Bio Page
-              </button>
-            </div>
-          </div>
-
-          <!-- Compact Calendar & Date Strip Card -->
-          <div class="bento-card bento-calendar-card card-3d-reveal" style="transition-delay: 110ms;">
-            <div class="calendar-card-header">
-              <div class="cal-title-grp">
-                <div class="cal-month-text">${currentMonthStr}</div>
-                <div class="cal-subtitle">High Traffic Window · Week ${Math.ceil(currentDateNum / 7)}</div>
               </div>
-              <div class="cal-live-badge">
-                <span class="cal-pulse-ring"></span>
-                <span>${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} PKT</span>
-              </div>
+
             </div>
 
-            <!-- 7-Day Interactive Day Strip -->
-            <div class="calendar-week-strip">
-              ${days.map((d, idx) => {
-                const isActive = idx === currentDayIdx;
-                const dateOffset = currentDateNum - (currentDayIdx - idx);
-                return `
-                  <div class="cal-day-pill ${isActive ? 'active' : ''}">
-                    <span class="cal-day-name">${d}</span>
-                    <span class="cal-day-num">${dateOffset > 0 ? dateOffset : (30 + dateOffset)}</span>
-                    ${isActive ? '<span class="cal-active-dot"></span>' : ''}
-                  </div>
-                `;
-              }).join('')}
-            </div>
-
-            <div class="cal-event-summary">
-              <div class="cal-event-icon">🎯</div>
-              <div class="cal-event-text">
-                <div class="cal-event-title">Peak Visitor Velocity</div>
-                <div class="cal-event-desc">+42% spike projected on weekend bio pages</div>
-              </div>
-            </div>
           </div>
 
         </div>
 
         <!-- ====================================================
-             2. BENTO STAT CARDS (Clicks, QR Scans, Active Links)
+             3. BOTTOM ROW (Overview + Recent Links + Top Referrers)
              ==================================================== -->
-        <div class="bento-stats-row">
+        <div class="dash-bottom-grid">
           
-          <!-- Stat 1: Total Clicks with Animated Sparkline -->
-          <div class="bento-card bento-stat-card card-3d-reveal" style="transition-delay: 160ms;">
-            <div class="stat-card-top">
-              <div class="stat-icon-bubble" style="background:rgba(10,108,255,0.12);color:#0A6CFF;">🔗</div>
-              <span class="stat-growth-pill positive">+24.8% ↗</span>
+          <!-- Card 1: Overview (Metrics Summary) -->
+          <div class="bottom-widget-card">
+            <div class="widget-header-row">
+              <div class="widget-title">📊 Overview</div>
+              <button type="button" class="widget-dropdown-btn">Last 7 Days ˇ</button>
             </div>
-            <div class="stat-card-middle">
-              <div class="stat-label">Total Clicks Tracked</div>
-              <div class="stat-number count-up" data-count-up="${totalClicks}">${totalClicks.toLocaleString()}</div>
-            </div>
-            <!-- Sparkline Chart SVG -->
-            <div class="stat-sparkline-wrap">
-              <svg viewBox="0 0 180 40" class="sparkline-svg" preserveAspectRatio="none">
-                <defs>
-                  <linearGradient id="sparkGradBlue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#0A6CFF" stop-opacity="0.35"/>
-                    <stop offset="100%" stop-color="#0A6CFF" stop-opacity="0"/>
-                  </linearGradient>
-                </defs>
-                <path d="M0 32 Q 25 18, 50 24 T 100 12 T 145 16 T 180 6 L 180 40 L 0 40 Z" fill="url(#sparkGradBlue)"/>
-                <path d="M0 32 Q 25 18, 50 24 T 100 12 T 145 16 T 180 6" fill="none" stroke="#0A6CFF" stroke-width="2.6" stroke-linecap="round"/>
-              </svg>
-            </div>
-            <div class="stat-progress-line-wrap">
-              <div class="stat-progress-fill" style="width: 78%; background: linear-gradient(90deg, #0A6CFF, #00c8ff);"></div>
-            </div>
-            <div class="stat-card-bottom-sub">78% of monthly growth milestone achieved</div>
-          </div>
-
-          <!-- Stat 2: QR Scans with Vertical Bar Gauge -->
-          <div class="bento-card bento-stat-card card-3d-reveal" style="transition-delay: 210ms;">
-            <div class="stat-card-top">
-              <div class="stat-icon-bubble" style="background:rgba(0,200,255,0.12);color:#00a3d4;">▦</div>
-              <span class="stat-growth-pill positive">+18.4% ↗</span>
-            </div>
-            <div class="stat-card-middle">
-              <div class="stat-label">Vector QR Code Scans</div>
-              <div class="stat-number count-up" data-count-up="${qrCount}">${qrCount.toLocaleString()}</div>
-            </div>
-            <!-- Vertical Bar Gauge Visualization -->
-            <div class="stat-bar-gauge-row">
-              <div class="stat-gauge-bar" style="--gauge-height: 45%;" title="Mon"></div>
-              <div class="stat-gauge-bar" style="--gauge-height: 62%;" title="Tue"></div>
-              <div class="stat-gauge-bar" style="--gauge-height: 38%;" title="Wed"></div>
-              <div class="stat-gauge-bar" style="--gauge-height: 85%;" title="Thu"></div>
-              <div class="stat-gauge-bar" style="--gauge-height: 72%;" title="Fri"></div>
-              <div class="stat-gauge-bar active" style="--gauge-height: 94%;" title="Sat"></div>
-              <div class="stat-gauge-bar" style="--gauge-height: 58%;" title="Sun"></div>
-            </div>
-            <div class="stat-card-bottom-sub">Peak scan velocity: <b>Saturday afternoon</b></div>
-          </div>
-
-          <!-- Stat 3: Active Links & Pages Radial Progress -->
-          <div class="bento-card bento-stat-card card-3d-reveal" style="transition-delay: 260ms;">
-            <div class="stat-card-top">
-              <div class="stat-icon-bubble" style="background:rgba(16,185,129,0.12);color:#10b981;">📄</div>
-              <span class="stat-growth-pill" style="background:rgba(16,185,129,0.12);color:#10b981;">${appUser.isPro ? 'PRO 👑' : 'FREE'}</span>
-            </div>
-            <div class="stat-card-middle">
-              <div class="stat-label">Published Assets</div>
-              <div class="stat-number">${activeLinksCount} <span style="font-size:16px;color:#94a3b8;font-weight:600;">Links</span> · ${activePagesCount} <span style="font-size:16px;color:#94a3b8;font-weight:600;">Bio</span></div>
-            </div>
-            <div class="stat-radial-wrap">
-              <svg width="60" height="60" viewBox="0 0 60 60" class="radial-svg">
-                <circle cx="30" cy="30" r="24" stroke="rgba(10,108,255,0.1)" stroke-width="5" fill="none"/>
-                <circle cx="30" cy="30" r="24" stroke="#10b981" stroke-width="5" stroke-dasharray="150" stroke-dashoffset="35" stroke-linecap="round" fill="none"/>
-              </svg>
-              <div class="radial-text">
-                <div class="radial-num">92%</div>
-                <div class="radial-label">Health</div>
+            <div class="overview-stats-grid">
+              <!-- Visitors -->
+              <div class="overview-col">
+                <div class="overview-icon-badge" style="background:#e0f2fe;color:#0284c7;">👁️</div>
+                <span class="overview-num">32.4K</span>
+                <span class="overview-lbl">Visitors</span>
+                <span class="overview-pct">↑ +16%</span>
               </div>
-            </div>
-            <div class="stat-card-bottom-sub">${appUser.isPro ? 'All custom slugs active with SSL encryption' : 'Upgrade for unlimited custom back-halves'}</div>
-          </div>
-
-        </div>
-
-        <!-- ====================================================
-             3. BENTO BOTTOM ROW: RECENT ASSETS + ACTIVITY TABS
-             ==================================================== -->
-        <div class="bento-bottom-row">
-          
-          <!-- Recent Links & QR Codes Row Card -->
-          <div class="bento-card bento-recent-card card-3d-reveal" style="transition-delay: 310ms;">
-            <div class="bento-card-title-row">
-              <div class="card-title-grp">
-                <h3 class="bento-card-title">Recent Links &amp; QR Codes</h3>
-                <span class="bento-card-sub">Recently shortened URLs with live click telemetry</span>
+              <!-- Clicks -->
+              <div class="overview-col">
+                <div class="overview-icon-badge" style="background:#f3e8ff;color:#9333ea;">🔗</div>
+                <span class="overview-num">48.7K</span>
+                <span class="overview-lbl">Clicks</span>
+                <span class="overview-pct">↑ +18%</span>
               </div>
-              <button class="bento-card-action-link" onclick="window.appShell.navigate('links')">
-                View all (${links.length}) →
-              </button>
-            </div>
-
-            <div class="bento-recent-list">
-              ${links.slice(0, 3).map((item, idx) => {
-                const shortUrl = item.realShort || (item.slug ? 'https://healink.store/' + item.slug : 'https://healink.store/v22');
-                const destUrl = item.dest || item.url || 'https://google.com';
-                const clicks = item.clicks || Math.floor(12 + idx * 45);
-                return `
-                  <div class="recent-link-row">
-                    <div class="recent-qr-mini">
-                      <div class="mini-qr-box">▦</div>
-                    </div>
-                    <div class="recent-link-info">
-                      <div class="recent-title-line">
-                        <span class="recent-title">${item.title || item.slug || 'Campaign Drop'}</span>
-                        <span class="recent-click-pill">👁️ ${clicks} clicks</span>
-                      </div>
-                      <a href="${shortUrl}" target="_blank" rel="noopener" class="recent-short-link">${shortUrl}</a>
-                      <div class="recent-dest-link" title="${destUrl}">→ ${destUrl}</div>
-                    </div>
-                    <div class="recent-link-actions">
-                      <button type="button" class="recent-btn-icon" title="Copy Short Link" onclick="window.appShell.copy('${shortUrl}')">📋</button>
-                      <button type="button" class="recent-btn-icon" title="View QR Code" onclick="window.appShell.navigate('qr')">▦</button>
-                      <a href="${shortUrl}" target="_blank" rel="noopener" class="recent-btn-icon" title="Visit Live Destination">↗</a>
-                    </div>
-                  </div>
-                `;
-              }).join('')}
-              ${links.length === 0 ? `
-                <div class="recent-empty-hint">
-                  <span>✨</span>
-                  <div>No links shortened yet. Paste a destination URL above to create your first link!</div>
-                </div>
-              ` : ''}
+              <!-- Links -->
+              <div class="overview-col">
+                <div class="overview-icon-badge" style="background:#dcfce7;color:#16a34a;">⛓️</div>
+                <span class="overview-num">1.5K</span>
+                <span class="overview-lbl">Links</span>
+                <span class="overview-pct">↑ +12%</span>
+              </div>
+              <!-- Avg Time -->
+              <div class="overview-col">
+                <div class="overview-icon-badge" style="background:#fef3c7;color:#d97706;">⏱️</div>
+                <span class="overview-num">2m 24s</span>
+                <span class="overview-lbl">Avg. Time</span>
+                <span class="overview-pct">↑ +8%</span>
+              </div>
             </div>
           </div>
 
-          <!-- Notifications & Activity Card with Tabs (Overview, Shared, Comments) -->
-          <div class="bento-card bento-activity-card card-3d-reveal" style="transition-delay: 360ms;">
-            <div class="bento-card-title-row">
-              <h3 class="bento-card-title">Live Activity Feed</h3>
-              <!-- 3 Interactive Tabs -->
-              <div class="bento-activity-tabs">
-                <button type="button" class="bento-tab-btn active" data-activity-tab="overview">Overview</button>
-                <button type="button" class="bento-tab-btn" data-activity-tab="shared">Shared</button>
-                <button type="button" class="bento-tab-btn" data-activity-tab="comments">Comments</button>
-              </div>
+          <!-- Card 2: Recent Links -->
+          <div class="bottom-widget-card">
+            <div class="widget-header-row">
+              <div class="widget-title">🔗 Recent Links</div>
+              <a href="#links" class="view-all-link" onclick="window.appShell.navigate('links'); return false;">View All →</a>
             </div>
-
-            <!-- Tab 1: Overview Panel -->
-            <div class="activity-panel active" id="actPanelOverview">
-              <div class="activity-feed-list">
-                <div class="activity-item">
-                  <div class="activity-badge-dot" style="background:#0A6CFF;"></div>
-                  <div class="activity-content">
-                    <div class="activity-text">Direct visit from <b>New York, United States</b></div>
-                    <div class="activity-time">2 mins ago · Safari on iOS 18</div>
+            
+            <div class="recent-links-list">
+              <!-- Link Row 1 -->
+              <div class="recent-link-row-item">
+                <div class="recent-left-meta">
+                  <div class="recent-link-icon-box">🔗</div>
+                  <div class="recent-link-titles">
+                    <span class="recent-dest-title" title="https://yourwebsite.com/product">https://yourwebsite.com/product</span>
+                    <a href="https://healink.store/abc123" target="_blank" rel="noopener" class="recent-short-slug">fury.link/abc123</a>
                   </div>
                 </div>
-                <div class="activity-item">
-                  <div class="activity-badge-dot" style="background:#10b981;"></div>
-                  <div class="activity-content">
-                    <div class="activity-text">QR Scan event: <b>Vector QR Code #4</b> scanned in <b>London, UK</b></div>
-                    <div class="activity-time">14 mins ago · Mobile Camera</div>
-                  </div>
-                </div>
-                <div class="activity-item">
-                  <div class="activity-badge-dot" style="background:#7928ca;"></div>
-                  <div class="activity-content">
-                    <div class="activity-text">Bio Page visited: <b>CyberPulse Creator Hub</b></div>
-                    <div class="activity-time">32 mins ago · Instagram Referral</div>
-                  </div>
-                </div>
-                <div class="activity-item">
-                  <div class="activity-badge-dot" style="background:#f59e0b;"></div>
-                  <div class="activity-content">
-                    <div class="activity-text">Campaign <b>'Black Friday Sale'</b> reached milestone of 1,000 clicks</div>
-                    <div class="activity-time">1 hour ago · High Conversion</div>
-                  </div>
+                <div class="recent-right-telemetry">
+                  <span class="recent-click-count">2.8K clicks</span>
+                  <svg width="42" height="18" viewBox="0 0 42 18" fill="none">
+                    <path d="M2 14 Q 10 16, 18 8 T 32 10 T 40 4" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <button type="button" class="recent-more-btn" title="Options">•••</button>
                 </div>
               </div>
-            </div>
 
-            <!-- Tab 2: Shared Panel -->
-            <div class="activity-panel" id="actPanelShared" style="display:none;">
-              <div class="activity-feed-list">
-                <div class="activity-item">
-                  <div class="activity-badge-dot" style="background:#0A6CFF;"></div>
-                  <div class="activity-content">
-                    <div class="activity-text"><b>High-Resolution Vector QR (.SVG)</b> exported for print catalog</div>
-                    <div class="activity-time">3 hours ago · Downloaded by Fury</div>
+              <!-- Link Row 2 -->
+              <div class="recent-link-row-item">
+                <div class="recent-left-meta">
+                  <div class="recent-link-icon-box">🔗</div>
+                  <div class="recent-link-titles">
+                    <span class="recent-dest-title" title="https://github.com/fury">https://github.com/fury</span>
+                    <a href="https://healink.store/github" target="_blank" rel="noopener" class="recent-short-slug">fury.link/github</a>
                   </div>
                 </div>
-                <div class="activity-item">
-                  <div class="activity-badge-dot" style="background:#10b981;"></div>
-                  <div class="activity-content">
-                    <div class="activity-text">Analytics report shared with marketing team via public link</div>
-                    <div class="activity-time">Yesterday · 7 team views</div>
+                <div class="recent-right-telemetry">
+                  <span class="recent-click-count">1.4K clicks</span>
+                  <svg width="42" height="18" viewBox="0 0 42 18" fill="none">
+                    <path d="M2 12 Q 10 15, 18 6 T 32 12 T 40 4" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <button type="button" class="recent-more-btn" title="Options">•••</button>
+                </div>
+              </div>
+
+              <!-- Link Row 3 -->
+              <div class="recent-link-row-item">
+                <div class="recent-left-meta">
+                  <div class="recent-link-icon-box">🔗</div>
+                  <div class="recent-link-titles">
+                    <span class="recent-dest-title" title="https://store.com/deals">https://store.com/deals</span>
+                    <a href="https://healink.store/deals" target="_blank" rel="noopener" class="recent-short-slug">fury.link/deals</a>
                   </div>
+                </div>
+                <div class="recent-right-telemetry">
+                  <span class="recent-click-count">872 clicks</span>
+                  <svg width="42" height="18" viewBox="0 0 42 18" fill="none">
+                    <path d="M2 14 Q 10 16, 20 10 T 32 12 T 40 6" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <button type="button" class="recent-more-btn" title="Options">•••</button>
                 </div>
               </div>
             </div>
+          </div>
 
-            <!-- Tab 3: Comments Panel -->
-            <div class="activity-panel" id="actPanelComments" style="display:none;">
-              <div class="activity-feed-list">
-                <div class="activity-item">
-                  <div class="activity-badge-dot" style="background:#7928ca;"></div>
-                  <div class="activity-content">
-                    <div class="activity-text"><b>Internal Note</b>: "Remember to update holiday redirect destination on Dec 1"</div>
-                    <div class="activity-time">Nov 5 by Fury · Workspace Notes</div>
-                  </div>
+          <!-- Card 3: Top Referrers -->
+          <div class="bottom-widget-card">
+            <div class="widget-header-row">
+              <div class="widget-title">👥 Top Referrers</div>
+              <a href="#analytics" class="view-all-link" onclick="window.appShell.navigate('analytics'); return false;">View All →</a>
+            </div>
+            
+            <div class="referrers-body">
+              <!-- Donut Chart -->
+              <div class="donut-chart-box">
+                <svg width="100" height="100" viewBox="0 0 100 100" style="transform:rotate(-90deg);">
+                  <!-- Background circle track -->
+                  <circle cx="50" cy="50" r="36" stroke="#f1f5f9" stroke-width="14" fill="none"/>
+                  <!-- Segment 1: Organic Search (68%) - Blue -->
+                  <circle cx="50" cy="50" r="36" stroke="#0A6CFF" stroke-width="14" fill="none"
+                          stroke-dasharray="153.8 226.2" stroke-dashoffset="0"/>
+                  <!-- Segment 2: Direct (16%) - Purple -->
+                  <circle cx="50" cy="50" r="36" stroke="#a855f7" stroke-width="14" fill="none"
+                          stroke-dasharray="36.2 226.2" stroke-dashoffset="-153.8"/>
+                  <!-- Segment 3: Social Media (10%) - Green -->
+                  <circle cx="50" cy="50" r="36" stroke="#10b981" stroke-width="14" fill="none"
+                          stroke-dasharray="22.6 226.2" stroke-dashoffset="-190"/>
+                  <!-- Segment 4: Others (6%) - Amber -->
+                  <circle cx="50" cy="50" r="36" stroke="#f59e0b" stroke-width="14" fill="none"
+                          stroke-dasharray="13.6 226.2" stroke-dashoffset="-212.6"/>
+                </svg>
+                <div class="donut-center-info">
+                  <span class="donut-pct-bold">68%</span>
+                  <span class="donut-pct-label">Organic</span>
                 </div>
-                <div class="activity-item">
-                  <div class="activity-badge-dot" style="background:#00c8ff;"></div>
-                  <div class="activity-content">
-                    <div class="activity-text"><b>HEA Assist AI</b> generated 3 personalized slug suggestions for bio page</div>
-                    <div class="activity-time">Nov 4 · AI Assist Panel</div>
+              </div>
+
+              <!-- Legend List -->
+              <div class="referrers-legend-list">
+                <div class="legend-item">
+                  <div class="legend-left">
+                    <span class="legend-dot" style="background:#0A6CFF;"></span>
+                    <span>Organic Search</span>
                   </div>
+                  <span class="legend-val">68%</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-left">
+                    <span class="legend-dot" style="background:#a855f7;"></span>
+                    <span>Direct</span>
+                  </div>
+                  <span class="legend-val">16%</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-left">
+                    <span class="legend-dot" style="background:#10b981;"></span>
+                    <span>Social Media</span>
+                  </div>
+                  <span class="legend-val">10%</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-left">
+                    <span class="legend-dot" style="background:#f59e0b;"></span>
+                    <span>Others</span>
+                  </div>
+                  <span class="legend-val">6%</span>
                 </div>
               </div>
             </div>
-
           </div>
 
         </div>
@@ -1205,7 +1336,7 @@
       </div>
     `;
 
-    // Tab Switching Logic for Quick Shorten
+    // Interactive Tab Switching for Shorten vs QR Code
     const tabLink = $('#tabShortLinkOpt');
     const tabQr = $('#tabQrCodeOpt');
     const input = $('#homeShortenInput');
@@ -1216,7 +1347,7 @@
         activeType = 'link';
         tabLink.classList.add('active');
         tabQr.classList.remove('active');
-        input.placeholder = 'Paste destination URL to generate 3D short link...';
+        input.placeholder = 'Paste destination URL to generate a short link...';
         if (icon) icon.textContent = '🔗';
       };
 
@@ -1254,13 +1385,15 @@
           if (resBox && newL) {
             const liveUrl = (newL.realShort && newL.realShort !== dest) ? newL.realShort : (newL.url && newL.url !== dest ? newL.url : `https://${dom}/${newL.slug}`);
             resBox.innerHTML = `
-              <div class="result-title">Your Live 3D Short Link (Click to open destination):</div>
-              <a href="${liveUrl}" target="_blank" rel="noopener" class="result-url">${liveUrl}</a>
-              <div class="result-dest">Destination: <span>${dest}</span></div>
-              <div class="result-actions">
-                <button type="button" class="res-btn-copy" onclick="window.appShell.copy('${liveUrl}')">📋 Copy</button>
-                <button type="button" class="res-btn-action" onclick="window.appShell.navigate('qr')">▦ QR Code</button>
-                <a href="${liveUrl}" target="_blank" rel="noopener" class="res-btn-action">🚀 Visit</a>
+              <div style="background:#ffffff;border:1px solid #bfdbfe;border-radius:14px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 2px 10px rgba(10,108,255,0.08);">
+                <div style="min-width:0;">
+                  <div style="font-size:11px;font-weight:700;color:#0284c7;text-transform:uppercase;">Live Short Link Ready</div>
+                  <a href="${liveUrl}" target="_blank" rel="noopener" style="font-size:13.5px;font-weight:700;color:#0A6CFF;text-decoration:none;">${liveUrl}</a>
+                </div>
+                <div style="display:flex;gap:8px;flex-shrink:0;">
+                  <button type="button" onclick="window.appShell.copy('${liveUrl}')" style="background:#0A6CFF;color:#ffffff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;">Copy</button>
+                  <a href="${liveUrl}" target="_blank" rel="noopener" style="background:#f1f5f9;color:#334155;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;text-decoration:none;display:inline-block;">Visit ↗</a>
+                </div>
               </div>
             `;
             resBox.style.display = 'block';
@@ -1273,21 +1406,6 @@
         }
       };
     }
-
-    // Interactive Tab Switching for Activity Card (Overview, Shared, Comments)
-    $$('.bento-tab-btn').forEach(btn => {
-      btn.onclick = () => {
-        $$('.bento-tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const target = btn.dataset.activityTab;
-        const pOverview = $('#actPanelOverview');
-        const pShared = $('#actPanelShared');
-        const pComments = $('#actPanelComments');
-        if (pOverview) pOverview.style.display = (target === 'overview') ? 'block' : 'none';
-        if (pShared) pShared.style.display = (target === 'shared') ? 'block' : 'none';
-        if (pComments) pComments.style.display = (target === 'comments') ? 'block' : 'none';
-      };
-    });
   }
 
   function renderCreateLink(container) {
