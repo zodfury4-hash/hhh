@@ -7680,17 +7680,36 @@ body.app-mode #appShell {
 
 
 /* ==========================================================================
-   TOPBAR REMOVED -> VIEW-HEADER IS NOW THE TOP BAR OF EVERY SCREEN (1:1 V22)
+   TOPBAR RESTORED AT TOP (NOT FLOATING INSIDE CONTENT SCREEN)
    ========================================================================== */
 .app-topbar {
+  display: flex !important;
+  height: 60px !important;
+  min-height: 60px !important;
+  padding: 0 28px !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  z-index: 50 !important;
+  flex-shrink: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Hide search bar as requested */
+.topbar-search-box,
+input[placeholder*="Search 50+ native apps"],
+div:has(> input[placeholder*="Search 50+ native apps"]) {
   display: none !important;
 }
 
 .app-content-row {
   display: flex !important;
   flex-direction: column !important;
-  height: 100% !important;
-  max-height: 100% !important;
+  height: calc(100% - 60px) !important;
+  max-height: calc(100% - 60px) !important;
   flex: 1 1 0% !important;
   min-height: 0 !important;
   overflow: hidden !important;
@@ -7710,33 +7729,34 @@ body.app-mode #appShell {
   box-sizing: border-box !important;
 }
 
-/* 1:1 Unified Floating Frosted View Header on Top of Every Screen */
+/* View Header inside screen: Static, clean, natural flow, not floating over content */
 .view-header {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 30 !important;
+  position: static !important;
+  top: auto !important;
+  z-index: 1 !important;
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
   flex-wrap: wrap !important;
   gap: 16px !important;
-  padding: 18px 26px !important;
-  margin-bottom: 24px !important;
-  border-radius: 22px !important;
-  background: rgba(255, 255, 255, 0.94) !important;
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
-  border: 1px solid rgba(226, 232, 240, 0.9) !important;
-  box-shadow: 0 10px 30px -8px rgba(15, 23, 42, 0.06), 0 0 0 1px rgba(255, 255, 255, 0.8) inset !important;
+  padding: 0 0 20px 0 !important;
+  margin-bottom: 20px !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
   box-sizing: border-box !important;
   width: 100% !important;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transition: none !important;
+  transform: none !important;
 }
 
 .view-header.is-scrolled {
-  background: rgba(255, 255, 255, 0.98) !important;
-  box-shadow: 0 14px 36px -8px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(226, 232, 240, 0.9) !important;
-  transform: translateY(-2px) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
 .header-title-col {

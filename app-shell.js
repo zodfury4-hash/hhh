@@ -693,6 +693,25 @@
 
     });
 
+    const topTitle = $('#topbarTitle');
+    if (topTitle) {
+      const titles = {
+        home: 'Dashboard',
+        links: 'Links',
+        'create-link': 'Create Link',
+        qr: 'QR Codes',
+        'qr-detail': 'QR Code Details',
+        pages: 'Bio Pages',
+        analytics: 'Analytics',
+        campaigns: 'Campaigns',
+        'custom-domains': 'Custom Domains',
+        integrations: 'Integrations',
+        settings: 'Settings',
+        resources: 'Help & Resources'
+      };
+      topTitle.textContent = titles[tab] || 'Dashboard';
+    }
+
     const pane = $('#appMainPane');
 
     if (!pane) return;
@@ -5605,9 +5624,9 @@
 
       </div>
 
-      <!-- Search & Filters -->
+      <!-- Search & Filters (Hidden as requested) -->
 
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="display:none !important;justify-content:space-between;align-items:center;margin-bottom:16px;">
 
         <input type="text" class="topbar-search-input" style="max-width:320px;" placeholder="Search 50+ native apps &amp; webhooks...">
 
