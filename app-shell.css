@@ -8808,3 +8808,46 @@ div:has(> input[placeholder*="Search 50+ native apps"]) {
   font-weight: 700 !important;
   color: #0f172a !important;
 }
+
+/* ==========================================================================
+   FINE-TUNED DASHBOARD V2 REFINEMENTS (EXACT PIXEL-PERFECT MATCH)
+   ========================================================================== */
+body.app-mode {
+  background: #f0f5fa !important;
+}
+
+body.app-mode #appShell {
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+}
+
+body.app-mode .app-body-wrap {
+  background: #f0f5fa !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+body.app-mode .app-topbar {
+  background: #f0f5fa !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
+}
+
+body.app-mode .app-main-pane,
+body.app-mode #appMainPane {
+  background: #f0f5fa !important;
+  padding: 24px 32px 48px !important;
+}
+
+/* Ensure auth section and landing headers are hidden in app-mode */
+body.app-mode #authSection,
+body.app-mode > header.nav,
+body.app-mode > footer,
+body.app-mode .bg-glow-curves,
+body.app-mode #webgl-bg {
+  display: none !important;
+}

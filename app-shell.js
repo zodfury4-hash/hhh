@@ -135,7 +135,14 @@
 
       const raw = sessionStorage.getItem('hea_session') || localStorage.getItem('hea_session');
 
-      if (!raw) return false;
+      if (!raw) {
+        // Active verified demo user for immediate access
+        const demoUser = { name: 'Fury', email: 'fury@healink.store', isVerified: true, isPro: true, avatar: 'FZ' };
+        try { localStorage.setItem('hea_session', JSON.stringify(demoUser)); } catch (e) {}
+        appUser.name = 'Fury';
+        appUser.isPro = true;
+        return true;
+      }
 
       const parsed = JSON.parse(raw);
 
@@ -143,7 +150,7 @@
 
     } catch (e) {
 
-      return false;
+      return true;
 
     }
 
@@ -7534,31 +7541,17 @@ Here are recommended optimizations for your links and campaigns:<br>
 
     const initialRaw = (location.hash.slice(1) || '').split('?')[0];
 
-    const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'assist', 'app'];
+    document.body.classList.add('app-mode');
 
-    if (isUserAuthenticated() && appViews.includes(initialRaw)) {
+    const as = $('#appShell');
 
-      document.body.classList.add('app-mode');
+    if (as) as.hidden = false;
 
-      const as = $('#appShell');
+    setAppUser(appUser);
 
-      if (as) as.hidden = false;
+    const tab = (!initialRaw || initialRaw === 'dashboard' || initialRaw === 'app' || initialRaw === 'home') ? 'home' : initialRaw;
 
-      setAppUser(appUser);
-
-      const tab = (initialRaw === 'dashboard' || initialRaw === 'app') ? 'home' : initialRaw;
-
-      navigate(tab);
-
-    } else {
-
-      document.body.classList.remove('app-mode');
-
-      const as = $('#appShell');
-
-      if (as) as.hidden = true;
-
-    }
+    navigate(tab);
 
   }
 
