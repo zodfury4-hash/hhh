@@ -182,14 +182,14 @@ export function ShortenBox() {
           >
             <form id="heroForm" onSubmit={handleShorten} className="space-y-3">
               <div className="relative flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-1.5 bg-white/90 rounded-2xl border border-blue-500/20 focus-within:border-[#0070f3] focus-within:ring-4 focus-within:ring-[#0070f3]/15 transition-all shadow-inner">
-                <div className="flex items-center flex-1 px-3 py-2">
+                <div className="flex items-center flex-1 px-3 py-2 min-w-0">
                   <Link2 className="w-5 h-5 text-[#0070f3] mr-2.5 shrink-0" />
                   <input
                     id="heroUrl"
                     type="url"
                     value={urlInput}
                     onChange={(e) => setUrlInput(e.target.value)}
-                    placeholder="Enter or paste your destination link (e.g. https://"
+                    placeholder="Paste your link here..."
                     required
                     className="w-full bg-transparent text-sm sm:text-base text-[#0b132b] placeholder-slate-400 focus:outline-none"
                   />
