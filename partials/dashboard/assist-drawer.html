@@ -1,0 +1,120 @@
+        <aside class="app-assist-drawer" id="appAssistDrawer" data-lenis-prevent="true" hidden>
+          <div class="drawer-drag-handle" aria-hidden="true"></div>
+          <div class="drawer-header">
+            <div class="drawer-title" id="drawerTitle">
+              <span>✨</span> HEA Assist
+            </div>
+            <button class="drawer-close" id="drawerCloseBtn" aria-label="Close assistant">✕</button>
+          </div>
+          <div class="drawer-body" data-lenis-prevent="true">
+            <div id="drawerAiContent">
+            <!-- Mascot AI Banner Card -->
+            <div class="assist-mascot-card">
+              <div class="mascot-robot-col">
+  <svg width="68" height="68" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Soft Shadow -->
+    <ellipse cx="50" cy="92" rx="28" ry="5" fill="rgba(0,112,243,0.15)" />
+    <!-- Body -->
+    <rect x="30" y="58" width="40" height="30" rx="15" fill="url(#botBodyGradHome)" stroke="#bfdbfe" stroke-width="2"/>
+    <!-- Head -->
+    <rect x="22" y="18" width="56" height="42" rx="18" fill="url(#botHeadGradHome)" stroke="#bfdbfe" stroke-width="2"/>
+    <!-- Head Visor/Screen -->
+    <rect x="28" y="24" width="44" height="28" rx="12" fill="#0b132b" />
+    <!-- Glowing Cyan Eyes -->
+    <ellipse cx="40" cy="38" rx="5" ry="6" fill="#00d2ff" />
+    <ellipse cx="60" cy="38" rx="5" ry="6" fill="#00d2ff" />
+    <ellipse cx="41" cy="36" rx="2" ry="2.5" fill="#ffffff" />
+    <ellipse cx="61" cy="36" rx="2" ry="2.5" fill="#ffffff" />
+    <path d="M47 43Q50 45 53 43" stroke="#00d2ff" stroke-width="2" stroke-linecap="round" />
+    <!-- Headphones / Ears -->
+    <rect x="16" y="29" width="8" height="18" rx="4" fill="#0070f3" />
+    <rect x="76" y="29" width="8" height="18" rx="4" fill="#0070f3" />
+    <path d="M20 29C20 12 80 12 80 29" stroke="#93c5fd" stroke-width="3" stroke-linecap="round" />
+    <!-- Antenna -->
+    <path d="M50 18V10" stroke="#93c5fd" stroke-width="2.5" stroke-linecap="round" />
+    <circle cx="50" cy="8" r="4" fill="#0070f3" />
+    <circle cx="50" cy="8" r="2" fill="#ffffff" />
+    <!-- Floating Sparkle in Hand -->
+    <g transform="translate(68, 48) scale(0.9)">
+      <path d="M12 0L14.5 8.5L23 11L14.5 13.5L12 22L9.5 13.5L1 11L9.5 8.5L12 0Z" fill="url(#goldSparkleGradHome)" />
+    </g>
+    <defs>
+      <linearGradient id="botHeadGradHome" x1="22" y1="18" x2="78" y2="60" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#ffffff"/>
+        <stop offset="1" stop-color="#eff6ff"/>
+      </linearGradient>
+      <linearGradient id="botBodyGradHome" x1="30" y1="58" x2="70" y2="88" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#ffffff"/>
+        <stop offset="1" stop-color="#e0f2fe"/>
+      </linearGradient>
+      <linearGradient id="goldSparkleGradHome" x1="1" y1="0" x2="23" y2="22" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#fde047"/>
+        <stop offset="1" stop-color="#f59e0b"/>
+      </linearGradient>
+    </defs>
+  </svg>
+</div>
+              <div class="mascot-info-col">
+                <b class="mascot-title">Your AI Link Assistant</b>
+                <p class="mascot-desc">Optimize your titles, generate UTM campaigns, and write high-converting bio descriptions in seconds.</p>
+              </div>
+            </div>
+
+            <!-- Prompt Suggestion Pills with Chevron -->
+            <div class="assist-prompt-pills-list">
+              <button class="assist-prompt-pill" data-prompt="Suggest a catchy title for my link" type="button">
+                <span class="pill-text">💡 Suggest catchy title</span>
+                <span class="pill-chev">›</span>
+              </button>
+              <button class="assist-prompt-pill" data-prompt="Generate UTM parameters for a Facebook ad" type="button">
+                <span class="pill-text">🎯 UTM parameters for FB ad</span>
+                <span class="pill-chev">›</span>
+              </button>
+              <button class="assist-prompt-pill" data-prompt="How do I get more QR code scans?" type="button">
+                <span class="pill-text">📊 How to get more QR scans</span>
+                <span class="pill-chev">›</span>
+              </button>
+              <button class="assist-prompt-pill" data-prompt="What should I put on my link-in-bio page?" type="button">
+                <span class="pill-text">📄 Link-in-bio best practices</span>
+                <span class="pill-chev">›</span>
+              </button>
+            </div>
+
+            <!-- Chat Log -->
+            <div class="drawer-chat-log" id="drawerChatLog">
+              <div class="drawer-chat-bubble ai">
+                👋 Hi there! I'm HEA Assist. How can I help you optimize your links and campaigns today?
+              </div>
+            </div>
+            </div><!-- /#drawerAiContent -->
+
+            <!-- Settings subsidebar (replaces HEA Assist on Settings page) -->
+            <div id="drawerSettingsContent" class="drawer-settings-nav-wrap" hidden>
+              <div class="settings-subsidebar-group">
+                <h5>PERSONAL SETTINGS</h5>
+                <a class="settings-subsidebar-link active" data-nav="profile">Profile</a>
+                <a class="settings-subsidebar-link" data-nav="integrations" onclick="window.appShell.navigate('integrations')">Integrations</a>
+              </div>
+              <div class="settings-subsidebar-group">
+                <h5 class="settings-group-header-collapsible">
+                  <span>ACCOUNT SETTINGS</span>
+                  <span class="settings-group-arrow">▲</span>
+                </h5>
+                <div class="settings-org-id-badge" id="settingsOrgBadge">hea-org-default</div>
+                <a class="settings-subsidebar-link" data-nav="account-details">Account details</a>
+                <a class="settings-subsidebar-link" data-nav="billing" onclick="location.hash='#pricing'">Billing and usage</a>
+                <a class="settings-subsidebar-link" data-nav="users">Users</a>
+                <a class="settings-subsidebar-link" data-nav="groups">Groups</a>
+                <a class="settings-subsidebar-link" data-nav="sso">Single sign-on</a>
+                <a class="settings-subsidebar-link" data-nav="discovery">Account discovery</a>
+                <a class="settings-subsidebar-link" data-nav="deeplinks">Mobile deep links</a>
+              </div>
+            </div>
+          </div>
+          <form class="drawer-input-row" id="drawerChatForm">
+            <div class="drawer-input-capsule">
+              <input type="text" id="drawerChatInput" placeholder='Ask HEA Assist anything (e.g. "Suggest catchy title")...' style="border:none !important;outline:none !important;box-shadow:none !important;background:transparent !important;" autocomplete="off">
+              <button type="submit" class="drawer-capsule-submit" style="width:34px !important;height:34px !important;min-width:34px !important;max-width:34px !important;min-height:34px !important;max-height:34px !important;border-radius:50% !important;background:#0070f3 !important;color:#ffffff !important;border:none !important;display:grid !important;place-items:center !important;flex-shrink:0 !important;cursor:pointer !important;padding:0 !important;">→</button>
+            </div>
+          </form>
+        </aside>

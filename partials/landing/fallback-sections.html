@@ -1,0 +1,213 @@
+  <section data-page="dashboard" hidden>
+    <div class="wrap">
+      <div class="bar">
+        <div>
+          <h2 class="left" id="dashTitle">My Links</h2>
+          <p class="muted" id="dashSub">Manage all your short links, tags and statistics.</p>
+        </div>
+        <div class="row">
+          <button class="btn ghost" id="exportBtn" type="button">📥 Export CSV</button>
+          <button class="btn ghost" id="demoBtn" type="button">⚡ Add demo clicks</button>
+          <button class="btn" id="newBtn" type="button">+ Create link</button>
+        </div>
+      </div>
+      <input id="search" class="search" placeholder="Filter links by title, slug, tag, or destination URL..." aria-label="Search links">
+      <div id="list" class="list"></div>
+    </div>
+  </section>
+
+  <!-- 4. QR CODE STUDIO VIEW -->
+  <section data-page="qr" hidden>
+    <div class="wrap split">
+      <div class="card pad stack">
+        <h2 class="left">QR Code Studio</h2>
+        <p class="muted">Generate scannable, dynamic QR codes with custom styling.</p>
+        <label>Destination link or text
+          <input id="qText" value="https://example.com" placeholder="https://yourwebsite.com/landing-page">
+        </label>
+        <div class="row">
+          <label>Code Colour
+            <input id="qFg" type="color" value="#0e1a33">
+          </label>
+          <label>Background
+            <input id="qBg" type="color" value="#ffffff">
+          </label>
+          <label>Size
+            <select id="qSize">
+              <option value="256">256 x 256 px</option>
+              <option value="512" selected>512 x 512 px</option>
+              <option value="1024">1024 x 1024 px</option>
+            </select>
+          </label>
+        </div>
+        <p class="err" id="qErr"></p>
+        <button class="btn" id="qDl" type="button">⬇ Download PNG</button>
+      </div>
+      <div class="card pad center" style="display:flex;flex-direction:column;align-items:center;justify-content:center">
+        <canvas id="qCv" aria-label="QR code preview"></canvas>
+        <p class="muted small" style="margin-top:14px">Real-time vector-rendered QR preview</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. ANALYTICS VIEW -->
+  <section data-page="analytics" hidden>
+    <div class="wrap">
+      <h2 class="left">Analytics Dashboard</h2>
+      <p class="muted" id="anSub">Detailed click performance across all campaigns.</p>
+      <div class="grid4" data-reveal-group id="stats"></div>
+      <div class="card pad" style="margin-top:20px">
+        <h3>Clicks — Last 14 Days</h3>
+        <div id="chart"></div>
+      </div>
+      <div class="grid3 bd" id="breakdown"></div>
+    </div>
+  </section>
+
+  <!-- 6. HEA ASSIST AI VIEW -->
+  <section data-page="assist" hidden>
+    <div class="wrap mid">
+      <p class="eyebrow">ANALYZE WITH AI</p>
+      <h2>HEA Assist AI</h2>
+      <p class="center muted" style="margin-bottom:24px">Ask HEA Assist about your traffic, referrers, and audience in plain language.</p>
+      <div class="card pad">
+        <div id="chatLog" class="log" aria-live="polite"></div>
+        <div class="chips" id="chips"></div>
+        <form id="chatForm" class="row">
+          <input id="chatIn" placeholder="Ask about clicks, top referrers, device breakdown, or CTR advice..." aria-label="Ask HEA Assist" autocomplete="off">
+          <button class="btn" type="submit">Send</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. RESOURCES & GUIDES VIEW -->
+  <section data-page="resources" hidden>
+    <div class="wrap">
+      <h2 class="left">Resources &amp; Knowledge Base</h2>
+      <p class="muted">Guides, playbooks and ebooks to maximize your audience engagement.</p>
+      <div class="row" style="margin:20px 0">
+        <div id="resTabs" class="tabs"></div>
+        <input id="resSearch" placeholder="Search knowledge base, tutorials, and API docs..." aria-label="Search guides" style="max-width:280px">
+      </div>
+      <div class="grid3" data-reveal-group id="resGrid"></div>
+    </div>
+  </section>
+
+  <!-- 8. PAGES / LINK-IN-BIO BUILDER VIEW -->
+  <section data-page="pages" hidden>
+    <div class="wrap split2">
+      <div class="card pad stack">
+        <h2 class="left">Link-in-Bio Page Builder</h2>
+        <p class="muted" id="bioSub">Pick a look, add your links, and publish your mobile landing page.</p>
+        <label>Display Name
+          <input id="bName" placeholder="e.g. Acme Studio or Sarah Jenkins">
+        </label>
+        <label>Bio Headline
+          <input id="bBio" placeholder="e.g. Digital Designer &amp; Educator helping creators scale">
+        </label>
+        <label>Page URL Handle <small>(#bio-handle)</small>
+          <input id="bSlug" placeholder="e.g. acme-studio">
+        </label>
+        <label>Theme Style
+          <select id="bTheme">
+            <option value="ocean">Ocean Breeze (Blue / Navy)</option>
+            <option value="sunset">Sunset Orange (Warm / Gold)</option>
+            <option value="night">Dark Elegance (Night / Teal)</option>
+          </select>
+        </label>
+        <label>Links <small>(Format: Title | https://destination)</small>
+          <textarea id="bLinks" rows="5" placeholder="Official Store | https://mybrand.store/shop&#10;Portfolio | https://mybrand.design&#10;Instagram | https://instagram.com/mybrand"></textarea>
+        </label>
+        <p class="err" id="bErr"></p>
+        <div class="row">
+          <button class="btn" id="bSave" type="button">Publish Page</button>
+          <a class="btn ghost" id="bOpen" href="#pages" hidden>Open Live Page</a>
+          <button class="btn ghost" id="bCopy" type="button" hidden>Copy Page Link</button>
+        </div>
+      </div>
+      <div class="phone">
+        <div id="bioPrev"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. PUBLIC BIO VIEW -->
+  <section data-page="bio" hidden>
+    <div class="wrap narrow">
+      <div id="bioPub"></div>
+      <p class="small center">Powered by <a href="#home"><b>HEA Link</b></a></p>
+    </div>
+  </section>
+
+  <!-- 10. SAFE REDIRECT GATEWAY VIEW -->
+  <section data-page="go" hidden>
+    <div class="wrap narrow">
+      <div class="card pad center" id="goBox"></div>
+    </div>
+  </section>
+
+  <!-- 11. SOLUTIONS HUB VIEW -->
+  <section data-page="solutions" hidden>
+    <div class="wrap">
+      <div class="center" style="margin-bottom:36px">
+        <p class="eyebrow">ENTERPRISE SOLUTIONS</p>
+        <h2>Tailored Solutions for Every Business</h2>
+        <p class="muted lead">From retail to healthcare and enterprise teams, discover how HEA Link scales with you.</p>
+        <div class="tabs" id="solPageTabs" style="justify-content:center;margin-top:16px">
+          <button class="on" data-sol="industry">By Industry</button>
+          <button data-sol="team">By Team</button>
+          <button data-sol="business">By Business Size</button>
+        </div>
+      </div>
+      <div class="grid3" data-reveal-group id="solCards"></div>
+    </div>
+  </section>
+
+  <!-- 12. UTM BUILDER VIEW -->
+  <section data-page="utm" hidden>
+    <div class="wrap narrow">
+      <div class="card pad stack">
+        <h2 class="left">UTM Campaign Builder</h2>
+        <p class="muted">Add tracking parameters to your URLs and track marketing campaigns accurately in analytics.</p>
+        <label>Website URL *
+          <input id="utmUrl" placeholder="https://yourbrand.com/black-friday-sale" required>
+        </label>
+        <div class="row">
+          <label style="flex:1">Campaign Source *
+            <input id="utmSource" placeholder="e.g. meta, tiktok, google, newsletter">
+          </label>
+          <label style="flex:1">Campaign Medium *
+            <input id="utmMedium" placeholder="e.g. paid_social, cpc, email_blast, reel">
+          </label>
+        </div>
+        <div class="row">
+          <label style="flex:1">Campaign Name
+            <input id="utmCampaign" placeholder="e.g. black_friday_2026, q4_boost">
+          </label>
+          <label style="flex:1">Campaign Term
+            <input id="utmTerm" placeholder="e.g. sneakers, discounts, vip_creators">
+          </label>
+        </div>
+        <label>Generated URL
+          <textarea id="utmResult" rows="3" readonly></textarea>
+        </label>
+        <div class="row">
+          <button class="btn" id="utmCopyBtn" type="button">Copy URL</button>
+          <button class="btn dark" id="utmShortenBtn" type="button">Shorten this UTM URL</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13. INTEGRATIONS VIEW -->
+  <section data-page="integrations" hidden>
+    <div class="wrap">
+      <div class="center" style="margin-bottom:36px">
+        <p class="eyebrow">ECOSYSTEM</p>
+        <h2>Connect HEA Link with your favourite tools</h2>
+        <p class="muted lead">Seamlessly generate links and QR codes directly inside Shopify, Canva, HubSpot and more.</p>
+      </div>
+      <div class="grid3" data-reveal-group id="integrationsGrid"></div>
+    </div>
+  </section>

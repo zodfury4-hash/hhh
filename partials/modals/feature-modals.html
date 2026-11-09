@@ -1,0 +1,326 @@
+<div class="checkout-modal-overlay" id="mobileLinksModal" hidden>
+  <div class="checkout-card" style="max-width:580px;">
+    <div class="checkout-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="checkout-crown-icon" style="background:rgba(56,189,248,0.15);border-color:#38bdf8;color:#38bdf8;">📱</div>
+        <div>
+          <h3 class="checkout-title">Mobile &amp; SMS Smart Links</h3>
+          <p class="checkout-sub">Deep-link directly into iOS/Android apps with zero browser friction.</p>
+        </div>
+      </div>
+      <button type="button" class="checkout-close" aria-label="Close modal" onclick="closeAllCustomModals()">✕</button>
+    </div>
+    <div class="checkout-body" style="padding:22px 28px;">
+      <form id="mobileLinksForm" class="checkout-form">
+        <label>Destination App / Web URL
+          <input type="url" id="mobileUrlInput" placeholder="https://instagram.com/yourbrand or https://wa.me/92300..." required value="https://instagram.com/mybrand">
+        </label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;">
+          <label style="font-size:12px;color:#000000;">Fallback Behavior
+            <select id="mobileFallback" style="width:100%;margin-top:4px;background:#ffffff;color:#0070f3;border:1px solid rgba(255,255,255,0.1);padding:10px;border-radius:10px;">
+              <option value="app_or_web">Open App if installed, else Web</option>
+              <option value="app_store">Prompt App Store / Play Store</option>
+              <option value="sms_intent">Direct SMS / WhatsApp Dispatch</option>
+            </select>
+          </label>
+          <label style="font-size:12px;color:#000000;">Short Domain
+            <input type="text" value="healink.store" readonly style="opacity:0.7;margin-top:4px;">
+          </label>
+        </div>
+        <button type="submit" class="checkout-submit-btn" style="background:linear-gradient(135deg,#0284c7,#38bdf8);color:#0070f3;">
+          <span>⚡ Generate Mobile Smart Link</span>
+        </button>
+      </form>
+      <div id="mobileResultBox" class="res" hidden style="margin-top:16px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. DEVELOPER HUB & REAL-TIME API DOCS MODAL -->
+<div class="checkout-modal-overlay" id="devHubModal" hidden>
+  <div class="checkout-card" style="max-width:700px;">
+    <div class="checkout-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="checkout-crown-icon" style="background:rgba(212,255,36,0.15);border-color:#0070f3;color:#0070f3;">💻</div>
+        <div>
+          <h3 class="checkout-title">Developer Hub &amp; REST APIs</h3>
+          <p class="checkout-sub">Integrate link shortening, QR generation, and click telemetry into your codebase.</p>
+        </div>
+      </div>
+      <button type="button" class="checkout-close" aria-label="Close modal" onclick="closeAllCustomModals()">✕</button>
+    </div>
+    <div class="checkout-body" style="padding:22px 28px;">
+      <!-- Tabs for languages -->
+      <div class="billing-cycle-toggle" style="margin-bottom:16px;">
+        <button type="button" class="cycle-tab active" id="tabCurl" onclick="switchApiTab('curl')">cURL</button>
+        <button type="button" class="cycle-tab" id="tabNode" onclick="switchApiTab('node')">Node.js</button>
+        <button type="button" class="cycle-tab" id="tabPython" onclick="switchApiTab('python')">Python</button>
+      </div>
+
+      <pre id="apiSnippetCode" style="background:#f8fafc;border:1px solid rgba(56,189,248,0.25);border-radius:12px;padding:16px;font-family:monospace;font-size:12px;color:#38bdf8;overflow-x:auto;line-height:1.6;margin:0 0 16px;"></pre>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;background:rgba(255,255,255,0.03);padding:12px 16px;border-radius:12px;">
+        <span style="font-size:13px;color:#000000;">Endpoint: <code style="color:#0070f3;">POST /api/shorten</code></span>
+        <button type="button" class="sso-btn" style="width:auto;padding:8px 16px;font-size:12px;" onclick="testLiveApiEndpoint()">▶ Test Live Request</button>
+      </div>
+      <div id="liveApiResult" style="margin-top:12px;font-family:monospace;font-size:11px;color:#10b981;" hidden></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. TRUST CENTER & COMPLIANCE MODAL -->
+<div class="checkout-modal-overlay" id="trustModal" hidden>
+  <div class="checkout-card" style="max-width:600px;">
+    <div class="checkout-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="checkout-crown-icon" style="background:rgba(16,185,129,0.15);border-color:#10b981;color:#10b981;">🛡️</div>
+        <div>
+          <h3 class="checkout-title">Trust, Privacy &amp; Security Center</h3>
+          <p class="checkout-sub">Enterprise-grade encryption, privacy compliance, and continuous monitoring.</p>
+        </div>
+      </div>
+      <button type="button" class="checkout-close" aria-label="Close modal" onclick="closeAllCustomModals()">✕</button>
+    </div>
+    <div class="checkout-body" style="padding:22px 28px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;">
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:14px;border-radius:12px;">
+          <div style="display:flex;align-items:center;gap:8px;font-weight:700;color:#10b981;margin-bottom:4px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981;"></span>
+            99.99% SLA Uptime
+          </div>
+          <span style="font-size:12px;color:#000000;">Redundant global CDN edge servers with 0ms downtime fallback.</span>
+        </div>
+
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:14px;border-radius:12px;">
+          <div style="display:flex;align-items:center;gap:8px;font-weight:700;color:#38bdf8;margin-bottom:4px;">
+            🔒 256-bit TLS / SSL
+          </div>
+          <span style="font-size:12px;color:#000000;">All short link redirects encrypted end-to-end with automated HSTS.</span>
+        </div>
+
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:14px;border-radius:12px;">
+          <div style="display:flex;align-items:center;gap:8px;font-weight:700;color:#f59e0b;margin-bottom:4px;">
+            ⚖️ GDPR &amp; CCPA Ready
+          </div>
+          <span style="font-size:12px;color:#000000;">Anonymized IP hashing without persistent personal tracking cookies.</span>
+        </div>
+
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:14px;border-radius:12px;">
+          <div style="display:flex;align-items:center;gap:8px;font-weight:700;color:#0070f3;margin-bottom:4px;">
+            🛡️ SOC 2 Type II
+          </div>
+          <span style="font-size:12px;color:#000000;">Third-party audited infrastructure with isolated tenant databases.</span>
+        </div>
+      </div>
+      <button type="button" class="checkout-submit-btn" onclick="closeAllCustomModals()" style="background:rgba(255,255,255,0.08);color:#0070f3;border:1px solid rgba(255,255,255,0.15);">
+        Close Trust Center
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 4. CLICK EXPECTATION REPORT 2026 MODAL -->
+<div class="checkout-modal-overlay" id="reportModal" hidden>
+  <div class="checkout-card" style="max-width:640px;">
+    <div class="checkout-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="checkout-crown-icon" style="background:rgba(249,115,22,0.15);border-color:#f97316;color:#f97316;">📈</div>
+        <div>
+          <h3 class="checkout-title">The Click Expectation Report 2026</h3>
+          <p class="checkout-sub">Proprietary benchmark findings from 120,000,000+ link clicks and QR scans.</p>
+        </div>
+      </div>
+      <button type="button" class="checkout-close" aria-label="Close modal" onclick="closeAllCustomModals()">✕</button>
+    </div>
+    <div class="checkout-body" style="padding:22px 28px;">
+      <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:18px;margin-bottom:16px;">
+        <div style="font-size:28px;font-weight:800;color:#0070f3;margin-bottom:4px;">+74.2% Higher CTR</div>
+        <div style="font-size:13px;color:#000000;line-height:1.6;">Branded short domains (e.g. <code>brand.link/drop</code>) earn nearly 2x more trust than generic unbranded links.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;">
+        <div style="background:rgba(255,255,255,0.03);padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">
+          <b style="color:#38bdf8;font-size:18px;display:block;">3.4x Faster Scan</b>
+          <span style="font-size:12px;color:#000000;">High-contrast vector QR codes with short slugs scan 3.4x faster on low-end mobile cameras.</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">
+          <b style="color:#10b981;font-size:18px;display:block;">68% Top Slot Bias</b>
+          <span style="font-size:12px;color:#000000;">On Link-in-Bio pages, the top two buttons capture 68% of all visitor interactions.</span>
+        </div>
+      </div>
+      <button type="button" class="checkout-submit-btn" onclick="openCheckoutModal('pro')" style="background:linear-gradient(135deg,#f97316,#fb923c);color:#0070f3;">
+        🚀 Apply These Tactics With HEA Link PRO →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 5. HEA MCP (MODEL CONTEXT PROTOCOL) AGENT MODAL -->
+<div class="checkout-modal-overlay" id="mcpModal" hidden>
+  <div class="checkout-card" style="max-width:680px;">
+    <div class="checkout-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="checkout-crown-icon" style="background:rgba(168,85,247,0.15);border-color:#a855f7;color:#a855f7;">⚙️</div>
+        <div>
+          <h3 class="checkout-title">HEA MCP (Model Context Protocol)</h3>
+          <p class="checkout-sub">Connect your AI coding agents directly to HEA Link tools.</p>
+        </div>
+      </div>
+      <button type="button" class="checkout-close" aria-label="Close modal" onclick="closeAllCustomModals()">✕</button>
+    </div>
+    <div class="checkout-body" style="padding:22px 28px;">
+      <p style="color:#000000;font-size:13px;line-height:1.6;margin-bottom:12px;">
+        Add HEA Link to your <code>claude_desktop_config.json</code> or Antigravity MCP settings to let your agents create, analyze, and track short links autonomously:
+      </p>
+      <pre style="background:#f8fafc;border:1px solid rgba(168,85,247,0.3);border-radius:12px;padding:16px;font-family:monospace;font-size:12px;color:#c084fc;overflow-x:auto;line-height:1.6;margin:0 0 16px;">
+{
+  "mcpServers": {
+    "hea-link": {
+      "command": "node",
+      "args": ["d:/github/hhh/server.js"],
+      "env": {
+        "PORT": "3000",
+        "API_KEY": "hea_live_sk_948f219b48e"
+      }
+    }
+  }
+}</pre>
+      <button type="button" class="checkout-submit-btn" onclick="navigator.clipboard.writeText('{\n  \"mcpServers\": {\n    \"hea-link\": {\n      \"command\": \"node\",\n      \"args\": [\"d:/github/hhh/server.js\"]\n    }\n  }\n}');toast('MCP Configuration Copied to Clipboard!');" style="background:linear-gradient(135deg,#a855f7,#c084fc);color:#0070f3;">
+        📋 Copy MCP Config JSON
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 6. CONTACT SALES & ENTERPRISE SLA MODAL -->
+<div class="checkout-modal-overlay" id="salesModal" hidden>
+  <div class="checkout-card" style="max-width:540px;">
+    <div class="checkout-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="checkout-crown-icon" style="background:rgba(212,255,36,0.15);border-color:#0070f3;color:#0070f3;">🤝</div>
+        <div>
+          <h3 class="checkout-title">Enterprise Consultation &amp; SLAs</h3>
+          <p class="checkout-sub">Dedicated account manager, custom SSO, and 99.99% SLA guarantee.</p>
+        </div>
+      </div>
+      <button type="button" class="checkout-close" aria-label="Close modal" onclick="closeAllCustomModals()">✕</button>
+    </div>
+    <div class="checkout-body" style="padding:22px 28px;">
+      <form id="salesConsultForm" class="checkout-form" onsubmit="event.preventDefault();toast('Thank you! An enterprise specialist will contact you within 2 hours.');closeAllCustomModals();">
+        <label>Your Name
+          <input type="text" placeholder="John" required value="John">
+        </label>
+        <label>Work Email
+          <input type="email" placeholder="john@company.com" required value="john@company.com">
+        </label>
+        <label>Estimated Monthly Links / Scans
+          <select style="width:100%;margin-top:4px;background:#ffffff;color:#0070f3;border:1px solid rgba(255,255,255,0.1);padding:10px;border-radius:10px;">
+            <option>10,000 - 50,000 links / mo</option>
+            <option>50,000 - 500,000 links / mo</option>
+            <option>500,000+ enterprise volume</option>
+          </select>
+        </label>
+        <button type="submit" class="checkout-submit-btn" style="background:linear-gradient(135deg,#0070f3,#a3e635);color:#000;font-weight:800;margin-top:10px;">
+          📅 Request VIP Consultation &amp; Custom Quote
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- 7. INTERACTIVE LINK-IN-BIO STUDIO MODAL (For Quick Guest Testing) -->
+<div class="checkout-modal-overlay" id="bioPreviewModal" hidden>
+  <div class="checkout-card" style="max-width:540px;">
+    <div class="checkout-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="checkout-crown-icon" style="background:rgba(236,72,153,0.15);border-color:#ec4899;color:#ec4899;">📱</div>
+        <div>
+          <h3 class="checkout-title">Mobile Link-in-Bio Studio</h3>
+          <p class="checkout-sub">Live mobile-first landing page with instant theme switching.</p>
+        </div>
+      </div>
+      <button type="button" class="checkout-close" aria-label="Close modal" onclick="closeAllCustomModals()">✕</button>
+    </div>
+    <div class="checkout-body" style="padding:20px 24px;">
+      <!-- Interactive Phone Mockup -->
+      <div style="max-width:320px;margin:0 auto 16px;background:#ffffff;border:2px solid rgba(56,189,248,0.4);border-radius:28px;padding:24px 18px;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,0.8);">
+        <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#0070f3);margin:0 auto 10px;display:grid;place-items:center;font-size:24px;font-weight:800;color:#000;">JD</div>
+        <h4 style="margin:0 0 2px;color:#0b132b;">John</h4>
+        <p style="margin:0 0 14px;font-size:12px;color:#000000;">Creator &amp; Tech Lead · Global</p>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <a href="#home" style="display:block;padding:10px;border-radius:10px;background:rgba(56,189,248,0.12);border:1px solid #38bdf8;color:#0070f3;text-decoration:none;font-size:13px;font-weight:600;">✨ Explore My Projects</a>
+          <a href="#home" style="display:block;padding:10px;border-radius:10px;background:rgba(212,255,36,0.12);border:1px solid #0070f3;color:#0070f3;text-decoration:none;font-size:13px;font-weight:600;">🛍️ Summer Merch Store</a>
+          <a href="#home" style="display:block;padding:10px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#0070f3;text-decoration:none;font-size:13px;font-weight:600;">💬 Direct Contact</a>
+        </div>
+      </div>
+      <button type="button" class="checkout-submit-btn" onclick="navigator.clipboard.writeText('https://healink.store/m/john');toast('Bio Page Link Copied: https://healink.store/m/john');" style="background:linear-gradient(135deg,#ec4899,#f43f5e);color:#0070f3;">
+        🔗 Copy Live Bio Page Link
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 8. REAL-TIME ANALYTICS SANDBOX MODAL (Interactive Live Demo) -->
+<div class="checkout-modal-overlay" id="analyticsSandboxModal" hidden>
+  <div class="checkout-card" style="max-width:640px;">
+    <div class="checkout-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="checkout-crown-icon" style="background:rgba(56,189,248,0.15);border-color:#38bdf8;color:#38bdf8;">📊</div>
+        <div>
+          <h3 class="checkout-title">Real-Time Analytics Telemetry</h3>
+          <p class="checkout-sub">Live visitor intelligence with device, location, and referrer charts.</p>
+        </div>
+      </div>
+      <button type="button" class="checkout-close" aria-label="Close modal" onclick="closeAllCustomModals()">✕</button>
+    </div>
+    <div class="checkout-body" style="padding:22px 28px;">
+      <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;margin-bottom:18px;">
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:14px;border-radius:12px;text-align:center;">
+          <span style="font-size:11px;color:#000000;display:block;">TOTAL CLICKS</span>
+          <b style="font-size:24px;color:#0070f3;" id="sandboxTotalClicks">14,820</b>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:14px;border-radius:12px;text-align:center;">
+          <span style="font-size:11px;color:#000000;display:block;">UNIQUE VISITORS</span>
+          <b style="font-size:24px;color:#38bdf8;">11,405</b>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:14px;border-radius:12px;text-align:center;">
+          <span style="font-size:11px;color:#000000;display:block;">QR SCANS</span>
+          <b style="font-size:24px;color:#ec4899;">3,812</b>
+        </div>
+      </div>
+
+      <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:700;color:#000000;margin-bottom:10px;">TOP TRAFFIC CHANNELS</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;">
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+              <span>Direct / SMS / QR</span><b style="color:#38bdf8;">48% (7,114)</b>
+            </div>
+            <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;">
+              <div style="width:48%;height:100%;background:#38bdf8;"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+              <span>Instagram &amp; Bio Pages</span><b style="color:#ec4899;">32% (4,742)</b>
+            </div>
+            <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;">
+              <div style="width:32%;height:100%;background:#ec4899;"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+              <span>WhatsApp &amp; Telegram</span><b style="color:#10b981;">20% (2,964)</b>
+            </div>
+            <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;">
+              <div style="width:20%;height:100%;background:#10b981;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" class="checkout-submit-btn" onclick="closeAllCustomModals()" style="background:linear-gradient(135deg,#0284c7,#38bdf8);color:#0070f3;">
+        Close Analytics Telemetry
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,131 @@
+
+<!-- TOAST & MODAL -->
+<div id="toast" role="status"></div>
+
+<div id="modal" class="modal" hidden>
+  <div class="card pad" style="position:relative !important;">
+    <button type="button" class="modal-close-cross" id="mCloseBtn" aria-label="Close modal" style="position:absolute !important; top:18px !important; right:18px !important; width:36px !important; height:36px !important; border-radius:50% !important; background:#f1f5f9 !important; border:1.5px solid #cbd5e1 !important; color:#0f172a !important; font-size:18px !important; font-weight:bold !important; display:flex !important; align-items:center !important; justify-content:center !important; cursor:pointer !important; z-index:99999 !important;">✕</button>
+    <h3 id="mTitle" style="color:#0070f3 !important; -webkit-text-fill-color:#0070f3 !important; font-size:22px !important; font-weight:800 !important;"></h3>
+    <form id="mForm" class="stack" style="margin-top:16px">
+      <div id="mBody" class="stack" style="color:#1e293b !important; -webkit-text-fill-color:#1e293b !important; font-size:15px !important; line-height:1.65 !important;"></div>
+      <p class="err" id="mErr"></p>
+      <div class="row end" style="margin-top:16px; display:flex; justify-content:flex-end; gap:10px;">
+        <button type="button" class="btn" id="mCancel" style="background:#0070f3 !important; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; border:none !important; font-weight:700 !important; padding:10px 24px !important; border-radius:99px !important; cursor:pointer !important; box-shadow:0 4px 14px rgba(0,112,243,0.3) !important;">Close</button>
+        <button class="btn" id="mOk" type="submit" style="background:#10b981 !important; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; border:none !important; font-weight:700 !important; padding:10px 24px !important; border-radius:99px !important; cursor:pointer !important; box-shadow:0 4px 14px rgba(16,185,129,0.3) !important;">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- PREMIUM UPGRADE & SUBSCRIPTION MODAL (Checkout Flow) -->
+<div class="checkout-modal-overlay" id="checkoutModal" hidden>
+  <div class="checkout-card">
+    <div class="checkout-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="checkout-crown-icon">👑</div>
+        <div>
+          <h3 class="checkout-title" id="checkoutModalTitle">Upgrade to HEA Link PRO</h3>
+          <p class="checkout-sub">Unlock unlimited short links, custom domains, and 4K vector QR codes.</p>
+        </div>
+      </div>
+      <button type="button" class="checkout-close" id="checkoutCloseBtn" aria-label="Close modal">✕</button>
+    </div>
+
+    <div class="checkout-body">
+      <!-- Billing Cycle Toggle -->
+      <div class="billing-cycle-toggle">
+        <button type="button" class="cycle-tab active" id="cycleMonthly">Monthly Billing</button>
+        <button type="button" class="cycle-tab" id="cycleAnnual">Annual Billing <span class="save-badge">Save 20%</span></button>
+      </div>
+
+      <!-- Plan Selector Cards -->
+      <div class="checkout-plans-grid">
+        <label class="checkout-plan-card" data-plan="growth">
+          <input type="radio" name="checkoutPlan" value="growth">
+          <div class="plan-card-inner">
+            <div class="plan-card-top">
+              <span class="plan-name">Growth</span>
+              <span class="plan-price" id="priceGrowth">$8<small>/mo</small></span>
+            </div>
+            <p class="plan-desc">For growing creators &amp; social marketers</p>
+          </div>
+        </label>
+
+        <label class="checkout-plan-card active" data-plan="pro">
+          <input type="radio" name="checkoutPlan" value="pro" checked>
+          <div class="plan-card-inner">
+            <div class="plan-card-badge">RECOMMENDED</div>
+            <div class="plan-card-top">
+              <span class="plan-name">Core PRO</span>
+              <span class="plan-price" id="pricePro">$35<small>/mo</small></span>
+            </div>
+            <p class="plan-desc">Everything unlimited + Custom Branded Domains</p>
+          </div>
+        </label>
+
+        <label class="checkout-plan-card" data-plan="enterprise">
+          <input type="radio" name="checkoutPlan" value="enterprise">
+          <div class="plan-card-inner">
+            <div class="plan-card-top">
+              <span class="plan-name">Enterprise</span>
+              <span class="plan-price" id="priceEnterprise">$199<small>/mo</small></span>
+            </div>
+            <p class="plan-desc">Full API access, 99.99% SLA &amp; dedicated team</p>
+          </div>
+        </label>
+      </div>
+
+      <!-- Payment Details Form -->
+      <form id="checkoutPaymentForm" class="checkout-form">
+        <!-- 1. Stripe Hosted Checkout (Official PCI-DSS Level 1 Encrypted) -->
+        <button type="button" class="checkout-submit-btn" id="btnStripeCheckout" style="background:linear-gradient(135deg,#6366f1,#4f46e5);margin-bottom:14px;box-shadow:0 4px 20px rgba(99,102,241,0.4);border:1px solid rgba(255,255,255,0.2);color:#ffffff !important;">
+          <span style="display:flex;align-items:center;justify-content:center;gap:10px;font-weight:700;color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;">
+            <svg width="22" height="22" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="8" fill="#4f46e5"/><path d="M19.7 14.8c0-1.2 1-1.7 2.6-1.7 2.3 0 5.2.7 7.5 2V9.6c-2.5-1-5.1-1.4-7.5-1.4-6.3 0-10.5 3.3-10.5 8.9 0 8.7 12 7.3 12 11 0 1.4-1.2 1.9-2.9 1.9-2.6 0-5.9-1.1-8.5-2.6v5.7c2.8 1.2 5.7 1.7 8.5 1.7 6.5 0 10.9-3.2 10.9-9 0-9.4-12.1-7.8-12.1-11z" fill="#fff"/></svg>
+            Pay with Stripe ↗ (Visa, MasterCard, Apple Pay)
+          </span>
+        </button>
+
+        <div style="display:flex;align-items:center;gap:12px;margin:10px 0 16px;">
+          <div style="flex:1;height:1px;background:rgba(255,255,255,0.1);"></div>
+          <span style="font-size:11px;color:#000000;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">or enter card on-site</span>
+          <div style="flex:1;height:1px;background:rgba(255,255,255,0.1);"></div>
+        </div>
+
+        <div class="checkout-form-row">
+          <label style="flex:1">Name on Card
+            <input type="text" id="payName" placeholder="Cardholder Full Name" required>
+          </label>
+          <label style="flex:1">Billing Email
+            <input type="email" id="payEmail" placeholder="billing@yourdomain.com" required>
+          </label>
+        </div>
+
+        <label>Card Number
+          <div class="card-input-wrap">
+            <span class="card-icon">💳</span>
+            <input type="text" id="payCardNum" placeholder="4242 •••• •••• 4242 (16 digits)" maxlength="19" required>
+            <span class="card-brand" id="payCardBrand" style="color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;">VISA</span>
+          </div>
+        </label>
+
+        <div class="checkout-form-row">
+          <label style="flex:1">Expiration Date
+            <input type="text" id="payExp" placeholder="MM / YY (e.g. 12/28)" maxlength="7" required>
+          </label>
+          <label style="flex:1">Security Code (CVC)
+            <input type="password" id="payCvc" placeholder="CVC (3 or 4 digits)" maxlength="4" required>
+          </label>
+        </div>
+
+        <div class="checkout-guarantee">
+          <span>🛡️</span>
+          <span>Powered by Stripe · 256-bit SSL encrypted · 14-day money-back guarantee · Cancel anytime.</span>
+        </div>
+
+        <button type="submit" class="checkout-submit-btn" id="checkoutSubmitBtn" style="color:#ffffff !important;">
+          <span style="color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;">👑 Confirm &amp; Activate Subscription</span>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

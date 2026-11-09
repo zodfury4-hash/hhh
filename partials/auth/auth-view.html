@@ -1,0 +1,127 @@
+  <section data-page="auth" hidden>
+    <div class="auth-split-wrap">
+      <div class="auth-left-col">
+        <a href="/" class="auth-brand-logo">
+          <svg class="logo-infinity-svg" width="36" height="25" viewBox="0 0 54 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15.5 8C10.25 8 6 12.25 6 17.5C6 22.75 10.25 27 15.5 27C21.2 27 24.6 20.8 27 17.5C29.4 14.2 32.8 8 38.5 8C43.75 8 48 12.25 48 17.5C48 22.75 43.75 27 38.5 27C32.8 27 29.4 20.8 27 17.5C24.6 14.2 21.2 8 15.5 8Z" stroke="url(#logoBlueGradAuth)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="logoBlueGradAuth" x1="6" y1="8" x2="48" y2="27" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#0066ff"/>
+                <stop offset="1" stop-color="#00c8ff"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span class="logo-hea">HEA</span> <span class="logo-link">Link</span>
+        </a>
+        <h2 class="auth-title" id="authTitle">Welcome Back</h2>
+        <p class="auth-sub" id="authSub">Log in to manage your links, QR codes, and analytics.</p>
+        
+        <div class="sso-group">
+          <button type="button" class="sso-btn" id="ssoGoogleBtn">
+            <svg class="sso-icon" width="18" height="18" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 12s.7 2.3 1.9 4.7l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/></svg>
+            Continue with Google
+          </button>
+          <button type="button" class="sso-btn" id="ssoAppleBtn">
+            <svg class="sso-icon" width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.84c.64-.78 1.08-1.87.96-2.84-.93.04-2.05.62-2.7 1.39-.58.67-1.09 1.76-.95 2.81 1.03.08 2.06-.58 2.69-1.36z"/></svg>
+            Continue with Apple
+          </button>
+        </div>
+
+        <div class="auth-divider" id="authDivider"><span>OR</span></div>
+
+        <form id="authForm" class="auth-form-card">
+          <label id="nameWrap" hidden>Full name
+            <input id="aName" autocomplete="name" placeholder="Enter your full name (e.g. John)">
+          </label>
+          <label>Email address
+            <input id="aEmail" type="email" autocomplete="email" placeholder="name@company.com" required>
+          </label>
+          <label>Password
+            <input id="aPass" type="password" autocomplete="current-password" placeholder="Enter password (min. 8 characters)" required>
+          </label>
+          <div id="forgotLinkRow" style="display:flex;justify-content:flex-end;margin:-4px 0 10px;">
+            <a href="javascript:void(0)" id="authForgotBtn" style="color:#38bdf8;font-size:12px;text-decoration:none;cursor:pointer;">Forgot password?</a>
+          </div>
+          <p class="err" id="authErr"></p>
+          <button class="auth-submit-btn" id="authBtn" type="submit">Log In</button>
+        </form>
+
+        <!-- FORGOT / RESET PASSWORD STEP -->
+        <div id="forgotWrap" hidden class="verify-container">
+          <div class="verify-badge" style="border-color:rgba(56,189,248,0.4);color:#38bdf8;"><span>🔑</span> Reset Password</div>
+          <p style="color:#000000;font-size:14px;margin:0 0 14px;line-height:1.5;" id="forgotPromptText">
+            Enter your account email to receive a 6-digit password reset code.
+          </p>
+
+          <!-- Step 1: Request Code -->
+          <form id="forgotStep1Form">
+            <input type="email" id="forgotEmailInput" class="verify-code-input" style="letter-spacing:normal;font-family:inherit;font-size:14px;padding:12px 14px;text-align:left;" placeholder="Enter your account email (name@company.com)" required>
+            <p class="err" id="forgotStep1Err"></p>
+            <button class="auth-submit-btn" id="forgotSendBtn" type="submit" style="margin-top:10px;">Send 6-Digit Reset Code →</button>
+          </form>
+
+          <!-- Step 2: Verify Code & Set New Password -->
+          <form id="forgotStep2Form" hidden style="margin-top:12px;">
+            <div style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#000000;">
+              Code sent to: <b id="forgotTargetEmailDisplay" style="color:#38bdf8;"></b>
+            </div>
+            <label style="display:block;margin-bottom:10px;font-size:12px;color:#000000;">6-Digit Security Code
+              <input type="text" id="forgotCodeInput" class="verify-code-input" maxlength="6" placeholder="Enter 6-digit code (e.g. 582194)" autocomplete="one-time-code" required style="margin-top:4px;">
+            </label>
+            <label style="display:block;margin-bottom:10px;font-size:12px;color:#000000;">New Password
+              <input type="password" id="forgotNewPassInput" class="verify-code-input" style="letter-spacing:normal;font-family:inherit;font-size:14px;padding:12px 14px;text-align:left;margin-top:4px;" placeholder="Create new password (min. 8 characters)" required>
+            </label>
+            <p class="err" id="forgotStep2Err"></p>
+            <button class="auth-submit-btn" id="forgotSubmitBtn" type="submit" style="margin-top:8px;">Reset Password &amp; Log In →</button>
+          </form>
+
+          <div id="forgotDevAlert" class="verify-dev-alert" hidden>
+            <span>💡</span> <span id="forgotDevText"></span>
+          </div>
+
+          <p class="small center" style="margin-top:16px;">
+            <a href="javascript:void(0)" id="forgotBackBtn" style="color:#38bdf8;text-decoration:none;font-size:13px;cursor:pointer;">← Back to Log In</a>
+          </p>
+        </div>
+
+        <!-- EMAIL VERIFICATION LINK STEP -->
+        <div id="verifyWrap" hidden class="verify-container">
+          <div class="verify-badge" style="background:rgba(56,189,248,0.12);color:#38bdf8;border:1px solid rgba(56,189,248,0.3);padding:6px 14px;border-radius:20px;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;margin-bottom:14px;"><span>✉️</span> Verify Your Email</div>
+          <h3 style="font-size:22px;color:#0b132b;margin:0 0 8px;">Check Your Inbox</h3>
+          <p style="color:#000000;font-size:14px;margin:0 0 12px;line-height:1.5;">
+            Verify your email: A verification link has been sent to your account:<br>
+            <span class="verify-target-email" id="verifyTargetEmail" style="display:inline-block;margin-top:6px;font-size:15px;color:#38bdf8;font-weight:700;">user@example.com</span>
+          </p>
+          <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:14px;margin-bottom:20px;text-align:left;">
+            <div style="color:#10b981;font-weight:700;font-size:13px;margin-bottom:4px;">🔗 Verification Link Sent!</div>
+            <div style="color:#000000;font-size:12px;line-height:1.5;">Please click the verification link sent to your email to activate your account, then click below to open your dashboard.</div>
+          </div>
+          <form id="verifyForm">
+            <p class="err" id="verifyErr"></p>
+            <button class="auth-submit-btn" id="verifySubmitBtn" type="button" style="margin-bottom:12px;">I've Clicked the Link — Open Dashboard →</button>
+          </form>
+          <div class="verify-resend-row" style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px;">
+            <span style="color:#000000;font-size:13px;">Didn't receive email?</span>
+            <button type="button" class="verify-resend-btn" id="verifyResendBtn" style="background:none;border:none;color:#38bdf8;font-weight:700;cursor:pointer;font-size:13px;text-decoration:underline;">Resend verification link</button>
+          </div>
+          <p class="small center" style="margin-top:16px;">
+            <a href="#login" id="verifyBackBtn" style="color:#64748b;text-decoration:none;font-size:13px;">← Back to Log In / Change Email</a>
+          </p>
+          <div id="verifyDevAlert" class="verify-dev-alert" hidden>
+            <span>💡</span> <span id="verifyDevText"></span>
+          </div>
+        </div>
+
+        <p class="small center" id="authSwap" style="margin-top:16px"></p>
+        <p class="auth-terms">By signing in with an account, you agree to HEA Link's Terms of Service and Privacy Policy.</p>
+      </div>
+
+      <div class="auth-right-col">
+        <div class="auth-illus-card">
+          <div class="auth-illus-badge">⚡</div>
+          <h3>Build trust with custom branded links</h3>
+          <p>Shorten URLs, generate custom-framed QR codes, and create engaging link-in-bio landing pages, all monitored by enterprise-grade analytics.</p>
+        </div>
+      </div>
+    </div>
+  </section>

@@ -1,0 +1,75 @@
+<!-- @include "partials/layout/head.html" -->
+<body class="app-mode">
+  <div class="scroll-progress-bar" id="scrollProgressBar" aria-hidden="true"></div>
+<div class="bg-glow-curves"></div>
+
+
+<!-- HEADER NAVBAR -->
+<!-- @include "partials/layout/navbar.html" -->
+
+<main>
+  <!-- 1. HOME VIEW -->
+  <!-- 1. HOME VIEW (Matches media_1793564494242_dc725741.png) -->
+<!-- @include "partials/landing/hero.html" -->
+
+    <!-- Interactive Skipper Feature Showcase Carousel -->
+<!-- @include "partials/landing/showcase.html" -->
+
+  <!-- 2. AUTH VIEW (Split Screen Login / Sign Up matching Bitly screenshots) -->
+<!-- @include "partials/auth/auth-view.html" -->
+
+  <!-- =========================================================
+       HEA LINK APP SHELL (Bitly-Style Professional Dashboard)
+       ========================================================= -->
+  <section data-page="app" id="appShell">
+    <!-- Ambient 3D Depth Gradient Orbs -->
+<!-- @include "partials/dashboard/ambient-orbs.html" -->
+    <!-- LEFT SIDEBAR -->
+<!-- @include "partials/dashboard/sidebar.html" -->
+
+    <!-- APP BODY WRAP -->
+    <div class="app-body-wrap">
+      <!-- APP TOPBAR (1:1 Reference Match) -->
+<!-- @include "partials/dashboard/topbar.html" -->
+
+      <!-- CONTENT ROW (MAIN PANE + RIGHT ASSIST DRAWER) -->
+      <div class="app-content-row">
+        <main class="app-main-pane" id="appMainPane" data-lenis-prevent="true" role="main" aria-label="Dashboard Content">
+
+<!-- @include "partials/dashboard/dashboard-view.html" -->
+
+        </main>
+
+        <!-- RIGHT HEA ASSIST AI DRAWER (1:1 Exact Reference Match) -->
+<!-- @include "partials/dashboard/assist-drawer.html" -->
+      </div>
+    </div>
+    <!-- MOBILE BOTTOM NAVIGATION (Active on < 768px) -->
+<!-- @include "partials/layout/mobile-tabs.html" -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" hidden></div>
+  </section>
+
+  <!-- "WHAT DO YOU WANT TO CREATE?" MODAL (Screenshot 12.02.37 AM 1) -->
+<!-- @include "partials/modals/what-modal.html" -->
+
+  <!-- 3. DASHBOARD VIEW -->
+<!-- @include "partials/landing/fallback-sections.html" -->
+</main>
+
+<!-- FOOTER -->
+<!-- @include "partials/layout/footer.html" -->
+
+<!-- PRO / ENTERPRISE CHECKOUT MODAL OVERLAY -->
+<!-- @include "partials/modals/checkout-modal.html" -->
+
+<!-- =========================================================
+     INTERACTIVE REAL-TIME FEATURE MODALS
+     (Products, AI, Solutions, Resources)
+     ========================================================= -->
+
+<!-- 1. MOBILE DEEP LINKS & SMS SHORTENER MODAL -->
+<!-- @include "partials/modals/feature-modals.html" -->
+
+<!-- @include "partials/layout/scripts.html" -->
+</body>
+</html>

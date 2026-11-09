@@ -1,0 +1,123 @@
+        <!-- ====================================================
+             2. MIDDLE HERO ROW (Hero Shortener + Calendar/Velocity)
+             ==================================================== -->
+        <div class="dash-hero-grid">
+          
+          <!-- Left: Hero Shortener Card -->
+          <div class="hero-shorten-card">
+            <div class="hero-top-badges">
+              <div class="live-activity-pill">
+                <span class="live-dot"></span>
+                <span class="live-text">Live Activity · 42 visitors right now</span>
+                <div class="live-avatars">
+                  <div class="live-avatar-item" style="background:#0A6CFF;">FZ</div>
+                  <div class="live-avatar-item" style="background:#7928ca;">AK</div>
+                  <div class="live-avatar-item" style="background:#10b981;">EM</div>
+                </div>
+                <span class="live-more-text">+1.4k active</span>
+              </div>
+              <div class="core-pro-badge" onclick="window.openCheckoutModal('pro')" style="cursor:pointer;">
+                <span>👑</span> Core PRO Active
+              </div>
+            </div>
+
+            <div class="hero-main-row">
+              <div class="hero-text-block">
+                <h2 class="hero-greeting-title">Good afternoon, Fury! 🚀</h2>
+                <p class="hero-greeting-sub">Shorten your links, track performance and grow your audience with ease.</p>
+              </div>
+              
+              <!-- 3D Glossy Blue Chain Link Illustration -->
+              <div class="hero-3d-graphic-wrap" aria-hidden="true">
+                <svg width="170" height="150" viewBox="0 0 170 150" fill="none">
+                  <defs>
+                    <linearGradient id="linkBody3D" x1="20" y1="20" x2="150" y2="130" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stop-color="#38bdf8"/>
+                      <stop offset="35%" stop-color="#0A6CFF"/>
+                      <stop offset="70%" stop-color="#0284c7"/>
+                      <stop offset="100%" stop-color="#1e3a8a"/>
+                    </linearGradient>
+                    <linearGradient id="linkSpec3D" x1="40" y1="30" x2="140" y2="110" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+                      <stop offset="35%" stop-color="#ffffff" stop-opacity="0.25"/>
+                      <stop offset="70%" stop-color="#38bdf8" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <!-- Base Ambient Drop Shadow -->
+                  <ellipse cx="85" cy="130" rx="55" ry="14" fill="rgba(10, 108, 255, 0.22)" filter="blur(6px)"/>
+                  <!-- 3D Tilted Torus / Chain Ring -->
+                  <g transform="rotate(-28 85 75)">
+                    <path d="M 42 42 C 42 22, 62 14, 88 14 C 114 14, 134 22, 134 42 L 134 102 C 134 122, 114 130, 88 130 C 62 130, 42 122, 42 102 Z" 
+                          stroke="url(#linkBody3D)" stroke-width="26" stroke-linejoin="round" fill="none"/>
+                    <path d="M 44 44 C 44 26, 64 18, 88 18 C 112 18, 132 26, 132 44 L 132 68" 
+                          stroke="url(#linkSpec3D)" stroke-width="7" stroke-linecap="round" fill="none"/>
+                  </g>
+                  <!-- Floating 3D Accent Sparks -->
+                  <rect x="24" y="42" width="11" height="4" rx="2" fill="#818cf8" transform="rotate(-35 24 42)"/>
+                  <circle cx="16" cy="60" r="2.5" fill="#38bdf8"/>
+                  <rect x="142" y="24" width="10" height="3.5" rx="1.75" fill="#60a5fa" transform="rotate(25 142 24)"/>
+                  <circle cx="156" cy="52" r="2.5" fill="#a855f7"/>
+                  <rect x="150" y="68" width="11" height="3.5" rx="1.75" fill="#38bdf8" transform="rotate(-15 150 68)"/>
+                  <circle cx="32" cy="102" r="2.5" fill="#60a5fa"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Toggle Tabs (Short Link vs Vector QR) -->
+            <div class="hero-type-pills">
+              <button type="button" class="hero-type-pill active" id="tabShortLinkOpt">
+                <span>🔗</span> Short link &amp; URL
+              </button>
+              <button type="button" class="hero-type-pill" id="tabQrCodeOpt">
+                <span>▦</span> Vector QR Code
+              </button>
+            </div>
+
+            <!-- Shorten Input Box -->
+            <form id="homeShortenForm" class="hero-shorten-form-wrap">
+              <span class="hero-input-icon" id="homeInputIcon">🔗</span>
+              <input type="url" id="homeShortenInput" class="hero-shorten-input" placeholder="Paste destination URL to generate a short link..." required autocomplete="off">
+              <button type="submit" class="hero-submit-btn" id="homeSubmitBtn">
+                <span>Create Now</span> →
+              </button>
+            </form>
+
+            <div id="homeShortenResult" class="home-shorten-result" style="display:none;margin-bottom:14px;"></div>
+
+            <!-- Quick Actions Line -->
+            <div class="hero-quick-actions-row">
+              <span class="hero-quick-label">Quick actions:</span>
+              <button type="button" class="hero-action-pill" onclick="if(window.appShell) window.appShell.openCreateModal('link')">
+                <span style="color:#f59e0b;">⚡</span> Customize Link
+              </button>
+              <button type="button" class="hero-action-pill" onclick="if(window.appShell) window.appShell.navigate('qr')">
+                <span style="color:#d97706;">🎨</span> Custom QR Design
+              </button>
+              <button type="button" class="hero-action-pill" onclick="if(window.appShell) window.appShell.navigate('pages')">
+                <span style="color:#0284c7;">📄</span> New Bio Page
+              </button>
+            </div>
+          </div>
+
+          <!-- Right: Stacked Calendar & Velocity Widgets -->
+          <div class="dash-right-stack">
+            
+            <!-- Widget 1: Calendar Week -->
+            <div class="calendar-widget-card">
+              <div class="widget-header-row">
+                <div class="widget-title">📅 November 2026</div>
+                <button type="button" class="widget-dropdown-btn">This Week ˇ</button>
+              </div>
+              <div class="cal-week-grid">
+                <div class="cal-day-col active">
+                  <span class="cal-day-name">MON</span>
+                  <span class="cal-day-number">9</span>
+                </div>
+                <div class="cal-day-col">
+                  <span class="cal-day-name">TUE</span>
+                  <span class="cal-day-number">10</span>
+                </div>
+                <div class="cal-day-col">
+                  <span class="cal-day-name">WED</span>
+                  <span class="cal-day-number">11</span>
+                </div>

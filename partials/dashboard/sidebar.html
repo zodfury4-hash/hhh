@@ -1,0 +1,108 @@
+    <aside class="app-sidebar expanded" id="appSidebar" data-lenis-prevent="true" aria-label="Sidebar navigation">
+      <!-- Floating Sidebar Collapse/Expand Toggle on Edge -->
+      <div class="sidebar-header-box">
+        <a href="#dashboard" class="sidebar-logo logo" title="HEA Link">
+          <svg class="logo-infinity-svg" width="30" height="20" viewBox="0 0 54 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15.5 8C10.25 8 6 12.25 6 17.5C6 22.75 10.25 27 15.5 27C21.2 27 24.6 20.8 27 17.5C29.4 14.2 32.8 8 38.5 8C43.75 8 48 12.25 48 17.5C48 22.75 43.75 27 38.5 27C32.8 27 29.4 20.8 27 17.5C24.6 14.2 21.2 8 15.5 8Z" stroke="url(#logoBlueGradSidebar)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="logoBlueGradSidebar" x1="6" y1="8" x2="48" y2="27" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#0066ff"/>
+                <stop offset="100%" stop-color="#00c8ff"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span class="sidebar-logo-text"><span class="logo-hea">HEA</span> <span class="logo-link">Link</span></span>
+        </a>
+        <button class="sidebar-edge-toggle" id="sidebarCollapseBtn" type="button" title="Collapse sidebar" aria-label="Toggle sidebar width">‹</button>
+      </div>
+
+      <!-- Action Button (Distinct from active route) -->
+      <button class="sidebar-action-btn" id="sidebarCreateBtn" type="button" title="Create new link, QR or page" data-tooltip="Create new">
+        <svg class="action-btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        <span class="action-btn-text">Create new</span>
+      </button>
+
+      <!-- Navigation List with Crisp Vector SVG Icons (1:1 Reference Match) -->
+      <nav class="sidebar-nav" id="sidebarNav">
+        <a class="sidebar-nav-item active" data-tab="home" href="#dashboard" data-tooltip="Home">
+          <span class="sidebar-nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          </span>
+          <span class="sidebar-nav-label">Home</span>
+        </a>
+        <a class="sidebar-nav-item" data-tab="links" href="#links" data-tooltip="Links">
+          <span class="sidebar-nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+          </span>
+          <span class="sidebar-nav-label">Links</span>
+        </a>
+        <a class="sidebar-nav-item" data-tab="qr" href="#qr" data-tooltip="QR Codes">
+          <span class="sidebar-nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="5" height="5" x="3" y="3" rx="1"></rect><rect width="5" height="5" x="16" y="3" rx="1"></rect><rect width="5" height="5" x="3" y="16" rx="1"></rect><path d="M21 16h-3a2 2 0 0 0-2 2v3"></path><path d="M21 21v.01"></path><path d="M12 7v3a2 2 0 0 1-2 2H7"></path><path d="M3 12h.01"></path><path d="M12 3h.01"></path><path d="M12 16v.01"></path><path d="M16 12h1"></path><path d="M21 12v.01"></path><path d="M12 21v-1"></path></svg>
+          </span>
+          <span class="sidebar-nav-label">QR Codes</span>
+        </a>
+        <a class="sidebar-nav-item" data-tab="pages" href="#pages" data-tooltip="Pages">
+          <span class="sidebar-nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M7 8h10"></path><path d="M7 12h10"></path><path d="M7 16h6"></path></svg>
+          </span>
+          <span class="sidebar-nav-label">Pages</span>
+          <span class="nav-pro-badge">PRO</span>
+        </a>
+        <a class="sidebar-nav-item" data-tab="analytics" href="#analytics" data-tooltip="Analytics">
+          <span class="sidebar-nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="18" y1="20" y2="10"></line><line x1="12" x2="12" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="14"></line></svg>
+          </span>
+          <span class="sidebar-nav-label">Analytics</span>
+        </a>
+        <a class="sidebar-nav-item" data-tab="campaigns" href="#campaigns" data-tooltip="Campaigns">
+          <span class="sidebar-nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          </span>
+          <span class="sidebar-nav-label">Campaigns</span>
+        </a>
+        <a class="sidebar-nav-item" data-tab="domains" href="#domains" data-tooltip="Custom domains">
+          <span class="sidebar-nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+          </span>
+          <span class="sidebar-nav-label">Custom domains</span>
+          <span class="nav-pro-badge">PRO</span>
+        </a>
+        <a class="sidebar-nav-item" data-tab="settings" href="#settings" data-tooltip="Settings">
+          <span class="sidebar-nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </span>
+          <span class="sidebar-nav-label">Settings</span>
+        </a>
+      </nav>
+
+      <!-- Sidebar User & Workspace Footer (1:1 Reference Match) -->
+      <div class="sidebar-bottom">
+        <!-- Expanded-only Workspace Badge -->
+        <div class="sidebar-workspace-card" id="sidebarWorkspaceBox">
+          <div class="workspace-label">CURRENT WORKSPACE</div>
+          <div class="workspace-title-row" id="sidebarUserOrg">
+            <span class="workspace-name">My Workspace</span>
+            <span class="verified-tag">FREE</span>
+          </div>
+        </div>
+
+        <!-- Clean User Block Row -->
+        <div class="sidebar-user-row">
+          <a href="#settings" class="sidebar-user-link" id="sidebarUserLink">
+            <div class="sidebar-user-avatar" id="sidebarAvatar" data-tooltip="User Account">HA</div>
+            <div class="sidebar-user-name" id="sidebarUserName">Account</div>
+          </a>
+          <button class="sidebar-logout-btn" id="sidebarLogoutBtn" type="button" title="Log out" aria-label="Log out" onclick="if(window.logoutUser) window.logoutUser();">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </aside>

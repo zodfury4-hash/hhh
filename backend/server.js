@@ -105,6 +105,11 @@ app.use((req, res) => {
 
 // ---------------- SERVER INITIALIZATION ---------------- //
 if (require.main === module || require.main?.filename === path.join(projectRoot, 'server.js') || !process.env.VERCEL) {
+  try {
+    const { buildHtml } = require('../tools/build_html.js');
+    buildHtml();
+  } catch (e) {}
+
   app.listen(PORT, () => {
     console.log(`\n========================================================`);
     console.log(`🚀 HEA Link Full-Stack Server running at: http://localhost:${PORT}`);

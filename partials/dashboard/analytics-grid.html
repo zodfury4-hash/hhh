@@ -1,0 +1,174 @@
+<!-- ====================================================
+             3. BOTTOM ROW (Overview + Recent Links + Top Referrers)
+             ==================================================== -->
+        <div class="dash-bottom-grid">
+          
+          <!-- Card 1: Overview (Metrics Summary) -->
+          <div class="bottom-widget-card">
+            <div class="widget-header-row">
+              <div class="widget-title">📊 Overview</div>
+              <button type="button" class="widget-dropdown-btn">Last 7 Days ˇ</button>
+            </div>
+            <div class="overview-stats-grid">
+              <!-- Visitors -->
+              <div class="overview-col">
+                <div class="overview-icon-badge" style="background:#e0f2fe;color:#0284c7;">👁️</div>
+                <span class="overview-num">32.4K</span>
+                <span class="overview-lbl">Visitors</span>
+                <span class="overview-pct">↑ +16%</span>
+              </div>
+              <!-- Clicks -->
+              <div class="overview-col">
+                <div class="overview-icon-badge" style="background:#f3e8ff;color:#9333ea;">🔗</div>
+                <span class="overview-num">48.7K</span>
+                <span class="overview-lbl">Clicks</span>
+                <span class="overview-pct">↑ +18%</span>
+              </div>
+              <!-- Links -->
+              <div class="overview-col">
+                <div class="overview-icon-badge" style="background:#dcfce7;color:#16a34a;">⛓️</div>
+                <span class="overview-num">1.5K</span>
+                <span class="overview-lbl">Links</span>
+                <span class="overview-pct">↑ +12%</span>
+              </div>
+              <!-- Avg Time -->
+              <div class="overview-col">
+                <div class="overview-icon-badge" style="background:#fef3c7;color:#d97706;">⏱️</div>
+                <span class="overview-num">2m 24s</span>
+                <span class="overview-lbl">Avg. Time</span>
+                <span class="overview-pct">↑ +8%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Recent Links -->
+          <div class="bottom-widget-card">
+            <div class="widget-header-row">
+              <div class="widget-title">🔗 Recent Links</div>
+              <a href="#links" class="view-all-link" onclick="window.appShell.navigate('links'); return false;">View All →</a>
+            </div>
+            
+            <div class="recent-links-list">
+              <!-- Link Row 1 -->
+              <div class="recent-link-row-item">
+                <div class="recent-left-meta">
+                  <div class="recent-link-icon-box">🔗</div>
+                  <div class="recent-link-titles">
+                    <span class="recent-dest-title" title="https://yourwebsite.com/product">https://yourwebsite.com/product</span>
+                    <a href="https://healink.store/abc123" target="_blank" rel="noopener" class="recent-short-slug">fury.link/abc123</a>
+                  </div>
+                </div>
+                <div class="recent-right-telemetry">
+                  <span class="recent-click-count">2.8K clicks</span>
+                  <svg width="42" height="18" viewBox="0 0 42 18" fill="none">
+                    <path d="M2 14 Q 10 16, 18 8 T 32 10 T 40 4" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <button type="button" class="recent-more-btn" title="Options">•••</button>
+                </div>
+              </div>
+
+              <!-- Link Row 2 -->
+              <div class="recent-link-row-item">
+                <div class="recent-left-meta">
+                  <div class="recent-link-icon-box">🔗</div>
+                  <div class="recent-link-titles">
+                    <span class="recent-dest-title" title="https://github.com/fury">https://github.com/fury</span>
+                    <a href="https://healink.store/github" target="_blank" rel="noopener" class="recent-short-slug">fury.link/github</a>
+                  </div>
+                </div>
+                <div class="recent-right-telemetry">
+                  <span class="recent-click-count">1.4K clicks</span>
+                  <svg width="42" height="18" viewBox="0 0 42 18" fill="none">
+                    <path d="M2 12 Q 10 15, 18 6 T 32 12 T 40 4" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <button type="button" class="recent-more-btn" title="Options">•••</button>
+                </div>
+              </div>
+
+              <!-- Link Row 3 -->
+              <div class="recent-link-row-item">
+                <div class="recent-left-meta">
+                  <div class="recent-link-icon-box">🔗</div>
+                  <div class="recent-link-titles">
+                    <span class="recent-dest-title" title="https://store.com/deals">https://store.com/deals</span>
+                    <a href="https://healink.store/deals" target="_blank" rel="noopener" class="recent-short-slug">fury.link/deals</a>
+                  </div>
+                </div>
+                <div class="recent-right-telemetry">
+                  <span class="recent-click-count">872 clicks</span>
+                  <svg width="42" height="18" viewBox="0 0 42 18" fill="none">
+                    <path d="M2 14 Q 10 16, 20 10 T 32 12 T 40 6" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <button type="button" class="recent-more-btn" title="Options">•••</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Top Referrers -->
+          <div class="bottom-widget-card">
+            <div class="widget-header-row">
+              <div class="widget-title">👥 Top Referrers</div>
+              <a href="#analytics" class="view-all-link" onclick="window.appShell.navigate('analytics'); return false;">View All →</a>
+            </div>
+            
+            <div class="referrers-body">
+              <!-- Donut Chart -->
+              <div class="donut-chart-box">
+                <svg width="96" height="96" viewBox="0 0 100 100" style="transform:rotate(-90deg);">
+                  <!-- Background circle track -->
+                  <circle cx="50" cy="50" r="36" stroke="#f1f5f9" stroke-width="14" fill="none"/>
+                  <!-- Segment 1: Organic Search (68%) - Blue -->
+                  <circle cx="50" cy="50" r="36" stroke="#0A6CFF" stroke-width="14" fill="none"
+                          stroke-dasharray="153.8 226.2" stroke-dashoffset="0"/>
+                  <!-- Segment 2: Direct (16%) - Purple -->
+                  <circle cx="50" cy="50" r="36" stroke="#a855f7" stroke-width="14" fill="none"
+                          stroke-dasharray="36.2 226.2" stroke-dashoffset="-153.8"/>
+                  <!-- Segment 3: Social Media (10%) - Green -->
+                  <circle cx="50" cy="50" r="36" stroke="#10b981" stroke-width="14" fill="none"
+                          stroke-dasharray="22.6 226.2" stroke-dashoffset="-190"/>
+                  <!-- Segment 4: Others (6%) - Amber -->
+                  <circle cx="50" cy="50" r="36" stroke="#f59e0b" stroke-width="14" fill="none"
+                          stroke-dasharray="13.6 226.2" stroke-dashoffset="-212.6"/>
+                </svg>
+                <div class="donut-center-info">
+                  <span class="donut-pct-bold">68%</span>
+                  <span class="donut-pct-label">Organic</span>
+                </div>
+              </div>
+
+              <!-- Legend List -->
+              <div class="referrers-legend-list">
+                <div class="legend-item">
+                  <div class="legend-left">
+                    <span class="legend-dot" style="background:#0A6CFF;"></span>
+                    <span>Organic Search</span>
+                  </div>
+                  <span class="legend-val">68%</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-left">
+                    <span class="legend-dot" style="background:#a855f7;"></span>
+                    <span>Direct</span>
+                  </div>
+                  <span class="legend-val">16%</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-left">
+                    <span class="legend-dot" style="background:#10b981;"></span>
+                    <span>Social Media</span>
+                  </div>
+                  <span class="legend-val">10%</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-left">
+                    <span class="legend-dot" style="background:#f59e0b;"></span>
+                    <span>Others</span>
+                  </div>
+                  <span class="legend-val">6%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
