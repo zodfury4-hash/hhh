@@ -53,7 +53,7 @@ export function StepsSection() {
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-3xl sm:text-4xl font-black text-[#0070f3]/25 font-mono">
+                    <span className="text-3xl sm:text-4xl font-black text-[#0070f3] font-mono">
                       {step.num}
                     </span>
                     <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-50 text-[#0070f3] border border-blue-100">
