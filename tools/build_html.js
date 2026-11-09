@@ -2,11 +2,10 @@ const fs = require('fs');
 const path = require('path');
 
 const rootDir = path.resolve(__dirname, '..');
-const templatePath = path.join(rootDir, 'partials', 'index.template.html');
-const targets = [
-  path.join(rootDir, 'index.html'),
-  path.join(rootDir, 'app.html')
-];
+const templatePath = path.join(rootDir, 'index.html');
+
+let cachedHtml = null;
+let lastCheckTime = 0;
 
 function compileTemplate(filePath, seen = new Set()) {
   if (seen.has(filePath)) {
@@ -31,38 +30,35 @@ function compileTemplate(filePath, seen = new Set()) {
   return content;
 }
 
-function buildHtml() {
-  const start = Date.now();
+function getCompiledHtml() {
   try {
-    const compiled = compileTemplate(templatePath);
-
-    targets.forEach(target => {
-      fs.writeFileSync(target, compiled, 'utf8');
-    });
-
-    const elapsed = Date.now() - start;
-    console.log(`[build:html] Compiled ${path.relative(rootDir, templatePath)} -> index.html & app.html (${elapsed}ms)`);
-    return true;
+    return compileTemplate(templatePath);
   } catch (err) {
-    console.error('[build:html] Error compiling HTML:', err.message);
-    return false;
+    console.error('[build_html] Error compiling template:', err.message);
+    return cachedHtml || `<h1>Error compiling template: ${err.message}</h1>`;
   }
 }
 
-// Watch mode
-if (process.argv.includes('--watch')) {
-  buildHtml();
-  const partialsDir = path.join(rootDir, 'partials');
-  console.log(`[build:html] Watching ${partialsDir} for changes...`);
-  fs.watch(partialsDir, { recursive: true }, (event, filename) => {
-    if (filename && filename.endsWith('.html')) {
-      console.log(`[build:html] Detected change in ${filename}, recompiling...`);
-      buildHtml();
-    }
-  });
-} else if (require.main === module) {
-  const ok = buildHtml();
-  process.exit(ok ? 0 : 1);
+// Build a standalone compiled static bundle if ever needed (e.g. for static hosting)
+function buildStatic(outDir = 'dist') {
+  const outPath = path.join(rootDir, outDir, 'index.html');
+  fs.mkdirSync(path.dirname(outPath), { recursive: true });
+  const compiled = getCompiledHtml();
+  fs.writeFileSync(outPath, compiled, 'utf8');
+  console.log(`[build_html] Compiled static HTML to: ${outPath}`);
 }
 
-module.exports = { buildHtml };
+if (require.main === module) {
+  if (process.argv.includes('--static')) {
+    buildStatic();
+  } else {
+    const compiled = getCompiledHtml();
+    console.log(`[build_html] Verified template compilation (${compiled.length} bytes, ${(compiled.split('\n').length)} lines)`);
+  }
+}
+
+module.exports = {
+  compileTemplate,
+  getCompiledHtml,
+  buildStatic
+};

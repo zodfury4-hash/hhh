@@ -8,6 +8,7 @@ const cors = require('cors');
 
 const User = require('./models/User');
 const { VIP_ADMIN_ACCOUNTS } = require('./utils/helpers');
+const { getCompiledHtml } = require('../tools/build_html');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -85,31 +86,28 @@ app.use('/', require('./routes/assist'));
 
 // ---------------- STATIC ASSETS & CLIENT SPA ROUTES ---------------- //
 // Explicit auth and dashboard routes
-app.get('/login', (req, res) => res.redirect('/app.html#login'));
-app.get('/signup', (req, res) => res.redirect('/app.html#signup'));
-app.get('/dashboard', (req, res) => res.redirect('/app.html#dashboard'));
-app.get('/app', (req, res) => res.redirect('/app.html#dashboard'));
+app.get('/login', (req, res) => res.redirect('/#login'));
+app.get('/signup', (req, res) => res.redirect('/#signup'));
+app.get('/dashboard', (req, res) => res.redirect('/#dashboard'));
+app.get('/app', (req, res) => res.redirect('/#dashboard'));
 
-// Root path serves index.html
-app.get('/', (req, res) => {
-  return res.sendFile(path.join(projectRoot, 'index.html'));
+// Serve dynamically compiled HTML for entry routes
+app.get(['/', '/index.html', '/app.html'], (req, res) => {
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  return res.send(getCompiledHtml());
 });
 
-// Serve static project files
+// Serve static project files (CSS, JS, images, icons)
 app.use(express.static(projectRoot, { dotfiles: 'ignore' }));
 
-// Client-side fallback to index.html
+// Client-side fallback to compiled HTML
 app.use((req, res) => {
-  res.sendFile(path.join(projectRoot, 'index.html'));
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  return res.send(getCompiledHtml());
 });
 
 // ---------------- SERVER INITIALIZATION ---------------- //
 if (require.main === module || require.main?.filename === path.join(projectRoot, 'server.js') || !process.env.VERCEL) {
-  try {
-    const { buildHtml } = require('../tools/build_html.js');
-    buildHtml();
-  } catch (e) {}
-
   app.listen(PORT, () => {
     console.log(`\n========================================================`);
     console.log(`🚀 HEA Link Full-Stack Server running at: http://localhost:${PORT}`);
