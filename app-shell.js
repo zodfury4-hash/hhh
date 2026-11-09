@@ -7704,18 +7704,19 @@ Here are recommended optimizations for your links and campaigns:<br>
     // Initial render: ONLY show dashboard if user is verified AND currently on an app view
 
     const initialRaw = (location.hash.slice(1) || '').split('?')[0];
-
-    document.body.classList.add('app-mode');
-
-    const as = $('#appShell');
-
-    if (as) as.hidden = false;
-
-    setAppUser(appUser);
-
-    const tab = (!initialRaw || initialRaw === 'dashboard' || initialRaw === 'app' || initialRaw === 'home') ? 'home' : initialRaw;
-
-    navigate(tab);
+    const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'assist', 'app'];
+    if (appViews.includes(initialRaw) && isUserAuthenticated()) {
+      document.body.classList.add('app-mode');
+      const as = $('#appShell');
+      if (as) as.hidden = false;
+      setAppUser(appUser);
+      const tab = (initialRaw === 'dashboard' || initialRaw === 'app') ? 'home' : initialRaw;
+      navigate(tab);
+    } else {
+      document.body.classList.remove('app-mode');
+      const as = $('#appShell');
+      if (as) as.hidden = true;
+    }
 
   }
 

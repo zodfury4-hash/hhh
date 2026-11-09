@@ -1,0 +1,56 @@
+/* =========================================================
+   HEA Link — Base Resets, Modern Typography & Global Layout
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
+}
+
+body {
+  margin: 0;
+  font: 16px/1.6 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #f0f6ff;
+  color: #0b132b;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1, h2, h3, h4, p {
+  margin: 0;
+}
+
+h1, h2, h3, h4, .hero-title, .auth-title, .dash-header h2, .dash-hero-title, .view-header h2, .page-row-title, .dash-white-card h3, .dash-white-card h4 {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 48px;
+}
+
+.narrow {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+}

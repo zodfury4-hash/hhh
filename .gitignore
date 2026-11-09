@@ -1,8 +1,27 @@
+# Dependencies & Generated Builds
+node_modules/
+dist/
+
+# Environment & Secrets (STRICTLY FORBIDDEN FROM COMMITS)
+.env
+*.env
+*.log
+
+# Python Cache & Debug Tooling
+__pycache__/
+*.pyc
+scratch/
+archive/scratch/
+archive/tooling/
+.agents/
+.taste-skill/
+skills-lock.json
+
+# IDE & Editor Directories
 .idea/
 .vscode/
-node_modules/
-.env
-scratch/
-.taste-skill/
-.agents/
-skills-lock.json
+
+# Local Database Stores (Keep schema & .htaccess)
+data/*.db
+data/*.sqlite
+data/*.sqlite3

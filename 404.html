@@ -46,6 +46,13 @@
         }
       }
 
+      if (slug && /\.html$/i.test(slug)) {
+        slug = slug.replace(/\.html$/i, '');
+      }
+      if (slug === 'qr-code') slug = 'qr';
+      if (slug === 'bio-pages') slug = 'pages';
+      if (slug === 'ai') slug = 'assist';
+
       // If route is a SPA top-level view, forward to index.html with hash
       const spaRoutes = [
         'dashboard', 'pricing', 'login', 'signup', 'faq', 'solutions',

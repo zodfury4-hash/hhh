@@ -1,20 +1,25 @@
 {
   "name": "hhh",
   "version": "1.0.0",
-  "description": "Full Glassmorphism landing page + real functional PHP backend + SQLite database + Admin Control Panel.",
-  "main": "app-shell.js",
+  "description": "Universal short links, vector QR codes, bio pages, real-time analytics, and HEA Assist AI.",
+  "main": "server.js",
   "scripts": {
-    "build": "npm --prefix landing install && npm --prefix landing run build",
     "start": "node server.js",
     "server": "node server.js",
     "dev": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node scratch/run_full_qa.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/zodfury4-hash/hhh.git"
   },
-  "keywords": [],
+  "keywords": [
+    "url-shortener",
+    "qr-codes",
+    "link-in-bio",
+    "analytics",
+    "ai"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
