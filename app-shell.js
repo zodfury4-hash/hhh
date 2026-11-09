@@ -559,14 +559,10 @@
         { root: pane, threshold: 0.05, rootMargin: '0px 0px -20px 0px' }
       );
 
-      cards.forEach((card, index) => {
-        card.classList.add('card-3d-reveal');
-        card.style.transitionDelay = Math.min(index * 70, 350) + 'ms';
-        observer.observe(card);
+      cards.forEach((c) => {
+        c.classList.remove('card-3d-reveal');
+        c.classList.add('is-revealed');
       });
-      setTimeout(() => {
-        cards.forEach((c) => c.classList.add('is-revealed'));
-      }, 80);
     } else {
       cards.forEach((c) => c.classList.add('is-revealed'));
     }
@@ -701,10 +697,7 @@
 
     if (!pane) return;
 
-    // Smooth blur + fade + slight scale transition
-    pane.classList.add('is-view-switching');
-    setTimeout(() => {
-      pane.scrollTop = 0;
+    pane.scrollTop = 0;
       try {
 
       switch (tab) {
@@ -811,10 +804,7 @@
 
     }
 
-    // 3D Motion & Card Stagger Refresh
-      pane.classList.remove('is-view-switching');
-      setTimeout(() => initDashboard3DMotion(), 40);
-    }, 110);
+    try { initDashboard3DMotion(); } catch (e) {}
 
     // Clean, zero-jitter instant rendering for dashboard views
     // animatePageText removed here to prevent UI shifts and element bounce

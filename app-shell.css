@@ -5443,7 +5443,8 @@ body.app-mode #appShell {
 }
 .sidebar-nav-item:hover:not(.active) .sidebar-nav-icon svg {
   stroke: #0A6CFF !important;
-  transform: scale(1.08) !important;
+  transform: none !important;
+  transition: none !important;
 }
 
 /* Tooltip on Hover in Slim Mode */
@@ -7050,7 +7051,8 @@ body.app-mode #appShell {
   text-decoration: none !important;
   position: relative !important;
   margin: 0 auto !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transition: none !important;
+  transform: none !important;
   flex-shrink: 0 !important;
   box-sizing: border-box !important;
 }
@@ -7073,7 +7075,8 @@ body.app-mode #appShell {
   background: linear-gradient(135deg, #0A6CFF, #00c8ff) !important;
   color: #ffffff !important;
   box-shadow: 0 4px 12px rgba(10, 108, 255, 0.4) !important;
-  transform: scale(1.02) !important;
+  transform: none !important;
+  transition: none !important;
   border-radius: 50% !important;
 }
 .sidebar-nav-item.active .sidebar-nav-icon svg {
@@ -7091,7 +7094,8 @@ body.app-mode #appShell {
 }
 .sidebar-nav-item:hover:not(.active) .sidebar-nav-icon svg {
   stroke: #0A6CFF !important;
-  transform: scale(1.08) !important;
+  transform: none !important;
+  transition: none !important;
 }
 
 /* HEA Assist AI Item in Sidebar */
@@ -7818,4 +7822,27 @@ body.app-mode #appShell {
   background: #f8fafc !important;
   border-color: #94a3b8 !important;
   transform: translateY(-1px) !important;
+}
+
+/* Disable all animations on sidebar click & view switch as requested */
+.sidebar-nav-item,
+.sidebar-nav-item:hover,
+.sidebar-nav-item.active,
+.sidebar-nav-item:active,
+.sidebar-nav-item .sidebar-nav-icon,
+.sidebar-nav-item .sidebar-nav-icon svg,
+.sidebar-action-btn,
+.sidebar-action-btn:hover,
+.sidebar-action-btn:active {
+  transition: none !important;
+  transform: none !important;
+  animation: none !important;
+}
+
+.card-3d-reveal,
+.card-3d-reveal.is-revealed {
+  transition: none !important;
+  transform: none !important;
+  animation: none !important;
+  opacity: 1 !important;
 }
