@@ -124,9 +124,9 @@ export function ScrollRig({ mousePosition }: ScrollRigProps) {
         <GroundShadow />
       </group>
 
-      {/* 2. Scene 2: 21x21 QR Code Cubes Matrix */}
-      <group position={[isMobile ? 0 : 2.2, 0, 0]}>
-        <QrCubes progress={qrProgress} active={isQrScene} />
+      {/* 2. Scene 2: 3D Precision Crystal & Gyro Matrix */}
+      <group position={[isMobile ? 0 : 2.2, isMobile ? -0.2 : 0, isMobile ? -0.6 : 0]}>
+        <QrCubes progress={qrProgress} active={isQrScene} mousePosition={mousePosition} />
       </group>
 
       {/* 3. Scene 3: 3D Smartphone Chassis Mockup */}
