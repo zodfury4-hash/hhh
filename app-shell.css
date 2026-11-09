@@ -7137,38 +7137,11 @@ body.app-mode #appShell {
   gap: 12px !important;
 }
 
-/* Sidebar Footer (Pinned, zero cutoffs, 100% visible on all heights) */
-.sidebar-bottom {
-  width: 100% !important;
-  margin-top: auto !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  gap: 4px !important;
-  flex-shrink: 0 !important;
-  padding: 8px 0 2px !important;
-  border-top: 1px solid rgba(226, 232, 240, 0.8) !important;
-  background: transparent !important;
-}
-
-.sidebar-user-avatar {
-  width: 34px !important;
-  height: 34px !important;
-  border-radius: 50% !important;
-  background: linear-gradient(135deg, #0A6CFF, #00c8ff) !important;
-  color: #ffffff !important;
-  font-weight: 800 !important;
-  font-size: 12px !important;
-  display: grid !important;
-  place-items: center !important;
-  flex-shrink: 0 !important;
-  box-shadow: 0 3px 10px rgba(10, 108, 255, 0.28) !important;
-  cursor: pointer !important;
-  transition: transform 0.2s ease !important;
-  position: relative !important;
-}
-.sidebar-user-avatar:hover {
-  transform: scale(1.08) !important;
+/* Sidebar Footer - Hidden as requested */
+.sidebar-bottom,
+.sidebar-user-avatar,
+.sidebar-user-row {
+  display: none !important;
 }
 
 
