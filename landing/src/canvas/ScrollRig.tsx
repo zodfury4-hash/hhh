@@ -77,11 +77,11 @@ export function ScrollRig({ mousePosition }: ScrollRigProps) {
       targetY = 0.6;
       targetScale = 1.25;
     } else if (isQrScene) {
-      // QR Codes: Knot subtly scales down / dissolves into the QR particles
-      targetX = 0;
-      targetY = 0;
-      targetScale = Math.max(0.01, 1 - qrProgress * 1.2);
-      knotOpacity = Math.max(0, 1 - qrProgress * 1.5);
+      // QR Codes: Seamless floating knot
+      targetX = isMobile ? 0 : 2.2;
+      targetY = -0.4;
+      targetScale = 0.85;
+      knotOpacity = 1;
     } else if (isBioScene) {
       // Bio Pages: Infinity moves to upper corner
       targetX = isMobile ? 0 : -2.6;
@@ -124,10 +124,7 @@ export function ScrollRig({ mousePosition }: ScrollRigProps) {
         <GroundShadow />
       </group>
 
-      {/* 2. Scene 2: 3D Precision Crystal & Gyro Matrix */}
-      <group position={[isMobile ? 0 : 2.2, isMobile ? -0.2 : 0, isMobile ? -0.6 : 0]}>
-        <QrCubes progress={qrProgress} active={isQrScene} mousePosition={mousePosition} />
-      </group>
+      {/* 2. Scene 2: Diamond animation hidden as requested */}
 
       {/* 3. Scene 3: 3D Smartphone Chassis Mockup */}
       <group position={[isMobile ? 0 : 2.2, 0, 0]}>
