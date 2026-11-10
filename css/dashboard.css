@@ -8191,11 +8191,11 @@ div:has(> input[placeholder*="Search 50+ native apps"]) {
   width: 100% !important;
 }
 
-/* Row 1: KPI Grid */
+/* Row 1: KPI Grid - No text clipping */
 .dash-kpi-grid {
   display: grid !important;
   grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 14px !important;
+  gap: 12px !important;
   width: 100% !important;
   box-sizing: border-box !important;
 }
@@ -8204,38 +8204,37 @@ div:has(> input[placeholder*="Search 50+ native apps"]) {
   background: #ffffff !important;
   border: 1px solid #eef2f6 !important;
   border-radius: 16px !important;
-  padding: 14px 16px !important;
+  padding: 12px 12px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
   box-shadow: 0 2px 12px -2px rgba(15, 23, 42, 0.03) !important;
   min-width: 0 !important;
   box-sizing: border-box !important;
-  overflow: hidden !important;
-  gap: 8px !important;
+  gap: 6px !important;
 }
 
 .kpi-left-group {
   display: flex !important;
   align-items: center !important;
-  gap: 10px !important;
+  gap: 8px !important;
   min-width: 0 !important;
   flex: 1 1 auto !important;
 }
 
 .kpi-icon-box {
-  width: 38px !important;
-  height: 38px !important;
-  border-radius: 11px !important;
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 10px !important;
   display: grid !important;
   place-items: center !important;
-  font-size: 16px !important;
+  font-size: 15px !important;
   flex-shrink: 0 !important;
 }
 
 .kpi-icon-box svg {
-  width: 18px !important;
-  height: 18px !important;
+  width: 17px !important;
+  height: 17px !important;
 }
 
 .kpi-meta {
@@ -8243,27 +8242,25 @@ div:has(> input[placeholder*="Search 50+ native apps"]) {
   flex-direction: column !important;
   gap: 2px !important;
   min-width: 0 !important;
-  overflow: hidden !important;
 }
 
 .kpi-label {
-  font-size: 11.5px !important;
+  font-size: 11px !important;
   font-weight: 600 !important;
   color: #64748b !important;
   white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
+  line-height: 1.25 !important;
 }
 
 .kpi-value-row {
   display: flex !important;
   align-items: baseline !important;
-  gap: 6px !important;
+  gap: 5px !important;
   white-space: nowrap !important;
 }
 
 .kpi-value {
-  font-size: 20px !important;
+  font-size: 19px !important;
   font-weight: 800 !important;
   color: #0f172a !important;
   letter-spacing: -0.02em !important;
@@ -8272,7 +8269,7 @@ div:has(> input[placeholder*="Search 50+ native apps"]) {
 }
 
 .kpi-trend {
-  font-size: 11px !important;
+  font-size: 10.5px !important;
   font-weight: 700 !important;
   color: #10b981 !important;
   white-space: nowrap !important;
@@ -8283,18 +8280,19 @@ div:has(> input[placeholder*="Search 50+ native apps"]) {
   display: flex !important;
   align-items: center !important;
   justify-content: flex-end !important;
+  width: 44px !important;
 }
 
 .kpi-sparkline svg {
-  width: 58px !important;
-  height: 24px !important;
+  width: 44px !important;
+  height: 20px !important;
   display: block !important;
 }
 
-@media (max-width: 1120px) {
+@media (max-width: 1260px) {
   .dash-kpi-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 14px !important;
+    gap: 12px !important;
   }
 }
 
