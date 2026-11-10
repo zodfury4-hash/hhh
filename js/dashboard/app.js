@@ -7268,6 +7268,14 @@ function route() {
   if (appViews.includes(page)) {
 
     if (!session || !session.isVerified) {
+      if (window.appShell && typeof window.appShell.isUserAuthenticated === 'function' && window.appShell.isUserAuthenticated()) {
+        try {
+          session = JSON.parse(localStorage.getItem('hea_session') || sessionStorage.getItem('hea_session') || '{}');
+        } catch (e) {}
+      }
+    }
+
+    if (!session || !session.isVerified) {
 
       document.body.classList.remove('app-mode');
 

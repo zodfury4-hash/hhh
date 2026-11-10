@@ -145,6 +145,7 @@
       }
 
       const parsed = JSON.parse(raw);
+      if (parsed) setAppUser(parsed);
 
       return !!(parsed && parsed.isVerified);
 
@@ -694,7 +695,11 @@
     activeTab = tab;
 
     // Update right sidebar drawer based on active tab
-    updateDrawerForTab(tab);
+    try {
+      updateDrawerForTab(tab);
+    } catch (err) {
+      console.warn('Error in updateDrawerForTab:', err);
+    }
 
     $$('#sidebarNav .sidebar-nav-item').forEach(item => {
 
@@ -729,6 +734,7 @@
         pages: 'Bio Pages',
         analytics: 'Analytics',
         campaigns: 'Campaigns',
+        domains: 'Custom Domains',
         'custom-domains': 'Custom Domains',
         integrations: 'Integrations',
         settings: 'Settings',
@@ -859,7 +865,7 @@
     try { initDashboard3DMotion(); } catch (e) {}
 
     // Phase 4: Dashboard Page Switch (Fade + 8px Rise in 250ms, opacity always ends at 1)
-    const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isReducedMotion = (typeof window.matchMedia === 'function') && window.matchMedia('(prefers-reduced-motion: reduce)')?.matches;
     if (!isReducedMotion && pane) {
       pane.classList.remove('page-switching');
       void pane.offsetWidth; // force reflow
@@ -5863,7 +5869,8 @@
 
     // Drag handle touch dismiss for mobile bottom sheet (< 768px)
     const dragHandle = $('.drawer-drag-handle');
-    if (dragHandle && drawer) {
+    if (dragHandle && drawerEl && !dragHandle._bound) {
+      dragHandle._bound = true;
       let startY = 0;
       dragHandle.addEventListener('touchstart', (e) => {
         startY = e.touches[0].clientY;
@@ -5871,7 +5878,7 @@
       dragHandle.addEventListener('touchmove', (e) => {
         const deltaY = e.touches[0].clientY - startY;
         if (deltaY > 60) {
-          drawer.hidden = true;
+          drawerEl.hidden = true;
           document.body.style.overflow = '';
         }
       }, { passive: true });
