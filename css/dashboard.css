@@ -2427,7 +2427,7 @@ body.app-mode h6,
 
 /* Text in Dashboard */
 body.app-mode p,
-body.app-mode span:not(.pro-chip):not(.badge-pill):not(.btn):not(.sidebar-create-btn):not(.action-btn-text):not(.hero-submit-btn span):not(#homeSubmitBtn span):not(.cal-day-col.active span):not(.header-primary-btn span):not(.header-primary-btn):not(.auth-submit-btn span),
+body.app-mode span:not(.pro-chip):not(.badge-pill):not(.btn):not(.sidebar-create-btn):not(.action-btn-text):not(.hero-submit-btn span):not(#homeSubmitBtn span):not(.cal-day-col.active span):not(.header-primary-btn span):not(.header-primary-btn):not(.auth-submit-btn span):not(.input-kbd-hint):not(.assist-send-btn span),
 body.app-mode td,
 body.app-mode th,
 body.app-mode label,
@@ -10913,4 +10913,138 @@ body.app-mode select option,
 body.app-mode .header-primary-btn span {
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
+}
+
+/* =========================================================
+   HEA ASSIST INPUT BAR & AI SLUG ARCHITECT ALIGNMENT
+   ========================================================= */
+.assist-input-bar {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 6px 10px 6px 16px !important;
+  border-radius: 9999px !important;
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06) !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.assist-input-bar:focus-within {
+  border-color: #0A6CFF !important;
+  box-shadow: 0 0 0 3px rgba(10, 108, 255, 0.15) !important;
+}
+
+.assist-text-input,
+#assistPageInput {
+  flex: 1 1 auto !important;
+  width: auto !important;
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+  padding: 8px 6px !important;
+  font-size: 14px !important;
+  color: #0b132b !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  height: auto !important;
+}
+
+.assist-text-input:focus,
+#assistPageInput:focus {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.assist-text-input::placeholder,
+#assistPageInput::placeholder {
+  color: #94a3b8 !important;
+  font-size: 13.5px !important;
+}
+
+.input-kbd-hint {
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background: #0A6CFF !important;
+  border: 1px solid rgba(10, 108, 255, 0.3) !important;
+  border-radius: 8px !important;
+  padding: 4px 8px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  user-select: none !important;
+}
+
+.assist-send-btn,
+.assist-send-btn span,
+.assist-send-btn * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+body.app-mode .assist-send-btn span {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.tool-input-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin-top: 12px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.tool-text-input,
+#quickSlugTopic {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  padding: 0 14px !important;
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 12px !important;
+  font-size: 13.5px !important;
+  font-family: inherit !important;
+  color: #0b132b !important;
+  outline: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.tool-text-input:focus,
+#quickSlugTopic:focus {
+  border-color: #0A6CFF !important;
+  box-shadow: 0 0 0 3px rgba(10, 108, 255, 0.15) !important;
+}
+
+#btnGenSlugs {
+  height: 42px !important;
+  min-height: 42px !important;
+  padding: 0 18px !important;
+  border-radius: 12px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #0A6CFF !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border: none !important;
+  cursor: pointer !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
 }

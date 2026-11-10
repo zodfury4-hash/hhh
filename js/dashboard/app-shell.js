@@ -7031,8 +7031,8 @@
               <input type="text" id="assistPageInput" class="assist-text-input" placeholder="Ask HEA Assist to optimize links, generate UTMs, or analyze clicks... (Enter to send)" autocomplete="off" required>
               <div class="input-actions-grp">
                 <span class="input-kbd-hint">↵ Enter</span>
-                <button type="submit" class="assist-send-btn" id="assistPageSubmit" title="Send message">
-                  <span>Send</span> ↗
+                <button type="submit" class="assist-send-btn" id="assistPageSubmit" title="Send message" style="color:#ffffff !important;">
+                  <span style="color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;">Send</span> ↗
                 </button>
               </div>
             </form>
@@ -7050,9 +7050,9 @@
                 </div>
               </div>
               <div class="tool-body">
-                <div class="tool-input-row" style="display:flex;gap:8px;margin-top:12px;">
-                  <input type="text" id="quickSlugTopic" class="dash-search-input" placeholder="e.g. Summer Drop 40% Off" style="flex:1;background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:8px 12px;height:40px;font-size:13px;">
-                  <button type="button" class="header-primary-btn" id="btnGenSlugs" style="height:40px;padding:0 14px;font-size:12px;white-space:nowrap;">Generate</button>
+                <div class="tool-input-row">
+                  <input type="text" id="quickSlugTopic" class="tool-text-input" placeholder="e.g. Summer Drop 40% Off" autocomplete="off">
+                  <button type="button" class="header-primary-btn" id="btnGenSlugs">Generate</button>
                 </div>
                 <div id="quickSlugResults" class="slug-results-list" style="margin-top:12px;display:none;"></div>
               </div>
