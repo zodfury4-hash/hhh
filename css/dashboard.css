@@ -2427,7 +2427,7 @@ body.app-mode h6,
 
 /* Text in Dashboard */
 body.app-mode p,
-body.app-mode span:not(.pro-chip):not(.badge-pill):not(.btn):not(.sidebar-create-btn):not(.action-btn-text):not(.hero-submit-btn span):not(#homeSubmitBtn span),
+body.app-mode span:not(.pro-chip):not(.badge-pill):not(.btn):not(.sidebar-create-btn):not(.action-btn-text):not(.hero-submit-btn span):not(#homeSubmitBtn span):not(.cal-day-col.active span),
 body.app-mode td,
 body.app-mode th,
 body.app-mode label,
@@ -8684,20 +8684,34 @@ body.app-mode #homeSubmitBtn span {
   border-radius: 10px !important;
 }
 
+body.app-mode .cal-day-col.active,
+body.app-mode .cal-day-col.active *,
+body.app-mode .cal-day-col.active .cal-day-name,
+body.app-mode .cal-day-col.active .cal-day-number,
+.cal-day-col.active,
+.cal-day-col.active *,
+.cal-day-col.active .cal-day-name,
+.cal-day-col.active .cal-day-number {
+  background-color: transparent;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
 .cal-day-col.active {
   background: #0A6CFF !important;
-  color: #ffffff !important;
   box-shadow: 0 4px 12px rgba(10, 108, 255, 0.3) !important;
 }
 
 .cal-day-col.active .cal-day-name {
   color: #ffffff !important;
-  opacity: 0.9 !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 0.95 !important;
 }
 
 .cal-day-col.active .cal-day-number {
   color: #ffffff !important;
-  background: rgba(255, 255, 255, 0.22) !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.25) !important;
   width: 22px !important;
   height: 22px !important;
   border-radius: 50% !important;
