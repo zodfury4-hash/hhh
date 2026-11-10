@@ -2427,7 +2427,7 @@ body.app-mode h6,
 
 /* Text in Dashboard */
 body.app-mode p,
-body.app-mode span:not(.pro-chip):not(.badge-pill):not(.btn):not(.sidebar-create-btn):not(.action-btn-text),
+body.app-mode span:not(.pro-chip):not(.badge-pill):not(.btn):not(.sidebar-create-btn):not(.action-btn-text):not(.hero-submit-btn span):not(#homeSubmitBtn span),
 body.app-mode td,
 body.app-mode th,
 body.app-mode label,
@@ -8416,12 +8416,16 @@ div:has(> input[placeholder*="Search 50+ native apps"]) {
 .hero-main-row {
   display: flex !important;
   justify-content: space-between !important;
-  align-items: flex-start !important;
+  align-items: center !important;
   position: relative !important;
+  gap: 16px !important;
+  min-height: 80px !important;
 }
 
 .hero-text-block {
-  max-width: 440px !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  max-width: calc(100% - 130px) !important;
   z-index: 2 !important;
 }
 
@@ -8441,15 +8445,36 @@ div:has(> input[placeholder*="Search 50+ native apps"]) {
   line-height: 1.45 !important;
 }
 
-/* 3D Chain link graphic on right */
+/* 3D Chain link graphic on right - Sibling flex item, never overlaps text */
 .hero-3d-graphic-wrap {
-  position: absolute !important;
-  right: 0 !important;
-  top: -15px !important;
-  width: 170px !important;
-  height: 150px !important;
+  position: relative !important;
+  right: auto !important;
+  top: auto !important;
+  width: 120px !important;
+  height: 105px !important;
+  flex-shrink: 0 !important;
   pointer-events: none !important;
   z-index: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.hero-3d-graphic-wrap svg {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 120px !important;
+  max-height: 105px !important;
+  display: block !important;
+}
+
+@media (max-width: 680px) {
+  .hero-3d-graphic-wrap {
+    display: none !important;
+  }
+  .hero-text-block {
+    max-width: 100% !important;
+  }
 }
 
 /* Toggle Tabs */
@@ -8519,22 +8544,52 @@ div:has(> input[placeholder*="Search 50+ native apps"]) {
   color: #94a3b8 !important;
 }
 
-.hero-submit-btn {
-  background: linear-gradient(135deg, #0A6CFF 0%, #0056cc 100%) !important;
-  color: #ffffff !important;
-  font-size: 13px !important;
+.hero-submit-btn,
+#homeSubmitBtn {
+  background: #ffffff !important;
+  color: #0A6CFF !important;
+  -webkit-text-fill-color: #0A6CFF !important;
+  font-size: 13.5px !important;
   font-weight: 700 !important;
-  border: none !important;
+  border: 1.5px solid #0A6CFF !important;
   border-radius: 9999px !important;
   height: 42px !important;
-  padding: 0 22px !important;
+  padding: 0 20px !important;
   cursor: pointer !important;
-  box-shadow: 0 4px 12px rgba(10, 108, 255, 0.35) !important;
+  box-shadow: 0 2px 8px rgba(10, 108, 255, 0.12) !important;
   white-space: nowrap !important;
-  transition: transform 0.15s ease !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
 }
-.hero-submit-btn:hover {
+
+.hero-submit-btn *,
+.hero-submit-btn span,
+#homeSubmitBtn *,
+#homeSubmitBtn span,
+body.app-mode .hero-submit-btn span,
+body.app-mode #homeSubmitBtn span {
+  color: #0A6CFF !important;
+  -webkit-text-fill-color: #0A6CFF !important;
+  font-weight: 700 !important;
+}
+
+.hero-submit-btn:hover,
+#homeSubmitBtn:hover {
+  background: #f0f6ff !important;
+  border-color: #0056cc !important;
+  color: #0056cc !important;
   transform: translateY(-1px) !important;
+  box-shadow: 0 4px 14px rgba(10, 108, 255, 0.2) !important;
+}
+
+.hero-submit-btn:hover *,
+.hero-submit-btn:hover span,
+#homeSubmitBtn:hover *,
+#homeSubmitBtn:hover span {
+  color: #0056cc !important;
+  -webkit-text-fill-color: #0056cc !important;
 }
 
 /* Quick Actions line */
