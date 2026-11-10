@@ -10460,3 +10460,31 @@ body.app-mode .app-sidebar.collapsed {
   border: 1px solid #e2e8f0 !important;
   box-shadow: 0 25px 65px -10px rgba(0, 50, 150, 0.22), 0 4px 16px rgba(0, 0, 0, 0.06) !important;
 }
+
+/* HEA Assist Sidebar Nav Badge */
+.nav-ai-badge,
+.sidebar-nav-item .nav-ai-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: linear-gradient(135deg, rgba(0, 112, 243, 0.12), rgba(0, 200, 255, 0.18)) !important;
+  color: #0070f3 !important;
+  font-size: 9.5px !important;
+  font-weight: 800 !important;
+  padding: 2px 6px !important;
+  border-radius: 99px !important;
+  border: 1px solid rgba(0, 112, 243, 0.25) !important;
+  margin-left: auto !important;
+  flex-shrink: 0 !important;
+  letter-spacing: 0.02em !important;
+}
+
+.sidebar-nav-item.active .nav-ai-badge {
+  background: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.app-sidebar.collapsed .nav-ai-badge {
+  display: none !important;
+}

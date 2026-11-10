@@ -737,6 +737,7 @@
         'custom-domains': 'Custom Domains',
         integrations: 'Integrations',
         settings: 'Settings',
+        assist: 'HEA Assist AI',
         resources: 'Help & Resources'
       };
       topTitle.textContent = titles[tab] || 'Dashboard';
@@ -5912,13 +5913,12 @@
       if (drawerSettings) drawerSettings.hidden = true;
       if (drawerEl) drawerEl.hidden = true; // Settings has clean 2-column in-page layout
     } else if (tab === 'assist') {
-      if (drawerAi) drawerAi.hidden = false;
-      if (drawerForm) drawerForm.style.display = '';
+      if (drawerAi) drawerAi.hidden = true;
+      if (drawerForm) drawerForm.style.display = 'none';
       if (drawerSettings) drawerSettings.hidden = true;
-      if (drawerTitle) drawerTitle.innerHTML = '<span>✨</span> HEA Assist';
-      if (drawerClose) drawerClose.style.display = '';
       if (drawerEl) {
-        drawerEl.hidden = false;
+        drawerEl.hidden = true;
+        document.body.style.overflow = '';
       }
     } else {
       if (drawerAi) drawerAi.hidden = false;
