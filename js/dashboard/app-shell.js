@@ -5413,7 +5413,7 @@
 
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
 
-              <span style="font-size:14px;color:#94a3b8;font-weight:600;">Describe your idea, product or service</span>
+              <span style="font-size:14px;color:#0b132b;font-weight:700;">Describe your idea, product or service</span>
 
               <span style="font-size:12px;color:#64748b;" id="domainCharCount">0/200</span>
 
@@ -5537,25 +5537,25 @@
 
                   ${suggestions.map((dom, i) => `
 
-                    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:${i === suggestions.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.06)'};">
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:${i === suggestions.length - 1 ? 'none' : '1px solid #f1f5f9'};">
 
                       <div style="display:flex;align-items:center;gap:12px;">
 
-                        <span style="font-size:18px;color:#38bdf8;">🌐</span>
+                        <span style="font-size:18px;color:#0070f3;">🌐</span>
 
                         <div>
 
-                          <b style="color:#ffffff;font-size:15px;font-family:monospace;">${dom}</b>
+                          <b style="color:#0b132b;font-size:15.5px;font-weight:800;letter-spacing:-0.01em;">${dom}</b>
 
-                          <span style="font-size:11px;color:#10b981;margin-left:8px;background:rgba(16,185,129,0.12);padding:2px 6px;border-radius:4px;font-weight:700;">Available</span>
+                          <span style="font-size:11px;color:#059669;margin-left:8px;background:rgba(16,185,129,0.12);padding:2px 7px;border-radius:4px;font-weight:700;">Available</span>
 
                         </div>
 
                       </div>
 
-                      <button class="sso-btn btn-claim-domain" data-domain="${dom}" style="width:auto;padding:8px 18px;font-size:13px;color:#38bdf8;border-color:rgba(56,189,248,0.3);font-weight:700;">
+                      <button class="sso-btn btn-claim-domain" data-domain="${dom}" style="width:auto;padding:8px 18px;font-size:13px;color:#0070f3;border-color:rgba(0,112,243,0.3);font-weight:700;background:#ffffff;">
 
-                        Upgrade to claim
+                        ${appUser.isPro ? 'Connect domain' : 'Upgrade to claim'}
 
                       </button>
 
@@ -5579,11 +5579,25 @@
 
                   const dName = btn.dataset.domain;
 
-                  window.appShell.toast(`Selected domain: ${dName}. Upgrading to claim...`);
+                  if (appUser.isPro) {
 
-                  if (typeof window.openCheckoutModal === 'function') {
+                    localStorage.setItem('hea_custom_domain', dName);
 
-                    window.openCheckoutModal('pro');
+                    window.appShell.toast(`Domain ${dName} connected to your workspace!`);
+
+                    domainTab = 'search';
+
+                    renderView();
+
+                  } else {
+
+                    window.appShell.toast(`Selected domain: ${dName}. Upgrading to claim...`);
+
+                    if (typeof window.openCheckoutModal === 'function') {
+
+                      window.openCheckoutModal('pro');
+
+                    }
 
                   }
 
@@ -5609,9 +5623,9 @@
 
           <div class="dash-white-card" style="margin-bottom:24px;padding:24px;">
 
-            <h3 style="color:#ffffff;margin-top:0;font-size:18px;">🌐 Connect a Custom Domain</h3>
+            <h3 style="color:#0b132b;margin-top:0;font-size:18px;font-weight:700;">🌐 Connect a Custom Domain</h3>
 
-            <p style="color:#94a3b8;font-size:13px;margin-bottom:16px;">Point a CNAME record from your DNS registrar (GoDaddy, Cloudflare, Namecheap) to <code style="color:#38bdf8;">cname.healink.store</code>.</p>
+            <p style="color:#64748b;font-size:13px;margin-bottom:16px;">Point a CNAME record from your DNS registrar (GoDaddy, Cloudflare, Namecheap) to <code style="color:#0070f3;background:rgba(0,112,243,0.08);padding:2px 6px;border-radius:4px;font-weight:600;">cname.healink.store</code>.</p>
 
             <div style="display:flex;gap:12px;max-width:540px;">
 
@@ -5631,17 +5645,17 @@
 
           <div class="dash-white-card" style="padding:20px;">
 
-            <h4 style="font-size:16px;font-weight:800;color:#ffffff;margin:0 0 16px;">Configured Domains</h4>
+            <h4 style="font-size:16px;font-weight:800;color:#0b132b;margin:0 0 16px;">Configured Domains</h4>
 
             <div style="display:flex;flex-direction:column;gap:12px;">
 
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;">
 
                 <div>
 
-                  <b style="color:#ffffff;font-size:15px;">healink.store</b>
+                  <b style="color:#0b132b;font-size:15px;font-weight:700;">healink.store</b>
 
-                  <div style="font-size:12px;color:#94a3b8;">Default Platform Domain · SSL Active</div>
+                  <div style="font-size:12px;color:#64748b;">Default Platform Domain · SSL Active</div>
 
                 </div>
 
@@ -5651,13 +5665,13 @@
 
               ${savedDomain ? `
 
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;">
 
                   <div>
 
-                    <b style="color:#38bdf8;font-size:15px;" id="dispCustomDomain">${savedDomain}</b>
+                    <b style="color:#0070f3;font-size:15px;font-weight:700;" id="dispCustomDomain">${savedDomain}</b>
 
-                    <div style="font-size:12px;color:#94a3b8;">CNAME: cname.healink.store · Verified</div>
+                    <div style="font-size:12px;color:#64748b;">CNAME: cname.healink.store · Verified</div>
 
                   </div>
 
@@ -5673,7 +5687,7 @@
 
               ` : `
 
-                <div style="text-align:center;padding:24px 16px;color:#94a3b8;font-size:13px;border:1px dashed rgba(255,255,255,0.06);border-radius:8px;">
+                <div style="text-align:center;padding:24px 16px;color:#64748b;font-size:13px;border:1px dashed #cbd5e1;border-radius:8px;background:#f8fafc;">
 
                   No custom domains connected yet. Enter your branded subdomain above to connect.
 
@@ -5843,9 +5857,9 @@
 
             <div style="font-size:28px;margin-bottom:12px;">${a.icon}</div>
 
-            <h4 style="font-size:16px;font-weight:700;color:#ffffff;margin:0 0 6px;">${a.name}</h4>
+            <h4 style="font-size:16px;font-weight:700;color:#0b132b;margin:0 0 6px;">${a.name}</h4>
 
-            <p style="color:#94a3b8;font-size:13px;line-height:1.4;margin:0;">${a.desc}</p>
+            <p style="color:#64748b;font-size:13px;line-height:1.4;margin:0;">${a.desc}</p>
 
           </div>
 
