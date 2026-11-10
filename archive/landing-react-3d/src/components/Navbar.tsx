@@ -73,7 +73,7 @@ export function Navbar({ onOpenAuth }: NavbarProps) {
             {activeDropdown === 'platform' && (
               <div
                 style={{ backgroundColor: '#ffffff', opacity: 1, backdropFilter: 'none', WebkitBackdropFilter: 'none' }}
-                className="absolute top-full left-0 mt-2 w-[540px] bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 grid grid-cols-2 gap-6 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+                className="absolute top-full left-0 mt-2 w-[540px] bg-white solid-card-dropdown rounded-2xl shadow-2xl border border-slate-200 p-6 grid grid-cols-2 gap-6 z-50"
               >
                 <div>
                   <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">Products</div>
@@ -175,7 +175,7 @@ export function Navbar({ onOpenAuth }: NavbarProps) {
             {activeDropdown === 'ai' && (
               <div
                 style={{ backgroundColor: '#ffffff', opacity: 1, backdropFilter: 'none', WebkitBackdropFilter: 'none' }}
-                className="absolute top-full left-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 p-5 space-y-3 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+                className="absolute top-full left-0 mt-2 w-80 bg-white solid-card-dropdown rounded-2xl shadow-2xl border border-slate-200 p-5 space-y-3 z-50"
               >
                 <a href="#ai" className="flex items-start gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors group">
                   <div className="p-2 rounded-lg bg-blue-50 text-[#0070f3] shrink-0 group-hover:bg-[#0070f3] group-hover:text-white transition-colors">
@@ -227,7 +227,7 @@ export function Navbar({ onOpenAuth }: NavbarProps) {
             {activeDropdown === 'solutions' && (
               <div
                 style={{ backgroundColor: '#ffffff', opacity: 1, backdropFilter: 'none', WebkitBackdropFilter: 'none' }}
-                className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[560px] bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+                className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[560px] bg-white solid-card-dropdown rounded-2xl shadow-2xl border border-slate-200 p-6 z-50"
               >
                 <div className="flex gap-2 p-1 bg-slate-100 rounded-xl mb-4 text-xs font-semibold">
                   <button
@@ -338,7 +338,7 @@ export function Navbar({ onOpenAuth }: NavbarProps) {
             {activeDropdown === 'resources' && (
               <div
                 style={{ backgroundColor: '#ffffff', opacity: 1, backdropFilter: 'none', WebkitBackdropFilter: 'none' }}
-                className="absolute top-full left-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 p-5 space-y-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+                className="absolute top-full left-0 mt-2 w-72 bg-white solid-card-dropdown rounded-2xl shadow-2xl border border-slate-200 p-5 space-y-2 z-50"
               >
                 <a href="#features" className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors text-xs font-semibold text-[#0b132b]">
                   <Layers className="w-4 h-4 text-[#0070f3]" /> Integrations Hub
@@ -406,7 +406,7 @@ export function Navbar({ onOpenAuth }: NavbarProps) {
       {mobileMenuOpen && (
         <div
           style={{ backgroundColor: '#ffffff', opacity: 1, backdropFilter: 'none', WebkitBackdropFilter: 'none' }}
-          className="lg:hidden bg-white border-t border-slate-200 px-6 py-6 space-y-4 shadow-2xl z-50 animate-in slide-in-from-top-2 duration-200"
+          className="lg:hidden bg-white solid-card-dropdown border-t border-slate-200 px-6 py-6 space-y-4 shadow-2xl z-50"
         >
           <div className="flex flex-col space-y-3 font-semibold text-slate-800 text-sm">
             <a href="#shortlinks" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#0070f3]">

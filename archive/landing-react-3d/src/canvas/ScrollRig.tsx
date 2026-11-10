@@ -126,10 +126,7 @@ export function ScrollRig({ mousePosition }: ScrollRigProps) {
 
       {/* 2. Scene 2: Diamond animation hidden as requested */}
 
-      {/* 3. Scene 3: 3D Smartphone Chassis Mockup */}
-      <group position={[isMobile ? 0 : 2.2, 0, 0]}>
-        <PhoneMockup progress={bioProgress} active={isBioScene} />
-      </group>
+      {/* 3. Scene 3: Mobile animation hidden as requested */}
 
       {/* 4. Scene 4: 3D Globe with Traffic Arcs */}
       <group position={[isMobile ? 0 : -2.0, 0, 0]}>
