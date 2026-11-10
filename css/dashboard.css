@@ -7990,23 +7990,9 @@ div:has(> input[placeholder*="Search 50+ native apps"]) {
   margin: 0 2px !important;
 }
 
-.topbar-assist-pill-btn {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  background: #f0f7ff !important;
-  color: #0A6CFF !important;
-  border: 1px solid #bfdbfe !important;
-  border-radius: 9999px !important;
-  padding: 6px 14px !important;
-  font-size: 12.5px !important;
-  font-weight: 700 !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
-}
-.topbar-assist-pill-btn:hover {
-  background: #e0f2fe !important;
-  border-color: #93c5fd !important;
+.topbar-assist-pill-btn,
+#assistToggleBtn {
+  display: none !important;
 }
 
 .topbar-notif-wrap {
