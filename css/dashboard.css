@@ -10835,3 +10835,7 @@ body.app-mode .app-sidebar.collapsed {
 div:has(> #tabDomainSearch) > h2 {
   display: none !important;
 }
+
+.analytics-actions-bar {
+  display: none !important;
+}

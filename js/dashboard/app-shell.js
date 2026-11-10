@@ -4878,7 +4878,7 @@
 
     container.innerHTML = `
 
-      <div class="analytics-actions-bar" style="display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-bottom:16px;">
+      <div class="analytics-actions-bar" style="display:none !important;">
         <div class="assist-status-pill" style="padding:6px 14px;">
           <span class="status-pulse-dot"></span>
           <span>Real-time Sync</span>
