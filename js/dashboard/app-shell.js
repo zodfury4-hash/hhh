@@ -540,7 +540,6 @@
       '.bento-activity-card',
       '.dash-white-card',
       '.home-create-card',
-      '.create-link-card',
       '.qr-card-item',
       '.page-row-card',
       '.campaigns-hero-wrap',
@@ -6970,14 +6969,19 @@
           <!-- LEFT / CENTER: Interactive AI Conversation Studio -->
           <div class="assist-chat-card bento-card">
             <!-- Mascot Agent Welcome Header -->
-            <div class="assist-agent-banner">
-              <div class="agent-avatar-glow">
-                <div class="agent-avatar-inner">✨</div>
+            <div class="assist-agent-banner" style="display:flex;align-items:center;width:100%;">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div class="agent-avatar-glow">
+                  <div class="agent-avatar-inner">✨</div>
+                </div>
+                <div class="agent-meta">
+                  <div class="agent-name">HEA Neural Assistant <span class="agent-badge">Pro Active 👑</span></div>
+                  <div class="agent-prompt-lead">What would you like to build or optimize across your links today?</div>
+                </div>
               </div>
-              <div class="agent-meta">
-                <div class="agent-name">HEA Neural Assistant <span class="agent-badge">Pro Active 👑</span></div>
-                <div class="agent-prompt-lead">What would you like to build or optimize across your links today?</div>
-              </div>
+              <button type="button" class="assist-reset-btn" id="assistResetBtn" title="Reset chat session" style="margin-left:auto;padding:6px 14px;border-radius:10px;font-size:12px;display:inline-flex;align-items:center;gap:6px;background:#f1f5f9;border:1px solid #cbd5e1;cursor:pointer;font-weight:600;color:#0b132b;white-space:nowrap;">
+                <span>🔄</span> Clear Chat
+              </button>
             </div>
 
             <!-- Quick Starter Prompt Chips Carousel -->

@@ -10827,7 +10827,8 @@ body.app-mode .app-sidebar.collapsed {
 /* =========================================================
    HIDE REDUNDANT IN-PAGE VIEW HEADERS
    ========================================================= */
-.view-header:not(.assist-view-header) {
+.view-header,
+.assist-view-header {
   display: none !important;
 }
 
@@ -11047,4 +11048,29 @@ body.app-mode .assist-send-btn span {
   cursor: pointer !important;
   margin: 0 !important;
   box-sizing: border-box !important;
+}
+
+/* =========================================================
+   DISABLE 3D TILT & ANIMATION ON CREATE LINK CARDS
+   ========================================================= */
+.create-link-card,
+.create-link-card:hover,
+.create-link-wrap,
+.create-link-wrap * {
+  will-change: auto !important;
+}
+
+.create-link-card,
+.create-link-card:hover {
+  transform: none !important;
+  transition: none !important;
+  animation: none !important;
+}
+
+.create-link-card .card-glare {
+  display: none !important;
+}
+
+.assist-view-header {
+  display: none !important;
 }
