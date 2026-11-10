@@ -544,7 +544,6 @@
       '.qr-card-item',
       '.page-row-card',
       '.campaigns-hero-wrap',
-      '.settings-center-card',
       '.integration-card-white',
       '.links-filter-bar',
       '.analytics-metric-box',
@@ -864,20 +863,28 @@
 
     try { initDashboard3DMotion(); } catch (e) {}
 
-    // Phase 4: Dashboard Page Switch (Fade + 8px Rise in 250ms, opacity always ends at 1)
-    const isReducedMotion = (typeof window.matchMedia === 'function') && window.matchMedia('(prefers-reduced-motion: reduce)')?.matches;
-    if (!isReducedMotion && pane) {
-      pane.classList.remove('page-switching');
-      void pane.offsetWidth; // force reflow
-      pane.classList.add('page-switching');
-      setTimeout(() => {
+    // Phase 4: Dashboard Page Switch (No animation for settings page as requested)
+    if (tab === 'settings') {
+      if (pane) {
         pane.classList.remove('page-switching');
         pane.style.opacity = '1';
         pane.style.transform = 'none';
-      }, 250);
-    } else if (pane) {
-      pane.style.opacity = '1';
-      pane.style.transform = 'none';
+      }
+    } else {
+      const isReducedMotion = (typeof window.matchMedia === 'function') && window.matchMedia('(prefers-reduced-motion: reduce)')?.matches;
+      if (!isReducedMotion && pane) {
+        pane.classList.remove('page-switching');
+        void pane.offsetWidth; // force reflow
+        pane.classList.add('page-switching');
+        setTimeout(() => {
+          pane.classList.remove('page-switching');
+          pane.style.opacity = '1';
+          pane.style.transform = 'none';
+        }, 250);
+      } else if (pane) {
+        pane.style.opacity = '1';
+        pane.style.transform = 'none';
+      }
     }
 
     // Sticky Header Shadow after 8px scroll
@@ -5953,7 +5960,7 @@
         const targetEl = document.getElementById(targetId);
         const pane = document.getElementById('appMainPane');
         if (targetEl && pane) {
-          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          targetEl.scrollIntoView({ behavior: 'auto', block: 'start' });
         }
       };
     });
@@ -6279,6 +6286,7 @@
           </div>
         </div>
       </div>
+    </div>
     `;
 
     const passBtn = $('#btnUpdatePass');
@@ -6327,7 +6335,7 @@
         $$('.settings-subnav-aside .settings-nav-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         const targetEl = document.getElementById(targetId);
-        if (targetEl) targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (targetEl) targetEl.scrollIntoView({ behavior: 'auto', block: 'start' });
       };
     });
 
@@ -6347,7 +6355,7 @@
           'sessions': 'setSectionSessions'
         };
         const targetEl = document.getElementById(map[nav] || 'setSectionProfile');
-        if (targetEl) targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (targetEl) targetEl.scrollIntoView({ behavior: 'auto', block: 'start' });
       };
     });
 
