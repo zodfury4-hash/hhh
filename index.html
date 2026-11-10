@@ -1,66 +1,1924 @@
-<!-- @include "partials/layout/head.html" -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>HEA Link | Short links &amp; URLs, QR codes &amp; bio pages</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="stylesheet" href="css/tokens.css?v=3">
+  <link rel="stylesheet" href="css/base.css?v=3">
+  <link rel="stylesheet" href="css/legacy/style.css?v=3">
+  <link rel="stylesheet" href="css/dashboard.css?v=3">
+  <link rel="stylesheet" href="css/landing.css?v=3">
+  <script>
+    (function() {
+      try {
+        var p = (window.location.pathname || '').replace(/^\/+|\/+$/g, '').toLowerCase();
+        var reserved = ['index.html', 'login', 'signup', 'app', 'dashboard', 'pricing', 'features', 'solutions', 'about', 'contact', 'terms', 'privacy', 'api', 'r', 'go'];
+        if (p && reserved.indexOf(p) === -1 && !p.includes('.')) {
+          var dest = localStorage.getItem('hea_slug_' + p);
+          if (!dest) {
+            var map = JSON.parse(localStorage.getItem('hea_slug_map') || '{}');
+            dest = map[p];
+          }
+          if (!dest) {
+            var links = JSON.parse(localStorage.getItem('hea_links') || '[]');
+            var m = links.find(function(l) { return l && l.slug && l.slug.toLowerCase() === p; });
+            if (m && m.dest) dest = m.dest;
+          }
+          if (dest && /^https?:\/\//i.test(dest)) {
+            window.location.replace(dest);
+          }
+        }
+      } catch (e) {}
+    })();
+  </script>
+</head>
 <body class="app-mode">
   <div class="scroll-progress-bar" id="scrollProgressBar" aria-hidden="true"></div>
 <div class="bg-glow-curves"></div>
 
 
 <!-- HEADER NAVBAR -->
-<!-- @include "partials/layout/navbar.html" -->
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="logo" href="/">
+      <svg class="logo-infinity-svg" width="34" height="24" viewBox="0 0 54 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15.5 8C10.25 8 6 12.25 6 17.5C6 22.75 10.25 27 15.5 27C21.2 27 24.6 20.8 27 17.5C29.4 14.2 32.8 8 38.5 8C43.75 8 48 12.25 48 17.5C48 22.75 43.75 27 38.5 27C32.8 27 29.4 20.8 27 17.5C24.6 14.2 21.2 8 15.5 8Z" stroke="url(#logoBlueGrad)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <defs>
+          <linearGradient id="logoBlueGrad" x1="6" y1="8" x2="48" y2="27" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#0066ff"/>
+            <stop offset="100%" stop-color="#00c8ff"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <span class="logo-hea">HEA</span> <span class="logo-link">Link</span>
+    </a>
+    <div class="nav-collapse" id="navCollapse">
+      <nav id="menu" aria-label="Main Navigation"></nav>
+      <div class="nav-r" id="navR"></div>
+    </div>
+    <button id="burger" aria-label="Toggle menu">☰</button>
+  </div>
+</header>
 
 <main>
   <!-- 1. HOME VIEW -->
   <!-- 1. HOME VIEW (Matches media_1793564494242_dc725741.png) -->
-<!-- @include "partials/landing/hero.html" -->
+  <section data-page="home" hidden style="display:none !important;">
+    <div class="hero-split-wrap wrap">
+      <!-- LEFT COLUMN -->
+      <div class="hero-col-left">
+        <h1 class="hero-title">
+          <span class="hero-line"><span class="hero-line-inner">Short links &amp; URLs,</span></span>
+          <span class="hero-line"><span class="hero-line-inner">QR codes &amp; bio pages</span></span>
+          <span class="hero-line"><span class="hero-line-inner"><span class="blue-highlight hero-accent-text">all in one place</span></span></span>
+        </h1>
+        <p class="lead">Create branded short links and scalable QR codes, then see exactly who clicks.</p>
+        
+        <div class="card hero-card" id="heroShortenCard">
+          <div class="hero-tabs-wrap">
+            <div class="tabs" id="heroTabs">
+              <button class="on" data-t="link" id="tabShortLink" type="button">🔗 Short link &amp; URL</button>
+              <button data-t="qr" id="tabQrCode" type="button">▦ QR code</button>
+              <button data-t="bulk" id="tabBulkShorten" type="button">⚡ Bulk shorten</button>
+            </div>
+          </div>
+
+          <!-- Dynamic Self-Adjusting Morphing Wrap -->
+          <div class="hero-card-morph-wrap" id="heroMorphWrap">
+            <!-- 1. PANE: Short Link (Default Sleek Capsule) -->
+            <div class="hero-pane hero-pane-link active" id="paneShortLink">
+              <form id="heroForm" class="hero-form-row">
+                <div class="hero-pill-input">
+                  <span class="pill-input-icon">🔗</span>
+                  <input id="heroUrl" type="url" placeholder="Paste your link here..." aria-label="Long URL" autocomplete="off" required>
+                  <button class="btn hero-submit-btn" id="heroBtn" type="submit">Shorten link →</button>
+                </div>
+              </form>
+              <p class="err" id="heroErr"></p>
+              <div id="heroRes" class="res" hidden></div>
+            </div>
+
+            <!-- 2. PANE: Vector QR Code Studio (Smooth Expansion) -->
+            <div class="hero-pane hero-pane-qr" id="paneQrCode" hidden>
+              <form id="heroQrForm" class="hero-qr-flow">
+                <div class="hero-pill-input">
+                  <span class="pill-input-icon">🌐</span>
+                  <input id="heroQrInput" type="text" placeholder="Enter URL, Wi-Fi credentials, or text for vector QR..." autocomplete="off">
+                  <button class="btn hero-submit-btn" id="heroQrBtn" type="submit">Generate QR code →</button>
+                </div>
+
+                <div class="hero-qr-adjust-row">
+                  <div class="qr-chip-col">
+                    <span class="qr-col-label">Code Color</span>
+                    <div class="qr-color-chips" id="heroQrColorChips">
+                      <button type="button" class="qr-chip active" data-color="#00d2ff" style="--chip-c: #00d2ff;" title="Neon Cyan"></button>
+                      <button type="button" class="qr-chip" data-color="#ff007f" style="--chip-c: #ff007f;" title="Hot Pink"></button>
+                      <button type="button" class="qr-chip" data-color="#0070f3" style="--chip-c: #0070f3;" title="Electric Blue"></button>
+                      <button type="button" class="qr-chip" data-color="#0e1a33" style="--chip-c: #0e1a33; border: 1.5px solid rgba(255,255,255,0.4);" title="Midnight Navy"></button>
+                    </div>
+                  </div>
+
+                  <div class="hero-qr-preview-card" id="heroQrPreviewCard">
+                    <div class="qr-canvas-holder">
+                      <canvas id="heroQrCanvas" width="96" height="96"></canvas>
+                    </div>
+                    <div class="qr-meta-col">
+                      <div class="qr-badge-pill">✨ Dynamic Vector QR</div>
+                      <div class="qr-action-buttons">
+                        <button type="button" class="btn sm" id="heroQrDlBtn" style="background:#0070f3;color:#ffffff;font-weight:700;border-radius:99px;">Download PNG 📥</button>
+                        <button type="button" class="btn sm ghost" id="heroQrCopyBtn">Copy Link 📋</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+              <p class="err" id="heroQrErr"></p>
+            </div>
+
+            <!-- 3. PANE: Bulk Shorten Studio (Smooth Expansion) -->
+            <div class="hero-pane hero-pane-bulk" id="paneBulkShorten" hidden>
+              <form id="heroBulkForm" class="hero-bulk-flow">
+                <div class="bulk-textarea-box">
+                  <textarea id="heroBulkTextarea" rows="4" placeholder="Paste multiple URLs (one per line, up to 20 links):&#10;https://mybrand.com/products&#10;https://instagram.com/mybrand&#10;https://youtube.com/@creativehub"></textarea>
+                  <div class="bulk-info-strip">
+                    <span id="bulkLinkCounter" class="bulk-counter-tag">⚡ 0 links detected</span>
+                    <button type="button" class="bulk-sample-btn" id="bulkFillSampleBtn">+ Load sample URLs</button>
+                  </div>
+                </div>
+                <div class="bulk-submit-row">
+                  <button type="submit" class="btn hero-submit-btn flex-1" id="heroBulkSubmitBtn">Bulk shorten links →</button>
+                </div>
+                <p class="err" id="heroBulkErr"></p>
+                <div id="heroBulkResults" class="bulk-results-box" hidden></div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: 3D CYBER STAGE & FLOATING CARDS -->
+      <div class="hero-col-right">
+        <div class="cyber-stage-container" id="cyberStage">
+          <!-- Minimal Clean Composition Stage -->
+          <div class="clean-mockup-wrapper">
+            <!-- Main Center Mockup: Link & Analytics Card -->
+            <div class="clean-product-card">
+              <!-- Window Titlebar -->
+              <div class="mockup-header">
+                <div class="mockup-dots">
+                  <span class="dot dot-red"></span>
+                  <span class="dot dot-yellow"></span>
+                  <span class="dot dot-green"></span>
+                </div>
+                <div class="mockup-address-bar">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                  <span>hea.link/active-campaign</span>
+                </div>
+                <div class="mockup-status-pill">
+                  <span class="status-pulse-dot"></span>
+                  <span>Live 99.9%</span>
+                </div>
+              </div>
+
+              <!-- Card Body: Link Details -->
+              <div class="mockup-body">
+                <div class="mockup-dest-row">
+                  <span class="mockup-label">Destination URL</span>
+                  <div class="mockup-dest-url" title="https://store.yourbrand.com/products/summer-drop-2026?utm_source=instagram">
+                    https://store.yourbrand.com/products/summer-drop-2026?utm_source=instagram
+                  </div>
+                </div>
+
+                <div class="mockup-short-row">
+                  <div class="mockup-short-info">
+                    <span class="mockup-short-badge">Short Link</span>
+                    <div class="mockup-short-link">hea.link/summer26</div>
+                  </div>
+                  <button type="button" class="mockup-copy-pill" id="mockupCopyPill">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    <span>Copy</span>
+                  </button>
+                </div>
+
+                <!-- Embedded Click Activity Sparkline Chart -->
+                <div class="mockup-chart-box">
+                  <div class="mockup-chart-header">
+                    <div>
+                      <span class="chart-caption">Click Telemetry</span>
+                      <div class="chart-headline">
+                        <span class="chart-total-clicks" data-count="14820">14,820</span>
+                        <span class="chart-growth-tag">↗ +48.6%</span>
+                      </div>
+                    </div>
+                    <div class="chart-time-filter">Last 7 days</div>
+                  </div>
+
+                  <!-- Self-Drawing SVG Sparkline Chart -->
+                  <div class="mockup-chart-svg-wrap">
+                    <svg class="sparkline-svg" viewBox="0 0 340 70" preserveAspectRatio="none">
+                      <defs>
+                        <linearGradient id="chartGradientClean" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stop-color="#0070f3" stop-opacity="0.16" />
+                          <stop offset="100%" stop-color="#0070f3" stop-opacity="0.0" />
+                        </linearGradient>
+                      </defs>
+                      <path class="chart-area" d="M 0 60 Q 50 50, 90 38 T 170 30 T 250 18 T 340 8 L 340 70 L 0 70 Z" fill="url(#chartGradientClean)" />
+                      <path class="chart-stroke" id="heroChartStroke" d="M 0 60 Q 50 50, 90 38 T 170 30 T 250 18 T 340 8" fill="none" stroke="#0070f3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <div class="chart-axis-labels">
+                      <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Floating HUD Card 1: Real-time Analytics -->
+            <div class="hud-card hud-analytics">
+              <div class="hud-icon chart-icon">
+                <span class="chart-bar b1"></span>
+                <span class="chart-bar b2"></span>
+                <span class="chart-bar b3"></span>
+              </div>
+              <div class="hud-info">
+                <div class="hud-label">Real-time Analytics</div>
+                <div class="hud-value neon-green" id="hudCountVal" data-target="245">↗ +245%</div>
+              </div>
+            </div>
+
+            <!-- Floating HUD Card 2: Create QR Codes -->
+            <div class="hud-card hud-qr">
+              <div class="hud-qr-thumb">
+                <canvas id="stageQrMini" width="48" height="48"></canvas>
+              </div>
+              <div class="hud-info">
+                <div class="hud-label">Create</div>
+                <div class="hud-sub">QR Codes</div>
+              </div>
+            </div>
+
+            <!-- Floating HUD Card 3: Track Clicks -->
+            <div class="hud-card hud-clicks">
+              <div class="hud-icon users-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0070f3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+              <div class="hud-info">
+                <div class="hud-label">Track</div>
+                <div class="hud-sub">Clicks</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4 Hero Feature Badges (Expanded Width & Vector Images) -->
+    <div class="hero-badges wrap">
+      <div class="badge-item">
+        <div class="badge-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="boltGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#00d2ff"/>
+                <stop offset="100%" stop-color="#0070f3"/>
+              </linearGradient>
+            </defs>
+            <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="url(#boltGrad)" stroke="#00d2ff" stroke-width="0.8" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <b>Instant &amp; Reliable</b>
+          <span>Shorten in milliseconds</span>
+        </div>
+      </div>
+      <div class="badge-item">
+        <div class="badge-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="chartGrad1" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#38bdf8"/>
+                <stop offset="100%" stop-color="#0066ff"/>
+              </linearGradient>
+              <linearGradient id="chartGrad2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#0070f3"/>
+                <stop offset="100%" stop-color="#10b981"/>
+              </linearGradient>
+              <linearGradient id="chartGrad3" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#00d2ff"/>
+                <stop offset="100%" stop-color="#3b82f6"/>
+              </linearGradient>
+            </defs>
+            <rect x="3" y="13" width="4" height="8" rx="1.5" fill="url(#chartGrad1)"/>
+            <rect x="10" y="8" width="4" height="13" rx="1.5" fill="url(#chartGrad2)"/>
+            <rect x="17" y="4" width="4" height="17" rx="1.5" fill="url(#chartGrad3)"/>
+            <path d="M4 11L11 6L18 3" stroke="#0070f3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="18" cy="3" r="1.8" fill="#0070f3"/>
+          </svg>
+        </div>
+        <div>
+          <b>Powerful Analytics</b>
+          <span>Track every click</span>
+        </div>
+      </div>
+      <div class="badge-item">
+        <div class="badge-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="shieldGrad" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#00d2ff"/>
+                <stop offset="50%" stop-color="#10b981"/>
+                <stop offset="100%" stop-color="#0055ff"/>
+              </linearGradient>
+            </defs>
+            <path d="M12 2L4 5V11C4 16.5 7.4 21.6 12 22.8C16.6 21.6 20 16.5 20 11V5L12 2Z" fill="url(#shieldGrad)" fill-opacity="0.25" stroke="url(#shieldGrad)" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M9 12L11 14L15 9.5" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <b>Branded Experience</b>
+          <span>Build trust with your brand</span>
+        </div>
+      </div>
+      <div class="badge-item">
+        <div class="badge-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="globeGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#00d2ff"/>
+                <stop offset="100%" stop-color="#3b82f6"/>
+              </linearGradient>
+            </defs>
+            <circle cx="12" cy="12" r="9.5" stroke="url(#globeGrad)" stroke-width="1.6"/>
+            <ellipse cx="12" cy="12" rx="4.5" ry="9.5" stroke="url(#globeGrad)" stroke-width="1.4"/>
+            <path d="M3 12H21" stroke="url(#globeGrad)" stroke-width="1.4"/>
+            <path d="M4.5 7H19.5" stroke="url(#globeGrad)" stroke-width="1.2" stroke-dasharray="0.5 2.5"/>
+            <path d="M4.5 17H19.5" stroke="url(#globeGrad)" stroke-width="1.2" stroke-dasharray="0.5 2.5"/>
+          </svg>
+        </div>
+        <div>
+          <b>Global Reach</b>
+          <span>Share anywhere</span>
+        </div>
+      </div>
+    </div>
+
 
     <!-- Interactive Skipper Feature Showcase Carousel -->
-<!-- @include "partials/landing/showcase.html" -->
+    <section class="wrap slider-section" id="skipperShowcase">
+      <div class="slider-header">
+        <p class="eyebrow">AWARDS EXPERIENCE</p>
+        <h2>Interactive Platform Showcase</h2>
+        <p class="lead2 center">Swipe, click, or explore the suite of tools designed for high-performance links.</p>
+      </div>
+      
+      <div class="skipper-container" id="skipperSlider">
+        <div class="skipper-track">
+          <!-- Slide 1: AI Shortener -->
+          <div class="skipper-slide active">
+            <div class="slide-content">
+              <div class="slide-badge">⚡ Intelligent Shortener</div>
+              <h3>AI-Powered Custom Short Links</h3>
+              <p>Generate memorable, branded links with readable AI-suggested back-halves, password protection, expiration timers, and universal device routing.</p>
+              <div class="slide-stats">
+                <div><b>99.99%</b><span>Uptime SLA</span></div>
+                <div><b>&lt;50ms</b><span>Redirect Speed</span></div>
+                <div><b>Zero</b><span>Ad Interstitials</span></div>
+              </div>
+              <a href="#home" class="btn sm">Try Shortener Now</a>
+            </div>
+            <div class="slide-visual">
+              <div class="mock-card">
+                <div class="mock-top">
+                  <span class="mock-dot red"></span><span class="mock-dot yellow"></span><span class="mock-dot green"></span>
+                  <span class="mock-url">tinyurl.com/summer-sale</span>
+                </div>
+                <div class="mock-body">
+                  <div class="mock-line glow"></div>
+                  <div class="mock-row">
+                    <span class="mock-tag">AI Generated</span>
+                    <span class="mock-clicks">2,480 Clicks Today</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 2: Dynamic QR -->
+          <div class="skipper-slide">
+            <div class="slide-content">
+              <div class="slide-badge">▦ Vector QR Studio</div>
+              <h3>Dynamic Gradient QR Codes</h3>
+              <p>Create scannable, high-density vector QR codes with custom gradients, embedded brand logos, dynamic destination updates, and instant high-res PNG downloads.</p>
+              <div class="slide-stats">
+                <div><b>Vector PNG</b><span>High-Res Export</span></div>
+                <div><b>Dynamic</b><span>Editable Target</span></div>
+                <div><b>Custom</b><span>Brand Palettes</span></div>
+              </div>
+              <a href="#qr" class="btn sm teal">Launch QR Studio</a>
+            </div>
+            <div class="slide-visual">
+              <div class="mock-card">
+                <div class="qr-mock-box">
+                  <span>▦</span>
+                  <div class="qr-center-pill">HEA</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 3: Bio Pages -->
+          <div class="skipper-slide">
+            <div class="slide-content">
+              <div class="slide-badge">📱 Mobile Experience</div>
+              <h3>Link-in-Bio Social Showcases</h3>
+              <p>Curate all your products, socials, and campaigns onto one mobile-first glassmorphic bio page with live themes, click tracking, and verified badges.</p>
+              <div class="slide-stats">
+                <div><b>100%</b><span>Mobile First</span></div>
+                <div><b>Themes</b><span>Cloud Glassmorphic</span></div>
+                <div><b>Instant</b><span>Live Publishing</span></div>
+              </div>
+              <a href="#pages" class="btn sm">Create Bio Page</a>
+            </div>
+            <div class="slide-visual">
+              <div class="mock-card" style="text-align:center">
+                <div style="font-size:32px;margin-bottom:8px">✨</div>
+                <b style="color:#0070f3;font-size:16px">@yourbrand</b>
+                <p style="color:#000000;font-size:12px;margin:4px 0 12px">All our official links & releases</p>
+                <div class="mock-line glow" style="margin-bottom:8px"></div>
+                <div class="mock-line" style="opacity:0.4"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 4: Deep Analytics -->
+          <div class="skipper-slide">
+            <div class="slide-content">
+              <div class="slide-badge">📊 Deep Intelligence</div>
+              <h3>Real-Time Deep Analytics</h3>
+              <p>Understand your audience with click heatmaps, country-level geolocation, browser &amp; OS breakdowns, referrer channels, and single-click CSV exports.</p>
+              <div class="slide-stats">
+                <div><b>Live Stream</b><span>Instant Logging</span></div>
+                <div><b>Geo</b><span>Country &amp; City</span></div>
+                <div><b>CSV</b><span>Full Data Export</span></div>
+              </div>
+              <a href="#analytics" class="btn sm">View Analytics</a>
+            </div>
+            <div class="slide-visual">
+              <div class="mock-card">
+                <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+                  <span style="font-size:13px;font-weight:600;color:#0070f3">Total Traffic</span>
+                  <span style="color:#0070f3;font-size:13px;font-weight:700">+34.8% ↑</span>
+                </div>
+                <div class="mock-line glow" style="height:14px;border-radius:6px"></div>
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:#000000;margin-top:10px">
+                  <span>Mobile 68%</span>
+                  <span>Desktop 32%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slider Controls -->
+        <button class="skipper-btn prev" aria-label="Previous slide">‹</button>
+        <button class="skipper-btn next" aria-label="Next slide">›</button>
+        
+        <div class="skipper-pagination">
+          <button class="dot on" data-index="0" aria-label="Slide 1"></button>
+          <button class="dot" data-index="1" aria-label="Slide 2"></button>
+          <button class="dot" data-index="2" aria-label="Slide 3"></button>
+          <button class="dot" data-index="3" aria-label="Slide 4"></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Band -->
+    <div class="band">
+      <div class="wrap">
+        <p class="eyebrow">EVERYTHING YOU NEED</p>
+        <h2>One platform for every link you share</h2>
+        <div class="grid4" data-reveal-group id="features"></div>
+      </div>
+    </div>
+
+    <!-- AI & Advanced Split -->
+    <div class="wrap split" id="ai">
+      <div>
+        <p class="eyebrow">ONLY ON HEA LINK</p>
+        <h2>Smarter links with advanced controls</h2>
+        <p class="lead2">Protect links, expire them, and let AI suggest a readable back-half. Try it now:</p>
+        <div class="row">
+          <input id="aiUrl" placeholder="Enter long destination link (e.g. https://example.com/docs)..." aria-label="URL for AI suggestion">
+          <button class="btn" id="aiBtn" type="button">Suggest</button>
+        </div>
+        <p id="aiOut" class="aiout"></p>
+      </div>
+      <div class="grid2" id="adv"></div>
+    </div>
+
+    <!-- Steps -->
+    <div class="band">
+      <div class="wrap">
+        <p class="eyebrow">HOW IT WORKS</p>
+        <h2>Get started in three easy steps</h2>
+        <div class="grid3" data-reveal-group id="steps"></div>
+      </div>
+    </div>
+
+    <!-- Pricing Preview -->
+    <div class="wrap" id="pricing">
+      <p class="eyebrow">PRICING</p>
+      <h2>Simple, transparent pricing</h2>
+      <p class="center muted">Start free. Upgrade when your brand or team needs more power.</p>
+      <div class="grid3 plans" id="plans"></div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="wrap" style="margin-top:60px">
+      <p class="eyebrow">FAQ</p>
+      <h2>Frequently asked questions</h2>
+      <div class="faq" id="faq"></div>
+    </div>
+
+    <!-- CTA -->
+    <div class="wrap">
+      <div class="cta" id="homeBottomCta">
+        <div>
+          <h2 id="homeCtaHeading" style="color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.25) !important;">Ready to share smarter links?</h2>
+          <p id="homeCtaSub">Create your free HEA Link account in under a minute.</p>
+        </div>
+        <a class="btn teal" id="homeCtaBtn" href="#signup">Sign up free</a>
+      </div>
+    </div>
+  </section>
 
   <!-- 2. AUTH VIEW (Split Screen Login / Sign Up matching Bitly screenshots) -->
-<!-- @include "partials/auth/auth-view.html" -->
+  <section data-page="auth" hidden>
+    <div class="auth-split-wrap">
+      <div class="auth-left-col">
+        <a href="/" class="auth-brand-logo">
+          <svg class="logo-infinity-svg" width="36" height="25" viewBox="0 0 54 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15.5 8C10.25 8 6 12.25 6 17.5C6 22.75 10.25 27 15.5 27C21.2 27 24.6 20.8 27 17.5C29.4 14.2 32.8 8 38.5 8C43.75 8 48 12.25 48 17.5C48 22.75 43.75 27 38.5 27C32.8 27 29.4 20.8 27 17.5C24.6 14.2 21.2 8 15.5 8Z" stroke="url(#logoBlueGradAuth)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="logoBlueGradAuth" x1="6" y1="8" x2="48" y2="27" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#0066ff"/>
+                <stop offset="1" stop-color="#00c8ff"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span class="logo-hea">HEA</span> <span class="logo-link">Link</span>
+        </a>
+        <h2 class="auth-title" id="authTitle">Welcome Back</h2>
+        <p class="auth-sub" id="authSub">Log in to manage your links, QR codes, and analytics.</p>
+        
+        <div class="sso-group">
+          <button type="button" class="sso-btn" id="ssoGoogleBtn">
+            <svg class="sso-icon" width="18" height="18" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 12s.7 2.3 1.9 4.7l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/></svg>
+            Continue with Google
+          </button>
+          <button type="button" class="sso-btn" id="ssoAppleBtn">
+            <svg class="sso-icon" width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.84c.64-.78 1.08-1.87.96-2.84-.93.04-2.05.62-2.7 1.39-.58.67-1.09 1.76-.95 2.81 1.03.08 2.06-.58 2.69-1.36z"/></svg>
+            Continue with Apple
+          </button>
+        </div>
+
+        <div class="auth-divider" id="authDivider"><span>OR</span></div>
+
+        <form id="authForm" class="auth-form-card">
+          <label id="nameWrap" hidden>Full name
+            <input id="aName" autocomplete="name" placeholder="Enter your full name (e.g. John)">
+          </label>
+          <label>Email address
+            <input id="aEmail" type="email" autocomplete="email" placeholder="name@company.com" required>
+          </label>
+          <label>Password
+            <input id="aPass" type="password" autocomplete="current-password" placeholder="Enter password (min. 8 characters)" required>
+          </label>
+          <div id="forgotLinkRow" style="display:flex;justify-content:flex-end;margin:-4px 0 10px;">
+            <a href="javascript:void(0)" id="authForgotBtn" style="color:#38bdf8;font-size:12px;text-decoration:none;cursor:pointer;">Forgot password?</a>
+          </div>
+          <p class="err" id="authErr"></p>
+          <button class="auth-submit-btn" id="authBtn" type="submit">Log In</button>
+        </form>
+
+        <!-- FORGOT / RESET PASSWORD STEP -->
+        <div id="forgotWrap" hidden class="verify-container">
+          <div class="verify-badge" style="border-color:rgba(56,189,248,0.4);color:#38bdf8;"><span>🔑</span> Reset Password</div>
+          <p style="color:#000000;font-size:14px;margin:0 0 14px;line-height:1.5;" id="forgotPromptText">
+            Enter your account email to receive a 6-digit password reset code.
+          </p>
+
+          <!-- Step 1: Request Code -->
+          <form id="forgotStep1Form">
+            <input type="email" id="forgotEmailInput" class="verify-code-input" style="letter-spacing:normal;font-family:inherit;font-size:14px;padding:12px 14px;text-align:left;" placeholder="Enter your account email (name@company.com)" required>
+            <p class="err" id="forgotStep1Err"></p>
+            <button class="auth-submit-btn" id="forgotSendBtn" type="submit" style="margin-top:10px;">Send 6-Digit Reset Code →</button>
+          </form>
+
+          <!-- Step 2: Verify Code & Set New Password -->
+          <form id="forgotStep2Form" hidden style="margin-top:12px;">
+            <div style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#000000;">
+              Code sent to: <b id="forgotTargetEmailDisplay" style="color:#38bdf8;"></b>
+            </div>
+            <label style="display:block;margin-bottom:10px;font-size:12px;color:#000000;">6-Digit Security Code
+              <input type="text" id="forgotCodeInput" class="verify-code-input" maxlength="6" placeholder="Enter 6-digit code (e.g. 582194)" autocomplete="one-time-code" required style="margin-top:4px;">
+            </label>
+            <label style="display:block;margin-bottom:10px;font-size:12px;color:#000000;">New Password
+              <input type="password" id="forgotNewPassInput" class="verify-code-input" style="letter-spacing:normal;font-family:inherit;font-size:14px;padding:12px 14px;text-align:left;margin-top:4px;" placeholder="Create new password (min. 8 characters)" required>
+            </label>
+            <p class="err" id="forgotStep2Err"></p>
+            <button class="auth-submit-btn" id="forgotSubmitBtn" type="submit" style="margin-top:8px;">Reset Password &amp; Log In →</button>
+          </form>
+
+          <div id="forgotDevAlert" class="verify-dev-alert" hidden>
+            <span>💡</span> <span id="forgotDevText"></span>
+          </div>
+
+          <p class="small center" style="margin-top:16px;">
+            <a href="javascript:void(0)" id="forgotBackBtn" style="color:#38bdf8;text-decoration:none;font-size:13px;cursor:pointer;">← Back to Log In</a>
+          </p>
+        </div>
+
+        <!-- EMAIL VERIFICATION LINK STEP -->
+        <div id="verifyWrap" hidden class="verify-container">
+          <div class="verify-badge" style="background:rgba(56,189,248,0.12);color:#38bdf8;border:1px solid rgba(56,189,248,0.3);padding:6px 14px;border-radius:20px;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;margin-bottom:14px;"><span>✉️</span> Verify Your Email</div>
+          <h3 style="font-size:22px;color:#0b132b;margin:0 0 8px;">Check Your Inbox</h3>
+          <p style="color:#000000;font-size:14px;margin:0 0 12px;line-height:1.5;">
+            Verify your email: A verification link has been sent to your account:<br>
+            <span class="verify-target-email" id="verifyTargetEmail" style="display:inline-block;margin-top:6px;font-size:15px;color:#38bdf8;font-weight:700;">user@example.com</span>
+          </p>
+          <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:14px;margin-bottom:20px;text-align:left;">
+            <div style="color:#10b981;font-weight:700;font-size:13px;margin-bottom:4px;">🔗 Verification Link Sent!</div>
+            <div style="color:#000000;font-size:12px;line-height:1.5;">Please click the verification link sent to your email to activate your account, then click below to open your dashboard.</div>
+          </div>
+          <form id="verifyForm">
+            <p class="err" id="verifyErr"></p>
+            <button class="auth-submit-btn" id="verifySubmitBtn" type="button" style="margin-bottom:12px;">I've Clicked the Link — Open Dashboard →</button>
+          </form>
+          <div class="verify-resend-row" style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px;">
+            <span style="color:#000000;font-size:13px;">Didn't receive email?</span>
+            <button type="button" class="verify-resend-btn" id="verifyResendBtn" style="background:none;border:none;color:#38bdf8;font-weight:700;cursor:pointer;font-size:13px;text-decoration:underline;">Resend verification link</button>
+          </div>
+          <p class="small center" style="margin-top:16px;">
+            <a href="#login" id="verifyBackBtn" style="color:#64748b;text-decoration:none;font-size:13px;">← Back to Log In / Change Email</a>
+          </p>
+          <div id="verifyDevAlert" class="verify-dev-alert" hidden>
+            <span>💡</span> <span id="verifyDevText"></span>
+          </div>
+        </div>
+
+        <p class="small center" id="authSwap" style="margin-top:16px"></p>
+        <p class="auth-terms">By signing in with an account, you agree to HEA Link's Terms of Service and Privacy Policy.</p>
+      </div>
+
+      <div class="auth-right-col">
+        <div class="auth-illus-card">
+          <div class="auth-illus-badge">⚡</div>
+          <h3>Build trust with custom branded links</h3>
+          <p>Shorten URLs, generate custom-framed QR codes, and create engaging link-in-bio landing pages, all monitored by enterprise-grade analytics.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- =========================================================
        HEA LINK APP SHELL (Bitly-Style Professional Dashboard)
        ========================================================= -->
   <section data-page="app" id="appShell">
     <!-- Ambient 3D Depth Gradient Orbs -->
-<!-- @include "partials/dashboard/ambient-orbs.html" -->
+    <div class="dashboard-ambient-orbs" aria-hidden="true">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
     <!-- LEFT SIDEBAR -->
-<!-- @include "partials/dashboard/sidebar.html" -->
+    <aside class="app-sidebar expanded" id="appSidebar" data-lenis-prevent="true" aria-label="Sidebar navigation">
+      <!-- Floating Sidebar Collapse/Expand Toggle on Edge -->
+      <div class="sidebar-header-box">
+        <a href="#dashboard" class="sidebar-logo logo" title="HEA Link">
+          <svg class="logo-infinity-svg" width="30" height="20" viewBox="0 0 54 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15.5 8C10.25 8 6 12.25 6 17.5C6 22.75 10.25 27 15.5 27C21.2 27 24.6 20.8 27 17.5C29.4 14.2 32.8 8 38.5 8C43.75 8 48 12.25 48 17.5C48 22.75 43.75 27 38.5 27C32.8 27 29.4 20.8 27 17.5C24.6 14.2 21.2 8 15.5 8Z" stroke="url(#logoBlueGradSidebar)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="logoBlueGradSidebar" x1="6" y1="8" x2="48" y2="27" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#0066ff"/>
+                <stop offset="100%" stop-color="#00c8ff"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span class="sidebar-logo-text"><span class="logo-hea">HEA</span> <span class="logo-link">Link</span></span>
+        </a>
+        <button class="sidebar-edge-toggle" id="sidebarCollapseBtn" type="button" title="Collapse sidebar" aria-label="Toggle sidebar width">‹</button>
+      </div>
+
+      <!-- Action Button (Distinct from active route) -->
+      <button class="sidebar-action-btn" id="sidebarCreateBtn" type="button" title="Create new link, QR or page" data-tooltip="Create new">
+        <svg class="action-btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        <span class="action-btn-text">Create new</span>
+      </button>
+
+      <!-- Navigation List with Crisp Vector SVG Icons (1:1 Reference Match) -->
+      <nav class="sidebar-nav" id="sidebarNav">
+        <a class="sidebar-nav-item active" data-tab="home" href="#dashboard" data-tooltip="Home">
+          <span class="sidebar-nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          </span>
+          <span class="sidebar-nav-label">Home</span>
+        </a>
+        <a class="sidebar-nav-item" data-tab="links" href="#links" data-tooltip="Links">
+          <span class="sidebar-nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+          </span>
+          <span class="sidebar-nav-label">Links</span>
+        </a>
+        <a class="sidebar-nav-item" data-tab="qr" href="#qr" data-tooltip="QR Codes">
+          <span class="sidebar-nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="5" height="5" x="3" y="3" rx="1"></rect><rect width="5" height="5" x="16" y="3" rx="1"></rect><rect width="5" height="5" x="3" y="16" rx="1"></rect><path d="M21 16h-3a2 2 0 0 0-2 2v3"></path><path d="M21 21v.01"></path><path d="M12 7v3a2 2 0 0 1-2 2H7"></path><path d="M3 12h.01"></path><path d="M12 3h.01"></path><path d="M12 16v.01"></path><path d="M16 12h1"></path><path d="M21 12v.01"></path><path d="M12 21v-1"></path></svg>
+          </span>
+          <span class="sidebar-nav-label">QR Codes</span>
+        </a>
+        <a class="sidebar-nav-item" data-tab="pages" href="#pages" data-tooltip="Pages">
+          <span class="sidebar-nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M7 8h10"></path><path d="M7 12h10"></path><path d="M7 16h6"></path></svg>
+          </span>
+          <span class="sidebar-nav-label">Pages</span>
+          <span class="nav-pro-badge">PRO</span>
+        </a>
+        <a class="sidebar-nav-item" data-tab="analytics" href="#analytics" data-tooltip="Analytics">
+          <span class="sidebar-nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="18" y1="20" y2="10"></line><line x1="12" x2="12" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="14"></line></svg>
+          </span>
+          <span class="sidebar-nav-label">Analytics</span>
+        </a>
+        <a class="sidebar-nav-item" data-tab="campaigns" href="#campaigns" data-tooltip="Campaigns">
+          <span class="sidebar-nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          </span>
+          <span class="sidebar-nav-label">Campaigns</span>
+        </a>
+        <a class="sidebar-nav-item" data-tab="domains" href="#domains" data-tooltip="Custom domains">
+          <span class="sidebar-nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+          </span>
+          <span class="sidebar-nav-label">Custom domains</span>
+          <span class="nav-pro-badge">PRO</span>
+        </a>
+        <a class="sidebar-nav-item" data-tab="settings" href="#settings" data-tooltip="Settings">
+          <span class="sidebar-nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </span>
+          <span class="sidebar-nav-label">Settings</span>
+        </a>
+      </nav>
+
+      <!-- Sidebar User & Workspace Footer (1:1 Reference Match) -->
+      <div class="sidebar-bottom">
+        <!-- Expanded-only Workspace Badge -->
+        <div class="sidebar-workspace-card" id="sidebarWorkspaceBox">
+          <div class="workspace-label">CURRENT WORKSPACE</div>
+          <div class="workspace-title-row" id="sidebarUserOrg">
+            <span class="workspace-name">My Workspace</span>
+            <span class="verified-tag">FREE</span>
+          </div>
+        </div>
+
+        <!-- Clean User Block Row -->
+        <div class="sidebar-user-row">
+          <a href="#settings" class="sidebar-user-link" id="sidebarUserLink">
+            <div class="sidebar-user-avatar" id="sidebarAvatar" data-tooltip="User Account">HA</div>
+            <div class="sidebar-user-name" id="sidebarUserName">Account</div>
+          </a>
+          <button class="sidebar-logout-btn" id="sidebarLogoutBtn" type="button" title="Log out" aria-label="Log out" onclick="if(window.logoutUser) window.logoutUser();">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
 
     <!-- APP BODY WRAP -->
     <div class="app-body-wrap">
       <!-- APP TOPBAR (1:1 Reference Match) -->
-<!-- @include "partials/dashboard/topbar.html" -->
+      <header class="app-topbar" id="appTopbar">
+        <div class="topbar-left-col">
+          <button id="sidebarToggleBtn" class="topbar-icon-btn" style="display:none;" aria-label="Toggle sidebar">☰</button>
+          <div class="topbar-heading-wrap">
+            <h1 class="topbar-title" id="topbarTitle">Dashboard</h1>
+            <p class="topbar-subtitle" id="topbarSubtitle">Track, manage and grow your links</p>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <div class="topbar-pro-badge" id="topbarProBadge">
+            <span>👑</span> PRO Active
+          </div>
+          <div class="topbar-divider"></div>
+          <button class="topbar-assist-pill-btn" id="assistToggleBtn" title="HEA Assist AI" aria-label="Toggle HEA Assist AI">
+            <span>✨</span> HEA Assist
+          </button>
+          <div class="topbar-notif-wrap">
+            <button class="topbar-circle-icon-btn" id="topbarNotifBtn" title="Notifications" aria-label="View notifications">🔔</button>
+            <span class="topbar-notif-badge">3</span>
+          </div>
+          <button class="topbar-circle-icon-btn topbar-help-btn" id="topbarHelpBtn" title="Help &amp; Guides" aria-label="Help and resources" onclick="location.hash='#resources'">❓</button>
+          <a href="#settings" class="topbar-avatar" id="topbarAvatar" title="Account" aria-label="Account settings">FZ</a>
+        </div>
+      </header>
 
       <!-- CONTENT ROW (MAIN PANE + RIGHT ASSIST DRAWER) -->
       <div class="app-content-row">
         <main class="app-main-pane" id="appMainPane" data-lenis-prevent="true" role="main" aria-label="Dashboard Content">
 
-<!-- @include "partials/dashboard/dashboard-view.html" -->
+<div class="dashboard-v2-container">
+  <!-- 1. TOP KPI STAT CARDS (4 Columns) -->
+  ner">
+        
+        <!-- ====================================================
+             1. TOP KPI STAT CARDS (4 Columns)
+             ==================================================== -->
+        <div class="dash-kpi-grid">
+          
+          <!-- KPI 1: Total Links -->
+          <div class="kpi-card">
+            <div class="kpi-left-group">
+              <div class="kpi-icon-box" style="background:#e0f2fe;color:#0284c7;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+              </div>
+              <div class="kpi-meta">
+                <span class="kpi-label">Total Links</span>
+                <div class="kpi-value-row">
+                  <span class="kpi-value">247</span>
+                  <span class="kpi-trend">↑ +12%</span>
+                </div>
+              </div>
+            </div>
+            <div class="kpi-sparkline">
+              <svg width="68" height="28" viewBox="0 0 68 28" fill="none">
+                <path d="M2 22 Q 18 28, 30 16 T 50 12 T 66 4" stroke="#0A6CFF" stroke-width="2.6" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- KPI 2: Total Clicks -->
+          <div class="kpi-card">
+            <div class="kpi-left-group">
+              <div class="kpi-icon-box" style="background:#f3e8ff;color:#9333ea;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              </div>
+              <div class="kpi-meta">
+                <span class="kpi-label">Total Clicks</span>
+                <div class="kpi-value-row">
+                  <span class="kpi-value">48.7K</span>
+                  <span class="kpi-trend">↑ +18%</span>
+                </div>
+              </div>
+            </div>
+            <div class="kpi-sparkline">
+              <svg width="68" height="28" viewBox="0 0 68 28" fill="none">
+                <path d="M2 24 Q 18 16, 32 20 T 52 14 T 66 8" stroke="#a855f7" stroke-width="2.6" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- KPI 3: Unique Visitors -->
+          <div class="kpi-card">
+            <div class="kpi-left-group">
+              <div class="kpi-icon-box" style="background:#dcfce7;color:#16a34a;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="18" y1="20" y2="10"></line><line x1="12" x2="12" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="14"></line></svg>
+              </div>
+              <div class="kpi-meta">
+                <span class="kpi-label">Unique Visitors</span>
+                <div class="kpi-value-row">
+                  <span class="kpi-value">32.4K</span>
+                  <span class="kpi-trend">↑ +16%</span>
+                </div>
+              </div>
+            </div>
+            <div class="kpi-sparkline">
+              <svg width="68" height="28" viewBox="0 0 68 28" fill="none">
+                <path d="M2 22 Q 18 25, 30 14 T 50 16 T 66 6" stroke="#10b981" stroke-width="2.6" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- KPI 4: Top Performer -->
+          <div class="kpi-card">
+            <div class="kpi-left-group">
+              <div class="kpi-icon-box" style="background:#fef3c7;color:#d97706;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+              </div>
+              <div class="kpi-meta">
+                <span class="kpi-label">Top Performer</span>
+                <div class="kpi-value-row">
+                  <span class="kpi-value">2.8K Clicks</span>
+                </div>
+              </div>
+            </div>
+            <div class="kpi-sparkline">
+              <svg width="68" height="28" viewBox="0 0 68 28" fill="none">
+                <path d="M2 20 Q 16 12, 30 22 T 50 14 T 66 8" stroke="#f59e0b" stroke-width="2.6" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+
+        </div>
+
+
+  <!-- 2. MIDDLE HERO ROW (Hero Shortener + Calendar/Velocity) -->
+  <!-- ====================================================
+             2. MIDDLE HERO ROW (Hero Shortener + Calendar/Velocity)
+             ==================================================== -->
+        <div class="dash-hero-grid">
+          
+          <!-- Left: Hero Shortener Card -->
+          <div class="hero-shorten-card">
+            <div class="hero-top-badges">
+              <div class="live-activity-pill">
+                <span class="live-dot"></span>
+                <span class="live-text">Live Activity · 42 visitors right now</span>
+                <div class="live-avatars">
+                  <div class="live-avatar-item" style="background:#0A6CFF;">FZ</div>
+                  <div class="live-avatar-item" style="background:#7928ca;">AK</div>
+                  <div class="live-avatar-item" style="background:#10b981;">EM</div>
+                </div>
+                <span class="live-more-text">+1.4k active</span>
+              </div>
+              <div class="core-pro-badge" onclick="window.openCheckoutModal('pro')" style="cursor:pointer;">
+                <span>👑</span> Core PRO Active
+              </div>
+            </div>
+
+            <div class="hero-main-row">
+              <div class="hero-text-block">
+                <h2 class="hero-greeting-title">Good afternoon, Fury! 🚀</h2>
+                <p class="hero-greeting-sub">Shorten your links, track performance and grow your audience with ease.</p>
+              </div>
+              
+              <!-- 3D Glossy Blue Chain Link Illustration -->
+              <div class="hero-3d-graphic-wrap" aria-hidden="true">
+                <svg width="170" height="150" viewBox="0 0 170 150" fill="none">
+                  <defs>
+                    <linearGradient id="linkBody3D" x1="20" y1="20" x2="150" y2="130" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stop-color="#38bdf8"/>
+                      <stop offset="35%" stop-color="#0A6CFF"/>
+                      <stop offset="70%" stop-color="#0284c7"/>
+                      <stop offset="100%" stop-color="#1e3a8a"/>
+                    </linearGradient>
+                    <linearGradient id="linkSpec3D" x1="40" y1="30" x2="140" y2="110" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+                      <stop offset="35%" stop-color="#ffffff" stop-opacity="0.25"/>
+                      <stop offset="70%" stop-color="#38bdf8" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <!-- Base Ambient Drop Shadow -->
+                  <ellipse cx="85" cy="130" rx="55" ry="14" fill="rgba(10, 108, 255, 0.22)" filter="blur(6px)"/>
+                  <!-- 3D Tilted Torus / Chain Ring -->
+                  <g transform="rotate(-28 85 75)">
+                    <path d="M 42 42 C 42 22, 62 14, 88 14 C 114 14, 134 22, 134 42 L 134 102 C 134 122, 114 130, 88 130 C 62 130, 42 122, 42 102 Z" 
+                          stroke="url(#linkBody3D)" stroke-width="26" stroke-linejoin="round" fill="none"/>
+                    <path d="M 44 44 C 44 26, 64 18, 88 18 C 112 18, 132 26, 132 44 L 132 68" 
+                          stroke="url(#linkSpec3D)" stroke-width="7" stroke-linecap="round" fill="none"/>
+                  </g>
+                  <!-- Floating 3D Accent Sparks -->
+                  <rect x="24" y="42" width="11" height="4" rx="2" fill="#818cf8" transform="rotate(-35 24 42)"/>
+                  <circle cx="16" cy="60" r="2.5" fill="#38bdf8"/>
+                  <rect x="142" y="24" width="10" height="3.5" rx="1.75" fill="#60a5fa" transform="rotate(25 142 24)"/>
+                  <circle cx="156" cy="52" r="2.5" fill="#a855f7"/>
+                  <rect x="150" y="68" width="11" height="3.5" rx="1.75" fill="#38bdf8" transform="rotate(-15 150 68)"/>
+                  <circle cx="32" cy="102" r="2.5" fill="#60a5fa"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Toggle Tabs (Short Link vs Vector QR) -->
+            <div class="hero-type-pills">
+              <button type="button" class="hero-type-pill active" id="tabShortLinkOpt">
+                <span>🔗</span> Short link &amp; URL
+              </button>
+              <button type="button" class="hero-type-pill" id="tabQrCodeOpt">
+                <span>▦</span> Vector QR Code
+              </button>
+            </div>
+
+            <!-- Shorten Input Box -->
+            <form id="homeShortenForm" class="hero-shorten-form-wrap">
+              <span class="hero-input-icon" id="homeInputIcon">🔗</span>
+              <input type="url" id="homeShortenInput" class="hero-shorten-input" placeholder="Paste destination URL to generate a short link..." required autocomplete="off">
+              <button type="submit" class="hero-submit-btn" id="homeSubmitBtn">
+                <span>Create Now</span> →
+              </button>
+            </form>
+
+            <div id="homeShortenResult" class="home-shorten-result" style="display:none;margin-bottom:14px;"></div>
+
+            <!-- Quick Actions Line -->
+            <div class="hero-quick-actions-row">
+              <span class="hero-quick-label">Quick actions:</span>
+              <button type="button" class="hero-action-pill" onclick="if(window.appShell) window.appShell.openCreateModal('link')">
+                <span style="color:#f59e0b;">⚡</span> Customize Link
+              </button>
+              <button type="button" class="hero-action-pill" onclick="if(window.appShell) window.appShell.navigate('qr')">
+                <span style="color:#d97706;">🎨</span> Custom QR Design
+              </button>
+              <button type="button" class="hero-action-pill" onclick="if(window.appShell) window.appShell.navigate('pages')">
+                <span style="color:#0284c7;">📄</span> New Bio Page
+              </button>
+            </div>
+          </div>
+
+          <!-- Right: Stacked Calendar & Velocity Widgets -->
+          <div class="dash-right-stack">
+            
+            <!-- Widget 1: Calendar Week -->
+            <div class="calendar-widget-card">
+              <div class="widget-header-row">
+                <div class="widget-title">📅 November 2026</div>
+                <button type="button" class="widget-dropdown-btn">This Week ˇ</button>
+              </div>
+              <div class="cal-week-grid">
+                <div class="cal-day-col active">
+                  <span class="cal-day-name">MON</span>
+                  <span class="cal-day-number">9</span>
+                </div>
+                <div class="cal-day-col">
+                  <span class="cal-day-name">TUE</span>
+                  <span class="cal-day-number">10</span>
+                </div>
+                <div class="cal-day-col">
+                  <span class="cal-day-name">WED</span>
+                  <span class="cal-day-number">11</span>
+                </div>
+                <div class="cal-day-col">
+                  <span class="cal-day-name">THU</span>
+                  <span class="cal-day-number">12</span>
+                </div>
+                <div class="cal-day-col">
+                  <span class="cal-day-name">FRI</span>
+                  <span class="cal-day-number">13</span>
+                </div>
+                <div class="cal-day-col">
+                  <span class="cal-day-name">SAT</span>
+                  <span class="cal-day-number">14</span>
+                </div>
+                <div class="cal-day-col">
+                  <span class="cal-day-name">SUN</span>
+                  <span class="cal-day-number">15</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Widget 2: Visitor Velocity Chart -->
+            <div class="velocity-widget-card">
+              <div class="widget-header-row">
+                <div class="widget-title">📈 Visitor Velocity</div>
+                <span style="background:#dcfce7;color:#16a34a;padding:3px 8px;border-radius:9999px;font-size:11.5px;font-weight:700;">↑ +42%</span>
+              </div>
+              
+              <!-- SVG Velocity Chart with Axes & Peak Tooltip -->
+              <div class="velocity-chart-wrap">
+                <!-- Peak Tooltip pinned right above Saturday 14 point -->
+                <div style="position:absolute;left:82%;top:5px;transform:translateX(-50%);background:#0f172a;color:#ffffff;padding:2px 7px;border-radius:6px;font-size:10px;font-weight:800;box-shadow:0 2px 6px rgba(0,0,0,0.2);z-index:2;">
+                  2.8K
+                </div>
+                <svg width="100%" height="95" viewBox="0 0 340 95" fill="none" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="velocityGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#0A6CFF" stop-opacity="0.32"/>
+                      <stop offset="100%" stop-color="#0A6CFF" stop-opacity="0.0"/>
+                    </linearGradient>
+                  </defs>
+                  <!-- Horizontal Grid Lines -->
+                  <line x1="28" y1="18" x2="335" y2="18" stroke="#f1f5f9" stroke-width="1"/>
+                  <line x1="28" y1="40" x2="335" y2="40" stroke="#f1f5f9" stroke-width="1"/>
+                  <line x1="28" y1="62" x2="335" y2="62" stroke="#f1f5f9" stroke-width="1"/>
+                  <line x1="28" y1="80" x2="335" y2="80" stroke="#f1f5f9" stroke-width="1"/>
+
+                  <!-- Y-Axis Labels -->
+                  <text x="5" y="21" fill="#94a3b8" font-size="9" font-weight="600">3K</text>
+                  <text x="5" y="43" fill="#94a3b8" font-size="9" font-weight="600">2K</text>
+                  <text x="5" y="65" fill="#94a3b8" font-size="9" font-weight="600">1K</text>
+                  <text x="8" y="82" fill="#94a3b8" font-size="9" font-weight="600">0</text>
+
+                  <!-- Area Fill -->
+                  <path d="M 38 65 C 55 52, 70 48, 86 50 C 102 52, 118 60, 134 56 C 150 52, 166 40, 182 42 C 198 44, 214 50, 230 46 C 255 42, 265 18, 278 18 C 295 18, 310 52, 325 58 L 325 80 L 38 80 Z" fill="url(#velocityGrad)"/>
+
+                  <!-- Smooth Curve Line -->
+                  <path d="M 38 65 C 55 52, 70 48, 86 50 C 102 52, 118 60, 134 56 C 150 52, 166 40, 182 42 C 198 44, 214 50, 230 46 C 255 42, 265 18, 278 18 C 295 18, 310 52, 325 58" 
+                        stroke="#0A6CFF" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+
+                  <!-- Data Point Dots -->
+                  <circle cx="38" cy="65" r="3" fill="#0A6CFF" stroke="#ffffff" stroke-width="1.5"/>
+                  <circle cx="86" cy="50" r="3" fill="#0A6CFF" stroke="#ffffff" stroke-width="1.5"/>
+                  <circle cx="134" cy="56" r="3" fill="#0A6CFF" stroke="#ffffff" stroke-width="1.5"/>
+                  <circle cx="182" cy="42" r="3" fill="#0A6CFF" stroke="#ffffff" stroke-width="1.5"/>
+                  <circle cx="230" cy="46" r="3" fill="#0A6CFF" stroke="#ffffff" stroke-width="1.5"/>
+                  <circle cx="278" cy="18" r="4.5" fill="#0A6CFF" stroke="#ffffff" stroke-width="2"/>
+                  <circle cx="325" cy="58" r="3" fill="#0A6CFF" stroke="#ffffff" stroke-width="1.5"/>
+                </svg>
+
+                <!-- X-Axis Labels -->
+                <div style="display:flex;justify-content:space-between;padding:0 4px 0 28px;margin-top:2px;">
+                  <span style="font-size:9.5px;color:#94a3b8;font-weight:600;">Mon<br>9</span>
+                  <span style="font-size:9.5px;color:#94a3b8;font-weight:600;">Tue<br>10</span>
+                  <span style="font-size:9.5px;color:#94a3b8;font-weight:600;">Wed<br>11</span>
+                  <span style="font-size:9.5px;color:#94a3b8;font-weight:600;">Thu<br>12</span>
+                  <span style="font-size:9.5px;color:#94a3b8;font-weight:600;">Fri<br>13</span>
+                  <span style="font-size:9.5px;color:#0A6CFF;font-weight:800;">Sat<br>14</span>
+                  <span style="font-size:9.5px;color:#94a3b8;font-weight:600;">Sun<br>15</span>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+  <!-- 3. BOTTOM ROW (Overview + Recent Links + Top Referrers) -->
+  <!-- ====================================================
+             3. BOTTOM ROW (Overview + Recent Links + Top Referrers)
+             ==================================================== -->
+        <div class="dash-bottom-grid">
+          
+          <!-- Card 1: Overview (Metrics Summary) -->
+          <div class="bottom-widget-card">
+            <div class="widget-header-row">
+              <div class="widget-title">📊 Overview</div>
+              <button type="button" class="widget-dropdown-btn">Last 7 Days ˇ</button>
+            </div>
+            <div class="overview-stats-grid">
+              <!-- Visitors -->
+              <div class="overview-col">
+                <div class="overview-icon-badge" style="background:#e0f2fe;color:#0284c7;">👁️</div>
+                <span class="overview-num">32.4K</span>
+                <span class="overview-lbl">Visitors</span>
+                <span class="overview-pct">↑ +16%</span>
+              </div>
+              <!-- Clicks -->
+              <div class="overview-col">
+                <div class="overview-icon-badge" style="background:#f3e8ff;color:#9333ea;">🔗</div>
+                <span class="overview-num">48.7K</span>
+                <span class="overview-lbl">Clicks</span>
+                <span class="overview-pct">↑ +18%</span>
+              </div>
+              <!-- Links -->
+              <div class="overview-col">
+                <div class="overview-icon-badge" style="background:#dcfce7;color:#16a34a;">⛓️</div>
+                <span class="overview-num">1.5K</span>
+                <span class="overview-lbl">Links</span>
+                <span class="overview-pct">↑ +12%</span>
+              </div>
+              <!-- Avg Time -->
+              <div class="overview-col">
+                <div class="overview-icon-badge" style="background:#fef3c7;color:#d97706;">⏱️</div>
+                <span class="overview-num">2m 24s</span>
+                <span class="overview-lbl">Avg. Time</span>
+                <span class="overview-pct">↑ +8%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Recent Links -->
+          <div class="bottom-widget-card">
+            <div class="widget-header-row">
+              <div class="widget-title">🔗 Recent Links</div>
+              <a href="#links" class="view-all-link" onclick="window.appShell.navigate('links'); return false;">View All →</a>
+            </div>
+            
+            <div class="recent-links-list">
+              <!-- Link Row 1 -->
+              <div class="recent-link-row-item">
+                <div class="recent-left-meta">
+                  <div class="recent-link-icon-box">🔗</div>
+                  <div class="recent-link-titles">
+                    <span class="recent-dest-title" title="https://yourwebsite.com/product">https://yourwebsite.com/product</span>
+                    <a href="https://healink.store/abc123" target="_blank" rel="noopener" class="recent-short-slug">fury.link/abc123</a>
+                  </div>
+                </div>
+                <div class="recent-right-telemetry">
+                  <span class="recent-click-count">2.8K clicks</span>
+                  <svg width="42" height="18" viewBox="0 0 42 18" fill="none">
+                    <path d="M2 14 Q 10 16, 18 8 T 32 10 T 40 4" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <button type="button" class="recent-more-btn" title="Options">•••</button>
+                </div>
+              </div>
+
+              <!-- Link Row 2 -->
+              <div class="recent-link-row-item">
+                <div class="recent-left-meta">
+                  <div class="recent-link-icon-box">🔗</div>
+                  <div class="recent-link-titles">
+                    <span class="recent-dest-title" title="https://github.com/fury">https://github.com/fury</span>
+                    <a href="https://healink.store/github" target="_blank" rel="noopener" class="recent-short-slug">fury.link/github</a>
+                  </div>
+                </div>
+                <div class="recent-right-telemetry">
+                  <span class="recent-click-count">1.4K clicks</span>
+                  <svg width="42" height="18" viewBox="0 0 42 18" fill="none">
+                    <path d="M2 12 Q 10 15, 18 6 T 32 12 T 40 4" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <button type="button" class="recent-more-btn" title="Options">•••</button>
+                </div>
+              </div>
+
+              <!-- Link Row 3 -->
+              <div class="recent-link-row-item">
+                <div class="recent-left-meta">
+                  <div class="recent-link-icon-box">🔗</div>
+                  <div class="recent-link-titles">
+                    <span class="recent-dest-title" title="https://store.com/deals">https://store.com/deals</span>
+                    <a href="https://healink.store/deals" target="_blank" rel="noopener" class="recent-short-slug">fury.link/deals</a>
+                  </div>
+                </div>
+                <div class="recent-right-telemetry">
+                  <span class="recent-click-count">872 clicks</span>
+                  <svg width="42" height="18" viewBox="0 0 42 18" fill="none">
+                    <path d="M2 14 Q 10 16, 20 10 T 32 12 T 40 6" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <button type="button" class="recent-more-btn" title="Options">•••</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Top Referrers -->
+          <div class="bottom-widget-card">
+            <div class="widget-header-row">
+              <div class="widget-title">👥 Top Referrers</div>
+              <a href="#analytics" class="view-all-link" onclick="window.appShell.navigate('analytics'); return false;">View All →</a>
+            </div>
+            
+            <div class="referrers-body">
+              <!-- Donut Chart -->
+              <div class="donut-chart-box">
+                <svg width="96" height="96" viewBox="0 0 100 100" style="transform:rotate(-90deg);">
+                  <!-- Background circle track -->
+                  <circle cx="50" cy="50" r="36" stroke="#f1f5f9" stroke-width="14" fill="none"/>
+                  <!-- Segment 1: Organic Search (68%) - Blue -->
+                  <circle cx="50" cy="50" r="36" stroke="#0A6CFF" stroke-width="14" fill="none"
+                          stroke-dasharray="153.8 226.2" stroke-dashoffset="0"/>
+                  <!-- Segment 2: Direct (16%) - Purple -->
+                  <circle cx="50" cy="50" r="36" stroke="#a855f7" stroke-width="14" fill="none"
+                          stroke-dasharray="36.2 226.2" stroke-dashoffset="-153.8"/>
+                  <!-- Segment 3: Social Media (10%) - Green -->
+                  <circle cx="50" cy="50" r="36" stroke="#10b981" stroke-width="14" fill="none"
+                          stroke-dasharray="22.6 226.2" stroke-dashoffset="-190"/>
+                  <!-- Segment 4: Others (6%) - Amber -->
+                  <circle cx="50" cy="50" r="36" stroke="#f59e0b" stroke-width="14" fill="none"
+                          stroke-dasharray="13.6 226.2" stroke-dashoffset="-212.6"/>
+                </svg>
+                <div class="donut-center-info">
+                  <span class="donut-pct-bold">68%</span>
+                  <span class="donut-pct-label">Organic</span>
+                </div>
+              </div>
+
+              <!-- Legend List -->
+              <div class="referrers-legend-list">
+                <div class="legend-item">
+                  <div class="legend-left">
+                    <span class="legend-dot" style="background:#0A6CFF;"></span>
+                    <span>Organic Search</span>
+                  </div>
+                  <span class="legend-val">68%</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-left">
+                    <span class="legend-dot" style="background:#a855f7;"></span>
+                    <span>Direct</span>
+                  </div>
+                  <span class="legend-val">16%</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-left">
+                    <span class="legend-dot" style="background:#10b981;"></span>
+                    <span>Social Media</span>
+                  </div>
+                  <span class="legend-val">10%</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-left">
+                    <span class="legend-dot" style="background:#f59e0b;"></span>
+                    <span>Others</span>
+                  </div>
+                  <span class="legend-val">6%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+</div>
 
         </main>
 
         <!-- RIGHT HEA ASSIST AI DRAWER (1:1 Exact Reference Match) -->
-<!-- @include "partials/dashboard/assist-drawer.html" -->
+        <aside class="app-assist-drawer" id="appAssistDrawer" data-lenis-prevent="true" hidden>
+          <div class="drawer-drag-handle" aria-hidden="true"></div>
+          <div class="drawer-header">
+            <div class="drawer-title" id="drawerTitle">
+              <span>✨</span> HEA Assist
+            </div>
+            <button class="drawer-close" id="drawerCloseBtn" aria-label="Close assistant">✕</button>
+          </div>
+          <div class="drawer-body" data-lenis-prevent="true">
+            <div id="drawerAiContent">
+            <!-- Mascot AI Banner Card -->
+            <div class="assist-mascot-card">
+              <div class="mascot-robot-col">
+  <svg width="68" height="68" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Soft Shadow -->
+    <ellipse cx="50" cy="92" rx="28" ry="5" fill="rgba(0,112,243,0.15)" />
+    <!-- Body -->
+    <rect x="30" y="58" width="40" height="30" rx="15" fill="url(#botBodyGradHome)" stroke="#bfdbfe" stroke-width="2"/>
+    <!-- Head -->
+    <rect x="22" y="18" width="56" height="42" rx="18" fill="url(#botHeadGradHome)" stroke="#bfdbfe" stroke-width="2"/>
+    <!-- Head Visor/Screen -->
+    <rect x="28" y="24" width="44" height="28" rx="12" fill="#0b132b" />
+    <!-- Glowing Cyan Eyes -->
+    <ellipse cx="40" cy="38" rx="5" ry="6" fill="#00d2ff" />
+    <ellipse cx="60" cy="38" rx="5" ry="6" fill="#00d2ff" />
+    <ellipse cx="41" cy="36" rx="2" ry="2.5" fill="#ffffff" />
+    <ellipse cx="61" cy="36" rx="2" ry="2.5" fill="#ffffff" />
+    <path d="M47 43Q50 45 53 43" stroke="#00d2ff" stroke-width="2" stroke-linecap="round" />
+    <!-- Headphones / Ears -->
+    <rect x="16" y="29" width="8" height="18" rx="4" fill="#0070f3" />
+    <rect x="76" y="29" width="8" height="18" rx="4" fill="#0070f3" />
+    <path d="M20 29C20 12 80 12 80 29" stroke="#93c5fd" stroke-width="3" stroke-linecap="round" />
+    <!-- Antenna -->
+    <path d="M50 18V10" stroke="#93c5fd" stroke-width="2.5" stroke-linecap="round" />
+    <circle cx="50" cy="8" r="4" fill="#0070f3" />
+    <circle cx="50" cy="8" r="2" fill="#ffffff" />
+    <!-- Floating Sparkle in Hand -->
+    <g transform="translate(68, 48) scale(0.9)">
+      <path d="M12 0L14.5 8.5L23 11L14.5 13.5L12 22L9.5 13.5L1 11L9.5 8.5L12 0Z" fill="url(#goldSparkleGradHome)" />
+    </g>
+    <defs>
+      <linearGradient id="botHeadGradHome" x1="22" y1="18" x2="78" y2="60" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#ffffff"/>
+        <stop offset="1" stop-color="#eff6ff"/>
+      </linearGradient>
+      <linearGradient id="botBodyGradHome" x1="30" y1="58" x2="70" y2="88" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#ffffff"/>
+        <stop offset="1" stop-color="#e0f2fe"/>
+      </linearGradient>
+      <linearGradient id="goldSparkleGradHome" x1="1" y1="0" x2="23" y2="22" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#fde047"/>
+        <stop offset="1" stop-color="#f59e0b"/>
+      </linearGradient>
+    </defs>
+  </svg>
+</div>
+              <div class="mascot-info-col">
+                <b class="mascot-title">Your AI Link Assistant</b>
+                <p class="mascot-desc">Optimize your titles, generate UTM campaigns, and write high-converting bio descriptions in seconds.</p>
+              </div>
+            </div>
+
+            <!-- Prompt Suggestion Pills with Chevron -->
+            <div class="assist-prompt-pills-list">
+              <button class="assist-prompt-pill" data-prompt="Suggest a catchy title for my link" type="button">
+                <span class="pill-text">💡 Suggest catchy title</span>
+                <span class="pill-chev">›</span>
+              </button>
+              <button class="assist-prompt-pill" data-prompt="Generate UTM parameters for a Facebook ad" type="button">
+                <span class="pill-text">🎯 UTM parameters for FB ad</span>
+                <span class="pill-chev">›</span>
+              </button>
+              <button class="assist-prompt-pill" data-prompt="How do I get more QR code scans?" type="button">
+                <span class="pill-text">📊 How to get more QR scans</span>
+                <span class="pill-chev">›</span>
+              </button>
+              <button class="assist-prompt-pill" data-prompt="What should I put on my link-in-bio page?" type="button">
+                <span class="pill-text">📄 Link-in-bio best practices</span>
+                <span class="pill-chev">›</span>
+              </button>
+            </div>
+
+            <!-- Chat Log -->
+            <div class="drawer-chat-log" id="drawerChatLog">
+              <div class="drawer-chat-bubble ai">
+                👋 Hi there! I'm HEA Assist. How can I help you optimize your links and campaigns today?
+              </div>
+            </div>
+            </div><!-- /#drawerAiContent -->
+
+            <!-- Settings subsidebar (replaces HEA Assist on Settings page) -->
+            <div id="drawerSettingsContent" class="drawer-settings-nav-wrap" hidden>
+              <div class="settings-subsidebar-group">
+                <h5>PERSONAL SETTINGS</h5>
+                <a class="settings-subsidebar-link active" data-nav="profile">Profile</a>
+                <a class="settings-subsidebar-link" data-nav="integrations" onclick="window.appShell.navigate('integrations')">Integrations</a>
+              </div>
+              <div class="settings-subsidebar-group">
+                <h5 class="settings-group-header-collapsible">
+                  <span>ACCOUNT SETTINGS</span>
+                  <span class="settings-group-arrow">▲</span>
+                </h5>
+                <div class="settings-org-id-badge" id="settingsOrgBadge">hea-org-default</div>
+                <a class="settings-subsidebar-link" data-nav="account-details">Account details</a>
+                <a class="settings-subsidebar-link" data-nav="billing" onclick="location.hash='#pricing'">Billing and usage</a>
+                <a class="settings-subsidebar-link" data-nav="users">Users</a>
+                <a class="settings-subsidebar-link" data-nav="groups">Groups</a>
+                <a class="settings-subsidebar-link" data-nav="sso">Single sign-on</a>
+                <a class="settings-subsidebar-link" data-nav="discovery">Account discovery</a>
+                <a class="settings-subsidebar-link" data-nav="deeplinks">Mobile deep links</a>
+              </div>
+            </div>
+          </div>
+          <form class="drawer-input-row" id="drawerChatForm">
+            <div class="drawer-input-capsule">
+              <input type="text" id="drawerChatInput" placeholder='Ask HEA Assist anything (e.g. "Suggest catchy title")...' style="border:none !important;outline:none !important;box-shadow:none !important;background:transparent !important;" autocomplete="off">
+              <button type="submit" class="drawer-capsule-submit" style="width:34px !important;height:34px !important;min-width:34px !important;max-width:34px !important;min-height:34px !important;max-height:34px !important;border-radius:50% !important;background:#0070f3 !important;color:#ffffff !important;border:none !important;display:grid !important;place-items:center !important;flex-shrink:0 !important;cursor:pointer !important;padding:0 !important;">→</button>
+            </div>
+          </form>
+        </aside>
       </div>
     </div>
     <!-- MOBILE BOTTOM NAVIGATION (Active on < 768px) -->
-<!-- @include "partials/layout/mobile-tabs.html" -->
+    <nav class="app-mobile-bottom-nav" id="appMobileBottomNav" aria-label="Mobile Navigation">
+      <a href="#dashboard" class="mobile-tab-item active" data-tab="home">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <span>Home</span>
+      </a>
+      <a href="#links" class="mobile-tab-item" data-tab="links">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+        <span>Links</span>
+      </a>
+      <button type="button" class="mobile-tab-create-btn" id="mobileTabCreateBtn" aria-label="Create New">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      </button>
+      <a href="#qr" class="mobile-tab-item" data-tab="qr">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="5" height="5" x="3" y="3" rx="1"></rect><rect width="5" height="5" x="16" y="3" rx="1"></rect><rect width="5" height="5" x="3" y="16" rx="1"></rect><path d="M21 16h-3a2 2 0 0 0-2 2v3"></path><path d="M21 21v.01"></path><path d="M12 7v3a2 2 0 0 1-2 2H7"></path></svg>
+        <span>QR</span>
+      </a>
+      <a href="#analytics" class="mobile-tab-item" data-tab="analytics">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="18" y1="20" y2="10"></line><line x1="12" x2="12" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="14"></line></svg>
+        <span>Stats</span>
+      </a>
+      <button type="button" class="mobile-tab-item" id="mobileTabMoreBtn" aria-label="More Menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+        <span>More</span>
+      </button>
+    </nav>
     <div class="sidebar-backdrop" id="sidebarBackdrop" hidden></div>
   </section>
 
   <!-- "WHAT DO YOU WANT TO CREATE?" MODAL (Screenshot 12.02.37 AM 1) -->
-<!-- @include "partials/modals/what-modal.html" -->
+  <div class="create-modal-overlay" id="whatModal" hidden>
+    <div class="create-modal-card">
+      <div class="create-modal-header">
+        <h3 style="font-size:24px;font-weight:800;color:#0070f3;margin:0;">What do you want to create?</h3>
+        <button class="create-modal-close" id="whatModalClose" aria-label="Close modal" style="background:none;border:0;font-size:22px;color:#000000;cursor:pointer;">✕</button>
+      </div>
+      <div class="create-modal-grid">
+        <div class="create-option-card" id="optCreateLink">
+          <div style="font-size:24px;color:#38bdf8;margin-bottom:8px;">🔗</div>
+          <b style="font-size:15px;color:#0070f3;display:block;margin-bottom:4px;">Shorten a link</b>
+          <span class="create-option-badge">L</span>
+        </div>
+        <div class="create-option-card" id="optCreateQR">
+          <div style="font-size:24px;color:#0070f3;margin-bottom:8px;">▦</div>
+          <b style="font-size:15px;color:#0070f3;display:block;margin-bottom:4px;">Create a QR Code</b>
+          <span class="create-option-badge">Q</span>
+        </div>
+        <div class="create-option-card" id="optCreatePage">
+          <div style="font-size:24px;color:#a855f7;margin-bottom:8px;">🗐</div>
+          <b style="font-size:15px;color:#0070f3;display:block;margin-bottom:4px;">Build a landing page</b>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- 3. DASHBOARD VIEW -->
-<!-- @include "partials/landing/fallback-sections.html" -->
+  <section data-page="dashboard" hidden>
+    <div class="wrap">
+      <div class="bar">
+        <div>
+          <h2 class="left" id="dashTitle">My Links</h2>
+          <p class="muted" id="dashSub">Manage all your short links, tags and statistics.</p>
+        </div>
+        <div class="row">
+          <button class="btn ghost" id="exportBtn" type="button">📥 Export CSV</button>
+          <button class="btn ghost" id="demoBtn" type="button">⚡ Add demo clicks</button>
+          <button class="btn" id="newBtn" type="button">+ Create link</button>
+        </div>
+      </div>
+      <input id="search" class="search" placeholder="Filter links by title, slug, tag, or destination URL..." aria-label="Search links">
+      <div id="list" class="list"></div>
+    </div>
+  </section>
+
+  <!-- 4. QR CODE STUDIO VIEW -->
+  <section data-page="qr" hidden>
+    <div class="wrap split">
+      <div class="card pad stack">
+        <h2 class="left">QR Code Studio</h2>
+        <p class="muted">Generate scannable, dynamic QR codes with custom styling.</p>
+        <label>Destination link or text
+          <input id="qText" value="https://example.com" placeholder="https://yourwebsite.com/landing-page">
+        </label>
+        <div class="row">
+          <label>Code Colour
+            <input id="qFg" type="color" value="#0e1a33">
+          </label>
+          <label>Background
+            <input id="qBg" type="color" value="#ffffff">
+          </label>
+          <label>Size
+            <select id="qSize">
+              <option value="256">256 x 256 px</option>
+              <option value="512" selected>512 x 512 px</option>
+              <option value="1024">1024 x 1024 px</option>
+            </select>
+          </label>
+        </div>
+        <p class="err" id="qErr"></p>
+        <button class="btn" id="qDl" type="button">⬇ Download PNG</button>
+      </div>
+      <div class="card pad center" style="display:flex;flex-direction:column;align-items:center;justify-content:center">
+        <canvas id="qCv" aria-label="QR code preview"></canvas>
+        <p class="muted small" style="margin-top:14px">Real-time vector-rendered QR preview</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. ANALYTICS VIEW -->
+  <section data-page="analytics" hidden>
+    <div class="wrap">
+      <h2 class="left">Analytics Dashboard</h2>
+      <p class="muted" id="anSub">Detailed click performance across all campaigns.</p>
+      <div class="grid4" data-reveal-group id="stats"></div>
+      <div class="card pad" style="margin-top:20px">
+        <h3>Clicks — Last 14 Days</h3>
+        <div id="chart"></div>
+      </div>
+      <div class="grid3 bd" id="breakdown"></div>
+    </div>
+  </section>
+
+  <!-- 6. HEA ASSIST AI VIEW -->
+  <section data-page="assist" hidden>
+    <div class="wrap mid">
+      <p class="eyebrow">ANALYZE WITH AI</p>
+      <h2>HEA Assist AI</h2>
+      <p class="center muted" style="margin-bottom:24px">Ask HEA Assist about your traffic, referrers, and audience in plain language.</p>
+      <div class="card pad">
+        <div id="chatLog" class="log" aria-live="polite"></div>
+        <div class="chips" id="chips"></div>
+        <form id="chatForm" class="row">
+          <input id="chatIn" placeholder="Ask about clicks, top referrers, device breakdown, or CTR advice..." aria-label="Ask HEA Assist" autocomplete="off">
+          <button class="btn" type="submit">Send</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. RESOURCES & GUIDES VIEW -->
+  <section data-page="resources" hidden>
+    <div class="wrap">
+      <h2 class="left">Resources &amp; Knowledge Base</h2>
+      <p class="muted">Guides, playbooks and ebooks to maximize your audience engagement.</p>
+      <div class="row" style="margin:20px 0">
+        <div id="resTabs" class="tabs"></div>
+        <input id="resSearch" placeholder="Search knowledge base, tutorials, and API docs..." aria-label="Search guides" style="max-width:280px">
+      </div>
+      <div class="grid3" data-reveal-group id="resGrid"></div>
+    </div>
+  </section>
+
+  <!-- 8. PAGES / LINK-IN-BIO BUILDER VIEW -->
+  <section data-page="pages" hidden>
+    <div class="wrap split2">
+      <div class="card pad stack">
+        <h2 class="left">Link-in-Bio Page Builder</h2>
+        <p class="muted" id="bioSub">Pick a look, add your links, and publish your mobile landing page.</p>
+        <label>Display Name
+          <input id="bName" placeholder="e.g. Acme Studio or Sarah Jenkins">
+        </label>
+        <label>Bio Headline
+          <input id="bBio" placeholder="e.g. Digital Designer &amp; Educator helping creators scale">
+        </label>
+        <label>Page URL Handle <small>(#bio-handle)</small>
+          <input id="bSlug" placeholder="e.g. acme-studio">
+        </label>
+        <label>Theme Style
+          <select id="bTheme">
+            <option value="ocean">Ocean Breeze (Blue / Navy)</option>
+            <option value="sunset">Sunset Orange (Warm / Gold)</option>
+            <option value="night">Dark Elegance (Night / Teal)</option>
+          </select>
+        </label>
+        <label>Links <small>(Format: Title | https://destination)</small>
+          <textarea id="bLinks" rows="5" placeholder="Official Store | https://mybrand.store/shop&#10;Portfolio | https://mybrand.design&#10;Instagram | https://instagram.com/mybrand"></textarea>
+        </label>
+        <p class="err" id="bErr"></p>
+        <div class="row">
+          <button class="btn" id="bSave" type="button">Publish Page</button>
+          <a class="btn ghost" id="bOpen" href="#pages" hidden>Open Live Page</a>
+          <button class="btn ghost" id="bCopy" type="button" hidden>Copy Page Link</button>
+        </div>
+      </div>
+      <div class="phone">
+        <div id="bioPrev"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. PUBLIC BIO VIEW -->
+  <section data-page="bio" hidden>
+    <div class="wrap narrow">
+      <div id="bioPub"></div>
+      <p class="small center">Powered by <a href="#home"><b>HEA Link</b></a></p>
+    </div>
+  </section>
+
+  <!-- 10. SAFE REDIRECT GATEWAY VIEW -->
+  <section data-page="go" hidden>
+    <div class="wrap narrow">
+      <div class="card pad center" id="goBox"></div>
+    </div>
+  </section>
+
+  <!-- 11. SOLUTIONS HUB VIEW -->
+  <section data-page="solutions" hidden>
+    <div class="wrap">
+      <div class="center" style="margin-bottom:36px">
+        <p class="eyebrow">ENTERPRISE SOLUTIONS</p>
+        <h2>Tailored Solutions for Every Business</h2>
+        <p class="muted lead">From retail to healthcare and enterprise teams, discover how HEA Link scales with you.</p>
+        <div class="tabs" id="solPageTabs" style="justify-content:center;margin-top:16px">
+          <button class="on" data-sol="industry">By Industry</button>
+          <button data-sol="team">By Team</button>
+          <button data-sol="business">By Business Size</button>
+        </div>
+      </div>
+      <div class="grid3" data-reveal-group id="solCards"></div>
+    </div>
+  </section>
+
+  <!-- 12. UTM BUILDER VIEW -->
+  <section data-page="utm" hidden>
+    <div class="wrap narrow">
+      <div class="card pad stack">
+        <h2 class="left">UTM Campaign Builder</h2>
+        <p class="muted">Add tracking parameters to your URLs and track marketing campaigns accurately in analytics.</p>
+        <label>Website URL *
+          <input id="utmUrl" placeholder="https://yourbrand.com/black-friday-sale" required>
+        </label>
+        <div class="row">
+          <label style="flex:1">Campaign Source *
+            <input id="utmSource" placeholder="e.g. meta, tiktok, google, newsletter">
+          </label>
+          <label style="flex:1">Campaign Medium *
+            <input id="utmMedium" placeholder="e.g. paid_social, cpc, email_blast, reel">
+          </label>
+        </div>
+        <div class="row">
+          <label style="flex:1">Campaign Name
+            <input id="utmCampaign" placeholder="e.g. black_friday_2026, q4_boost">
+          </label>
+          <label style="flex:1">Campaign Term
+            <input id="utmTerm" placeholder="e.g. sneakers, discounts, vip_creators">
+          </label>
+        </div>
+        <label>Generated URL
+          <textarea id="utmResult" rows="3" readonly></textarea>
+        </label>
+        <div class="row">
+          <button class="btn" id="utmCopyBtn" type="button">Copy URL</button>
+          <button class="btn dark" id="utmShortenBtn" type="button">Shorten this UTM URL</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13. INTEGRATIONS VIEW -->
+  <section data-page="integrations" hidden>
+    <div class="wrap">
+      <div class="center" style="margin-bottom:36px">
+        <p class="eyebrow">ECOSYSTEM</p>
+        <h2>Connect HEA Link with your favourite tools</h2>
+        <p class="muted lead">Seamlessly generate links and QR codes directly inside Shopify, Canva, HubSpot and more.</p>
+      </div>
+      <div class="grid3" data-reveal-group id="integrationsGrid"></div>
+    </div>
+  </section>
 </main>
 
 <!-- FOOTER -->
-<!-- @include "partials/layout/footer.html" -->
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a class="logo" href="#home">
+          <svg class="logo-infinity-svg" width="34" height="24" viewBox="0 0 54 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15.5 8C10.25 8 6 12.25 6 17.5C6 22.75 10.25 27 15.5 27C21.2 27 24.6 20.8 27 17.5C29.4 14.2 32.8 8 38.5 8C43.75 8 48 12.25 48 17.5C48 22.75 43.75 27 38.5 27C32.8 27 29.4 20.8 27 17.5C24.6 14.2 21.2 8 15.5 8Z" stroke="url(#logoBlueGradFooter)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="logoBlueGradFooter" x1="6" y1="8" x2="48" y2="27" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#0066ff"/>
+                <stop offset="100%" stop-color="#00c8ff"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span class="logo-hea">HEA</span> <span class="logo-link">Link</span>
+        </a>
+        <p style="margin-top:12px;font-size:14px;line-height:1.6">The complete link management platform: URL shortener, dynamic QR codes, and link-in-bio pages with detailed real-time analytics.</p>
+      </div>
+      <div>
+        <b>Platform</b>
+        <a href="#home">Short Links</a>
+        <a href="#qr">QR Code Generator</a>
+        <a href="#pages">Pages &amp; Link-in-Bio</a>
+        <a href="#analytics">Analytics</a>
+        <a href="#utm">UTM Builder</a>
+        <a href="#dashboard">Dashboard</a>
+      </div>
+      <div>
+        <b>Solutions</b>
+        <a href="#solutions">Retail &amp; E-commerce</a>
+        <a href="#solutions">Education</a>
+        <a href="#solutions">Healthcare</a>
+        <a href="#solutions">Developers</a>
+        <a href="#solutions">Enterprise</a>
+      </div>
+      <div>
+        <b>Resources</b>
+        <a href="#resources">Guides &amp; Ebooks</a>
+        <a href="#faq">Help Center</a>
+        <a href="#assist">HEA Assist AI</a>
+        <a href="#integrations">Integrations</a>
+        <a href="#pricing">Pricing Plans</a>
+      </div>
+      <div>
+        <b>Company</b>
+        <a href="#home">About HEA Link</a>
+        <a href="#resources">Trust Center</a>
+        <a href="#faq">Privacy Policy</a>
+        <a href="#faq">Terms of Service</a>
+        <a href="#assist">Contact Support</a>
+      </div>
+    </div>
+    <div class="foot2">
+      <span>© 2026 HEA Link Inc. All rights reserved.</span>
+      <span>Engineered for speed, privacy &amp; scale · EN</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ACCESSIBILITY FLOATING WIDGET (HIDDEN) -->
+<div class="a11y" style="display: none !important;">
+  <button id="a11yBtn" aria-label="Accessibility options" aria-expanded="false" style="display: none !important;">♿</button>
+  <div id="a11yPanel" hidden style="display: none !important;">
+    <label><input type="checkbox" id="aBig"> Larger Text</label>
+    <label><input type="checkbox" id="aHc"> High Contrast</label>
+    <label><input type="checkbox" id="aMo"> Reduce Motion</label>
+  </div>
+</div>
 
 <!-- PRO / ENTERPRISE CHECKOUT MODAL OVERLAY -->
-<!-- @include "partials/modals/checkout-modal.html" -->
+
+<!-- TOAST & MODAL -->
+<div id="toast" role="status"></div>
+
+<div id="modal" class="modal" hidden>
+  <div class="card pad" style="position:relative !important;">
+    <button type="button" class="modal-close-cross" id="mCloseBtn" aria-label="Close modal" style="position:absolute !important; top:18px !important; right:18px !important; width:36px !important; height:36px !important; border-radius:50% !important; background:#f1f5f9 !important; border:1.5px solid #cbd5e1 !important; color:#0f172a !important; font-size:18px !important; font-weight:bold !important; display:flex !important; align-items:center !important; justify-content:center !important; cursor:pointer !important; z-index:99999 !important;">✕</button>
+    <h3 id="mTitle" style="color:#0070f3 !important; -webkit-text-fill-color:#0070f3 !important; font-size:22px !important; font-weight:800 !important;"></h3>
+    <form id="mForm" class="stack" style="margin-top:16px">
+      <div id="mBody" class="stack" style="color:#1e293b !important; -webkit-text-fill-color:#1e293b !important; font-size:15px !important; line-height:1.65 !important;"></div>
+      <p class="err" id="mErr"></p>
+      <div class="row end" style="margin-top:16px; display:flex; justify-content:flex-end; gap:10px;">
+        <button type="button" class="btn" id="mCancel" style="background:#0070f3 !important; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; border:none !important; font-weight:700 !important; padding:10px 24px !important; border-radius:99px !important; cursor:pointer !important; box-shadow:0 4px 14px rgba(0,112,243,0.3) !important;">Close</button>
+        <button class="btn" id="mOk" type="submit" style="background:#10b981 !important; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; border:none !important; font-weight:700 !important; padding:10px 24px !important; border-radius:99px !important; cursor:pointer !important; box-shadow:0 4px 14px rgba(16,185,129,0.3) !important;">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- PREMIUM UPGRADE & SUBSCRIPTION MODAL (Checkout Flow) -->
+<div class="checkout-modal-overlay" id="checkoutModal" hidden>
+  <div class="checkout-card">
+    <div class="checkout-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="checkout-crown-icon">👑</div>
+        <div>
+          <h3 class="checkout-title" id="checkoutModalTitle">Upgrade to HEA Link PRO</h3>
+          <p class="checkout-sub">Unlock unlimited short links, custom domains, and 4K vector QR codes.</p>
+        </div>
+      </div>
+      <button type="button" class="checkout-close" id="checkoutCloseBtn" aria-label="Close modal">✕</button>
+    </div>
+
+    <div class="checkout-body">
+      <!-- Billing Cycle Toggle -->
+      <div class="billing-cycle-toggle">
+        <button type="button" class="cycle-tab active" id="cycleMonthly">Monthly Billing</button>
+        <button type="button" class="cycle-tab" id="cycleAnnual">Annual Billing <span class="save-badge">Save 20%</span></button>
+      </div>
+
+      <!-- Plan Selector Cards -->
+      <div class="checkout-plans-grid">
+        <label class="checkout-plan-card" data-plan="growth">
+          <input type="radio" name="checkoutPlan" value="growth">
+          <div class="plan-card-inner">
+            <div class="plan-card-top">
+              <span class="plan-name">Growth</span>
+              <span class="plan-price" id="priceGrowth">$8<small>/mo</small></span>
+            </div>
+            <p class="plan-desc">For growing creators &amp; social marketers</p>
+          </div>
+        </label>
+
+        <label class="checkout-plan-card active" data-plan="pro">
+          <input type="radio" name="checkoutPlan" value="pro" checked>
+          <div class="plan-card-inner">
+            <div class="plan-card-badge">RECOMMENDED</div>
+            <div class="plan-card-top">
+              <span class="plan-name">Core PRO</span>
+              <span class="plan-price" id="pricePro">$35<small>/mo</small></span>
+            </div>
+            <p class="plan-desc">Everything unlimited + Custom Branded Domains</p>
+          </div>
+        </label>
+
+        <label class="checkout-plan-card" data-plan="enterprise">
+          <input type="radio" name="checkoutPlan" value="enterprise">
+          <div class="plan-card-inner">
+            <div class="plan-card-top">
+              <span class="plan-name">Enterprise</span>
+              <span class="plan-price" id="priceEnterprise">$199<small>/mo</small></span>
+            </div>
+            <p class="plan-desc">Full API access, 99.99% SLA &amp; dedicated team</p>
+          </div>
+        </label>
+      </div>
+
+      <!-- Payment Details Form -->
+      <form id="checkoutPaymentForm" class="checkout-form">
+        <!-- 1. Stripe Hosted Checkout (Official PCI-DSS Level 1 Encrypted) -->
+        <button type="button" class="checkout-submit-btn" id="btnStripeCheckout" style="background:linear-gradient(135deg,#6366f1,#4f46e5);margin-bottom:14px;box-shadow:0 4px 20px rgba(99,102,241,0.4);border:1px solid rgba(255,255,255,0.2);color:#ffffff !important;">
+          <span style="display:flex;align-items:center;justify-content:center;gap:10px;font-weight:700;color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;">
+            <svg width="22" height="22" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="8" fill="#4f46e5"/><path d="M19.7 14.8c0-1.2 1-1.7 2.6-1.7 2.3 0 5.2.7 7.5 2V9.6c-2.5-1-5.1-1.4-7.5-1.4-6.3 0-10.5 3.3-10.5 8.9 0 8.7 12 7.3 12 11 0 1.4-1.2 1.9-2.9 1.9-2.6 0-5.9-1.1-8.5-2.6v5.7c2.8 1.2 5.7 1.7 8.5 1.7 6.5 0 10.9-3.2 10.9-9 0-9.4-12.1-7.8-12.1-11z" fill="#fff"/></svg>
+            Pay with Stripe ↗ (Visa, MasterCard, Apple Pay)
+          </span>
+        </button>
+
+        <div style="display:flex;align-items:center;gap:12px;margin:10px 0 16px;">
+          <div style="flex:1;height:1px;background:rgba(255,255,255,0.1);"></div>
+          <span style="font-size:11px;color:#000000;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">or enter card on-site</span>
+          <div style="flex:1;height:1px;background:rgba(255,255,255,0.1);"></div>
+        </div>
+
+        <div class="checkout-form-row">
+          <label style="flex:1">Name on Card
+            <input type="text" id="payName" placeholder="Cardholder Full Name" required>
+          </label>
+          <label style="flex:1">Billing Email
+            <input type="email" id="payEmail" placeholder="billing@yourdomain.com" required>
+          </label>
+        </div>
+
+        <label>Card Number
+          <div class="card-input-wrap">
+            <span class="card-icon">💳</span>
+            <input type="text" id="payCardNum" placeholder="4242 •••• •••• 4242 (16 digits)" maxlength="19" required>
+            <span class="card-brand" id="payCardBrand" style="color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;">VISA</span>
+          </div>
+        </label>
+
+        <div class="checkout-form-row">
+          <label style="flex:1">Expiration Date
+            <input type="text" id="payExp" placeholder="MM / YY (e.g. 12/28)" maxlength="7" required>
+          </label>
+          <label style="flex:1">Security Code (CVC)
+            <input type="password" id="payCvc" placeholder="CVC (3 or 4 digits)" maxlength="4" required>
+          </label>
+        </div>
+
+        <div class="checkout-guarantee">
+          <span>🛡️</span>
+          <span>Powered by Stripe · 256-bit SSL encrypted · 14-day money-back guarantee · Cancel anytime.</span>
+        </div>
+
+        <button type="submit" class="checkout-submit-btn" id="checkoutSubmitBtn" style="color:#ffffff !important;">
+          <span style="color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;">👑 Confirm &amp; Activate Subscription</span>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
 
 <!-- =========================================================
      INTERACTIVE REAL-TIME FEATURE MODALS
@@ -68,8 +1926,355 @@
      ========================================================= -->
 
 <!-- 1. MOBILE DEEP LINKS & SMS SHORTENER MODAL -->
-<!-- @include "partials/modals/feature-modals.html" -->
+<div class="checkout-modal-overlay" id="mobileLinksModal" hidden>
+  <div class="checkout-card" style="max-width:580px;">
+    <div class="checkout-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="checkout-crown-icon" style="background:rgba(56,189,248,0.15);border-color:#38bdf8;color:#38bdf8;">📱</div>
+        <div>
+          <h3 class="checkout-title">Mobile &amp; SMS Smart Links</h3>
+          <p class="checkout-sub">Deep-link directly into iOS/Android apps with zero browser friction.</p>
+        </div>
+      </div>
+      <button type="button" class="checkout-close" aria-label="Close modal" onclick="closeAllCustomModals()">✕</button>
+    </div>
+    <div class="checkout-body" style="padding:22px 28px;">
+      <form id="mobileLinksForm" class="checkout-form">
+        <label>Destination App / Web URL
+          <input type="url" id="mobileUrlInput" placeholder="https://instagram.com/yourbrand or https://wa.me/92300..." required value="https://instagram.com/mybrand">
+        </label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;">
+          <label style="font-size:12px;color:#000000;">Fallback Behavior
+            <select id="mobileFallback" style="width:100%;margin-top:4px;background:#ffffff;color:#0070f3;border:1px solid rgba(255,255,255,0.1);padding:10px;border-radius:10px;">
+              <option value="app_or_web">Open App if installed, else Web</option>
+              <option value="app_store">Prompt App Store / Play Store</option>
+              <option value="sms_intent">Direct SMS / WhatsApp Dispatch</option>
+            </select>
+          </label>
+          <label style="font-size:12px;color:#000000;">Short Domain
+            <input type="text" value="healink.store" readonly style="opacity:0.7;margin-top:4px;">
+          </label>
+        </div>
+        <button type="submit" class="checkout-submit-btn" style="background:linear-gradient(135deg,#0284c7,#38bdf8);color:#0070f3;">
+          <span>⚡ Generate Mobile Smart Link</span>
+        </button>
+      </form>
+      <div id="mobileResultBox" class="res" hidden style="margin-top:16px;"></div>
+    </div>
+  </div>
+</div>
 
-<!-- @include "partials/layout/scripts.html" -->
+<!-- 2. DEVELOPER HUB & REAL-TIME API DOCS MODAL -->
+<div class="checkout-modal-overlay" id="devHubModal" hidden>
+  <div class="checkout-card" style="max-width:700px;">
+    <div class="checkout-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="checkout-crown-icon" style="background:rgba(212,255,36,0.15);border-color:#0070f3;color:#0070f3;">💻</div>
+        <div>
+          <h3 class="checkout-title">Developer Hub &amp; REST APIs</h3>
+          <p class="checkout-sub">Integrate link shortening, QR generation, and click telemetry into your codebase.</p>
+        </div>
+      </div>
+      <button type="button" class="checkout-close" aria-label="Close modal" onclick="closeAllCustomModals()">✕</button>
+    </div>
+    <div class="checkout-body" style="padding:22px 28px;">
+      <!-- Tabs for languages -->
+      <div class="billing-cycle-toggle" style="margin-bottom:16px;">
+        <button type="button" class="cycle-tab active" id="tabCurl" onclick="switchApiTab('curl')">cURL</button>
+        <button type="button" class="cycle-tab" id="tabNode" onclick="switchApiTab('node')">Node.js</button>
+        <button type="button" class="cycle-tab" id="tabPython" onclick="switchApiTab('python')">Python</button>
+      </div>
+
+      <pre id="apiSnippetCode" style="background:#f8fafc;border:1px solid rgba(56,189,248,0.25);border-radius:12px;padding:16px;font-family:monospace;font-size:12px;color:#38bdf8;overflow-x:auto;line-height:1.6;margin:0 0 16px;"></pre>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;background:rgba(255,255,255,0.03);padding:12px 16px;border-radius:12px;">
+        <span style="font-size:13px;color:#000000;">Endpoint: <code style="color:#0070f3;">POST /api/shorten</code></span>
+        <button type="button" class="sso-btn" style="width:auto;padding:8px 16px;font-size:12px;" onclick="testLiveApiEndpoint()">▶ Test Live Request</button>
+      </div>
+      <div id="liveApiResult" style="margin-top:12px;font-family:monospace;font-size:11px;color:#10b981;" hidden></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. TRUST CENTER & COMPLIANCE MODAL -->
+<div class="checkout-modal-overlay" id="trustModal" hidden>
+  <div class="checkout-card" style="max-width:600px;">
+    <div class="checkout-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="checkout-crown-icon" style="background:rgba(16,185,129,0.15);border-color:#10b981;color:#10b981;">🛡️</div>
+        <div>
+          <h3 class="checkout-title">Trust, Privacy &amp; Security Center</h3>
+          <p class="checkout-sub">Enterprise-grade encryption, privacy compliance, and continuous monitoring.</p>
+        </div>
+      </div>
+      <button type="button" class="checkout-close" aria-label="Close modal" onclick="closeAllCustomModals()">✕</button>
+    </div>
+    <div class="checkout-body" style="padding:22px 28px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;">
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:14px;border-radius:12px;">
+          <div style="display:flex;align-items:center;gap:8px;font-weight:700;color:#10b981;margin-bottom:4px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981;"></span>
+            99.99% SLA Uptime
+          </div>
+          <span style="font-size:12px;color:#000000;">Redundant global CDN edge servers with 0ms downtime fallback.</span>
+        </div>
+
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:14px;border-radius:12px;">
+          <div style="display:flex;align-items:center;gap:8px;font-weight:700;color:#38bdf8;margin-bottom:4px;">
+            🔒 256-bit TLS / SSL
+          </div>
+          <span style="font-size:12px;color:#000000;">All short link redirects encrypted end-to-end with automated HSTS.</span>
+        </div>
+
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:14px;border-radius:12px;">
+          <div style="display:flex;align-items:center;gap:8px;font-weight:700;color:#f59e0b;margin-bottom:4px;">
+            ⚖️ GDPR &amp; CCPA Ready
+          </div>
+          <span style="font-size:12px;color:#000000;">Anonymized IP hashing without persistent personal tracking cookies.</span>
+        </div>
+
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:14px;border-radius:12px;">
+          <div style="display:flex;align-items:center;gap:8px;font-weight:700;color:#0070f3;margin-bottom:4px;">
+            🛡️ SOC 2 Type II
+          </div>
+          <span style="font-size:12px;color:#000000;">Third-party audited infrastructure with isolated tenant databases.</span>
+        </div>
+      </div>
+      <button type="button" class="checkout-submit-btn" onclick="closeAllCustomModals()" style="background:rgba(255,255,255,0.08);color:#0070f3;border:1px solid rgba(255,255,255,0.15);">
+        Close Trust Center
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 4. CLICK EXPECTATION REPORT 2026 MODAL -->
+<div class="checkout-modal-overlay" id="reportModal" hidden>
+  <div class="checkout-card" style="max-width:640px;">
+    <div class="checkout-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="checkout-crown-icon" style="background:rgba(249,115,22,0.15);border-color:#f97316;color:#f97316;">📈</div>
+        <div>
+          <h3 class="checkout-title">The Click Expectation Report 2026</h3>
+          <p class="checkout-sub">Proprietary benchmark findings from 120,000,000+ link clicks and QR scans.</p>
+        </div>
+      </div>
+      <button type="button" class="checkout-close" aria-label="Close modal" onclick="closeAllCustomModals()">✕</button>
+    </div>
+    <div class="checkout-body" style="padding:22px 28px;">
+      <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:18px;margin-bottom:16px;">
+        <div style="font-size:28px;font-weight:800;color:#0070f3;margin-bottom:4px;">+74.2% Higher CTR</div>
+        <div style="font-size:13px;color:#000000;line-height:1.6;">Branded short domains (e.g. <code>brand.link/drop</code>) earn nearly 2x more trust than generic unbranded links.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;">
+        <div style="background:rgba(255,255,255,0.03);padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">
+          <b style="color:#38bdf8;font-size:18px;display:block;">3.4x Faster Scan</b>
+          <span style="font-size:12px;color:#000000;">High-contrast vector QR codes with short slugs scan 3.4x faster on low-end mobile cameras.</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);">
+          <b style="color:#10b981;font-size:18px;display:block;">68% Top Slot Bias</b>
+          <span style="font-size:12px;color:#000000;">On Link-in-Bio pages, the top two buttons capture 68% of all visitor interactions.</span>
+        </div>
+      </div>
+      <button type="button" class="checkout-submit-btn" onclick="openCheckoutModal('pro')" style="background:linear-gradient(135deg,#f97316,#fb923c);color:#0070f3;">
+        🚀 Apply These Tactics With HEA Link PRO →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 5. HEA MCP (MODEL CONTEXT PROTOCOL) AGENT MODAL -->
+<div class="checkout-modal-overlay" id="mcpModal" hidden>
+  <div class="checkout-card" style="max-width:680px;">
+    <div class="checkout-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="checkout-crown-icon" style="background:rgba(168,85,247,0.15);border-color:#a855f7;color:#a855f7;">⚙️</div>
+        <div>
+          <h3 class="checkout-title">HEA MCP (Model Context Protocol)</h3>
+          <p class="checkout-sub">Connect your AI coding agents directly to HEA Link tools.</p>
+        </div>
+      </div>
+      <button type="button" class="checkout-close" aria-label="Close modal" onclick="closeAllCustomModals()">✕</button>
+    </div>
+    <div class="checkout-body" style="padding:22px 28px;">
+      <p style="color:#000000;font-size:13px;line-height:1.6;margin-bottom:12px;">
+        Add HEA Link to your <code>claude_desktop_config.json</code> or Antigravity MCP settings to let your agents create, analyze, and track short links autonomously:
+      </p>
+      <pre style="background:#f8fafc;border:1px solid rgba(168,85,247,0.3);border-radius:12px;padding:16px;font-family:monospace;font-size:12px;color:#c084fc;overflow-x:auto;line-height:1.6;margin:0 0 16px;">
+{
+  "mcpServers": {
+    "hea-link": {
+      "command": "node",
+      "args": ["d:/github/hhh/server.js"],
+      "env": {
+        "PORT": "3000",
+        "API_KEY": "hea_live_sk_948f219b48e"
+      }
+    }
+  }
+}</pre>
+      <button type="button" class="checkout-submit-btn" onclick="navigator.clipboard.writeText('{\n  \"mcpServers\": {\n    \"hea-link\": {\n      \"command\": \"node\",\n      \"args\": [\"d:/github/hhh/server.js\"]\n    }\n  }\n}');toast('MCP Configuration Copied to Clipboard!');" style="background:linear-gradient(135deg,#a855f7,#c084fc);color:#0070f3;">
+        📋 Copy MCP Config JSON
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 6. CONTACT SALES & ENTERPRISE SLA MODAL -->
+<div class="checkout-modal-overlay" id="salesModal" hidden>
+  <div class="checkout-card" style="max-width:540px;">
+    <div class="checkout-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="checkout-crown-icon" style="background:rgba(212,255,36,0.15);border-color:#0070f3;color:#0070f3;">🤝</div>
+        <div>
+          <h3 class="checkout-title">Enterprise Consultation &amp; SLAs</h3>
+          <p class="checkout-sub">Dedicated account manager, custom SSO, and 99.99% SLA guarantee.</p>
+        </div>
+      </div>
+      <button type="button" class="checkout-close" aria-label="Close modal" onclick="closeAllCustomModals()">✕</button>
+    </div>
+    <div class="checkout-body" style="padding:22px 28px;">
+      <form id="salesConsultForm" class="checkout-form" onsubmit="event.preventDefault();toast('Thank you! An enterprise specialist will contact you within 2 hours.');closeAllCustomModals();">
+        <label>Your Name
+          <input type="text" placeholder="John" required value="John">
+        </label>
+        <label>Work Email
+          <input type="email" placeholder="john@company.com" required value="john@company.com">
+        </label>
+        <label>Estimated Monthly Links / Scans
+          <select style="width:100%;margin-top:4px;background:#ffffff;color:#0070f3;border:1px solid rgba(255,255,255,0.1);padding:10px;border-radius:10px;">
+            <option>10,000 - 50,000 links / mo</option>
+            <option>50,000 - 500,000 links / mo</option>
+            <option>500,000+ enterprise volume</option>
+          </select>
+        </label>
+        <button type="submit" class="checkout-submit-btn" style="background:linear-gradient(135deg,#0070f3,#a3e635);color:#000;font-weight:800;margin-top:10px;">
+          📅 Request VIP Consultation &amp; Custom Quote
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- 7. INTERACTIVE LINK-IN-BIO STUDIO MODAL (For Quick Guest Testing) -->
+<div class="checkout-modal-overlay" id="bioPreviewModal" hidden>
+  <div class="checkout-card" style="max-width:540px;">
+    <div class="checkout-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="checkout-crown-icon" style="background:rgba(236,72,153,0.15);border-color:#ec4899;color:#ec4899;">📱</div>
+        <div>
+          <h3 class="checkout-title">Mobile Link-in-Bio Studio</h3>
+          <p class="checkout-sub">Live mobile-first landing page with instant theme switching.</p>
+        </div>
+      </div>
+      <button type="button" class="checkout-close" aria-label="Close modal" onclick="closeAllCustomModals()">✕</button>
+    </div>
+    <div class="checkout-body" style="padding:20px 24px;">
+      <!-- Interactive Phone Mockup -->
+      <div style="max-width:320px;margin:0 auto 16px;background:#ffffff;border:2px solid rgba(56,189,248,0.4);border-radius:28px;padding:24px 18px;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,0.8);">
+        <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#0070f3);margin:0 auto 10px;display:grid;place-items:center;font-size:24px;font-weight:800;color:#000;">JD</div>
+        <h4 style="margin:0 0 2px;color:#0b132b;">John</h4>
+        <p style="margin:0 0 14px;font-size:12px;color:#000000;">Creator &amp; Tech Lead · Global</p>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <a href="#home" style="display:block;padding:10px;border-radius:10px;background:rgba(56,189,248,0.12);border:1px solid #38bdf8;color:#0070f3;text-decoration:none;font-size:13px;font-weight:600;">✨ Explore My Projects</a>
+          <a href="#home" style="display:block;padding:10px;border-radius:10px;background:rgba(212,255,36,0.12);border:1px solid #0070f3;color:#0070f3;text-decoration:none;font-size:13px;font-weight:600;">🛍️ Summer Merch Store</a>
+          <a href="#home" style="display:block;padding:10px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#0070f3;text-decoration:none;font-size:13px;font-weight:600;">💬 Direct Contact</a>
+        </div>
+      </div>
+      <button type="button" class="checkout-submit-btn" onclick="navigator.clipboard.writeText('https://healink.store/m/john');toast('Bio Page Link Copied: https://healink.store/m/john');" style="background:linear-gradient(135deg,#ec4899,#f43f5e);color:#0070f3;">
+        🔗 Copy Live Bio Page Link
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 8. REAL-TIME ANALYTICS SANDBOX MODAL (Interactive Live Demo) -->
+<div class="checkout-modal-overlay" id="analyticsSandboxModal" hidden>
+  <div class="checkout-card" style="max-width:640px;">
+    <div class="checkout-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="checkout-crown-icon" style="background:rgba(56,189,248,0.15);border-color:#38bdf8;color:#38bdf8;">📊</div>
+        <div>
+          <h3 class="checkout-title">Real-Time Analytics Telemetry</h3>
+          <p class="checkout-sub">Live visitor intelligence with device, location, and referrer charts.</p>
+        </div>
+      </div>
+      <button type="button" class="checkout-close" aria-label="Close modal" onclick="closeAllCustomModals()">✕</button>
+    </div>
+    <div class="checkout-body" style="padding:22px 28px;">
+      <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;margin-bottom:18px;">
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:14px;border-radius:12px;text-align:center;">
+          <span style="font-size:11px;color:#000000;display:block;">TOTAL CLICKS</span>
+          <b style="font-size:24px;color:#0070f3;" id="sandboxTotalClicks">14,820</b>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:14px;border-radius:12px;text-align:center;">
+          <span style="font-size:11px;color:#000000;display:block;">UNIQUE VISITORS</span>
+          <b style="font-size:24px;color:#38bdf8;">11,405</b>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:14px;border-radius:12px;text-align:center;">
+          <span style="font-size:11px;color:#000000;display:block;">QR SCANS</span>
+          <b style="font-size:24px;color:#ec4899;">3,812</b>
+        </div>
+      </div>
+
+      <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:700;color:#000000;margin-bottom:10px;">TOP TRAFFIC CHANNELS</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;">
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+              <span>Direct / SMS / QR</span><b style="color:#38bdf8;">48% (7,114)</b>
+            </div>
+            <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;">
+              <div style="width:48%;height:100%;background:#38bdf8;"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+              <span>Instagram &amp; Bio Pages</span><b style="color:#ec4899;">32% (4,742)</b>
+            </div>
+            <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;">
+              <div style="width:32%;height:100%;background:#ec4899;"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+              <span>WhatsApp &amp; Telegram</span><b style="color:#10b981;">20% (2,964)</b>
+            </div>
+            <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;">
+              <div style="width:20%;height:100%;background:#10b981;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" class="checkout-submit-btn" onclick="closeAllCustomModals()" style="background:linear-gradient(135deg,#0284c7,#38bdf8);color:#0070f3;">
+        Close Analytics Telemetry
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Official Google Identity Services SDK -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+  window.GOOGLE_CLIENT_ID = '1035925137536-igsov0kbtng959v07pba9ki04m86echi.apps.googleusercontent.com';
+</script>
+
+<!-- High-End Visuals & Motion Engines: Three.js, Lenis, GSAP, Framer Motion (Motion One) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/motion@10.18.0/dist/motion.umd.js"></script>
+<script src="js/shared/qrcode.js"></script>
+<!-- Official Firebase App & Auth SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="js/auth/firebase-config.js?v=5"></script>
+<script src="js/legacy/heavy-fx.js?v=2"></script>
+<script src="js/shared/motion.config.js?v=2"></script>
+<script src="js/landing/landing-clean.js?v=3"></script>
+<script src="js/dashboard/app-shell.js?v=3"></script>
+<script src="js/dashboard/app.js?v=3"></script>
 </body>
 </html>

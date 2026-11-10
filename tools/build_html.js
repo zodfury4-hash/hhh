@@ -2,10 +2,9 @@ const fs = require('fs');
 const path = require('path');
 
 const rootDir = path.resolve(__dirname, '..');
-const templatePath = path.join(rootDir, 'index.html');
+const templatePath = path.join(rootDir, 'partials', 'index.template.html');
 
 let cachedHtml = null;
-let lastCheckTime = 0;
 
 function compileTemplate(filePath, seen = new Set()) {
   if (seen.has(filePath)) {
@@ -39,26 +38,22 @@ function getCompiledHtml() {
   }
 }
 
-// Build a standalone compiled static bundle if ever needed (e.g. for static hosting)
-function buildStatic(outDir = 'dist') {
-  const outPath = path.join(rootDir, outDir, 'index.html');
-  fs.mkdirSync(path.dirname(outPath), { recursive: true });
+// Build root index.html and app.html for static hosting (GitHub Pages, etc.)
+function buildRoot() {
   const compiled = getCompiledHtml();
-  fs.writeFileSync(outPath, compiled, 'utf8');
-  console.log(`[build_html] Compiled static HTML to: ${outPath}`);
+  const rootIndexPath = path.join(rootDir, 'index.html');
+  const rootAppPath = path.join(rootDir, 'app.html');
+  fs.writeFileSync(rootIndexPath, compiled, 'utf8');
+  fs.writeFileSync(rootAppPath, compiled, 'utf8');
+  console.log(`[build_html] Compiled static production HTML to root index.html and app.html (${compiled.length} bytes, ${compiled.split('\n').length} lines)`);
 }
 
 if (require.main === module) {
-  if (process.argv.includes('--static')) {
-    buildStatic();
-  } else {
-    const compiled = getCompiledHtml();
-    console.log(`[build_html] Verified template compilation (${compiled.length} bytes, ${(compiled.split('\n').length)} lines)`);
-  }
+  buildRoot();
 }
 
 module.exports = {
   compileTemplate,
   getCompiledHtml,
-  buildStatic
+  buildRoot
 };
