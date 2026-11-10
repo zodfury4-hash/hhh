@@ -10823,3 +10823,15 @@ body.app-mode .app-sidebar.collapsed {
   font-size: 44px !important;
   margin-bottom: 12px !important;
 }
+
+/* =========================================================
+   HIDE REDUNDANT IN-PAGE VIEW HEADERS
+   ========================================================= */
+.view-header:not(.assist-view-header) {
+  display: none !important;
+}
+
+.domain-view-title,
+div:has(> #tabDomainSearch) > h2 {
+  display: none !important;
+}

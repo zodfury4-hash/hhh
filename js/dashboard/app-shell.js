@@ -2049,6 +2049,13 @@
       </div>
 
       <div class="links-filter-bar" style="display:flex;gap:12px;align-items:center;margin-bottom:24px;flex-wrap:wrap;">
+        <button class="header-primary-btn" onclick="window.appShell.navigate('create-link')" style="background:#0A6CFF;color:#ffffff;border:none;border-radius:99px;padding:9px 18px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px;cursor:pointer;order:3;margin-left:auto;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>Create link</span>
+        </button>
 
         <div class="dash-search-box">
           <svg class="search-icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -3937,7 +3944,8 @@
 
           <!-- Template Filter Pills (Matching Bitly category filters) -->
 
-          <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:12px;margin:18px 0 20px;">
+          <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:12px;margin:0 0 20px;align-items:center;">
+            ${pages.length > 0 ? `<button class="sso-btn" style="width:auto;padding:7px 16px;white-space:nowrap;font-size:13px;margin-right:8px;border-radius:99px;" id="btnReturnToPageList">← Back to My Pages</button>` : ''}
 
             ${categories.map(cat => `
 
@@ -4870,27 +4878,14 @@
 
     container.innerHTML = `
 
-      <div class="view-header">
-        <div class="header-title-col">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <h2>Live Analytics Overview</h2>
-            <span class="view-header-badge" style="background:rgba(0,180,255,0.1);color:#0284c7;border:1px solid rgba(0,180,255,0.25);">
-              <span>📊</span> Live Telemetry
-            </span>
-          </div>
-          <p class="view-subtitle">
-            Real-time click tracking, visitor velocity, geographic distribution, and device breakdown.
-          </p>
+      <div class="analytics-actions-bar" style="display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-bottom:16px;">
+        <div class="assist-status-pill" style="padding:6px 14px;">
+          <span class="status-pulse-dot"></span>
+          <span>Real-time Sync</span>
         </div>
-        <div class="header-actions-col" style="display:flex;align-items:center;gap:12px;">
-          <div class="assist-status-pill" style="padding:6px 14px;">
-            <span class="status-pulse-dot"></span>
-            <span>Real-time Sync</span>
-          </div>
-          <button class="header-secondary-btn" id="btnExportCSV" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:12px;border:1px solid #cbd5e1;background:#ffffff;color:#0b132b;font-size:13px;font-weight:700;cursor:pointer;">
-            <span>📥</span> Export CSV Report
-          </button>
-        </div>
+        <button class="header-secondary-btn" id="btnExportCSV" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:12px;border:1px solid #cbd5e1;background:#ffffff;color:#0b132b;font-size:13px;font-weight:700;cursor:pointer;">
+          <span>📥</span> Export CSV Report
+        </button>
       </div>
 
       <!-- 3 Metrics Top Cards -->
@@ -5382,7 +5377,7 @@
 
         <div style="margin-bottom:24px;">
 
-          <h2 style="font-size:28px;font-weight:800;color:#0b132b;margin:0 0 16px;">Brand your links with a custom domain</h2>
+          <h2 class="domain-view-title" style="display:none !important;font-size:28px;font-weight:800;color:#0b132b;margin:0 0 16px;">Brand your links with a custom domain</h2>
 
           <!-- Tabs matching Frame 22 -->
 
