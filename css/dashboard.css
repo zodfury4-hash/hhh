@@ -2427,7 +2427,7 @@ body.app-mode h6,
 
 /* Text in Dashboard */
 body.app-mode p,
-body.app-mode span:not(.pro-chip):not(.badge-pill):not(.btn):not(.sidebar-create-btn):not(.action-btn-text):not(.hero-submit-btn span):not(#homeSubmitBtn span):not(.cal-day-col.active span),
+body.app-mode span:not(.pro-chip):not(.badge-pill):not(.btn):not(.sidebar-create-btn):not(.action-btn-text):not(.hero-submit-btn span):not(#homeSubmitBtn span):not(.cal-day-col.active span):not(.header-primary-btn span):not(.header-primary-btn):not(.auth-submit-btn span),
 body.app-mode td,
 body.app-mode th,
 body.app-mode label,
@@ -10838,4 +10838,79 @@ div:has(> #tabDomainSearch) > h2 {
 
 .analytics-actions-bar {
   display: none !important;
+}
+
+/* =========================================================
+   LINKS FILTER BAR STABILITY & CREATE LINK BUTTON CENTER
+   ========================================================= */
+.links-filter-bar,
+.links-filter-bar:hover {
+  transform: none !important;
+  transition: none !important;
+}
+
+.links-filter-bar .card-glare {
+  display: none !important;
+}
+
+.links-filter-bar {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 20px !important;
+  padding: 16px 20px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
+}
+
+.links-filter-row {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 12px !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+.links-create-row {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+.dash-filter-select,
+#linksTagSelect {
+  width: auto !important;
+  min-width: 130px !important;
+  max-width: 180px !important;
+  flex: 0 0 auto !important;
+  background: #ffffff !important;
+  color: #0b132b !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 12px !important;
+  height: 44px !important;
+  box-sizing: border-box !important;
+}
+
+body.app-mode select option,
+.dash-filter-select option,
+#linksTagSelect option {
+  background: #ffffff !important;
+  color: #0b132b !important;
+}
+
+.header-primary-btn,
+.header-primary-btn span,
+.header-primary-btn svg,
+.header-primary-btn * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+body.app-mode .header-primary-btn span {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }

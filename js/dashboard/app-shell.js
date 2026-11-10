@@ -545,7 +545,6 @@
       '.page-row-card',
       '.campaigns-hero-wrap',
       '.integration-card-white',
-      '.links-filter-bar',
       '.analytics-metric-box',
       '.stat-tile',
       '.links-list-item'
@@ -2048,30 +2047,33 @@
         </div>
       </div>
 
-      <div class="links-filter-bar" style="display:flex;gap:12px;align-items:center;margin-bottom:24px;flex-wrap:wrap;">
-        <button class="header-primary-btn" onclick="window.appShell.navigate('create-link')" style="background:#0A6CFF;color:#ffffff;border:none;border-radius:99px;padding:9px 18px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px;cursor:pointer;order:3;margin-left:auto;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-          <span>Create link</span>
-        </button>
+      <div class="links-filter-bar">
+        <div class="links-filter-row">
+          <div class="dash-search-box">
+            <svg class="search-icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" class="dash-search-input" id="linksSearchInput" placeholder="Search links by title, slug, tag, or destination..." autocomplete="off">
+          </div>
 
-        <div class="dash-search-box">
-          <svg class="search-icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <input type="text" class="dash-search-input" id="linksSearchInput" placeholder="Search links by title, slug, tag, or destination..." autocomplete="off">
+          <select id="linksTagSelect" class="dash-filter-select">
+            <option value="">All tags</option>
+            <option value="Website">Website</option>
+            <option value="Social">Social</option>
+            <option value="Campaign">Campaign</option>
+          </select>
         </div>
 
-        <select id="linksTagSelect" class="dash-filter-select">
-          <option value="">All tags</option>
-          <option value="Website">Website</option>
-          <option value="Social">Social</option>
-          <option value="Campaign">Campaign</option>
-        </select>
-
+        <div class="links-create-row">
+          <button class="header-primary-btn" onclick="window.appShell.navigate('create-link')" style="background:#0A6CFF;color:#ffffff !important;border:none;border-radius:99px;padding:10px 24px;font-size:13.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;box-shadow:0 4px 14px rgba(10,108,255,0.25);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span style="color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;font-weight:700;">Create link</span>
+          </button>
+        </div>
       </div>
 
       <div id="linksListContainer">
