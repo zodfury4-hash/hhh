@@ -738,12 +738,16 @@
         integrations: 'Integrations',
         settings: 'Settings',
         assist: 'HEA Assist AI',
+        notifications: 'Notifications',
         resources: 'Help & Resources'
       };
       topTitle.textContent = titles[tab] || 'Dashboard';
     }
     if (topSubtitle) {
-      if (tab === 'home') {
+      if (tab === 'notifications') {
+        topSubtitle.textContent = 'Stay updated with link clicks, domain verifications, and system alerts';
+        topSubtitle.style.display = 'block';
+      } else if (tab === 'home') {
         topSubtitle.textContent = 'Track, manage and grow your links';
         topSubtitle.style.display = 'block';
       } else {
@@ -5912,6 +5916,14 @@
       if (drawerForm) drawerForm.style.display = 'none';
       if (drawerSettings) drawerSettings.hidden = true;
       if (drawerEl) drawerEl.hidden = true; // Settings has clean 2-column in-page layout
+    } else if (tab === 'notifications') {
+      if (drawerAi) drawerAi.hidden = true;
+      if (drawerForm) drawerForm.style.display = 'none';
+      if (drawerSettings) drawerSettings.hidden = true;
+      if (drawerEl) {
+        drawerEl.hidden = true;
+        document.body.style.overflow = '';
+      }
     } else if (tab === 'assist') {
       if (drawerAi) drawerAi.hidden = true;
       if (drawerForm) drawerForm.style.display = 'none';
@@ -6669,6 +6681,258 @@
 
     toast('Analytics CSV report downloaded!');
 
+  }
+
+
+  
+  // ---------------- 12. NOTIFICATIONS CENTER VIEW ---------------- //
+  function renderNotifications(container) {
+    const NOTIF_STORAGE_KEY = 'hea_user_notifications';
+
+    const initialList = [
+      {
+        id: 'notif_1',
+        category: 'links',
+        icon: '🔥',
+        iconBg: '#e0f2fe',
+        iconColor: '#0A6CFF',
+        title: 'Traffic Surge: +10,480 Clicks Today',
+        desc: 'Your short link <b>healink.store/summer-deal</b> went viral across TikTok and Instagram Reels.',
+        time: '14 minutes ago',
+        unread: true,
+        actionTab: 'analytics',
+        actionLabel: 'View Analytics Report →'
+      },
+      {
+        id: 'notif_2',
+        category: 'system',
+        icon: '🌐',
+        iconBg: '#dcfce7',
+        iconColor: '#10b981',
+        title: 'Custom Domain SSL Verified: links.brand.com',
+        desc: 'DNS records validated with Cloudflare Edge. Branded short links are now live and serving visitor traffic.',
+        time: '2 hours ago',
+        unread: true,
+        actionTab: 'domains',
+        actionLabel: 'Manage Branded Domains →'
+      },
+      {
+        id: 'notif_3',
+        category: 'assist',
+        icon: '✨',
+        iconBg: '#f3e8ff',
+        iconColor: '#7928ca',
+        title: 'HEA Assist AI Recommendation',
+        desc: '42% of traffic to your latest campaign has untracked UTM parameters. Generate tags now for accurate analytics.',
+        time: '5 hours ago',
+        unread: true,
+        actionTab: 'assist',
+        actionLabel: 'Open HEA Assist Studio →'
+      },
+      {
+        id: 'notif_4',
+        category: 'system',
+        icon: '🛡️',
+        iconBg: '#e0f2fe',
+        iconColor: '#0284c7',
+        title: 'New Dashboard Sign-in Detected',
+        desc: 'A successful login was registered from Windows (Chrome) in Karachi, Pakistan. If this was you, no action is needed.',
+        time: 'Yesterday at 8:42 PM',
+        unread: false,
+        actionTab: 'settings',
+        actionLabel: 'Review Account Security →'
+      },
+      {
+        id: 'notif_5',
+        category: 'billing',
+        icon: '👑',
+        iconBg: '#fef3c7',
+        iconColor: '#d97706',
+        title: 'HEA Link Core PRO Active',
+        desc: 'Your subscription is active with unlimited QR styling, 100,000 links/mo, and 12 link-in-bio mobile templates.',
+        time: '3 days ago',
+        unread: false,
+        actionTab: 'settings',
+        actionLabel: 'View Plan & Invoices →'
+      }
+    ];
+
+    let items = [];
+    try {
+      const stored = localStorage.getItem(NOTIF_STORAGE_KEY);
+      items = stored ? JSON.parse(stored) : initialList;
+    } catch (e) {
+      items = initialList;
+    }
+
+    let activeFilter = 'all';
+
+    function updateBadge() {
+      const unreadCount = items.filter(n => n.unread).length;
+      const badges = document.querySelectorAll('.topbar-notif-badge, #topbarNotifBadge');
+      badges.forEach(b => {
+        b.textContent = unreadCount;
+        b.style.display = unreadCount > 0 ? '' : 'none';
+      });
+      const inPageBadge = document.getElementById('notifCountBadge');
+      if (inPageBadge) {
+        inPageBadge.textContent = unreadCount + ' New';
+        inPageBadge.style.display = unreadCount > 0 ? '' : 'none';
+      }
+    }
+
+    function save() {
+      try {
+        localStorage.setItem(NOTIF_STORAGE_KEY, JSON.stringify(items));
+      } catch (e) {}
+      updateBadge();
+    }
+
+    function renderList() {
+      const listContainer = document.getElementById('notifItemsList');
+      if (!listContainer) return;
+
+      let filtered = items;
+      if (activeFilter === 'unread') {
+        filtered = items.filter(n => n.unread);
+      } else if (activeFilter === 'links') {
+        filtered = items.filter(n => n.category === 'links');
+      } else if (activeFilter === 'system') {
+        filtered = items.filter(n => n.category === 'system' || n.category === 'billing');
+      }
+
+      if (filtered.length === 0) {
+        listContainer.innerHTML = `
+          <div class="notif-empty-state">
+            <div class="notif-empty-icon">🔔</div>
+            <h3 style="font-size:16px;color:#0f172a;margin:0 0 6px 0;">No notifications found</h3>
+            <p style="font-size:13px;color:#64748b;margin:0;">You are completely caught up! We will notify you when new clicks or alerts occur.</p>
+          </div>
+        `;
+        return;
+      }
+
+      listContainer.innerHTML = filtered.map(item => `
+        <div class="notif-item-card ${item.unread ? 'unread' : ''}" data-id="${item.id}">
+          <div class="notif-item-icon-box" style="background:${item.iconBg};color:${item.iconColor};">
+            ${item.icon}
+          </div>
+          <div class="notif-item-content">
+            <div class="notif-item-header">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <h4 class="notif-item-title">${item.title}</h4>
+                ${item.unread ? '<span class="notif-unread-dot" title="Unread"></span>' : ''}
+              </div>
+              <span class="notif-item-time">${item.time}</span>
+            </div>
+            <p class="notif-item-desc">${item.desc}</p>
+            <div class="notif-item-footer">
+              ${item.actionTab ? `
+                <button type="button" class="notif-item-cta-btn" data-tab="${item.actionTab}">
+                  ${item.actionLabel}
+                </button>
+              ` : ''}
+              <button type="button" class="notif-dismiss-btn" data-dismiss="${item.id}" title="Remove notification" style="margin-left:auto;background:none;border:none;color:#94a3b8;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:4px;">
+                ✕ Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      listContainer.querySelectorAll('.notif-item-cta-btn').forEach(btn => {
+        btn.onclick = () => {
+          const tab = btn.dataset.tab;
+          if (tab) navigate(tab);
+        };
+      });
+
+      listContainer.querySelectorAll('.notif-dismiss-btn').forEach(btn => {
+        btn.onclick = () => {
+          const id = btn.dataset.dismiss;
+          items = items.filter(n => n.id !== id);
+          save();
+          renderList();
+          toast('Notification dismissed');
+        };
+      });
+    }
+
+    const unreadCount = items.filter(n => n.unread).length;
+
+    container.innerHTML = `
+      <div class="notif-page-wrap card-3d-reveal">
+        <div class="notif-header-card">
+          <div class="notif-header-info">
+            <div class="notif-bell-icon-large">🔔</div>
+            <div>
+              <div class="notif-title-row">
+                <h2 class="notif-page-title">Notifications Center</h2>
+                <span class="notif-count-badge" id="notifCountBadge" style="${unreadCount > 0 ? '' : 'display:none;'}">${unreadCount} New</span>
+              </div>
+              <p class="notif-page-sub">Track click milestones, system audits, and domain verifications in real-time</p>
+            </div>
+          </div>
+          <div class="notif-header-actions">
+            <button type="button" class="notif-action-btn primary" id="markAllReadBtn">
+              ✓ Mark all as read
+            </button>
+            <button type="button" class="notif-action-btn" id="clearAllNotifsBtn">
+              🗑 Clear all
+            </button>
+          </div>
+        </div>
+
+        <div class="notif-filter-bar">
+          <button type="button" class="notif-filter-pill active" data-filter="all">All (${items.length})</button>
+          <button type="button" class="notif-filter-pill" data-filter="unread">Unread (${unreadCount})</button>
+          <button type="button" class="notif-filter-pill" data-filter="links">Links &amp; Clicks</button>
+          <button type="button" class="notif-filter-pill" data-filter="system">Security &amp; System</button>
+        </div>
+
+        <div class="notif-list-container" id="notifItemsList"></div>
+      </div>
+    `;
+
+    renderList();
+    updateBadge();
+
+    const markAllBtn = document.getElementById('markAllReadBtn');
+    if (markAllBtn) {
+      markAllBtn.onclick = () => {
+        items.forEach(n => { n.unread = false; });
+        save();
+        renderList();
+        const unreadFilterPill = container.querySelector('.notif-filter-pill[data-filter="unread"]');
+        if (unreadFilterPill) unreadFilterPill.textContent = 'Unread (0)';
+        toast('All notifications marked as read');
+      };
+    }
+
+    const clearAllBtn = document.getElementById('clearAllNotifsBtn');
+    if (clearAllBtn) {
+      clearAllBtn.onclick = () => {
+        if (confirm('Clear all notifications?')) {
+          items = [];
+          save();
+          renderList();
+          container.querySelectorAll('.notif-filter-pill').forEach(p => {
+            if (p.dataset.filter === 'all') p.textContent = 'All (0)';
+            if (p.dataset.filter === 'unread') p.textContent = 'Unread (0)';
+          });
+          toast('All notifications cleared');
+        }
+      };
+    }
+
+    container.querySelectorAll('.notif-filter-pill').forEach(pill => {
+      pill.onclick = () => {
+        container.querySelectorAll('.notif-filter-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        activeFilter = pill.dataset.filter;
+        renderList();
+      };
+    });
   }
 
 
@@ -7492,7 +7756,7 @@ Here are recommended optimizations for your links and campaigns:<br>
 
     });
 
-    // Assist Drawer
+    // Notifications button\n    const notifBtn = $('#topbarNotifBtn');\n    if (notifBtn) {\n      notifBtn.onclick = (e) => {\n        e.preventDefault();\n        navigate('notifications');\n      };\n    }\n\n    // Assist Drawer
 
     const assistToggle = $('#assistToggleBtn');
 
@@ -7697,7 +7961,7 @@ Here are recommended optimizations for your links and campaigns:<br>
 
       const raw = (location.hash.slice(1) || '').split('?')[0];
 
-      const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'assist', 'app'];
+      const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'assist', 'notifications', 'app'];
 
       if (appViews.includes(raw)) {
 
@@ -7734,7 +7998,7 @@ Here are recommended optimizations for your links and campaigns:<br>
     // Initial render: ONLY show dashboard if user is verified AND currently on an app view
 
     const initialRaw = (location.hash.slice(1) || '').split('?')[0];
-    const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'assist', 'app'];
+    const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'assist', 'notifications', 'app'];
     if (appViews.includes(initialRaw) && isUserAuthenticated()) {
       document.body.classList.add('app-mode');
       const as = $('#appShell');

@@ -15,7 +15,7 @@
             <span>✨</span> HEA Assist
           </button>
           <div class="topbar-notif-wrap">
-            <button class="topbar-circle-icon-btn" id="topbarNotifBtn" title="Notifications" aria-label="View notifications">🔔</button>
+            <button class="topbar-circle-icon-btn" id="topbarNotifBtn" title="Notifications" aria-label="View notifications" onclick="if(window.appShell){window.appShell.navigate('notifications');}else{location.hash='#notifications';}">🔔</button>
             <span class="topbar-notif-badge">3</span>
           </div>
           <button class="topbar-circle-icon-btn topbar-help-btn" id="topbarHelpBtn" title="Help &amp; Guides" aria-label="Help and resources" onclick="location.hash='#resources'">❓</button>

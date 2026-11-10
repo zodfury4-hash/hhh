@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="css/tokens.css?v=3">
   <link rel="stylesheet" href="css/base.css?v=3">
   <link rel="stylesheet" href="css/legacy/style.css?v=3">
-  <link rel="stylesheet" href="css/dashboard.css?v=12">
+  <link rel="stylesheet" href="css/dashboard.css?v=13">
   <link rel="stylesheet" href="css/landing.css?v=3">
   <script>
     (function() {
@@ -834,7 +834,7 @@
             <span>✨</span> HEA Assist
           </button>
           <div class="topbar-notif-wrap">
-            <button class="topbar-circle-icon-btn" id="topbarNotifBtn" title="Notifications" aria-label="View notifications">🔔</button>
+            <button class="topbar-circle-icon-btn" id="topbarNotifBtn" title="Notifications" aria-label="View notifications" onclick="if(window.appShell){window.appShell.navigate('notifications');}else{location.hash='#notifications';}">🔔</button>
             <span class="topbar-notif-badge">3</span>
           </div>
           <button class="topbar-circle-icon-btn topbar-help-btn" id="topbarHelpBtn" title="Help &amp; Guides" aria-label="Help and resources" onclick="location.hash='#resources'">❓</button>
@@ -2283,7 +2283,7 @@
 <script src="js/legacy/heavy-fx.js?v=2"></script>
 <script src="js/shared/motion.config.js?v=2"></script>
 <script src="js/landing/landing-clean.js?v=3"></script>
-<script src="js/dashboard/app-shell.js?v=9"></script>
-<script src="js/dashboard/app.js?v=8"></script>
+<script src="js/dashboard/app-shell.js?v=10"></script>
+<script src="js/dashboard/app.js?v=9"></script>
 </body>
 </html>

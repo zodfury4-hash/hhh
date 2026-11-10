@@ -7263,7 +7263,7 @@ function route() {
 
   // 2. App Shell Views (STRICTLY ONLY accessible when user is logged in & email verified!)
 
-  const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'assist', 'app'];
+  const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'assist', 'notifications', 'app'];
 
   if (appViews.includes(page)) {
 
