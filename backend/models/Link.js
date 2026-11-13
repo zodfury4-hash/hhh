@@ -68,4 +68,7 @@ const linkSchema = new mongoose.Schema({
   }
 });
 
+linkSchema.index({ slug: 1 }, { unique: true });
+linkSchema.index({ ownerEmail: 1, createdAt: -1 });
+
 module.exports = mongoose.model('Link', linkSchema);

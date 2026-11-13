@@ -9,12 +9,7 @@ const User = require('../models/User');
 const firebaseRtdb = require('../firebase-service');
 const memStore = require('../utils/memStore');
 const { authMiddleware, JWT_SECRET } = require('../middleware/auth');
-const {
-  generateSecureOTP,
-  checkOtpRateLimit,
-  recordOtpFailure,
-  clearOtpRateLimit
-} = require('../utils/helpers');
+const { generateSecureOTP, checkOtpRateLimit, recordOtpFailure, clearOtpRateLimit } = require('../utils/helpers');
 const { sendVerificationEmail, sendPasswordResetEmail } = require('../utils/mailer');
 const { authLimiter } = require('../middleware/rateLimiter');
 const {
@@ -79,7 +74,7 @@ router.post('/api/auth/register', authLimiter, validate(registerSchema), async (
     if (isDbConnected()) {
       existingUser = await User.findOne({ email: cleanEmail });
     } else {
-      existingUser = memStore.users.find(u => u.email === cleanEmail);
+      existingUser = memStore.users.find((u) => u.email === cleanEmail);
     }
 
     if (existingUser) {
@@ -199,7 +194,7 @@ router.post('/api/auth/verify-email', authLimiter, validate(verifyEmailSchema), 
     if (isDbConnected()) {
       user = await User.findOne({ email: cleanEmail });
     } else {
-      user = memStore.users.find(u => u.email === cleanEmail);
+      user = memStore.users.find((u) => u.email === cleanEmail);
     }
 
     if (!user) {
@@ -268,7 +263,7 @@ router.post('/api/auth/resend-code', authLimiter, validate(forgotPasswordSchema)
     if (isDbConnected()) {
       user = await User.findOne({ email: cleanEmail });
     } else {
-      user = memStore.users.find(u => u.email === cleanEmail);
+      user = memStore.users.find((u) => u.email === cleanEmail);
     }
 
     if (!user) {
@@ -288,7 +283,9 @@ router.post('/api/auth/resend-code', authLimiter, validate(forgotPasswordSchema)
     if (isDbConnected()) await user.save();
 
     if (process.env.NODE_ENV === 'development') {
-      console.log(`\n🔑 [DEV ONLY] Resent Verification OTP for ${cleanEmail}: [ ${verificationCode} ] (Valid: 10 mins)\n`);
+      console.log(
+        `\n🔑 [DEV ONLY] Resent Verification OTP for ${cleanEmail}: [ ${verificationCode} ] (Valid: 10 mins)\n`
+      );
     }
 
     const mailRes = await sendVerificationEmail(cleanEmail, user.name, verificationCode);
@@ -316,7 +313,7 @@ router.post('/api/auth/forgot-password', authLimiter, validate(forgotPasswordSch
     if (isDbConnected()) {
       user = await User.findOne({ email: cleanEmail });
     } else {
-      user = memStore.users.find(u => u.email === cleanEmail);
+      user = memStore.users.find((u) => u.email === cleanEmail);
     }
 
     if (!user) {
@@ -374,7 +371,7 @@ router.post('/api/auth/reset-password', authLimiter, validate(resetPasswordSchem
     if (isDbConnected()) {
       user = await User.findOne({ email: cleanEmail });
     } else {
-      user = memStore.users.find(u => u.email === cleanEmail);
+      user = memStore.users.find((u) => u.email === cleanEmail);
     }
 
     if (!user) {
@@ -386,7 +383,9 @@ router.post('/api/auth/reset-password', authLimiter, validate(resetPasswordSchem
 
     if (!validCode || validCode !== cleanCode) {
       recordOtpFailure(cleanEmail);
-      return res.status(400).json({ error: 'Invalid verification code. Please check your email or request a new code.' });
+      return res
+        .status(400)
+        .json({ error: 'Invalid verification code. Please check your email or request a new code.' });
     }
 
     if (expiry && new Date() > new Date(expiry)) {
@@ -433,7 +432,7 @@ router.post('/api/auth/login', authLimiter, validate(loginSchema), async (req, r
     if (isDbConnected()) {
       user = await User.findOne({ email: cleanEmail });
     } else {
-      user = memStore.users.find(u => u.email === cleanEmail);
+      user = memStore.users.find((u) => u.email === cleanEmail);
     }
 
     if (!user) {
@@ -489,7 +488,7 @@ router.post('/api/auth/refresh', authMiddleware, async (req, res) => {
     if (isDbConnected()) {
       user = await User.findOne({ email });
     } else {
-      user = memStore.users.find(u => u.email === email);
+      user = memStore.users.find((u) => u.email === email);
     }
 
     if (!user) {
@@ -514,7 +513,7 @@ router.get('/api/auth/me', authMiddleware, async (req, res) => {
     if (isDbConnected()) {
       user = await User.findOne({ email: req.user.email }).select('-password -verificationCode -resetPasswordCode');
     } else {
-      user = memStore.users.find(u => u.email === req.user.email);
+      user = memStore.users.find((u) => u.email === req.user.email);
     }
 
     if (!user) return res.status(404).json({ error: 'User not found' });
@@ -537,7 +536,7 @@ router.post('/api/auth/update-profile', authMiddleware, async (req, res) => {
     if (isDbConnected()) {
       await User.updateOne({ email: req.user.email }, { $set: { name: cleanName, city: cleanCity } });
     } else {
-      const u = memStore.users.find(x => x.email === req.user.email);
+      const u = memStore.users.find((x) => x.email === req.user.email);
       if (u) {
         if (cleanName) u.name = cleanName;
         if (cleanCity) u.city = cleanCity;
@@ -563,7 +562,7 @@ router.post('/api/auth/change-password', authMiddleware, async (req, res) => {
     if (isDbConnected()) {
       user = await User.findOne({ email: req.user.email });
     } else {
-      user = memStore.users.find(u => u.email === req.user.email);
+      user = memStore.users.find((u) => u.email === req.user.email);
     }
 
     if (!user) return res.status(404).json({ error: 'User not found' });
@@ -603,7 +602,9 @@ router.post('/api/auth/google', authLimiter, async (req, res) => {
     // Verify credential via Google's official tokeninfo API if ID token provided
     if (credential) {
       try {
-        const verifyRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`);
+        const verifyRes = await fetch(
+          `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`
+        );
         if (verifyRes.ok) {
           const payload = await verifyRes.json();
           email = payload.email;
@@ -668,7 +669,7 @@ router.post('/api/auth/google', authLimiter, async (req, res) => {
         await user.save();
       }
     } else {
-      user = memStore.users.find(u => u.email === cleanEmail);
+      user = memStore.users.find((u) => u.email === cleanEmail);
       if (!user) {
         user = {
           id: 'u_' + Date.now(),

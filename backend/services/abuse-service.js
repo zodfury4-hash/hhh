@@ -1,5 +1,4 @@
-const AbuseReport = require('../models/AbuseReport');
-const { isValidDestinationUrl, BLOCKED_DOMAINS } = require('../middleware/validation');
+const { isValidDestinationUrl } = require('../middleware/validation');
 
 async function checkGoogleSafeBrowsing(url) {
   const apiKey = process.env.GOOGLE_SAFE_BROWSING_KEY;

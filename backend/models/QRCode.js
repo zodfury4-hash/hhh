@@ -31,4 +31,6 @@ const qrCodeSchema = new mongoose.Schema({
   }
 });
 
+qrCodeSchema.index({ ownerEmail: 1, createdAt: -1 });
+
 module.exports = mongoose.model('QRCode', qrCodeSchema);

@@ -55,4 +55,7 @@ const bioPageSchema = new mongoose.Schema({
   }
 });
 
+bioPageSchema.index({ slug: 1 }, { unique: true });
+bioPageSchema.index({ ownerEmail: 1, createdAt: -1 });
+
 module.exports = mongoose.model('BioPage', bioPageSchema);

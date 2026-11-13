@@ -15,7 +15,10 @@ const linkCreateLimiter = rateLimit({
   max: 40,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: 'Too many links created recently. Please wait a moment before creating more.', code: 'RATE_LIMITED' }
+  message: {
+    error: 'Too many links created recently. Please wait a moment before creating more.',
+    code: 'RATE_LIMITED'
+  }
 });
 
 // Bulk shorten rate limit: 10 requests per minute
@@ -33,7 +36,10 @@ const assistLimiter = rateLimit({
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: 'AI Assistant rate limit reached. Please wait a minute before sending another request.', code: 'RATE_LIMITED' }
+  message: {
+    error: 'AI Assistant rate limit reached. Please wait a minute before sending another request.',
+    code: 'RATE_LIMITED'
+  }
 });
 
 // Abuse report rate limit: 10 reports per hour

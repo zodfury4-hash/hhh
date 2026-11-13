@@ -7,7 +7,6 @@ const firebaseRtdb = require('../firebase-service');
 const memStore = require('../utils/memStore');
 const { optionalAuth } = require('../middleware/auth');
 const { assistLimiter } = require('../middleware/rateLimiter');
-const { isValidDestinationUrl } = require('../middleware/validation');
 const { inspectUrlSecurity } = require('../services/abuse-service');
 
 function isDbConnected() {
@@ -74,7 +73,7 @@ router.post('/api/ai/ask', assistLimiter, optionalAuth, async (req, res) => {
       const host = req.get('host') || 'localhost:3000';
       const proto = req.protocol || 'http';
       const realShort = await getRealWorkingShortUrl(dest);
-      const shortUrl = (realShort && realShort !== dest) ? realShort : `${proto}://${host}/${slug}`;
+      const shortUrl = realShort && realShort !== dest ? realShort : `${proto}://${host}/${slug}`;
 
       if (isDbConnected()) {
         const newLink = new Link({

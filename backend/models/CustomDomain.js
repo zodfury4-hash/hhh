@@ -30,4 +30,7 @@ const customDomainSchema = new mongoose.Schema({
   }
 });
 
+customDomainSchema.index({ domain: 1 }, { unique: true });
+customDomainSchema.index({ ownerEmail: 1 });
+
 module.exports = mongoose.model('CustomDomain', customDomainSchema);

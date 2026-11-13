@@ -9,7 +9,9 @@
     "dev": "node server.js",
     "build:html": "node tools/build_html.js",
     "watch:html": "node tools/build_html.js --watch",
-    "test": "node tests/baseline.test.js"
+    "lint": "eslint backend tests",
+    "format": "prettier --write backend tests",
+    "test": "node tests/index.js"
   },
   "repository": {
     "type": "git",
@@ -39,7 +41,12 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.11.4",
     "nodemailer": "^10.3.1",
+    "pino": "^10.4.0",
     "stripe": "^23.1.0",
     "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "eslint": "^10.14.0",
+    "prettier": "^3.10.1"
   }
 }

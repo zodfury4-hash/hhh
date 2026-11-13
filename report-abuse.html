@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Report Malicious or Abusive Link - HEA Link Trust &amp; Safety</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <style>
+    :root {
+      --primary: #0066ff;
+      --primary-hover: #0052cc;
+      --danger: #ef4444;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --success: #10b981;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+      margin: 0;
+      padding: 0;
+    }
+    .header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header a.brand {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .header a.back-link {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    .header a.back-link:hover {
+      color: var(--primary);
+    }
+    .container {
+      max-width: 640px;
+      margin: 3rem auto;
+      background: var(--card);
+      padding: 2.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+      border: 1px solid var(--border);
+    }
+    h1 {
+      font-size: 1.75rem;
+      margin-top: 0;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    p {
+      color: #475569;
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+    }
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      color: #1e293b;
+    }
+    input[type="text"], input[type="url"], input[type="email"], select, textarea {
+      width: 100%;
+      padding: 0.65rem 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      box-sizing: border-box;
+      background: #f8fafc;
+      color: var(--text);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.15);
+      background: #fff;
+    }
+    .btn-submit {
+      width: 100%;
+      padding: 0.8rem;
+      background: var(--danger);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .btn-submit:hover {
+      background: #dc2626;
+    }
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .alert-msg {
+      padding: 0.85rem;
+      border-radius: 8px;
+      margin-bottom: 1.25rem;
+      font-size: 0.9rem;
+      display: none;
+    }
+    .alert-success {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+    .alert-error {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+    .footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <a href="/" class="brand">HEA Link</a>
+    <a href="/" class="back-link">&larr; Return to Dashboard</a>
+  </header>
+
+  <main class="container">
+    <h1>🚨 Report Malicious Link</h1>
+    <p>HEA Link takes platform abuse and cyber threats seriously. If you have encountered a short link redirecting to phishing, malware, scams, or illegal material, please submit a report below. Our Trust &amp; Safety team investigates reports promptly.</p>
+
+    <div id="alertBox" class="alert-msg"></div>
+
+    <form id="abuseForm">
+      <div class="form-group">
+        <label for="urlInput">Suspicious Short Link or Destination URL *</label>
+        <input type="text" id="urlInput" placeholder="e.g. https://healink.store/suspicious-slug or destination URL" required>
+      </div>
+
+      <div class="form-group">
+        <label for="reasonSelect">Reason for Report *</label>
+        <select id="reasonSelect" required>
+          <option value="phishing">Phishing / Credential Harvesting</option>
+          <option value="malware">Malware / Ransomware / Harmful Download</option>
+          <option value="spam">Unsolicited Spam / Deceptive Redirect</option>
+          <option value="scam">Financial Scam / Fraud</option>
+          <option value="illegal">Illegal Material or Policy Violation</option>
+          <option value="other">Other Violation</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="detailsInput">Additional Details (Optional)</label>
+        <textarea id="detailsInput" rows="3" placeholder="Describe the behavior or provide relevant context..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="emailInput">Your Email Address (Optional, for status updates)</label>
+        <input type="email" id="emailInput" placeholder="you@example.com">
+      </div>
+
+      <button type="submit" id="submitBtn" class="btn-submit">Submit Abuse Report</button>
+    </form>
+  </main>
+
+  <footer class="footer">
+    &copy; 2026 HEA Link Inc. All rights reserved. &middot; <a href="/privacy.html">Privacy Policy</a> &middot; <a href="/terms.html">Terms of Service</a>
+  </footer>
+
+  <script>
+    // Pre-populate if query parameter passed: ?slug=xyz or ?url=...
+    const params = new URLSearchParams(window.location.search);
+    const preSlug = params.get('slug');
+    const preUrl = params.get('url');
+    if (preSlug) {
+      document.getElementById('urlInput').value = window.location.origin + '/' + preSlug;
+    } else if (preUrl) {
+      document.getElementById('urlInput').value = preUrl;
+    }
+
+    const form = document.getElementById('abuseForm');
+    const alertBox = document.getElementById('alertBox');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertBox.style.display = 'none';
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting Report...';
+
+      let inputUrl = document.getElementById('urlInput').value.trim();
+      let slug = null;
+
+      try {
+        const parsed = new URL(inputUrl);
+        if (parsed.hostname === window.location.hostname || parsed.hostname === 'healink.store' || parsed.hostname === 'www.healink.store') {
+          slug = parsed.pathname.replace(/^\//, '');
+        }
+      } catch (err) {
+        // If not a full URL, treat as slug if no slashes
+        if (!inputUrl.includes('/')) {
+          slug = inputUrl;
+        }
+      }
+
+      const payload = {
+        url: inputUrl,
+        slug: slug || undefined,
+        reason: document.getElementById('reasonSelect').value,
+        details: document.getElementById('detailsInput').value.trim(),
+        reporterEmail: document.getElementById('emailInput').value.trim() || undefined
+      };
+
+      try {
+        const res = await fetch('/api/abuse/report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+          alertBox.className = 'alert-msg alert-success';
+          alertBox.textContent = '✅ ' + (data.message || 'Thank you for your report. Our security team has received the alert and will investigate immediately.');
+          alertBox.style.display = 'block';
+          form.reset();
+        } else {
+          alertBox.className = 'alert-msg alert-error';
+          alertBox.textContent = '❌ ' + (data.error || 'Failed to submit report. Please try again.');
+          alertBox.style.display = 'block';
+        }
+      } catch (err) {
+        alertBox.className = 'alert-msg alert-error';
+        alertBox.textContent = '❌ Network error while submitting report. Please check your connection.';
+        alertBox.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Abuse Report';
+      }
+    });
+  </script>
+</body>
+</html>

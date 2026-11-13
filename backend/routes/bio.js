@@ -6,7 +6,7 @@ const BioPage = require('../models/BioPage');
 const firebaseRtdb = require('../firebase-service');
 const memStore = require('../utils/memStore');
 const { authMiddleware } = require('../middleware/auth');
-const { validate, bioPageSchema, isValidDestinationUrl } = require('../middleware/validation');
+const { validate, bioPageSchema } = require('../middleware/validation');
 
 function isDbConnected() {
   return mongoose.connection.readyState === 1;
@@ -46,9 +46,7 @@ router.get('/api/bios', authMiddleware, async (req, res) => {
       const query = isAdmin ? {} : { ownerEmail: email };
       list = await BioPage.find(query).sort({ createdAt: -1 });
     } else {
-      list = isAdmin
-        ? memStore.bios
-        : memStore.bios.filter(b => b.ownerEmail === email);
+      list = isAdmin ? memStore.bios : memStore.bios.filter((b) => b.ownerEmail === email);
     }
 
     if (list.length === 0) {
@@ -101,7 +99,7 @@ router.post('/api/bios', authMiddleware, validate(bioPageSchema), async (req, re
         await page.save();
       }
     } else {
-      page = memStore.bios.find(b => b.slug === cleanSlug);
+      page = memStore.bios.find((b) => b.slug === cleanSlug);
       if (page) {
         if (!isAdmin && page.ownerEmail !== email) {
           return res.status(403).json({
@@ -164,14 +162,14 @@ router.delete('/api/bios/:slug', authMiddleware, async (req, res) => {
 
       await BioPage.deleteOne({ slug });
     } else {
-      const page = memStore.bios.find(b => b.slug === slug);
+      const page = memStore.bios.find((b) => b.slug === slug);
       if (!page) return res.status(404).json({ error: 'Bio page not found' });
 
       if (!isAdmin && page.ownerEmail !== email) {
         return res.status(403).json({ error: 'Forbidden: You do not own this bio page', code: 'FORBIDDEN' });
       }
 
-      memStore.bios = memStore.bios.filter(b => b.slug !== slug);
+      memStore.bios = memStore.bios.filter((b) => b.slug !== slug);
     }
 
     res.json({ success: true, message: 'Bio page deleted successfully' });
@@ -196,7 +194,7 @@ router.get(['/m/:slug', '/bio/:slug'], async (req, res) => {
         });
       }
     } else {
-      bio = memStore.bios.find(b => b.slug === slug);
+      bio = memStore.bios.find((b) => b.slug === slug);
       if (bio) bio.views = (bio.views || 0) + 1;
     }
 
@@ -215,18 +213,20 @@ router.get(['/m/:slug', '/bio/:slug'], async (req, res) => {
     const safeAvatar = bio.avatar && /^https?:\/\//i.test(bio.avatar) ? escapeHtml(bio.avatar) : null;
     const safeFallbackInitials = escapeHtml((bio.title || 'H').slice(0, 2).toUpperCase());
 
-    const safeLinksHtml = (bio.links || []).map(l => {
-      const safeUrl = sanitizeUrl(l.url);
-      const safeLabel = escapeHtml(l.label || l.url || 'Link');
-      const safeIcon = escapeHtml(l.icon || '🔗');
-      return `
+    const safeLinksHtml = (bio.links || [])
+      .map((l) => {
+        const safeUrl = sanitizeUrl(l.url);
+        const safeLabel = escapeHtml(l.label || l.url || 'Link');
+        const safeIcon = escapeHtml(l.icon || '🔗');
+        return `
         <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="bio-btn">
           <span>${safeIcon}</span>
           <span>${safeLabel}</span>
           <span style="opacity:0.6">↗</span>
         </a>
       `;
-    }).join('');
+      })
+      .join('');
 
     const html = `
       <!DOCTYPE html>
@@ -337,9 +337,10 @@ router.get(['/m/:slug', '/bio/:slug'], async (req, res) => {
       </head>
       <body>
         <div class="bio-card">
-          ${safeAvatar
-            ? `<img src="${safeAvatar}" alt="${safeTitle}" class="bio-avatar">`
-            : `<div class="bio-avatar-fallback">${safeFallbackInitials}</div>`
+          ${
+            safeAvatar
+              ? `<img src="${safeAvatar}" alt="${safeTitle}" class="bio-avatar">`
+              : `<div class="bio-avatar-fallback">${safeFallbackInitials}</div>`
           }
           <h1 class="bio-title">${safeTitle}</h1>
           <p class="bio-tagline">${safeTagline}</p>

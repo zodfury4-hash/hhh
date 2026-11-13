@@ -13,7 +13,6 @@
 
 const assert = require('assert');
 const http = require('http');
-const path = require('path');
 
 process.env.NODE_ENV = 'test';
 process.env.PORT = '0';
@@ -98,11 +97,7 @@ async function run() {
 
   console.log('\n🛡️ 2. Input Validation & SSRF Prevention:');
 
-  const {
-    isValidDestinationUrl,
-    createLinkSchema,
-    registerSchema
-  } = require('../backend/middleware/validation');
+  const { isValidDestinationUrl, createLinkSchema, registerSchema } = require('../backend/middleware/validation');
 
   it('Blocks dangerous URI schemes (javascript:, data:, vbscript:)', () => {
     assert.strictEqual(isValidDestinationUrl('javascript:alert(1)'), false);
@@ -267,6 +262,10 @@ async function run() {
     assert.strictEqual(data.success, true);
   });
 
+  try {
+    const mongoose = require('mongoose');
+    await mongoose.connection.close(false);
+  } catch (_e) {}
   await new Promise((resolve) => server.close(resolve));
   console.log('  ℹ️ Test server stopped cleanly.\n');
 

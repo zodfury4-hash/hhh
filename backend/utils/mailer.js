@@ -6,29 +6,20 @@ const isSmtpReady = !!(process.env.SMTP_HOST && process.env.SMTP_USER && process
 let mailTransporter = null;
 
 if (isSmtpReady) {
-
   const cleanPass = (process.env.SMTP_PASS || '').replace(/\s+/g, '');
 
   if ((process.env.SMTP_HOST || '').includes('gmail')) {
-
     mailTransporter = nodemailer.createTransport({
-
       service: 'gmail',
 
       auth: {
-
         user: process.env.SMTP_USER,
 
         pass: cleanPass
-
       }
-
     });
-
   } else {
-
     mailTransporter = nodemailer.createTransport({
-
       host: process.env.SMTP_HOST,
 
       port: parseInt(process.env.SMTP_PORT || '587'),
@@ -36,29 +27,23 @@ if (isSmtpReady) {
       secure: process.env.SMTP_SECURE === 'true' || process.env.SMTP_PORT === '465',
 
       auth: {
-
         user: process.env.SMTP_USER,
 
         pass: cleanPass
-
       }
-
     });
-
   }
 
   console.log('📧 [Email Service] Real SMTP Configured:', process.env.SMTP_HOST, 'Account:', process.env.SMTP_USER);
-
 } else {
-
-  console.log('ℹ️ [Email Service] Real SMTP not yet configured in .env (SMTP_USER or SMTP_PASS missing). Real emails cannot be dispatched.');
-
+  console.log(
+    'ℹ️ [Email Service] Real SMTP not yet configured in .env (SMTP_USER or SMTP_PASS missing). Real emails cannot be dispatched.'
+  );
 }
 
 // Helper: Send Verification Email
 
 async function sendVerificationEmail(email, name, code) {
-
   console.log(`\n======================================================`);
 
   console.log(`📧 [EMAIL VERIFICATION] Target: ${email}`);
@@ -70,9 +55,7 @@ async function sendVerificationEmail(email, name, code) {
   console.log(`======================================================\n`);
 
   if (!mailTransporter) {
-
     return { success: false, simulated: true, code, reason: 'SMTP credentials missing in .env' };
-
   }
 
   const html = `
@@ -146,11 +129,9 @@ async function sendVerificationEmail(email, name, code) {
   `;
 
   try {
-
     const fromAddr = process.env.EMAIL_FROM || `"HEA Link" <${process.env.SMTP_USER || 'noreply@healink.store'}>`;
 
     const info = await mailTransporter.sendMail({
-
       from: fromAddr,
 
       to: email,
@@ -158,25 +139,19 @@ async function sendVerificationEmail(email, name, code) {
       subject: `${code} is your HEA Link verification code`,
 
       html
-
     });
 
     console.log(`✅ [Email Service] Real email dispatched to ${email}! MessageId: ${info.messageId}`);
 
     return { success: true, messageId: info.messageId };
-
   } catch (err) {
-
     console.error('❌ Failed to send verification email via SMTP:', err.message);
 
     return { success: false, error: err.message, simulated: true, code };
-
   }
-
 }
 
 async function sendPasswordResetEmail(email, name, code) {
-
   console.log(`\n======================================================`);
 
   console.log(`🔑 [PASSWORD RESET] Target: ${email}`);
@@ -188,9 +163,7 @@ async function sendPasswordResetEmail(email, name, code) {
   console.log(`======================================================\n`);
 
   if (!mailTransporter) {
-
     return { success: false, simulated: true, code, reason: 'SMTP credentials missing in .env' };
-
   }
 
   const html = `
@@ -262,11 +235,10 @@ async function sendPasswordResetEmail(email, name, code) {
   `;
 
   try {
-
-    const fromAddr = process.env.EMAIL_FROM || `"HEA Link Security" <${process.env.SMTP_USER || 'noreply@healink.store'}>`;
+    const fromAddr =
+      process.env.EMAIL_FROM || `"HEA Link Security" <${process.env.SMTP_USER || 'noreply@healink.store'}>`;
 
     const info = await mailTransporter.sendMail({
-
       from: fromAddr,
 
       to: email,
@@ -274,25 +246,19 @@ async function sendPasswordResetEmail(email, name, code) {
       subject: `${code} is your HEA Link password reset code`,
 
       html
-
     });
 
     console.log(`✅ [Email Service] Real reset email dispatched to ${email}! MessageId: ${info.messageId}`);
 
     return { success: true, messageId: info.messageId };
-
   } catch (err) {
-
     console.error('❌ Failed to send reset email via SMTP:', err.message);
 
     return { success: false, error: err.message, simulated: true, code };
-
   }
-
 }
 
 // In-Memory Fallback Store (active if MongoDB is momentarily unreachable)
-
 
 module.exports = {
   mailTransporter,

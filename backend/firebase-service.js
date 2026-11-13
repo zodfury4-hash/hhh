@@ -17,7 +17,10 @@ const RTDB_BASE = process.env.FIREBASE_DATABASE_URL || 'https://healinks-4ea4d-d
 
 function emailToKey(email) {
   if (!email) return 'guest';
-  return String(email).toLowerCase().trim().replace(/[\.\$\#\[\]\/]/g, '_dot_');
+  return String(email)
+    .toLowerCase()
+    .trim()
+    .replace(/[\.\$\#\[\]\/]/g, '_dot_');
 }
 
 function keyToEmail(key) {
@@ -70,7 +73,7 @@ const firebaseRtdb = {
     if (clean.includes('@')) {
       return await this.getUser(clean);
     }
-    const allUsers = await rtdbFetch('/users') || {};
+    const allUsers = (await rtdbFetch('/users')) || {};
     for (const k of Object.keys(allUsers)) {
       const u = allUsers[k]?.profile;
       if (u && (u.email === clean || u.username === clean)) return u;
@@ -81,7 +84,7 @@ const firebaseRtdb = {
   async saveUser(email, profileData) {
     if (!ENABLE_RTDB || !email) return null;
     const key = emailToKey(email);
-    const existing = await this.getUser(email) || {};
+    const existing = (await this.getUser(email)) || {};
     const updated = {
       ...existing,
       ...profileData,
@@ -114,7 +117,7 @@ const firebaseRtdb = {
       ownerEmail: email ? email.trim().toLowerCase() : 'guest',
       createdAt: linkObj.createdAt || new Date().toISOString(),
       clicks: Array.isArray(linkObj.clicks) ? linkObj.clicks : [],
-      clickCount: Array.isArray(linkObj.clicks) ? linkObj.clicks.length : (linkObj.clicks || 0),
+      clickCount: Array.isArray(linkObj.clicks) ? linkObj.clicks.length : linkObj.clicks || 0,
       scans: linkObj.scans || 0
     };
 

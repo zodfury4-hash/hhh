@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 const ProcessedPayment = require('../models/ProcessedPayment');
 const firebaseRtdb = require('../firebase-service');
-const { authMiddleware, optionalAuth } = require('../middleware/auth');
+const { optionalAuth } = require('../middleware/auth');
 
 function isDbConnected() {
   return mongoose.connection.readyState === 1;
@@ -38,7 +38,7 @@ router.get('/api/stripe/config', (req, res) => {
   res.json({
     configured: isReady,
     isConfigured: isReady,
-    publishableKey: isStripeConfigured ? (process.env.STRIPE_PUBLISHABLE_KEY || '') : ''
+    publishableKey: isStripeConfigured ? process.env.STRIPE_PUBLISHABLE_KEY || '' : ''
   });
 });
 
@@ -67,9 +67,9 @@ router.post('/api/stripe/create-checkout-session', optionalAuth, async (req, res
     const planName = planDisplayNames[planKey] || 'Core PRO Plan';
     const origin = req.headers.origin || `${req.protocol}://${req.get('host')}` || 'http://localhost:3000';
 
-    // Sandbox / Demo mode only available in development
+    // Sandbox / Demo mode only available in development / test
     if (!isStripeConfigured || !stripeClient) {
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV !== 'production') {
         return res.json({
           ok: true,
           demoMode: true,

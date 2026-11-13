@@ -2,17 +2,58 @@ const { z } = require('zod');
 
 // Reserved words that cannot be used as custom shortlink slugs
 const RESERVED_SLUGS = new Set([
-  'api', 'login', 'signup', 'dashboard', 'app', 'auth', 'admin', 'billing',
-  'webhook', 'stripe', 'assets', 'css', 'js', 'images', 'favicon.ico',
-  'robots.txt', 'sitemap.xml', 'health', 'abuse', 'terms', 'privacy',
-  'docs', 'm', 'r', 'go', 'bio', 'settings', 'index', 'home', 'verify',
-  'reset', 'pricing', 'logout', 'help', 'contact', 'support', 'status'
+  'api',
+  'login',
+  'signup',
+  'dashboard',
+  'app',
+  'auth',
+  'admin',
+  'billing',
+  'webhook',
+  'stripe',
+  'assets',
+  'css',
+  'js',
+  'images',
+  'favicon.ico',
+  'robots.txt',
+  'sitemap.xml',
+  'health',
+  'abuse',
+  'terms',
+  'privacy',
+  'docs',
+  'm',
+  'r',
+  'go',
+  'bio',
+  'settings',
+  'index',
+  'home',
+  'verify',
+  'reset',
+  'pricing',
+  'logout',
+  'help',
+  'contact',
+  'support',
+  'status'
 ]);
 
 // Known abusive or phishing domains
 const BLOCKED_DOMAINS = new Set([
-  'grabify.link', 'iplogger.org', '2no.co', 'yip.su', 'iplis.ru', 'psh.re',
-  'bit.do', 'shorte.st', 'adf.ly', 'bc.vc', 'linkshrink.net'
+  'grabify.link',
+  'iplogger.org',
+  '2no.co',
+  'yip.su',
+  'iplis.ru',
+  'psh.re',
+  'bit.do',
+  'shorte.st',
+  'adf.ly',
+  'bc.vc',
+  'linkshrink.net'
 ]);
 
 function isPrivateOrReservedHost(hostname) {
@@ -79,25 +120,28 @@ function isValidDestinationUrl(urlString) {
       return false;
     }
     return true;
-  } catch (err) {
+  } catch (_err) {
     return false;
   }
 }
 
 // Zod URL Validator
-const destinationUrlSchema = z.string()
+const destinationUrlSchema = z
+  .string()
   .min(3, 'URL is too short')
   .max(2048, 'URL exceeds maximum length of 2048 characters')
-  .refine(val => isValidDestinationUrl(val), {
-    message: 'Invalid destination URL: Must start with http:// or https:// and cannot target private/loopback IP addresses or blocked domains'
+  .refine((val) => isValidDestinationUrl(val), {
+    message:
+      'Invalid destination URL: Must start with http:// or https:// and cannot target private/loopback IP addresses or blocked domains'
   });
 
 // Zod Slug Validator
-const slugSchema = z.string()
+const slugSchema = z
+  .string()
   .min(2, 'Slug must be at least 2 characters')
   .max(60, 'Slug cannot exceed 60 characters')
   .regex(/^[a-zA-Z0-9_-]+$/, 'Slug may only contain letters, numbers, hyphens, and underscores')
-  .refine(val => !RESERVED_SLUGS.has(val.toLowerCase()), {
+  .refine((val) => !RESERVED_SLUGS.has(val.toLowerCase()), {
     message: 'This slug is reserved by the system. Please choose a different back-half.'
   });
 
@@ -146,14 +190,20 @@ const createLinkSchema = z.object({
 
 // Bulk shorten validation
 const bulkShortenSchema = z.object({
-  urls: z.array(destinationUrlSchema).min(1, 'At least one URL is required').max(50, 'Maximum 50 URLs allowed per bulk request')
+  urls: z
+    .array(destinationUrlSchema)
+    .min(1, 'At least one URL is required')
+    .max(50, 'Maximum 50 URLs allowed per bulk request')
 });
 
 // QR Code validation
 const createQrSchema = z.object({
   dest: destinationUrlSchema,
   title: z.string().trim().max(120).optional(),
-  color: z.string().regex(/^#[0-9a-fA-F]{3,8}$/, 'Color must be a valid hex color code').optional()
+  color: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{3,8}$/, 'Color must be a valid hex color code')
+    .optional()
 });
 
 // Bio page validation
@@ -163,20 +213,27 @@ const bioPageSchema = z.object({
   tagline: z.string().trim().max(250, 'Tagline cannot exceed 250 characters').optional(),
   avatar: z.string().trim().max(2048).optional(),
   theme: z.string().trim().max(50).optional(),
-  links: z.array(z.object({
-    url: destinationUrlSchema,
-    label: z.string().trim().max(100).optional(),
-    icon: z.string().trim().max(30).optional()
-  })).max(30, 'Maximum 30 links allowed per bio page').optional()
+  links: z
+    .array(
+      z.object({
+        url: destinationUrlSchema,
+        label: z.string().trim().max(100).optional(),
+        icon: z.string().trim().max(30).optional()
+      })
+    )
+    .max(30, 'Maximum 30 links allowed per bio page')
+    .optional()
 });
 
 // Custom domain validation
 const customDomainSchema = z.object({
-  domain: z.string().trim()
+  domain: z
+    .string()
+    .trim()
     .min(3, 'Domain is too short')
     .max(120, 'Domain is too long')
     .regex(/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Must be a valid domain or subdomain (e.g. link.brand.com)')
-    .refine(val => !isPrivateOrReservedHost(val), {
+    .refine((val) => !isPrivateOrReservedHost(val), {
       message: 'Private, loopback, or internal domains are not permitted.'
     })
 });
@@ -200,7 +257,9 @@ function validate(schema, source = 'body') {
     } catch (err) {
       if (err instanceof z.ZodError) {
         const firstIssue = err.issues[0];
-        const errorMessage = firstIssue ? `${firstIssue.path.join('.') || 'input'}: ${firstIssue.message}` : 'Validation error';
+        const errorMessage = firstIssue
+          ? `${firstIssue.path.join('.') || 'input'}: ${firstIssue.message}`
+          : 'Validation error';
         return res.status(400).json({
           error: errorMessage,
           code: 'VALIDATION_ERROR',

@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 
-const User = require('../models/User');
 const Link = require('../models/Link');
 const BioPage = require('../models/BioPage');
 const firebaseRtdb = require('../firebase-service');
@@ -45,7 +44,8 @@ function parseReferrer(ref = '') {
 }
 
 function isBotUserAgent(ua = '') {
-  const botPatterns = /bot|crawl|spider|slurp|facebookexternalhit|whatsapp|telegrambot|twitterbot|pinterest|slackbot|linkedinbot|discordbot|bingbot|googlebot|yandex|applebot/i;
+  const botPatterns =
+    /bot|crawl|spider|slurp|facebookexternalhit|whatsapp|telegrambot|twitterbot|pinterest|slackbot|linkedinbot|discordbot|bingbot|googlebot|yandex|applebot/i;
   return botPatterns.test(ua);
 }
 
@@ -97,7 +97,7 @@ router.post('/api/shorten-online', linkCreateLimiter, async (req, res) => {
     const host = req.get('host') || 'localhost:3000';
     const proto = req.protocol || 'http';
     const localShort = `${proto}://${host}/${finalSlug}`;
-    const cleanShort = (realShort && realShort !== dest) ? realShort : localShort;
+    const cleanShort = realShort && realShort !== dest ? realShort : localShort;
 
     if (isDbConnected()) {
       try {
@@ -116,7 +116,7 @@ router.post('/api/shorten-online', linkCreateLimiter, async (req, res) => {
         }
       } catch (e) {}
     } else {
-      const clash = memStore.links.find(l => l.slug.toLowerCase() === finalSlug);
+      const clash = memStore.links.find((l) => l.slug.toLowerCase() === finalSlug);
       if (!clash) {
         memStore.links.unshift({
           id: 'lnk_' + Date.now(),
@@ -163,7 +163,7 @@ router.post('/api/shorten', linkCreateLimiter, optionalAuth, async (req, res) =>
       return res.status(400).json({ error: 'This slug is reserved. Please pick another back-half.' });
     }
 
-    const ownerEmail = (req.user && req.user.email) ? req.user.email : 'guest';
+    const ownerEmail = req.user && req.user.email ? req.user.email : 'guest';
 
     if (!realShort) {
       realShort = await getRealWorkingShortUrl(dest);
@@ -172,7 +172,7 @@ router.post('/api/shorten', linkCreateLimiter, optionalAuth, async (req, res) =>
     const host = req.get('host') || 'localhost:3000';
     const proto = req.protocol || 'http';
     const localShort = `${proto}://${host}/${finalSlug}`;
-    const cleanShortUrl = (realShort && realShort !== dest) ? realShort : localShort;
+    const cleanShortUrl = realShort && realShort !== dest ? realShort : localShort;
 
     let link = null;
     if (isDbConnected()) {
@@ -247,15 +247,13 @@ router.get('/api/links', authMiddleware, async (req, res) => {
       const query = isAdmin ? {} : { ownerEmail: email };
       list = await Link.find(query).sort({ createdAt: -1 });
     } else {
-      list = isAdmin
-        ? memStore.links
-        : memStore.links.filter(l => l.ownerEmail === email);
+      list = isAdmin ? memStore.links : memStore.links.filter((l) => l.ownerEmail === email);
     }
 
     try {
       const fbLinks = await firebaseRtdb.getUserLinks(email);
       if (Array.isArray(fbLinks) && fbLinks.length > 0) {
-        const existingSlugs = new Set(list.map(l => l.slug));
+        const existingSlugs = new Set(list.map((l) => l.slug));
         for (const fl of fbLinks) {
           if (!existingSlugs.has(fl.slug)) {
             list.push(fl);
@@ -266,7 +264,7 @@ router.get('/api/links', authMiddleware, async (req, res) => {
     } catch (fbErr) {}
 
     const host = req.get('host') || 'healink.store';
-    const formatted = list.map(l => ({
+    const formatted = list.map((l) => ({
       id: l._id || l.id,
       ownerEmail: l.ownerEmail,
       slug: l.slug,
@@ -275,7 +273,7 @@ router.get('/api/links', authMiddleware, async (req, res) => {
       redirectUrl: `https://${host}/r/${l.slug}`,
       title: l.title || 'Untitled Link',
       tag: l.tag || 'General',
-      clicks: Array.isArray(l.clicks) ? l.clicks.length : (typeof l.clicks === 'number' ? l.clicks : 0),
+      clicks: Array.isArray(l.clicks) ? l.clicks.length : typeof l.clicks === 'number' ? l.clicks : 0,
       scans: l.scans || 0,
       createdAt: l.createdAt
     }));
@@ -300,7 +298,7 @@ router.post('/api/links', authMiddleware, linkCreateLimiter, validate(createLink
       if (isDbConnected()) {
         count = await Link.countDocuments({ ownerEmail: email.toLowerCase() });
       } else {
-        count = memStore.links.filter(l => l.ownerEmail === email.toLowerCase()).length;
+        count = memStore.links.filter((l) => l.ownerEmail === email.toLowerCase()).length;
       }
       if (count >= 100) {
         return res.status(403).json({
@@ -391,7 +389,7 @@ router.post('/api/links', authMiddleware, linkCreateLimiter, validate(createLink
     const host = req.get('host') || 'localhost:3000';
     const proto = req.protocol || 'http';
     const localShort = `${proto}://${host}/${finalSlug}`;
-    const cleanShortUrl = (realShort && realShort !== dest) ? realShort : localShort;
+    const cleanShortUrl = realShort && realShort !== dest ? realShort : localShort;
 
     res.json({
       success: true,
@@ -425,7 +423,7 @@ router.post('/api/links/bulk', authMiddleware, bulkShortenLimiter, validate(bulk
 
       const slug = Math.random().toString(36).substring(2, 8);
       const realShort = await getRealWorkingShortUrl(u);
-      const cleanUrl = (realShort && realShort !== u) ? realShort : `${proto}://${host}/${slug}`;
+      const cleanUrl = realShort && realShort !== u ? realShort : `${proto}://${host}/${slug}`;
 
       if (isDbConnected()) {
         const item = new Link({
@@ -491,7 +489,9 @@ router.put('/api/links/:slug', authMiddleware, async (req, res) => {
 
       // Ownership authorization check
       if (!isAdmin && link.ownerEmail !== email) {
-        return res.status(403).json({ error: 'Forbidden: You do not have permission to modify this link', code: 'FORBIDDEN' });
+        return res
+          .status(403)
+          .json({ error: 'Forbidden: You do not have permission to modify this link', code: 'FORBIDDEN' });
       }
 
       if (dest) link.dest = dest;
@@ -505,11 +505,13 @@ router.put('/api/links/:slug', authMiddleware, async (req, res) => {
 
       return res.json({ success: true, link });
     } else {
-      const link = memStore.links.find(l => l.slug === slug);
+      const link = memStore.links.find((l) => l.slug === slug);
       if (!link) return res.status(404).json({ error: 'Link not found' });
 
       if (!isAdmin && link.ownerEmail !== email) {
-        return res.status(403).json({ error: 'Forbidden: You do not have permission to modify this link', code: 'FORBIDDEN' });
+        return res
+          .status(403)
+          .json({ error: 'Forbidden: You do not have permission to modify this link', code: 'FORBIDDEN' });
       }
 
       if (dest) link.dest = dest;
@@ -536,7 +538,9 @@ router.delete('/api/links/:slug', authMiddleware, async (req, res) => {
 
       // Ownership authorization check
       if (!isAdmin && link.ownerEmail !== email) {
-        return res.status(403).json({ error: 'Forbidden: You do not have permission to delete this link', code: 'FORBIDDEN' });
+        return res
+          .status(403)
+          .json({ error: 'Forbidden: You do not have permission to delete this link', code: 'FORBIDDEN' });
       }
 
       await Link.deleteOne({ slug });
@@ -544,14 +548,16 @@ router.delete('/api/links/:slug', authMiddleware, async (req, res) => {
         await firebaseRtdb.deleteLink(link.ownerEmail, slug);
       } catch (fbErr) {}
     } else {
-      const link = memStore.links.find(l => l.slug === slug);
+      const link = memStore.links.find((l) => l.slug === slug);
       if (!link) return res.status(404).json({ error: 'Link not found' });
 
       if (!isAdmin && link.ownerEmail !== email) {
-        return res.status(403).json({ error: 'Forbidden: You do not have permission to delete this link', code: 'FORBIDDEN' });
+        return res
+          .status(403)
+          .json({ error: 'Forbidden: You do not have permission to delete this link', code: 'FORBIDDEN' });
       }
 
-      memStore.links = memStore.links.filter(l => l.slug !== slug);
+      memStore.links = memStore.links.filter((l) => l.slug !== slug);
     }
 
     res.json({ success: true, message: 'Link deleted successfully' });
@@ -573,7 +579,7 @@ const handleRedirect = async (req, res, next) => {
     if (isDbConnected()) {
       link = await Link.findOne({ slug });
     } else {
-      link = memStore.links.find(l => l.slug.toLowerCase() === slug);
+      link = memStore.links.find((l) => l.slug.toLowerCase() === slug);
     }
 
     if (!link) {
@@ -585,7 +591,8 @@ const handleRedirect = async (req, res, next) => {
     if (link && link.dest) {
       // 1. Expiration Checks
       const isTimeExpired = link.expiresAt && new Date() > new Date(link.expiresAt);
-      const isClicksExpired = link.maxClicks && Array.isArray(link.clicks) && link.clicks.filter(c => !c.isBot).length >= link.maxClicks;
+      const isClicksExpired =
+        link.maxClicks && Array.isArray(link.clicks) && link.clicks.filter((c) => !c.isBot).length >= link.maxClicks;
 
       if (isTimeExpired || isClicksExpired) {
         return res.status(410).send(`
@@ -675,20 +682,23 @@ const handleRedirect = async (req, res, next) => {
             link.scans = (link.scans || 0) + 1;
           }
           if (isDbConnected()) {
-            await Link.updateOne({ slug }, {
-              $push: {
-                clicks: {
-                  timestamp: new Date(),
-                  ip: req.ip,
-                  country,
-                  referer,
-                  userAgent,
-                  device,
-                  isBot
-                }
-              },
-              $inc: { scans: req.query.qr === '1' ? 1 : 0 }
-            });
+            await Link.updateOne(
+              { slug },
+              {
+                $push: {
+                  clicks: {
+                    timestamp: new Date(),
+                    ip: req.ip,
+                    country,
+                    referer,
+                    userAgent,
+                    device,
+                    isBot
+                  }
+                },
+                $inc: { scans: req.query.qr === '1' ? 1 : 0 }
+              }
+            );
           }
           firebaseRtdb.recordClick(slug, {
             ip: req.ip,
@@ -710,7 +720,7 @@ const handleRedirect = async (req, res, next) => {
     if (isDbConnected()) {
       bio = await BioPage.findOne({ slug });
     } else {
-      bio = memStore.bios.find(b => b.slug.toLowerCase() === slug);
+      bio = memStore.bios.find((b) => b.slug.toLowerCase() === slug);
     }
 
     if (!bio) {

@@ -27,9 +27,7 @@ router.get('/api/analytics/overview', authMiddleware, async (req, res) => {
       const query = isAdmin ? {} : { ownerEmail: email };
       links = await Link.find(query);
     } else {
-      links = isAdmin
-        ? memStore.links
-        : memStore.links.filter(l => l.ownerEmail === email);
+      links = isAdmin ? memStore.links : memStore.links.filter((l) => l.ownerEmail === email);
     }
 
     let totalClicks = 0;
@@ -41,13 +39,13 @@ router.get('/api/analytics/overview', authMiddleware, async (req, res) => {
     const devicesMap = { Mobile: 0, Desktop: 0, Tablet: 0 };
     const recentClicks = [];
 
-    links.forEach(l => {
-      totalScans += (l.scans || 0);
+    links.forEach((l) => {
+      totalScans += l.scans || 0;
 
       if (Array.isArray(l.clicks)) {
         totalClicks += l.clicks.length;
 
-        l.clicks.forEach(c => {
+        l.clicks.forEach((c) => {
           if (c.isBot) {
             botClicks++;
           } else {
@@ -95,12 +93,14 @@ router.get('/api/analytics/overview', authMiddleware, async (req, res) => {
       uniqueVisitors: uniqueIps.size || totalClicks,
       totalScans,
       deviceBreakdown,
-      topReferrers: topReferrers.length ? topReferrers : [
-        { name: 'Direct / Email / SMS', count: 124, percent: 56 },
-        { name: 'Instagram', count: 54, percent: 24 },
-        { name: 'Google Search', count: 32, percent: 14 },
-        { name: 'YouTube', count: 12, percent: 6 }
-      ],
+      topReferrers: topReferrers.length
+        ? topReferrers
+        : [
+            { name: 'Direct / Email / SMS', count: 124, percent: 56 },
+            { name: 'Instagram', count: 54, percent: 24 },
+            { name: 'Google Search', count: 32, percent: 14 },
+            { name: 'YouTube', count: 12, percent: 6 }
+          ],
       recentClicks: recentClicks.slice(-25).reverse()
     });
   } catch (err) {
@@ -123,9 +123,7 @@ router.get('/api/domains', authMiddleware, async (req, res) => {
       const query = isAdmin ? {} : { ownerEmail: email };
       list = await CustomDomain.find(query);
     } else {
-      list = isAdmin
-        ? memStore.domains
-        : memStore.domains.filter(d => d.ownerEmail === email);
+      list = isAdmin ? memStore.domains : memStore.domains.filter((d) => d.ownerEmail === email);
     }
 
     if (list.length === 0) {
@@ -146,7 +144,10 @@ router.post('/api/domains', authMiddleware, validate(customDomainSchema), async 
   try {
     const email = req.user.email;
     const { domain } = req.body;
-    const cleanDomain = domain.toLowerCase().trim().replace(/^https?:\/\//, '');
+    const cleanDomain = domain
+      .toLowerCase()
+      .trim()
+      .replace(/^https?:\/\//, '');
 
     let item = null;
     if (isDbConnected()) {
@@ -207,14 +208,14 @@ router.delete('/api/domains/:id', authMiddleware, async (req, res) => {
 
       await CustomDomain.deleteOne({ _id: dom._id });
     } else {
-      const dom = memStore.domains.find(d => d.id === id || d.domain === id);
+      const dom = memStore.domains.find((d) => d.id === id || d.domain === id);
       if (!dom) return res.status(404).json({ error: 'Domain not found' });
 
       if (!isAdmin && dom.ownerEmail !== email) {
         return res.status(403).json({ error: 'Forbidden: You do not own this domain', code: 'FORBIDDEN' });
       }
 
-      memStore.domains = memStore.domains.filter(d => d.id !== dom.id);
+      memStore.domains = memStore.domains.filter((d) => d.id !== dom.id);
     }
 
     res.json({ success: true, message: 'Custom domain removed successfully' });

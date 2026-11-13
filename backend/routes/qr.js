@@ -27,9 +27,7 @@ router.get('/api/qrs', authMiddleware, async (req, res) => {
       const query = isAdmin ? {} : { ownerEmail: email };
       list = await QRCode.find(query).sort({ createdAt: -1 });
     } else {
-      list = isAdmin
-        ? memStore.qrs
-        : memStore.qrs.filter(q => q.ownerEmail === email);
+      list = isAdmin ? memStore.qrs : memStore.qrs.filter((q) => q.ownerEmail === email);
     }
 
     if (list.length === 0) {
@@ -102,19 +100,23 @@ router.delete('/api/qrs/:id', authMiddleware, async (req, res) => {
       if (!qr) return res.status(404).json({ error: 'QR Code not found' });
 
       if (!isAdmin && qr.ownerEmail !== email) {
-        return res.status(403).json({ error: 'Forbidden: You do not have permission to delete this QR code', code: 'FORBIDDEN' });
+        return res
+          .status(403)
+          .json({ error: 'Forbidden: You do not have permission to delete this QR code', code: 'FORBIDDEN' });
       }
 
       await QRCode.deleteOne({ _id: id });
     } else {
-      const qr = memStore.qrs.find(q => q.id === id);
+      const qr = memStore.qrs.find((q) => q.id === id);
       if (!qr) return res.status(404).json({ error: 'QR Code not found' });
 
       if (!isAdmin && qr.ownerEmail !== email) {
-        return res.status(403).json({ error: 'Forbidden: You do not have permission to delete this QR code', code: 'FORBIDDEN' });
+        return res
+          .status(403)
+          .json({ error: 'Forbidden: You do not have permission to delete this QR code', code: 'FORBIDDEN' });
       }
 
-      memStore.qrs = memStore.qrs.filter(q => q.id !== id);
+      memStore.qrs = memStore.qrs.filter((q) => q.id !== id);
     }
 
     try {
