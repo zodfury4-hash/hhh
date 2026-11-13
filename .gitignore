@@ -2,17 +2,24 @@
 node_modules/
 dist/
 
+# Logs & Debug Output
+logs/
+*.log
+
 # Environment & Secrets (STRICTLY FORBIDDEN FROM COMMITS)
 .env
 *.env
-*.log
+.env.*
+!.env.example
 
-# Python Cache & Debug Tooling
+# Temporary & Archive Directories
+archive/
+backup/
+scratch/
+
+# Python Cache & Tooling
 __pycache__/
 *.pyc
-scratch/
-archive/scratch/
-archive/tooling/
 .agents/
 .taste-skill/
 skills-lock.json

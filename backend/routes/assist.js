@@ -99,7 +99,7 @@ router.post('/api/ai/ask', async (req, res) => {
 
       const shortUrl = (realShort && realShort !== dest) ? realShort : `${proto}://${host}/${slug}`;
 
-      if (isDbConnected) {
+      if (isDbConnected()) {
 
         const newLink = new Link({
 

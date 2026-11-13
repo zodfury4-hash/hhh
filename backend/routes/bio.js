@@ -40,7 +40,7 @@ router.get('/api/bios', authMiddleware, async (req, res) => {
 
     let list = [];
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       list = await BioPage.find({ ownerEmail: email }).sort({ createdAt: -1 });
 
@@ -84,7 +84,7 @@ router.post('/api/bios', authMiddleware, async (req, res) => {
 
     let page = null;
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       page = await BioPage.findOne({ slug });
 
@@ -222,7 +222,7 @@ router.get(['/m/:slug', '/bio/:slug'], async (req, res) => {
 
     let bio = null;
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       bio = await BioPage.findOne({ slug });
 

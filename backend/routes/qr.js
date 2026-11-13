@@ -40,7 +40,7 @@ router.get('/api/qrs', authMiddleware, async (req, res) => {
 
     let list = [];
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       list = await QRCode.find({ ownerEmail: email }).sort({ createdAt: -1 });
 
@@ -84,7 +84,7 @@ router.post('/api/qrs', authMiddleware, async (req, res) => {
 
     let qr = null;
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       qr = new QRCode({
 
@@ -166,7 +166,7 @@ router.delete('/api/qrs/:id', authMiddleware, async (req, res) => {
 
     const id = req.params.id;
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       await QRCode.deleteOne({ ownerEmail: email, _id: id });
 

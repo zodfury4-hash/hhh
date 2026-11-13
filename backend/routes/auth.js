@@ -64,7 +64,7 @@ router.post('/api/auth/register', async (req, res) => {
 
     const displayName = (name || cleanEmail.split('@')[0]).trim();
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       let existingUser = await User.findOne({ email: cleanEmail });
 
@@ -256,7 +256,7 @@ router.post('/api/auth/verify-email', async (req, res) => {
 
     let user = null;
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       user = await User.findOne({ email: cleanEmail });
 
@@ -336,7 +336,7 @@ router.post('/api/auth/verify-email', async (req, res) => {
 
     user.verificationCodeExpires = null;
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       await user.save();
 
@@ -420,7 +420,7 @@ router.post('/api/auth/resend-code', async (req, res) => {
 
     let user = null;
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       user = await User.findOne({ email: cleanEmail });
 
@@ -450,7 +450,7 @@ router.post('/api/auth/resend-code', async (req, res) => {
 
     user.verificationCodeExpires = verificationCodeExpires;
 
-    if (isDbConnected) await user.save();
+    if (isDbConnected()) await user.save();
 
     const mailRes = await sendVerificationEmail(cleanEmail, user.name, verificationCode);
 
@@ -490,7 +490,7 @@ router.post('/api/auth/forgot-password', async (req, res) => {
 
     let user = null;
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       user = await User.findOne({ email: cleanEmail });
 
@@ -518,7 +518,7 @@ router.post('/api/auth/forgot-password', async (req, res) => {
 
     user.verificationCodeExpires = resetExpires;
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       await user.save();
 
@@ -606,7 +606,7 @@ router.post('/api/auth/reset-password', async (req, res) => {
 
     let user = null;
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       user = await User.findOne({ email: cleanEmail });
 
@@ -658,7 +658,7 @@ router.post('/api/auth/reset-password', async (req, res) => {
 
     user.isVerified = true;
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       await user.save();
 
@@ -796,7 +796,7 @@ router.post('/api/auth/login', async (req, res) => {
 
     let user = null;
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       user = await User.findOne({ email: cleanEmail });
 
@@ -842,7 +842,7 @@ router.post('/api/auth/login', async (req, res) => {
 
         user.verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
 
-        if (isDbConnected) await user.save();
+        if (isDbConnected()) await user.save();
 
         await sendVerificationEmail(cleanEmail, user.name, codeToUse);
 
@@ -914,7 +914,7 @@ router.get('/api/auth/me', authMiddleware, async (req, res) => {
 
     let user = null;
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       user = await User.findOne({ email: req.user.email }).select('-password -verificationCode');
 
@@ -960,7 +960,7 @@ router.post('/api/auth/update-profile', authMiddleware, async (req, res) => {
 
     const { name, city } = req.body;
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       await User.updateOne({ email: req.user.email }, { $set: { name, city } });
 
@@ -998,7 +998,7 @@ router.post('/api/auth/change-password', authMiddleware, async (req, res) => {
 
     let user = null;
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       user = await User.findOne({ email: req.user.email });
 
@@ -1018,7 +1018,7 @@ router.post('/api/auth/change-password', authMiddleware, async (req, res) => {
 
     user.password = await bcrypt.hash(newPassword, salt);
 
-    if (isDbConnected) await user.save();
+    if (isDbConnected()) await user.save();
 
     res.json({ success: true, message: 'Password changed successfully' });
 
@@ -1033,13 +1033,10 @@ router.post('/api/auth/change-password', authMiddleware, async (req, res) => {
 // 8. Public Configuration Endpoint
 
 router.get('/api/config', (req, res) => {
-
   res.json({
-
-    googleClientId: process.env.GOOGLE_CLIENT_ID || ''
-
+    googleClientId: process.env.GOOGLE_CLIENT_ID || '',
+    isDbConnected: isDbConnected()
   });
-
 });
 
 // 9. Real Google Sign-In Authentication Endpoint
@@ -1142,7 +1139,7 @@ router.post('/api/auth/google', async (req, res) => {
 
     let user = null;
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       user = await User.findOne({ email: cleanEmail });
 

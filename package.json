@@ -9,7 +9,7 @@
     "dev": "node server.js",
     "build:html": "node tools/build_html.js",
     "watch:html": "node tools/build_html.js --watch",
-    "test": "node scratch/run_full_qa.js"
+    "test": "node tests/baseline.test.js"
   },
   "repository": {
     "type": "git",

@@ -40,7 +40,7 @@ router.get('/api/analytics/overview', authMiddleware, async (req, res) => {
 
     let links = [];
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       links = await Link.find({ ownerEmail: email });
 
@@ -196,7 +196,7 @@ router.get('/api/domains', authMiddleware, async (req, res) => {
 
     let list = [];
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       list = await CustomDomain.find({ ownerEmail: email });
 
@@ -242,7 +242,7 @@ router.post('/api/domains', authMiddleware, async (req, res) => {
 
     let item = null;
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       item = new CustomDomain({
 

@@ -1,20 +1,18 @@
 /**
- * Firebase Realtime Database Service for HEA Link
- * Project: healinks-4ea4d
- * Database: https://healinks-4ea4d-default-rtdb.firebaseio.com
+ * Firebase Realtime Database Service - ISOLATED & DEPRECATED
  *
- * Stores all user data partitioned strictly by user email key:
- *   /users/<sanitized_email>/profile
- *   /users/<sanitized_email>/links/<slug>
- *   /users/<sanitized_email>/qrs/<id>
- *   /users/<sanitized_email>/bios/<slug>
- *   /users/<sanitized_email>/domains/<domainKey>
+ * PRIMARY DATABASE: MongoDB (via Mongoose models: User, Link, QRCode, BioPage, CustomDomain).
+ * All production user data, links, QR codes, bio pages, custom domains, and analytics
+ * are stored in MongoDB as the single source of truth.
  *
- * Fast O(1) global lookup for redirects:
- *   /slugs/<slug>
- *   /bios/<slug>
+ * Firebase Realtime Database is ISOLATED and disabled by default (ENABLE_FIREBASE_RTDB=false).
+ * No unauthenticated or redundant network requests are sent to Firebase RTDB during normal operations.
+ *
+ * NOTE: The client-side Firebase SDK (`js/auth/firebase-config.js`) is retained strictly and
+ * exclusively for browser Google Sign-In popup authentication (`firebase.auth.GoogleAuthProvider`).
  */
 
+const ENABLE_RTDB = process.env.ENABLE_FIREBASE_RTDB === 'true';
 const RTDB_BASE = process.env.FIREBASE_DATABASE_URL || 'https://healinks-4ea4d-default-rtdb.firebaseio.com';
 
 function emailToKey(email) {
@@ -28,10 +26,14 @@ function keyToEmail(key) {
 }
 
 async function rtdbFetch(endpoint, options = {}) {
+  if (!ENABLE_RTDB) {
+    return null;
+  }
+
   const url = `${RTDB_BASE}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}.json`;
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 6000);
+    const timeout = setTimeout(() => controller.abort(), 4000);
     const res = await fetch(url, {
       ...options,
       signal: controller.signal,
@@ -42,12 +44,10 @@ async function rtdbFetch(endpoint, options = {}) {
     });
     clearTimeout(timeout);
     if (!res.ok) {
-      console.warn(`[Firebase RTDB] ${options.method || 'GET'} ${endpoint} failed with ${res.status}`);
       return null;
     }
     return await res.json();
   } catch (err) {
-    console.warn(`[Firebase RTDB Error] ${options.method || 'GET'} ${endpoint}:`, err.message);
     return null;
   }
 }
@@ -56,20 +56,20 @@ const firebaseRtdb = {
   emailToKey,
   keyToEmail,
   databaseUrl: RTDB_BASE,
+  isEnabled: ENABLE_RTDB,
 
   // --- USERS & AUTH ---
   async getUser(email) {
-    if (!email) return null;
+    if (!ENABLE_RTDB || !email) return null;
     return await rtdbFetch(`/users/${emailToKey(email)}/profile`);
   },
 
   async getUserByEmailOrUsername(identifier) {
-    if (!identifier) return null;
+    if (!ENABLE_RTDB || !identifier) return null;
     const clean = identifier.trim().toLowerCase();
     if (clean.includes('@')) {
       return await this.getUser(clean);
     }
-    // Search across users
     const allUsers = await rtdbFetch('/users') || {};
     for (const k of Object.keys(allUsers)) {
       const u = allUsers[k]?.profile;
@@ -79,7 +79,7 @@ const firebaseRtdb = {
   },
 
   async saveUser(email, profileData) {
-    if (!email) return null;
+    if (!ENABLE_RTDB || !email) return null;
     const key = emailToKey(email);
     const existing = await this.getUser(email) || {};
     const updated = {
@@ -98,7 +98,7 @@ const firebaseRtdb = {
 
   // --- SHORT LINKS ---
   async getUserLinks(email) {
-    if (!email) return [];
+    if (!ENABLE_RTDB || !email) return [];
     const key = emailToKey(email);
     const data = await rtdbFetch(`/users/${key}/links`);
     if (!data) return [];
@@ -106,6 +106,7 @@ const firebaseRtdb = {
   },
 
   async saveLink(email, linkObj) {
+    if (!ENABLE_RTDB) return linkObj;
     const key = emailToKey(email);
     const slug = linkObj.slug;
     const cleanLink = {
@@ -117,13 +118,11 @@ const firebaseRtdb = {
       scans: linkObj.scans || 0
     };
 
-    // Save in user namespace
     await rtdbFetch(`/users/${key}/links/${slug}`, {
       method: 'PUT',
       body: JSON.stringify(cleanLink)
     });
 
-    // Save in global fast lookup table
     await rtdbFetch(`/slugs/${slug}`, {
       method: 'PUT',
       body: JSON.stringify({
@@ -142,12 +141,12 @@ const firebaseRtdb = {
   },
 
   async getLinkBySlug(slug) {
-    if (!slug) return null;
+    if (!ENABLE_RTDB || !slug) return null;
     return await rtdbFetch(`/slugs/${slug}`);
   },
 
   async deleteLink(email, slug) {
-    if (!slug) return false;
+    if (!ENABLE_RTDB || !slug) return true;
     const key = emailToKey(email);
     await Promise.all([
       rtdbFetch(`/users/${key}/links/${slug}`, { method: 'DELETE' }),
@@ -157,41 +156,22 @@ const firebaseRtdb = {
   },
 
   async recordClick(slug, meta = {}) {
-    if (!slug) return;
-    const slugData = await this.getLinkBySlug(slug);
-    if (!slugData) return;
-
+    if (!ENABLE_RTDB || !slug) return;
     const clickRecord = {
       timestamp: new Date().toISOString(),
       referer: meta.referer || 'direct',
       ip: meta.ip || '127.0.0.1',
       userAgent: meta.userAgent || ''
     };
-
-    // Append to clicks
     await rtdbFetch(`/clicks/${slug}`, {
       method: 'POST',
       body: JSON.stringify(clickRecord)
     });
-
-    // Update user's link clicks if ownerEmail is known
-    if (slugData.ownerEmail && slugData.ownerEmail !== 'guest') {
-      const key = emailToKey(slugData.ownerEmail);
-      const userLink = await rtdbFetch(`/users/${key}/links/${slug}`) || {};
-      const newClicks = Array.isArray(userLink.clicks) ? [...userLink.clicks, clickRecord] : [clickRecord];
-      await rtdbFetch(`/users/${key}/links/${slug}`, {
-        method: 'PATCH',
-        body: JSON.stringify({
-          clicks: newClicks,
-          clickCount: newClicks.length
-        })
-      });
-    }
   },
 
   // --- QR CODES ---
   async getUserQrs(email) {
-    if (!email) return [];
+    if (!ENABLE_RTDB || !email) return [];
     const key = emailToKey(email);
     const data = await rtdbFetch(`/users/${key}/qrs`);
     if (!data) return [];
@@ -199,6 +179,7 @@ const firebaseRtdb = {
   },
 
   async saveQr(email, qrObj) {
+    if (!ENABLE_RTDB) return qrObj;
     const key = emailToKey(email);
     const id = qrObj.id || 'qr_' + Date.now();
     const cleanQr = {
@@ -215,7 +196,7 @@ const firebaseRtdb = {
   },
 
   async deleteQr(email, id) {
-    if (!id) return false;
+    if (!ENABLE_RTDB || !id) return true;
     const key = emailToKey(email);
     await rtdbFetch(`/users/${key}/qrs/${id}`, { method: 'DELETE' });
     return true;
@@ -223,7 +204,7 @@ const firebaseRtdb = {
 
   // --- BIO PAGES ---
   async getUserBios(email) {
-    if (!email) return [];
+    if (!ENABLE_RTDB || !email) return [];
     const key = emailToKey(email);
     const data = await rtdbFetch(`/users/${key}/bios`);
     if (!data) return [];
@@ -231,6 +212,7 @@ const firebaseRtdb = {
   },
 
   async saveBio(email, bioObj) {
+    if (!ENABLE_RTDB) return bioObj;
     const key = emailToKey(email);
     const slug = bioObj.slug;
     const cleanBio = {
@@ -238,7 +220,6 @@ const firebaseRtdb = {
       ownerEmail: email ? email.trim().toLowerCase() : 'guest',
       createdAt: bioObj.createdAt || new Date().toISOString()
     };
-
     await rtdbFetch(`/users/${key}/bios/${slug}`, {
       method: 'PUT',
       body: JSON.stringify(cleanBio)
@@ -251,13 +232,13 @@ const firebaseRtdb = {
   },
 
   async getBioBySlug(slug) {
-    if (!slug) return null;
+    if (!ENABLE_RTDB || !slug) return null;
     return await rtdbFetch(`/bios/${slug}`);
   },
 
   // --- CUSTOM DOMAINS ---
   async getUserDomains(email) {
-    if (!email) return [];
+    if (!ENABLE_RTDB || !email) return [];
     const key = emailToKey(email);
     const data = await rtdbFetch(`/users/${key}/domains`);
     if (!data) return [];
@@ -265,6 +246,15 @@ const firebaseRtdb = {
   },
 
   async saveDomain(email, domainStr) {
+    if (!ENABLE_RTDB) {
+      return {
+        domain: domainStr.toLowerCase(),
+        ownerEmail: email ? email.trim().toLowerCase() : 'guest',
+        status: 'active',
+        targetCname: 'cname.healink.store',
+        createdAt: new Date().toISOString()
+      };
+    }
     const key = emailToKey(email);
     const domKey = domainStr.toLowerCase().replace(/[\.\$\#\[\]\/]/g, '_');
     const domainObj = {

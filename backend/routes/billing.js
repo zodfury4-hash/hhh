@@ -57,15 +57,12 @@ if (isStripeConfigured) {
 // 1. Get Public Stripe Configuration
 
 router.get('/api/stripe/config', (req, res) => {
-
+  const isReady = isStripeConfigured && !!stripeClient;
   res.json({
-
-    configured: isStripeConfigured && !!stripeClient,
-
+    configured: isReady,
+    isConfigured: isReady,
     publishableKey: isStripeConfigured ? (process.env.STRIPE_PUBLISHABLE_KEY || '') : ''
-
   });
-
 });
 
 // 2. Create Real Stripe Checkout Session

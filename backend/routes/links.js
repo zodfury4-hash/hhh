@@ -197,7 +197,7 @@ router.post('/api/shorten-online', async (req, res) => {
     const cleanShort = (realShort && realShort !== dest) ? realShort : localShort;
 
     // Immediately cache in memStore & DB so GET /:slug works without delay
-    if (isDbConnected) {
+    if (isDbConnected()) {
       try {
         const clash = await Link.findOne({ slug: finalSlug });
         if (!clash) {
@@ -280,7 +280,7 @@ router.post('/api/shorten', optionalAuth, async (req, res) => {
 
     let link = null;
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       const clash = await Link.findOne({ slug: finalSlug });
 
@@ -408,7 +408,7 @@ router.get('/api/links', authMiddleware, async (req, res) => {
 
     let list = [];
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       list = await Link.find({ ownerEmail: email }).sort({ createdAt: -1 });
 
@@ -499,7 +499,7 @@ router.post('/api/links', authMiddleware, async (req, res) => {
     const isLocalhost = req.get('host') && (req.get('host').includes('localhost') || req.get('host').includes('127.0.0.1'));
     if (!isMasterUser && !req.user.isPro && !isLocalhost) {
       let count = 0;
-      if (isDbConnected) {
+      if (isDbConnected()) {
         count = await Link.countDocuments({ ownerEmail: email.toLowerCase() });
       } else {
         count = memStore.links.filter(l => l.ownerEmail === email.toLowerCase()).length;
@@ -541,7 +541,7 @@ router.post('/api/links', authMiddleware, async (req, res) => {
 
     let newLink = null;
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       const clash = await Link.findOne({ slug: finalSlug });
 
@@ -722,7 +722,7 @@ router.post('/api/links/bulk', authMiddleware, async (req, res) => {
 
       const cleanUrl = (realShort && realShort !== u) ? realShort : `${proto}://${host}/${slug}`;
 
-      if (isDbConnected) {
+      if (isDbConnected()) {
 
         const item = new Link({
 
@@ -814,7 +814,7 @@ router.put('/api/links/:slug', authMiddleware, async (req, res) => {
 
     const { dest, title, tag } = req.body;
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       const link = await Link.findOne({ ownerEmail: email, slug });
 
@@ -876,7 +876,7 @@ router.delete('/api/links/:slug', authMiddleware, async (req, res) => {
 
     const slug = req.params.slug;
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       await Link.deleteOne({ ownerEmail: email, slug });
 
@@ -925,7 +925,7 @@ const handleRedirect = async (req, res, next) => {
 
     let link = null;
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       link = await Link.findOne({ slug });
       if (!link) {
@@ -1118,7 +1118,7 @@ const handleRedirect = async (req, res, next) => {
 
       }
 
-      if (isDbConnected) {
+      if (isDbConnected()) {
 
         await link.save();
 
@@ -1152,7 +1152,7 @@ const handleRedirect = async (req, res, next) => {
 
     let bio = null;
 
-    if (isDbConnected) {
+    if (isDbConnected()) {
 
       bio = await BioPage.findOne({ slug });
 
