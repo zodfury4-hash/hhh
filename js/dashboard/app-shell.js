@@ -39,16 +39,12 @@
 
   // User state matching authenticated session
 
-  function isVipEmail(email) {
-
-    if (!email) return false;
-
-    const clean = email.toLowerCase().trim();
-
-    return clean === 'furyzod02@gmail.com' ||
-           clean === 'healink@gmail.com' ||
-           (typeof window.isVipAdminEmail === 'function' && window.isVipAdminEmail(clean));
-
+  function isVipEmail(userOrEmail) {
+    if (!userOrEmail) return false;
+    if (typeof userOrEmail === 'object') {
+      return userOrEmail.role === 'admin' || !!userOrEmail.isAdmin;
+    }
+    return appUser && (appUser.role === 'admin' || !!appUser.isAdmin);
   }
 
   let appUser = {

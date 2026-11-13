@@ -39,16 +39,12 @@
 
   // User state matching authenticated session
 
-  function isVipEmail(email) {
-
-    if (!email) return false;
-
-    const clean = email.toLowerCase().trim();
-
-    return clean === 'furyzod02@gmail.com' ||
-           clean === 'healink@gmail.com' ||
-           (typeof window.isVipAdminEmail === 'function' && window.isVipAdminEmail(clean));
-
+  function isVipEmail(userOrEmail) {
+    if (!userOrEmail) return false;
+    if (typeof userOrEmail === 'object') {
+      return userOrEmail.role === 'admin' || !!userOrEmail.isAdmin;
+    }
+    return appUser && (appUser.role === 'admin' || !!appUser.isAdmin);
   }
 
   let appUser = {
@@ -145,6 +141,7 @@
       }
 
       const parsed = JSON.parse(raw);
+      if (parsed) setAppUser(parsed);
 
       return !!(parsed && parsed.isVerified);
 
@@ -539,13 +536,10 @@
       '.bento-activity-card',
       '.dash-white-card',
       '.home-create-card',
-      '.create-link-card',
       '.qr-card-item',
       '.page-row-card',
       '.campaigns-hero-wrap',
-      '.settings-center-card',
       '.integration-card-white',
-      '.links-filter-bar',
       '.analytics-metric-box',
       '.stat-tile',
       '.links-list-item'
@@ -694,7 +688,11 @@
     activeTab = tab;
 
     // Update right sidebar drawer based on active tab
-    updateDrawerForTab(tab);
+    try {
+      updateDrawerForTab(tab);
+    } catch (err) {
+      console.warn('Error in updateDrawerForTab:', err);
+    }
 
     $$('#sidebarNav .sidebar-nav-item').forEach(item => {
 
@@ -729,15 +727,21 @@
         pages: 'Bio Pages',
         analytics: 'Analytics',
         campaigns: 'Campaigns',
+        domains: 'Custom Domains',
         'custom-domains': 'Custom Domains',
         integrations: 'Integrations',
         settings: 'Settings',
+        assist: 'HEA Assist AI',
+        notifications: 'Notifications',
         resources: 'Help & Resources'
       };
       topTitle.textContent = titles[tab] || 'Dashboard';
     }
     if (topSubtitle) {
-      if (tab === 'home') {
+      if (tab === 'notifications') {
+        topSubtitle.textContent = 'Stay updated with link clicks, domain verifications, and system alerts';
+        topSubtitle.style.display = 'block';
+      } else if (tab === 'home') {
         topSubtitle.textContent = 'Track, manage and grow your links';
         topSubtitle.style.display = 'block';
       } else {
@@ -858,20 +862,28 @@
 
     try { initDashboard3DMotion(); } catch (e) {}
 
-    // Phase 4: Dashboard Page Switch (Fade + 8px Rise in 250ms, opacity always ends at 1)
-    const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!isReducedMotion && pane) {
-      pane.classList.remove('page-switching');
-      void pane.offsetWidth; // force reflow
-      pane.classList.add('page-switching');
-      setTimeout(() => {
+    // Phase 4: Dashboard Page Switch (No animation for settings page as requested)
+    if (tab === 'settings') {
+      if (pane) {
         pane.classList.remove('page-switching');
         pane.style.opacity = '1';
         pane.style.transform = 'none';
-      }, 250);
-    } else if (pane) {
-      pane.style.opacity = '1';
-      pane.style.transform = 'none';
+      }
+    } else {
+      const isReducedMotion = (typeof window.matchMedia === 'function') && window.matchMedia('(prefers-reduced-motion: reduce)')?.matches;
+      if (!isReducedMotion && pane) {
+        pane.classList.remove('page-switching');
+        void pane.offsetWidth; // force reflow
+        pane.classList.add('page-switching');
+        setTimeout(() => {
+          pane.classList.remove('page-switching');
+          pane.style.opacity = '1';
+          pane.style.transform = 'none';
+        }, 250);
+      } else if (pane) {
+        pane.style.opacity = '1';
+        pane.style.transform = 'none';
+      }
     }
 
     // Sticky Header Shadow after 8px scroll
@@ -999,7 +1011,8 @@
               <div class="kpi-meta">
                 <span class="kpi-label">Top Performer</span>
                 <div class="kpi-value-row">
-                  <span class="kpi-value">2.8K Clicks</span>
+                  <span class="kpi-value">2.8K</span>
+                  <span class="kpi-trend">↑ +24%</span>
                 </div>
               </div>
             </div>
@@ -2029,23 +2042,33 @@
         </div>
       </div>
 
-      <div class="links-filter-bar" style="display:flex;gap:12px;align-items:center;margin-bottom:24px;flex-wrap:wrap;">
+      <div class="links-filter-bar">
+        <div class="links-filter-row">
+          <div class="dash-search-box">
+            <svg class="search-icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" class="dash-search-input" id="linksSearchInput" placeholder="Search links by title, slug, tag, or destination..." autocomplete="off">
+          </div>
 
-        <div class="dash-search-box">
-          <svg class="search-icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <input type="text" class="dash-search-input" id="linksSearchInput" placeholder="Search links by title, slug, tag, or destination..." autocomplete="off">
+          <select id="linksTagSelect" class="dash-filter-select">
+            <option value="">All tags</option>
+            <option value="Website">Website</option>
+            <option value="Social">Social</option>
+            <option value="Campaign">Campaign</option>
+          </select>
         </div>
 
-        <select id="linksTagSelect" class="dash-filter-select">
-          <option value="">All tags</option>
-          <option value="Website">Website</option>
-          <option value="Social">Social</option>
-          <option value="Campaign">Campaign</option>
-        </select>
-
+        <div class="links-create-row">
+          <button class="header-primary-btn" onclick="window.appShell.navigate('create-link')" style="background:#0A6CFF;color:#ffffff !important;border:none;border-radius:99px;padding:10px 24px;font-size:13.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;box-shadow:0 4px 14px rgba(10,108,255,0.25);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span style="color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;font-weight:700;">Create link</span>
+          </button>
+        </div>
       </div>
 
       <div id="linksListContainer">
@@ -3918,7 +3941,8 @@
 
           <!-- Template Filter Pills (Matching Bitly category filters) -->
 
-          <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:12px;margin:18px 0 20px;">
+          <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:12px;margin:0 0 20px;align-items:center;">
+            ${pages.length > 0 ? `<button class="sso-btn" style="width:auto;padding:7px 16px;white-space:nowrap;font-size:13px;margin-right:8px;border-radius:99px;" id="btnReturnToPageList">← Back to My Pages</button>` : ''}
 
             ${categories.map(cat => `
 
@@ -4851,27 +4875,14 @@
 
     container.innerHTML = `
 
-      <div class="view-header">
-        <div class="header-title-col">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <h2>Live Analytics Overview</h2>
-            <span class="view-header-badge" style="background:rgba(0,180,255,0.1);color:#0284c7;border:1px solid rgba(0,180,255,0.25);">
-              <span>📊</span> Live Telemetry
-            </span>
-          </div>
-          <p class="view-subtitle">
-            Real-time click tracking, visitor velocity, geographic distribution, and device breakdown.
-          </p>
+      <div class="analytics-actions-bar" style="display:none !important;">
+        <div class="assist-status-pill" style="padding:6px 14px;">
+          <span class="status-pulse-dot"></span>
+          <span>Real-time Sync</span>
         </div>
-        <div class="header-actions-col" style="display:flex;align-items:center;gap:12px;">
-          <div class="assist-status-pill" style="padding:6px 14px;">
-            <span class="status-pulse-dot"></span>
-            <span>Real-time Sync</span>
-          </div>
-          <button class="header-secondary-btn" id="btnExportCSV" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:12px;border:1px solid #cbd5e1;background:#ffffff;color:#0b132b;font-size:13px;font-weight:700;cursor:pointer;">
-            <span>📥</span> Export CSV Report
-          </button>
-        </div>
+        <button class="header-secondary-btn" id="btnExportCSV" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:12px;border:1px solid #cbd5e1;background:#ffffff;color:#0b132b;font-size:13px;font-weight:700;cursor:pointer;">
+          <span>📥</span> Export CSV Report
+        </button>
       </div>
 
       <!-- 3 Metrics Top Cards -->
@@ -5363,7 +5374,7 @@
 
         <div style="margin-bottom:24px;">
 
-          <h2 style="font-size:28px;font-weight:800;color:#0b132b;margin:0 0 16px;">Brand your links with a custom domain</h2>
+          <h2 class="domain-view-title" style="display:none !important;font-size:28px;font-weight:800;color:#0b132b;margin:0 0 16px;">Brand your links with a custom domain</h2>
 
           <!-- Tabs matching Frame 22 -->
 
@@ -5407,7 +5418,7 @@
 
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
 
-              <span style="font-size:14px;color:#94a3b8;font-weight:600;">Describe your idea, product or service</span>
+              <span style="font-size:14px;color:#0b132b;font-weight:700;">Describe your idea, product or service</span>
 
               <span style="font-size:12px;color:#64748b;" id="domainCharCount">0/200</span>
 
@@ -5531,25 +5542,25 @@
 
                   ${suggestions.map((dom, i) => `
 
-                    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:${i === suggestions.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.06)'};">
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:${i === suggestions.length - 1 ? 'none' : '1px solid #f1f5f9'};">
 
                       <div style="display:flex;align-items:center;gap:12px;">
 
-                        <span style="font-size:18px;color:#38bdf8;">🌐</span>
+                        <span style="font-size:18px;color:#0070f3;">🌐</span>
 
                         <div>
 
-                          <b style="color:#ffffff;font-size:15px;font-family:monospace;">${dom}</b>
+                          <b style="color:#0b132b;font-size:15.5px;font-weight:800;letter-spacing:-0.01em;">${dom}</b>
 
-                          <span style="font-size:11px;color:#10b981;margin-left:8px;background:rgba(16,185,129,0.12);padding:2px 6px;border-radius:4px;font-weight:700;">Available</span>
+                          <span style="font-size:11px;color:#059669;margin-left:8px;background:rgba(16,185,129,0.12);padding:2px 7px;border-radius:4px;font-weight:700;">Available</span>
 
                         </div>
 
                       </div>
 
-                      <button class="sso-btn btn-claim-domain" data-domain="${dom}" style="width:auto;padding:8px 18px;font-size:13px;color:#38bdf8;border-color:rgba(56,189,248,0.3);font-weight:700;">
+                      <button class="sso-btn btn-claim-domain" data-domain="${dom}" style="width:auto;padding:8px 18px;font-size:13px;color:#0070f3;border-color:rgba(0,112,243,0.3);font-weight:700;background:#ffffff;">
 
-                        Upgrade to claim
+                        ${appUser.isPro ? 'Connect domain' : 'Upgrade to claim'}
 
                       </button>
 
@@ -5573,11 +5584,25 @@
 
                   const dName = btn.dataset.domain;
 
-                  window.appShell.toast(`Selected domain: ${dName}. Upgrading to claim...`);
+                  if (appUser.isPro) {
 
-                  if (typeof window.openCheckoutModal === 'function') {
+                    localStorage.setItem('hea_custom_domain', dName);
 
-                    window.openCheckoutModal('pro');
+                    window.appShell.toast(`Domain ${dName} connected to your workspace!`);
+
+                    domainTab = 'search';
+
+                    renderView();
+
+                  } else {
+
+                    window.appShell.toast(`Selected domain: ${dName}. Upgrading to claim...`);
+
+                    if (typeof window.openCheckoutModal === 'function') {
+
+                      window.openCheckoutModal('pro');
+
+                    }
 
                   }
 
@@ -5603,9 +5628,9 @@
 
           <div class="dash-white-card" style="margin-bottom:24px;padding:24px;">
 
-            <h3 style="color:#ffffff;margin-top:0;font-size:18px;">🌐 Connect a Custom Domain</h3>
+            <h3 style="color:#0b132b;margin-top:0;font-size:18px;font-weight:700;">🌐 Connect a Custom Domain</h3>
 
-            <p style="color:#94a3b8;font-size:13px;margin-bottom:16px;">Point a CNAME record from your DNS registrar (GoDaddy, Cloudflare, Namecheap) to <code style="color:#38bdf8;">cname.healink.store</code>.</p>
+            <p style="color:#64748b;font-size:13px;margin-bottom:16px;">Point a CNAME record from your DNS registrar (GoDaddy, Cloudflare, Namecheap) to <code style="color:#0070f3;background:rgba(0,112,243,0.08);padding:2px 6px;border-radius:4px;font-weight:600;">cname.healink.store</code>.</p>
 
             <div style="display:flex;gap:12px;max-width:540px;">
 
@@ -5625,17 +5650,17 @@
 
           <div class="dash-white-card" style="padding:20px;">
 
-            <h4 style="font-size:16px;font-weight:800;color:#ffffff;margin:0 0 16px;">Configured Domains</h4>
+            <h4 style="font-size:16px;font-weight:800;color:#0b132b;margin:0 0 16px;">Configured Domains</h4>
 
             <div style="display:flex;flex-direction:column;gap:12px;">
 
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;">
 
                 <div>
 
-                  <b style="color:#ffffff;font-size:15px;">healink.store</b>
+                  <b style="color:#0b132b;font-size:15px;font-weight:700;">healink.store</b>
 
-                  <div style="font-size:12px;color:#94a3b8;">Default Platform Domain · SSL Active</div>
+                  <div style="font-size:12px;color:#64748b;">Default Platform Domain · SSL Active</div>
 
                 </div>
 
@@ -5645,13 +5670,13 @@
 
               ${savedDomain ? `
 
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;">
 
                   <div>
 
-                    <b style="color:#38bdf8;font-size:15px;" id="dispCustomDomain">${savedDomain}</b>
+                    <b style="color:#0070f3;font-size:15px;font-weight:700;" id="dispCustomDomain">${savedDomain}</b>
 
-                    <div style="font-size:12px;color:#94a3b8;">CNAME: cname.healink.store · Verified</div>
+                    <div style="font-size:12px;color:#64748b;">CNAME: cname.healink.store · Verified</div>
 
                   </div>
 
@@ -5667,7 +5692,7 @@
 
               ` : `
 
-                <div style="text-align:center;padding:24px 16px;color:#94a3b8;font-size:13px;border:1px dashed rgba(255,255,255,0.06);border-radius:8px;">
+                <div style="text-align:center;padding:24px 16px;color:#64748b;font-size:13px;border:1px dashed #cbd5e1;border-radius:8px;background:#f8fafc;">
 
                   No custom domains connected yet. Enter your branded subdomain above to connect.
 
@@ -5837,9 +5862,9 @@
 
             <div style="font-size:28px;margin-bottom:12px;">${a.icon}</div>
 
-            <h4 style="font-size:16px;font-weight:700;color:#ffffff;margin:0 0 6px;">${a.name}</h4>
+            <h4 style="font-size:16px;font-weight:700;color:#0b132b;margin:0 0 6px;">${a.name}</h4>
 
-            <p style="color:#94a3b8;font-size:13px;line-height:1.4;margin:0;">${a.desc}</p>
+            <p style="color:#64748b;font-size:13px;line-height:1.4;margin:0;">${a.desc}</p>
 
           </div>
 
@@ -5863,7 +5888,8 @@
 
     // Drag handle touch dismiss for mobile bottom sheet (< 768px)
     const dragHandle = $('.drawer-drag-handle');
-    if (dragHandle && drawer) {
+    if (dragHandle && drawerEl && !dragHandle._bound) {
+      dragHandle._bound = true;
       let startY = 0;
       dragHandle.addEventListener('touchstart', (e) => {
         startY = e.touches[0].clientY;
@@ -5871,7 +5897,7 @@
       dragHandle.addEventListener('touchmove', (e) => {
         const deltaY = e.touches[0].clientY - startY;
         if (deltaY > 60) {
-          drawer.hidden = true;
+          drawerEl.hidden = true;
           document.body.style.overflow = '';
         }
       }, { passive: true });
@@ -5882,14 +5908,21 @@
       if (drawerForm) drawerForm.style.display = 'none';
       if (drawerSettings) drawerSettings.hidden = true;
       if (drawerEl) drawerEl.hidden = true; // Settings has clean 2-column in-page layout
-    } else if (tab === 'assist') {
-      if (drawerAi) drawerAi.hidden = false;
-      if (drawerForm) drawerForm.style.display = '';
+    } else if (tab === 'notifications') {
+      if (drawerAi) drawerAi.hidden = true;
+      if (drawerForm) drawerForm.style.display = 'none';
       if (drawerSettings) drawerSettings.hidden = true;
-      if (drawerTitle) drawerTitle.innerHTML = '<span>✨</span> HEA Assist';
-      if (drawerClose) drawerClose.style.display = '';
       if (drawerEl) {
-        drawerEl.hidden = false;
+        drawerEl.hidden = true;
+        document.body.style.overflow = '';
+      }
+    } else if (tab === 'assist') {
+      if (drawerAi) drawerAi.hidden = true;
+      if (drawerForm) drawerForm.style.display = 'none';
+      if (drawerSettings) drawerSettings.hidden = true;
+      if (drawerEl) {
+        drawerEl.hidden = true;
+        document.body.style.overflow = '';
       }
     } else {
       if (drawerAi) drawerAi.hidden = false;
@@ -5932,7 +5965,7 @@
         const targetEl = document.getElementById(targetId);
         const pane = document.getElementById('appMainPane');
         if (targetEl && pane) {
-          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          targetEl.scrollIntoView({ behavior: 'auto', block: 'start' });
         }
       };
     });
@@ -6258,6 +6291,7 @@
           </div>
         </div>
       </div>
+    </div>
     `;
 
     const passBtn = $('#btnUpdatePass');
@@ -6306,7 +6340,7 @@
         $$('.settings-subnav-aside .settings-nav-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         const targetEl = document.getElementById(targetId);
-        if (targetEl) targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (targetEl) targetEl.scrollIntoView({ behavior: 'auto', block: 'start' });
       };
     });
 
@@ -6326,7 +6360,7 @@
           'sessions': 'setSectionSessions'
         };
         const targetEl = document.getElementById(map[nav] || 'setSectionProfile');
-        if (targetEl) targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (targetEl) targetEl.scrollIntoView({ behavior: 'auto', block: 'start' });
       };
     });
 
@@ -6642,6 +6676,258 @@
   }
 
 
+  
+  // ---------------- 12. NOTIFICATIONS CENTER VIEW ---------------- //
+  function renderNotifications(container) {
+    const NOTIF_STORAGE_KEY = 'hea_user_notifications';
+
+    const initialList = [
+      {
+        id: 'notif_1',
+        category: 'links',
+        icon: '🔥',
+        iconBg: '#e0f2fe',
+        iconColor: '#0A6CFF',
+        title: 'Traffic Surge: +10,480 Clicks Today',
+        desc: 'Your short link <b>healink.store/summer-deal</b> went viral across TikTok and Instagram Reels.',
+        time: '14 minutes ago',
+        unread: true,
+        actionTab: 'analytics',
+        actionLabel: 'View Analytics Report →'
+      },
+      {
+        id: 'notif_2',
+        category: 'system',
+        icon: '🌐',
+        iconBg: '#dcfce7',
+        iconColor: '#10b981',
+        title: 'Custom Domain SSL Verified: links.brand.com',
+        desc: 'DNS records validated with Cloudflare Edge. Branded short links are now live and serving visitor traffic.',
+        time: '2 hours ago',
+        unread: true,
+        actionTab: 'domains',
+        actionLabel: 'Manage Branded Domains →'
+      },
+      {
+        id: 'notif_3',
+        category: 'assist',
+        icon: '✨',
+        iconBg: '#f3e8ff',
+        iconColor: '#7928ca',
+        title: 'HEA Assist AI Recommendation',
+        desc: '42% of traffic to your latest campaign has untracked UTM parameters. Generate tags now for accurate analytics.',
+        time: '5 hours ago',
+        unread: true,
+        actionTab: 'assist',
+        actionLabel: 'Open HEA Assist Studio →'
+      },
+      {
+        id: 'notif_4',
+        category: 'system',
+        icon: '🛡️',
+        iconBg: '#e0f2fe',
+        iconColor: '#0284c7',
+        title: 'New Dashboard Sign-in Detected',
+        desc: 'A successful login was registered from Windows (Chrome) in Karachi, Pakistan. If this was you, no action is needed.',
+        time: 'Yesterday at 8:42 PM',
+        unread: false,
+        actionTab: 'settings',
+        actionLabel: 'Review Account Security →'
+      },
+      {
+        id: 'notif_5',
+        category: 'billing',
+        icon: '👑',
+        iconBg: '#fef3c7',
+        iconColor: '#d97706',
+        title: 'HEA Link Core PRO Active',
+        desc: 'Your subscription is active with unlimited QR styling, 100,000 links/mo, and 12 link-in-bio mobile templates.',
+        time: '3 days ago',
+        unread: false,
+        actionTab: 'settings',
+        actionLabel: 'View Plan & Invoices →'
+      }
+    ];
+
+    let items = [];
+    try {
+      const stored = localStorage.getItem(NOTIF_STORAGE_KEY);
+      items = stored ? JSON.parse(stored) : initialList;
+    } catch (e) {
+      items = initialList;
+    }
+
+    let activeFilter = 'all';
+
+    function updateBadge() {
+      const unreadCount = items.filter(n => n.unread).length;
+      const badges = document.querySelectorAll('.topbar-notif-badge, #topbarNotifBadge');
+      badges.forEach(b => {
+        b.textContent = unreadCount;
+        b.style.display = unreadCount > 0 ? '' : 'none';
+      });
+      const inPageBadge = document.getElementById('notifCountBadge');
+      if (inPageBadge) {
+        inPageBadge.textContent = unreadCount + ' New';
+        inPageBadge.style.display = unreadCount > 0 ? '' : 'none';
+      }
+    }
+
+    function save() {
+      try {
+        localStorage.setItem(NOTIF_STORAGE_KEY, JSON.stringify(items));
+      } catch (e) {}
+      updateBadge();
+    }
+
+    function renderList() {
+      const listContainer = document.getElementById('notifItemsList');
+      if (!listContainer) return;
+
+      let filtered = items;
+      if (activeFilter === 'unread') {
+        filtered = items.filter(n => n.unread);
+      } else if (activeFilter === 'links') {
+        filtered = items.filter(n => n.category === 'links');
+      } else if (activeFilter === 'system') {
+        filtered = items.filter(n => n.category === 'system' || n.category === 'billing');
+      }
+
+      if (filtered.length === 0) {
+        listContainer.innerHTML = `
+          <div class="notif-empty-state">
+            <div class="notif-empty-icon">🔔</div>
+            <h3 style="font-size:16px;color:#0f172a;margin:0 0 6px 0;">No notifications found</h3>
+            <p style="font-size:13px;color:#64748b;margin:0;">You are completely caught up! We will notify you when new clicks or alerts occur.</p>
+          </div>
+        `;
+        return;
+      }
+
+      listContainer.innerHTML = filtered.map(item => `
+        <div class="notif-item-card ${item.unread ? 'unread' : ''}" data-id="${item.id}">
+          <div class="notif-item-icon-box" style="background:${item.iconBg};color:${item.iconColor};">
+            ${item.icon}
+          </div>
+          <div class="notif-item-content">
+            <div class="notif-item-header">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <h4 class="notif-item-title">${item.title}</h4>
+                ${item.unread ? '<span class="notif-unread-dot" title="Unread"></span>' : ''}
+              </div>
+              <span class="notif-item-time">${item.time}</span>
+            </div>
+            <p class="notif-item-desc">${item.desc}</p>
+            <div class="notif-item-footer">
+              ${item.actionTab ? `
+                <button type="button" class="notif-item-cta-btn" data-tab="${item.actionTab}">
+                  ${item.actionLabel}
+                </button>
+              ` : ''}
+              <button type="button" class="notif-dismiss-btn" data-dismiss="${item.id}" title="Remove notification" style="margin-left:auto;background:none;border:none;color:#94a3b8;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:4px;">
+                ✕ Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      listContainer.querySelectorAll('.notif-item-cta-btn').forEach(btn => {
+        btn.onclick = () => {
+          const tab = btn.dataset.tab;
+          if (tab) navigate(tab);
+        };
+      });
+
+      listContainer.querySelectorAll('.notif-dismiss-btn').forEach(btn => {
+        btn.onclick = () => {
+          const id = btn.dataset.dismiss;
+          items = items.filter(n => n.id !== id);
+          save();
+          renderList();
+          toast('Notification dismissed');
+        };
+      });
+    }
+
+    const unreadCount = items.filter(n => n.unread).length;
+
+    container.innerHTML = `
+      <div class="notif-page-wrap card-3d-reveal">
+        <div class="notif-header-card">
+          <div class="notif-header-info">
+            <div class="notif-bell-icon-large">🔔</div>
+            <div>
+              <div class="notif-title-row">
+                <h2 class="notif-page-title">Notifications Center</h2>
+                <span class="notif-count-badge" id="notifCountBadge" style="${unreadCount > 0 ? '' : 'display:none;'}">${unreadCount} New</span>
+              </div>
+              <p class="notif-page-sub">Track click milestones, system audits, and domain verifications in real-time</p>
+            </div>
+          </div>
+          <div class="notif-header-actions">
+            <button type="button" class="notif-action-btn primary" id="markAllReadBtn">
+              ✓ Mark all as read
+            </button>
+            <button type="button" class="notif-action-btn" id="clearAllNotifsBtn">
+              🗑 Clear all
+            </button>
+          </div>
+        </div>
+
+        <div class="notif-filter-bar">
+          <button type="button" class="notif-filter-pill active" data-filter="all">All (${items.length})</button>
+          <button type="button" class="notif-filter-pill" data-filter="unread">Unread (${unreadCount})</button>
+          <button type="button" class="notif-filter-pill" data-filter="links">Links &amp; Clicks</button>
+          <button type="button" class="notif-filter-pill" data-filter="system">Security &amp; System</button>
+        </div>
+
+        <div class="notif-list-container" id="notifItemsList"></div>
+      </div>
+    `;
+
+    renderList();
+    updateBadge();
+
+    const markAllBtn = document.getElementById('markAllReadBtn');
+    if (markAllBtn) {
+      markAllBtn.onclick = () => {
+        items.forEach(n => { n.unread = false; });
+        save();
+        renderList();
+        const unreadFilterPill = container.querySelector('.notif-filter-pill[data-filter="unread"]');
+        if (unreadFilterPill) unreadFilterPill.textContent = 'Unread (0)';
+        toast('All notifications marked as read');
+      };
+    }
+
+    const clearAllBtn = document.getElementById('clearAllNotifsBtn');
+    if (clearAllBtn) {
+      clearAllBtn.onclick = () => {
+        if (confirm('Clear all notifications?')) {
+          items = [];
+          save();
+          renderList();
+          container.querySelectorAll('.notif-filter-pill').forEach(p => {
+            if (p.dataset.filter === 'all') p.textContent = 'All (0)';
+            if (p.dataset.filter === 'unread') p.textContent = 'Unread (0)';
+          });
+          toast('All notifications cleared');
+        }
+      };
+    }
+
+    container.querySelectorAll('.notif-filter-pill').forEach(pill => {
+      pill.onclick = () => {
+        container.querySelectorAll('.notif-filter-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        activeFilter = pill.dataset.filter;
+        renderList();
+      };
+    });
+  }
+
+
   // ---------------- 11. HEA ASSIST DEDICATED AI STUDIO VIEW ---------------- //
   function renderAssist(container) {
     const storedLinks = getStoredLinks();
@@ -6679,14 +6965,19 @@
           <!-- LEFT / CENTER: Interactive AI Conversation Studio -->
           <div class="assist-chat-card bento-card">
             <!-- Mascot Agent Welcome Header -->
-            <div class="assist-agent-banner">
-              <div class="agent-avatar-glow">
-                <div class="agent-avatar-inner">✨</div>
+            <div class="assist-agent-banner" style="display:flex;align-items:center;width:100%;">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div class="agent-avatar-glow">
+                  <div class="agent-avatar-inner">✨</div>
+                </div>
+                <div class="agent-meta">
+                  <div class="agent-name">HEA Neural Assistant <span class="agent-badge">Pro Active 👑</span></div>
+                  <div class="agent-prompt-lead">What would you like to build or optimize across your links today?</div>
+                </div>
               </div>
-              <div class="agent-meta">
-                <div class="agent-name">HEA Neural Assistant <span class="agent-badge">Pro Active 👑</span></div>
-                <div class="agent-prompt-lead">What would you like to build or optimize across your links today?</div>
-              </div>
+              <button type="button" class="assist-reset-btn" id="assistResetBtn" title="Reset chat session" style="margin-left:auto;padding:6px 14px;border-radius:10px;font-size:12px;display:inline-flex;align-items:center;gap:6px;background:#f1f5f9;border:1px solid #cbd5e1;cursor:pointer;font-weight:600;color:#0b132b;white-space:nowrap;">
+                <span>🔄</span> Clear Chat
+              </button>
             </div>
 
             <!-- Quick Starter Prompt Chips Carousel -->
@@ -6740,8 +7031,8 @@
               <input type="text" id="assistPageInput" class="assist-text-input" placeholder="Ask HEA Assist to optimize links, generate UTMs, or analyze clicks... (Enter to send)" autocomplete="off" required>
               <div class="input-actions-grp">
                 <span class="input-kbd-hint">↵ Enter</span>
-                <button type="submit" class="assist-send-btn" id="assistPageSubmit" title="Send message">
-                  <span>Send</span> ↗
+                <button type="submit" class="assist-send-btn" id="assistPageSubmit" title="Send message" style="color:#ffffff !important;">
+                  <span style="color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;">Send</span> ↗
                 </button>
               </div>
             </form>
@@ -6759,9 +7050,9 @@
                 </div>
               </div>
               <div class="tool-body">
-                <div class="tool-input-row" style="display:flex;gap:8px;margin-top:12px;">
-                  <input type="text" id="quickSlugTopic" class="dash-search-input" placeholder="e.g. Summer Drop 40% Off" style="flex:1;background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:8px 12px;height:40px;font-size:13px;">
-                  <button type="button" class="header-primary-btn" id="btnGenSlugs" style="height:40px;padding:0 14px;font-size:12px;white-space:nowrap;">Generate</button>
+                <div class="tool-input-row">
+                  <input type="text" id="quickSlugTopic" class="tool-text-input" placeholder="e.g. Summer Drop 40% Off" autocomplete="off">
+                  <button type="button" class="header-primary-btn" id="btnGenSlugs">Generate</button>
                 </div>
                 <div id="quickSlugResults" class="slug-results-list" style="margin-top:12px;display:none;"></div>
               </div>
@@ -7462,7 +7753,7 @@ Here are recommended optimizations for your links and campaigns:<br>
 
     });
 
-    // Assist Drawer
+    // Notifications button\n    const notifBtn = $('#topbarNotifBtn');\n    if (notifBtn) {\n      notifBtn.onclick = (e) => {\n        e.preventDefault();\n        navigate('notifications');\n      };\n    }\n\n    // Assist Drawer
 
     const assistToggle = $('#assistToggleBtn');
 
@@ -7667,7 +7958,7 @@ Here are recommended optimizations for your links and campaigns:<br>
 
       const raw = (location.hash.slice(1) || '').split('?')[0];
 
-      const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'assist', 'app'];
+      const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'assist', 'notifications', 'app'];
 
       if (appViews.includes(raw)) {
 
@@ -7704,7 +7995,7 @@ Here are recommended optimizations for your links and campaigns:<br>
     // Initial render: ONLY show dashboard if user is verified AND currently on an app view
 
     const initialRaw = (location.hash.slice(1) || '').split('?')[0];
-    const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'assist', 'app'];
+    const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'assist', 'notifications', 'app'];
     if (appViews.includes(initialRaw) && isUserAuthenticated()) {
       document.body.classList.add('app-mode');
       const as = $('#appShell');

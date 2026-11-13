@@ -16,16 +16,8 @@ const FIREBASE_CONFIG = {
   projectNumber: "508844833856"
 };
 
-// Default Unlimited Admin VIP Accounts
-const VIP_ADMIN_ACCOUNTS = {
-  'furyzod02@gmail.com': { name: 'Fury Zod', pass: '123456789' },
-  'healink@gmail.com': { name: 'HEA Link Admin', pass: 'healink123' }
-};
-
-function isVipAdminEmail(email) {
-  if (!email) return false;
-  const clean = email.toLowerCase().trim();
-  return !!VIP_ADMIN_ACCOUNTS[clean];
+function isVipAdminEmail() {
+  return false;
 }
 
 function emailToKey(email) {
@@ -200,7 +192,6 @@ const fbRtdbClient = {
 // Global browser exports
 if (typeof window !== 'undefined') {
   window.FIREBASE_CONFIG = FIREBASE_CONFIG;
-  window.VIP_ADMIN_ACCOUNTS = VIP_ADMIN_ACCOUNTS;
   window.isVipAdminEmail = isVipAdminEmail;
   window.emailToKey = emailToKey;
   window.fbRtdbClient = fbRtdbClient;
@@ -228,7 +219,6 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     FIREBASE_CONFIG,
-    VIP_ADMIN_ACCOUNTS,
     isVipAdminEmail,
     emailToKey,
     fbRtdbClient

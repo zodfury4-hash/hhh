@@ -50,6 +50,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'Global Internet'
   },
+  role: {
+    type: String,
+    enum: ['user', 'admin'],
+    default: 'user'
+  },
   isPro: {
     type: Boolean,
     default: false

@@ -8,29 +8,99 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', -apple-system, sans-serif;
+      background: #060b18;
+      color: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    .card {
+      background: #090f22;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 16px;
+      padding: 32px 28px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    }
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid rgba(56, 189, 248, 0.2);
+      border-top-color: #38bdf8;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .msg {
+      font-size: 16px;
+      font-weight: 600;
+      color: #e2e8f0;
+      margin-bottom: 8px;
+    }
+    .sub {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 20px;
+    }
+    .btn-report {
+      display: inline-block;
+      font-size: 12px;
+      color: #f87171;
+      text-decoration: none;
+      border: 1px solid rgba(248, 113, 113, 0.3);
+      padding: 6px 14px;
+      border-radius: 8px;
+      transition: background 0.2s;
+      cursor: pointer;
+    }
+    .btn-report:hover {
+      background: rgba(248, 113, 113, 0.1);
+    }
+  </style>
   <script>
     (function () {
       const path = window.location.pathname || '';
       const search = window.location.search || '';
       const params = new URLSearchParams(search);
 
-      // Direct target in query param
-      const uParam = params.get('u') || params.get('url') || params.get('dest');
-      if (uParam) {
-        try {
-          const decoded = decodeURIComponent(uParam);
-          if (/^https?:\/\//i.test(decoded)) {
-            window.location.replace(decoded);
-            return;
-          }
-        } catch (e) {}
-      }
-
       let slug = params.get('c') || params.get('slug') || '';
       if (!slug) {
         const rMatch = path.match(/^\/r\/([^\/?#]+)/i);
         if (rMatch && rMatch[1] !== 'index.html') slug = rMatch[1];
       }
+
+      function reportCurrentLink() {
+        const targetSlug = slug || 'direct';
+        const reason = prompt('Please describe why you are reporting this link (e.g. phishing, spam, malware):');
+        if (!reason) return;
+        fetch('/api/abuse/report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            slug: targetSlug,
+            url: window.location.href,
+            reason: 'phishing',
+            details: reason
+          })
+        }).then(() => {
+          alert('Thank you. Your report has been submitted to HEA Link security.');
+        }).catch(() => {
+          alert('Report submitted.');
+        });
+      }
+      window.reportCurrentLink = reportCurrentLink;
 
       if (slug) {
         const cleanSlug = slug.toLowerCase();
@@ -55,7 +125,7 @@
 
         if (targetUrl) {
           if (!/^https?:\/\//i.test(targetUrl)) targetUrl = 'https://' + targetUrl;
-          window.location.replace(targetUrl);
+          setTimeout(function() { window.location.replace(targetUrl); }, 150);
           return;
         }
 
@@ -63,7 +133,7 @@
           .then(res => res.json())
           .then(data => {
             const dest = data.url || data.dest || (data.link && (data.link.url || data.link.dest));
-            if (dest) {
+            if (dest && /^https?:\/\//i.test(dest)) {
               window.location.replace(dest);
             } else {
               window.location.replace('/#' + slug);
@@ -73,12 +143,17 @@
             window.location.replace('/');
           });
       } else {
-        window.location.replace('/');
+        setTimeout(function() { window.location.replace('/'); }, 300);
       }
     })();
   </script>
 </head>
-<body style="font-family:'Poppins',sans-serif;background:#f0f6ff;color:#0b132b;display:grid;place-items:center;height:100vh;margin:0;">
-  <p style="color:#0070f3;font-weight:600;">Connecting to destination…</p>
+<body>
+  <div class="card">
+    <div class="spinner"></div>
+    <div class="msg">Connecting to destination…</div>
+    <div class="sub">Protected by HEA Link 256-bit safe routing</div>
+    <button type="button" class="btn-report" onclick="window.reportCurrentLink()">🚩 Report Suspicious Link</button>
+  </div>
 </body>
 </html>

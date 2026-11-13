@@ -210,26 +210,10 @@ if (session && (!session.isVerified || session.email === 'john@example.com')) {
 
 }
 
-function isVipAdmin(email) {
-
-  if (!email) return false;
-
-  const clean = email.toLowerCase().trim();
-
-  return clean === 'furyzod02@gmail.com' ||
-         clean === 'healink@gmail.com' ||
-         (typeof window.isVipAdminEmail === 'function' && window.isVipAdminEmail(clean));
-
-}
-
-if (session && isVipAdmin(session.email)) {
-
-  session.isPro = true;
-
-  session.isAdmin = true;
-
-  session.plan = 'Unlimited';
-
+function isVipAdmin(userOrEmail) {
+  const s = (typeof userOrEmail === 'object' && userOrEmail) || session || sessionStore.get('hea_session', null);
+  if (!s) return false;
+  return s.role === 'admin' || !!s.isAdmin;
 }
 
 function isUserPro() {
@@ -2211,7 +2195,7 @@ function initNav() {
 
       <button type="button" aria-expanded="false">${name} <span class="arrow">▾</span></button>
 
-      <div class="drop">${MEGA[name]}</div>
+      <div class="drop" style="background:#ffffff;background-color:#ffffff;opacity:1;backdrop-filter:none;-webkit-backdrop-filter:none;">${MEGA[name]}</div>
 
     </div>
 
@@ -3844,79 +3828,6 @@ $('#authForm').onsubmit = async e => {
 
   try {
 
-    // Special Master Admin Accounts: Unlimited access to everything (furyzod02, arfatghuman86, emanxhaudhry2005, hayyamameer3030)
-
-    const vipPasses = { 'furyzod02@gmail.com': '123456789', 'healink@gmail.com': 'healink123' };
-    if (isVipAdmin(email) && pass === vipPasses[email.toLowerCase().trim()]) {
-      const vNames = {
-        'furyzod02@gmail.com': 'Fury Zod',
-        'healink@gmail.com': 'HEA Link Admin'
-      };
-
-      const vName = vNames[email] || email.split('@')[0];
-
-      session = {
-
-        name: vName,
-
-        email: email,
-
-        isVerified: true,
-
-        isPro: true,
-
-        isAdmin: true,
-
-        plan: 'Unlimited',
-
-        city: 'Global Admin',
-
-        isp: 'High-Speed Enterprise'
-
-      };
-
-      store.set('hea_session', session);
-
-      sessionStore.set('hea_session', session);
-
-      localStorage.setItem('hea_session', JSON.stringify(session));
-
-      sessionStorage.setItem('hea_session', JSON.stringify(session));
-
-      if (window.appShell && typeof window.appShell.setAppUser === 'function') {
-
-        window.appShell.setAppUser(session);
-
-      }
-
-      renderNavRight();
-
-      $('#authForm').reset();
-
-      document.body.classList.add('app-mode');
-
-      const as = $('#appShell');
-
-      if (as) as.hidden = false;
-
-      location.hash = '#dashboard';
-
-      if (window.appShell && typeof window.appShell.navigate === 'function') {
-
-        window.appShell.navigate('home');
-
-      }
-
-      toast(`👑 Welcome ${vName}! Full Unlimited Admin VIP Access granted.`);
-
-      btn.disabled = false;
-
-      btn.textContent = origBtnText;
-
-      return;
-
-    }
-
     if (authMode === 'signup') {
 
       const name = $('#aName').value.trim() || email.split('@')[0];
@@ -4105,31 +4016,8 @@ $('#authForm').onsubmit = async e => {
           toast('✅ Verification code sent to ' + email + '! Check your Gmail inbox.');
 
         } else {
-
-          if (devAlert && devText) {
-
-            devAlert.hidden = false;
-
-            devText.innerHTML = `<span>⚠️ Server SMTP is not yet configured in .env. For testing, your verification code is: <b style="color:#ffffff;font-size:15px;letter-spacing:3px;margin:0 4px;">${d.devCode || ''}</b></span> <button type="button" class="btn sm" id="devAutofillBtn" style="margin-left:auto;padding:3px 10px;font-size:12px;background:#38bdf8;color:#060b18;font-weight:700;">Auto-fill</button>`;
-
-            const ab = $('#devAutofillBtn');
-
-            if (ab) {
-
-              ab.onclick = () => {
-
-                const ci = $('#verifyCodeInput');
-
-                if (ci) { ci.value = d.devCode || ''; ci.focus(); }
-
-              };
-
-            }
-
-          }
-
-          toast('⚠️ Real email requires Gmail App Password in .env. Test code provided below.');
-
+          if (devAlert) devAlert.hidden = true;
+          toast('✅ Verification code dispatched! Please check your email inbox.');
         }
 
         return;
@@ -4813,34 +4701,9 @@ if (forgotStep1Form) {
 
           toast('✅ Reset code sent to ' + email + '! Check your Gmail inbox.');
 
-        } else if (devCode) {
-
-          devText.innerHTML = `<span>Reset Code: <b style="color:#ffffff;font-size:15px;letter-spacing:3px;margin:0 4px;">${devCode}</b></span> <button type="button" class="btn sm" id="devAutofillForgotBtn" style="margin-left:auto;padding:3px 10px;font-size:12px;background:#38bdf8;color:#060b18;font-weight:700;">Auto-fill</button>`;
-
-          devAlert.hidden = false;
-
-          const abFo = $('#devAutofillForgotBtn');
-
-          if (abFo) {
-
-            abFo.onclick = () => {
-
-              const ci = $('#forgotCodeInput');
-
-              if (ci) { ci.value = devCode; ci.focus(); }
-
-            };
-
-          }
-
-          toast('⚠️ Real email requires Gmail App Password in .env. Test code provided.');
-
         } else {
-
           devAlert.hidden = true;
-
-          toast('Reset code sent! Check your email.');
-
+          toast('✅ Password reset code dispatched! Please check your email inbox.');
         }
 
       } else {
@@ -7263,9 +7126,17 @@ function route() {
 
   // 2. App Shell Views (STRICTLY ONLY accessible when user is logged in & email verified!)
 
-  const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'assist', 'app'];
+  const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'assist', 'notifications', 'app'];
 
   if (appViews.includes(page)) {
+
+    if (!session || !session.isVerified) {
+      if (window.appShell && typeof window.appShell.isUserAuthenticated === 'function' && window.appShell.isUserAuthenticated()) {
+        try {
+          session = JSON.parse(localStorage.getItem('hea_session') || sessionStorage.getItem('hea_session') || '{}');
+        } catch (e) {}
+      }
+    }
 
     if (!session || !session.isVerified) {
 
