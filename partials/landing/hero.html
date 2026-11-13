@@ -94,112 +94,46 @@
       <!-- RIGHT COLUMN: 3D CYBER STAGE & FLOATING CARDS -->
       <div class="hero-col-right">
         <div class="cyber-stage-container" id="cyberStage">
-          <!-- Minimal Clean Composition Stage -->
-          <div class="clean-mockup-wrapper">
-            <!-- Main Center Mockup: Link & Analytics Card -->
-            <div class="clean-product-card">
-              <!-- Window Titlebar -->
-              <div class="mockup-header">
-                <div class="mockup-dots">
-                  <span class="dot dot-red"></span>
-                  <span class="dot dot-yellow"></span>
-                  <span class="dot dot-green"></span>
-                </div>
-                <div class="mockup-address-bar">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                  <span>hea.link/active-campaign</span>
-                </div>
-                <div class="mockup-status-pill">
-                  <span class="status-pulse-dot"></span>
-                  <span>Live 99.9%</span>
-                </div>
-              </div>
-
-              <!-- Card Body: Link Details -->
-              <div class="mockup-body">
-                <div class="mockup-dest-row">
-                  <span class="mockup-label">Destination URL</span>
-                  <div class="mockup-dest-url" title="https://store.yourbrand.com/products/summer-drop-2026?utm_source=instagram">
-                    https://store.yourbrand.com/products/summer-drop-2026?utm_source=instagram
-                  </div>
-                </div>
-
-                <div class="mockup-short-row">
-                  <div class="mockup-short-info">
-                    <span class="mockup-short-badge">Short Link</span>
-                    <div class="mockup-short-link">hea.link/summer26</div>
-                  </div>
-                  <button type="button" class="mockup-copy-pill" id="mockupCopyPill">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                    <span>Copy</span>
-                  </button>
-                </div>
-
-                <!-- Embedded Click Activity Sparkline Chart -->
-                <div class="mockup-chart-box">
-                  <div class="mockup-chart-header">
-                    <div>
-                      <span class="chart-caption">Click Telemetry</span>
-                      <div class="chart-headline">
-                        <span class="chart-total-clicks" data-count="14820">14,820</span>
-                        <span class="chart-growth-tag">↗ +48.6%</span>
-                      </div>
-                    </div>
-                    <div class="chart-time-filter">Last 7 days</div>
-                  </div>
-
-                  <!-- Self-Drawing SVG Sparkline Chart -->
-                  <div class="mockup-chart-svg-wrap">
-                    <svg class="sparkline-svg" viewBox="0 0 340 70" preserveAspectRatio="none">
-                      <defs>
-                        <linearGradient id="chartGradientClean" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stop-color="#0070f3" stop-opacity="0.16" />
-                          <stop offset="100%" stop-color="#0070f3" stop-opacity="0.0" />
-                        </linearGradient>
-                      </defs>
-                      <path class="chart-area" d="M 0 60 Q 50 50, 90 38 T 170 30 T 250 18 T 340 8 L 340 70 L 0 70 Z" fill="url(#chartGradientClean)" />
-                      <path class="chart-stroke" id="heroChartStroke" d="M 0 60 Q 50 50, 90 38 T 170 30 T 250 18 T 340 8" fill="none" stroke="#0070f3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    <div class="chart-axis-labels">
-                      <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          <!-- Floating HUD Card 1: Real-time Analytics -->
+          <div class="hud-card hud-analytics float-anim-1">
+            <div class="hud-icon chart-icon">
+              <span class="chart-bar b1"></span>
+              <span class="chart-bar b2"></span>
+              <span class="chart-bar b3"></span>
             </div>
-
-            <!-- Floating HUD Card 1: Real-time Analytics -->
-            <div class="hud-card hud-analytics">
-              <div class="hud-icon chart-icon">
-                <span class="chart-bar b1"></span>
-                <span class="chart-bar b2"></span>
-                <span class="chart-bar b3"></span>
-              </div>
-              <div class="hud-info">
-                <div class="hud-label">Real-time Analytics</div>
-                <div class="hud-value neon-green" id="hudCountVal" data-target="245">↗ +245%</div>
-              </div>
+            <div class="hud-info">
+              <div class="hud-label">Real-time Analytics</div>
+              <div class="hud-value neon-green" id="hudCountVal" data-target="245">↗ +245%</div>
             </div>
+          </div>
 
-            <!-- Floating HUD Card 2: Create QR Codes -->
-            <div class="hud-card hud-qr">
-              <div class="hud-qr-thumb">
-                <canvas id="stageQrMini" width="48" height="48"></canvas>
-              </div>
-              <div class="hud-info">
-                <div class="hud-label">Create</div>
-                <div class="hud-sub">QR Codes</div>
-              </div>
+          <!-- Floating HUD Card 2: Create QR Codes -->
+          <div class="hud-card hud-qr float-anim-2">
+            <div class="hud-qr-thumb">
+              <canvas id="stageQrMini" width="48" height="48"></canvas>
             </div>
+            <div class="hud-info">
+              <div class="hud-label">Create</div>
+              <div class="hud-sub">QR Codes</div>
+            </div>
+          </div>
 
-            <!-- Floating HUD Card 3: Track Clicks -->
-            <div class="hud-card hud-clicks">
-              <div class="hud-icon users-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0070f3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
-              <div class="hud-info">
-                <div class="hud-label">Track</div>
-                <div class="hud-sub">Clicks</div>
-              </div>
+          <!-- Floating HUD Card 3: Track Clicks -->
+          <div class="hud-card hud-clicks float-anim-3">
+            <div class="hud-icon users-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0070f3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+            <div class="hud-info">
+              <div class="hud-label">Track</div>
+              <div class="hud-sub">Clicks</div>
             </div>
+          </div>
+
+          <!-- 3D WebGL Canvas for Glowing Chain Links & Cyber Infinity Loop -->
+          <div class="cyber-canvas-wrap">
+            <canvas id="chain3dCanvas"></canvas>
+            <picture class="hero-infinity-fallback" id="heroInfinityFallback" style="display:none;">
+              <source srcset="images/hero-infinity-hd.webp" type="image/webp">
+              <img src="images/hero-infinity-hd.png" alt="HEA Link 3D Blue Infinity" class="hero-infinity-img" width="560" height="274" loading="eager" decoding="async">
+            </picture>
           </div>
         </div>
       </div>

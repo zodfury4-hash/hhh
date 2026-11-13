@@ -474,11 +474,53 @@ p.err {
 .cyber-stage-container {
   position: relative !important;
   width: 100% !important;
-  max-width: 520px !important;
-  min-height: 440px !important;
+  max-width: 560px !important;
+  min-height: 480px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+  background: transparent !important;
+}
+
+/* 3D Cyber Infinity Loop Canvas & Wrap */
+.cyber-canvas-wrap {
+  position: relative !important;
+  width: 100% !important;
+  height: 480px !important;
+  min-height: 420px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 2 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+#chain3dCanvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 560px !important;
+  max-height: 480px !important;
+  display: block !important;
+  outline: none !important;
+  background: transparent !important;
+}
+
+.hero-infinity-fallback {
+  width: 100% !important;
+  max-width: 540px !important;
+  display: none;
+  margin: 0 auto !important;
+}
+
+.hero-infinity-fallback img,
+.hero-infinity-img {
+  width: 100% !important;
+  max-width: 540px !important;
+  height: auto !important;
+  display: block !important;
+  object-fit: contain !important;
 }
 
 /* Main Clean Product Mockup Card */

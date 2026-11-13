@@ -70,7 +70,7 @@
   }
 
   function initAll() {
-    // 0% 3D Bloat: Clean CSS Ambient Mesh replaces WebGL shaders
+    init3DCyberChainStage();
     initMiniQrCode();
     initLenisScroll();
     initGsapAnimations();
@@ -764,15 +764,26 @@
     }, 200);
 
     const canvas = document.getElementById('chain3dCanvas');
-    if (!canvas || typeof THREE === 'undefined') return;
+    const fallback = document.getElementById('heroInfinityFallback');
+    if (!canvas || typeof THREE === 'undefined') {
+      if (fallback) fallback.style.display = 'block';
+      return;
+    }
 
     const wrap = canvas.parentElement;
-    if (!wrap) return;
+    if (!wrap) {
+      if (fallback) fallback.style.display = 'block';
+      return;
+    }
 
     try {
       const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-      if (!gl) return;
+      if (!gl) {
+        if (fallback) fallback.style.display = 'block';
+        return;
+      }
     } catch (e) {
+      if (fallback) fallback.style.display = 'block';
       return;
     }
 
