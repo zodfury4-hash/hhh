@@ -9,7 +9,6 @@ const helmet = require('helmet');
 const User = require('./models/User');
 const AbuseReport = require('./models/AbuseReport');
 const logger = require('./utils/logger');
-const { getCompiledHtml } = require('../tools/build_html');
 const { abuseReportLimiter } = require('./middleware/rateLimiter');
 const { validate, abuseReportSchema } = require('./middleware/validation');
 const { requireDatabase } = require('./middleware/dbCheck');
@@ -34,7 +33,8 @@ app.use(
           'https://cdn.jsdelivr.net',
           'https://js.stripe.com',
           'https://apis.google.com',
-          'https://accounts.google.com'
+          'https://accounts.google.com',
+          'https://www.gstatic.com'
         ],
         styleSrc: [
           "'self'",
@@ -247,13 +247,17 @@ app.use('/', require('./routes/assist'));
 // ---------------- STATIC ASSETS & CLIENT SPA ROUTES ---------------- //
 app.get('/login', (req, res) => res.redirect('/#login'));
 app.get('/signup', (req, res) => res.redirect('/#signup'));
-app.get('/dashboard', (req, res) => res.redirect('/#dashboard'));
-app.get('/app', (req, res) => res.redirect('/#dashboard'));
+app.get('/dashboard', (req, res) => res.redirect('/app.html#dashboard'));
+app.get('/app', (req, res) => res.redirect('/app.html#dashboard'));
 
-// Serve dynamically compiled HTML for entry routes
-app.get(['/', '/index.html', '/app.html'], (req, res) => {
-  res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  return res.send(getCompiledHtml());
+// Serve 3D interactive scrollytelling landing page for root
+app.get(['/', '/index.html'], (req, res) => {
+  return res.sendFile(path.join(projectRoot, 'index.html'));
+});
+
+// Serve compiled dashboard for app.html
+app.get('/app.html', (req, res) => {
+  return res.sendFile(path.join(projectRoot, 'app.html'));
 });
 
 // Serve static project files with intelligent caching
@@ -269,13 +273,15 @@ app.use(express.static(projectRoot, {
   }
 }));
 
-// Client-side fallback to compiled HTML for unmatched web routes
+// Client-side fallback to index.html for unmatched web routes (or app.html if starts with app/dashboard)
 app.use((req, res, next) => {
   if (req.path.startsWith('/api/')) {
     return next();
   }
-  res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  return res.send(getCompiledHtml());
+  if (req.path.startsWith('/app') || req.path.startsWith('/dashboard')) {
+    return res.sendFile(path.join(projectRoot, 'app.html'));
+  }
+  return res.sendFile(path.join(projectRoot, 'index.html'));
 });
 
 // 404 handler for unmatched API routes

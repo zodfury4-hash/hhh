@@ -38,14 +38,12 @@ function getCompiledHtml() {
   }
 }
 
-// Build root index.html and app.html for static hosting (GitHub Pages, etc.)
+// Build root app.html for authenticated dashboard view
 function buildRoot() {
   const compiled = getCompiledHtml();
-  const rootIndexPath = path.join(rootDir, 'index.html');
   const rootAppPath = path.join(rootDir, 'app.html');
-  fs.writeFileSync(rootIndexPath, compiled, 'utf8');
   fs.writeFileSync(rootAppPath, compiled, 'utf8');
-  console.log(`[build_html] Compiled static production HTML to root index.html and app.html (${compiled.length} bytes, ${compiled.split('\n').length} lines)`);
+  console.log(`[build_html] Compiled static dashboard HTML to root app.html (${compiled.length} bytes, ${compiled.split('\n').length} lines)`);
 }
 
 if (require.main === module) {
