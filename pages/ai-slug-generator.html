@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Slug & Link Generator | HEA Link</title>
+  <meta name="description" content="Generate high-converting, memorable, SEO-friendly short link slugs with intelligent AI semantics and instant availability checks.">
+  <link rel="icon" type="image/png" href="/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/landing.css">
+  <style>
+    body {
+      background: #eef6ff;
+      color: #0b132b;
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .slug-nav {
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 14px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .slug-nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0070f3;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .nav-link {
+      color: #475569;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: color 0.15s;
+    }
+    .nav-link:hover, .nav-link.active {
+      color: #0070f3;
+    }
+    .btn-nav-dash {
+      background: #0070f3;
+      color: #ffffff;
+      padding: 8px 18px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .btn-nav-dash:hover {
+      background: #0056b3;
+    }
+    .slug-main {
+      flex: 1;
+      max-width: 1000px;
+      width: 100%;
+      margin: 40px auto;
+      padding: 0 20px;
+      box-sizing: border-box;
+    }
+    .slug-hero {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .slug-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #dbeafe;
+      color: #0070f3;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+    .slug-title {
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: #0b132b;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    .slug-subtitle {
+      font-size: 1.05rem;
+      color: #475569;
+      max-width: 680px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    .slug-card {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 0 12px 32px -8px rgba(0, 112, 243, 0.08);
+      margin-bottom: 32px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      box-sizing: border-box;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: #0070f3;
+      box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.15);
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 640px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      .slug-title {
+        font-size: 1.8rem;
+      }
+    }
+    .tone-selector {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .tone-btn {
+      flex: 1;
+      min-width: 100px;
+      padding: 10px 14px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      background: #f8fafc;
+      color: #475569;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+    .tone-btn.active {
+      border-color: #0070f3;
+      background: #eff6ff;
+      color: #0070f3;
+      box-shadow: 0 2px 6px rgba(0, 112, 243, 0.12);
+    }
+    .btn-generate {
+      width: 100%;
+      padding: 14px 24px;
+      background: #0070f3;
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s, transform 0.05s;
+      margin-top: 10px;
+    }
+    .btn-generate:hover:not(:disabled) {
+      background: #0056b3;
+    }
+    .btn-generate:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .alert-box {
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      margin-bottom: 20px;
+      display: none;
+    }
+    .alert-box.error {
+      display: block;
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+    .alert-box.warning {
+      display: block;
+      background: #fffbeb;
+      color: #b45309;
+      border: 1px solid #fde68a;
+    }
+    .quota-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #f1f5f9;
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+    .results-section {
+      display: none;
+      margin-top: 24px;
+    }
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .results-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #0b132b;
+      margin: 0;
+    }
+    .candidate-card {
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .candidate-card:hover {
+      border-color: #93c5fd;
+      box-shadow: 0 4px 12px rgba(0, 112, 243, 0.06);
+    }
+    .candidate-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .candidate-url {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #0070f3;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .badge-confidence {
+      background: #dcfce7;
+      color: #15803d;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+    .badge-avail {
+      background: #eff6ff;
+      color: #0070f3;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+    .candidate-meta {
+      font-size: 0.82rem;
+      color: #64748b;
+      line-height: 1.4;
+    }
+    .candidate-actions {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .btn-action {
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #1e293b;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-action:hover {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+    }
+    .btn-action.primary {
+      background: #0070f3;
+      color: #ffffff;
+      border-color: #0070f3;
+    }
+    .btn-action.primary:hover {
+      background: #0056b3;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin: 40px 0;
+    }
+    @media (max-width: 768px) {
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+      .candidate-card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .candidate-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+    }
+    .info-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 24px;
+    }
+    .info-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: #eff6ff;
+      color: #0070f3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      margin-bottom: 14px;
+    }
+    .info-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #0b132b;
+      margin: 0 0 8px;
+    }
+    .info-desc {
+      font-size: 0.85rem;
+      color: #64748b;
+      line-height: 1.5;
+      margin: 0;
+    }
+    .faq-section {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 40px;
+    }
+    .faq-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      margin: 0 0 20px;
+      color: #0b132b;
+    }
+    .faq-item {
+      border-bottom: 1px solid #f1f5f9;
+      padding: 16px 0;
+    }
+    .faq-item:last-child {
+      border-bottom: none;
+    }
+    .faq-q {
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0 0 6px;
+      font-size: 0.95rem;
+    }
+    .faq-a {
+      color: #64748b;
+      font-size: 0.88rem;
+      margin: 0;
+      line-height: 1.5;
+    }
+    .slug-footer {
+      background: #ffffff;
+      border-top: 1px solid #e2e8f0;
+      padding: 24px;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Header -->
+  <header class="slug-nav">
+    <div class="slug-nav-inner">
+      <a href="/" class="nav-brand">
+        <svg width="28" height="20" viewBox="0 0 54 36" fill="none">
+          <path d="M15.5 8C10.25 8 6 12.25 6 17.5C6 22.75 10.25 27 15.5 27C21.2 27 24.6 20.8 27 17.5C29.4 14.2 32.8 8 38.5 8C43.75 8 48 12.25 48 17.5C48 22.75 43.75 27 38.5 27C32.8 27 29.4 20.8 27 17.5C24.6 14.2 21.2 8 15.5 8Z" stroke="#0070f3" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>HEA Link</span>
+      </a>
+      <div class="nav-links">
+        <a href="/ai/slug-generator" class="nav-link active">Slug AI</a>
+        <a href="/ai/assist" class="nav-link">HEA Assist</a>
+        <a href="/ai/mcp" class="nav-link">MCP Server</a>
+        <a href="/pricing" class="nav-link">Pricing</a>
+        <a href="/app.html" class="btn-nav-dash">Dashboard →</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="slug-main">
+    <div class="slug-hero">
+      <div class="slug-badge">✨ Semantic AI Engine v2.5</div>
+      <h1 class="slug-title">AI Short Link & Slug Generator</h1>
+      <p class="slug-subtitle">
+        Turn long, messy URLs into branded, memorable back-halves tailored to your brand, marketing tone, and destination content.
+      </p>
+    </div>
+
+    <!-- Generator Card -->
+    <div class="slug-card">
+      <div id="alertBox" class="alert-box"></div>
+
+      <form id="slugGenForm">
+        <div class="form-group">
+          <label for="urlInput">Destination URL <span style="color:#0070f3;">*</span></label>
+          <input type="url" id="urlInput" class="form-input" placeholder="https://example.com/products/summer-drop-2026?source=instagram" required autocomplete="off">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="titleInput">Title / Target Keywords (Optional)</label>
+            <input type="text" id="titleInput" class="form-input" placeholder="e.g. Summer Collection 2026, Nike">
+          </div>
+          <div class="form-group">
+            <label for="brandInput">Brand Name (Optional)</label>
+            <input type="text" id="brandInput" class="form-input" placeholder="e.g. Acme">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Tone & Style</label>
+          <div class="tone-selector">
+            <button type="button" class="tone-btn active" data-tone="catchy">🎯 Catchy</button>
+            <button type="button" class="tone-btn" data-tone="professional">💼 Professional</button>
+            <button type="button" class="tone-btn" data-tone="minimalist">⚡ Minimalist</button>
+            <button type="button" class="tone-btn" data-tone="playful">🎨 Playful</button>
+          </div>
+        </div>
+
+        <button type="submit" id="btnSubmit" class="btn-generate">
+          <span>✨</span> Generate Smart Slugs
+        </button>
+
+        <div class="quota-bar">
+          <span id="quotaInfo">Checking daily generation quota...</span>
+          <span id="aiModelBadge" style="font-weight:600;">Engine: Claude 3.5 Haiku</span>
+        </div>
+      </form>
+
+      <!-- Results Container -->
+      <div id="resultsSection" class="results-section">
+        <div class="results-header">
+          <h3 class="results-title">Suggested Smart Slugs</h3>
+          <span id="resultCountBadge" class="badge-avail">3 candidates</span>
+        </div>
+        <div id="candidatesList"></div>
+      </div>
+    </div>
+
+    <!-- Features Bento -->
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-icon">🔍</div>
+        <h4 class="info-title">Semantic Extraction</h4>
+        <p class="info-desc">Safe server-side metadata fetching analyzes page titles and keywords to suggest relevant, high-CTR slugs without leaking private networks.</p>
+      </div>
+      <div class="info-card">
+        <div class="info-icon">🛡️</div>
+        <h4 class="info-title">Collision-Free Check</h4>
+        <p class="info-desc">Every generated candidate is instantly cross-checked against your MongoDB database with a single optimized batch query.</p>
+      </div>
+      <div class="info-card">
+        <div class="info-icon">⚡</div>
+        <h4 class="info-title">Safe Post-Processing</h4>
+        <p class="info-desc">Enforces strict RFC URL compatibility, character caps, and profanity blocklists with high-entropy cryptographic suffix fallback.</p>
+      </div>
+    </div>
+
+    <!-- FAQ Accordion -->
+    <div class="faq-section">
+      <h3 class="faq-title">Frequently Asked Questions</h3>
+      <div class="faq-item">
+        <p class="faq-q">What happens if a generated slug is already taken?</p>
+        <p class="faq-a">Our backend automatically verifies availability in real-time. If an exact slug is occupied, it appends a clean 3-4 character cryptographic suffix to ensure uniqueness.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">Can I use these slugs directly with HEA Link?</p>
+        <p class="faq-a">Yes! Clicking "Use in Dashboard" will take you directly to your link creation form with your chosen slug pre-filled and verified.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">What are the daily quota limits?</p>
+        <p class="faq-a">Guest visitors get 3 free generations per day. Free registered accounts enjoy 10 generations daily, while Pro accounts have 200 generations per day.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="slug-footer">
+    <p>&copy; 2026 HEA Link. Built for speed, security, and real intelligence.</p>
+  </footer>
+
+  <script>
+    (function() {
+      let selectedTone = 'catchy';
+      const form = document.getElementById('slugGenForm');
+      const urlInput = document.getElementById('urlInput');
+      const titleInput = document.getElementById('titleInput');
+      const brandInput = document.getElementById('brandInput');
+      const btnSubmit = document.getElementById('btnSubmit');
+      const alertBox = document.getElementById('alertBox');
+      const resultsSection = document.getElementById('resultsSection');
+      const candidatesList = document.getElementById('candidatesList');
+      const quotaInfo = document.getElementById('quotaInfo');
+      const aiModelBadge = document.getElementById('aiModelBadge');
+      const resultCountBadge = document.getElementById('resultCountBadge');
+
+      // Tone selection
+      document.querySelectorAll('.tone-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tone-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          selectedTone = btn.dataset.tone;
+        });
+      });
+
+      function showAlert(msg, type) {
+        alertBox.className = 'alert-box ' + type;
+        alertBox.textContent = msg;
+        alertBox.style.display = 'block';
+      }
+
+      function hideAlert() {
+        alertBox.style.display = 'none';
+      }
+
+      function getAuthHeader() {
+        const token = localStorage.getItem('token') || localStorage.getItem('hea_token') || sessionStorage.getItem('token');
+        return token ? { 'Authorization': 'Bearer ' + token } : {};
+      }
+
+      // Initial Quota check
+      quotaInfo.textContent = 'Free: 10/day · Pro: 200/day · Guest: 3/day';
+
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        hideAlert();
+
+        const url = urlInput.value.trim();
+        if (!url) {
+          showAlert('Please enter a valid destination URL.', 'error');
+          return;
+        }
+
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = '<span>⏳</span> Analyzing destination & generating...';
+
+        try {
+          const resp = await fetch('/api/ai/slugs', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...getAuthHeader()
+            },
+            body: JSON.stringify({
+              url: url,
+              title: titleInput.value.trim() || undefined,
+              brand: brandInput.value.trim() || undefined,
+              tone: selectedTone
+            })
+          });
+
+          const data = await resp.json();
+
+          if (!resp.ok) {
+            if (resp.status === 429) {
+              showAlert(data.error || 'Daily AI generation quota reached. Upgrade to Pro for 200 generations/day.', 'warning');
+            } else {
+              showAlert(data.error || 'Failed to generate slugs. Please try again.', 'error');
+            }
+            return;
+          }
+
+          if (data.quota) {
+            quotaInfo.textContent = `Daily usage: ${data.quota.used} / ${data.quota.limit} (${data.quota.remaining} remaining)`;
+          }
+
+          if (data.isFallback) {
+            showAlert('Notice: Rule-based heuristics used (AI model not connected). Upgrade or set ANTHROPIC_API_KEY for deep semantic suggestions.', 'warning');
+            aiModelBadge.textContent = 'Engine: Heuristic Fallback';
+          } else {
+            aiModelBadge.textContent = 'Engine: Claude 3.5 Haiku';
+          }
+
+          renderCandidates(data.candidates || [], url);
+        } catch (err) {
+          showAlert('Network error: ' + err.message, 'error');
+        } finally {
+          btnSubmit.disabled = false;
+          btnSubmit.innerHTML = '<span>✨</span> Generate Smart Slugs';
+        }
+      });
+
+      function renderCandidates(candidates, originalUrl) {
+        candidatesList.innerHTML = '';
+        if (candidates.length === 0) {
+          showAlert('No slugs could be generated for this URL.', 'warning');
+          resultsSection.style.display = 'none';
+          return;
+        }
+
+        resultCountBadge.textContent = `${candidates.length} candidate${candidates.length > 1 ? 's' : ''}`;
+
+        candidates.forEach(c => {
+          const card = document.createElement('div');
+          card.className = 'candidate-card';
+
+          const info = document.createElement('div');
+          info.className = 'candidate-info';
+
+          const urlDiv = document.createElement('div');
+          urlDiv.className = 'candidate-url';
+          urlDiv.innerHTML = `
+            <span>hea.link/<strong>${escapeHtml(c.slug)}</strong></span>
+            <span class="badge-confidence">${Math.round((c.confidence || 0.95) * 100)}% match</span>
+            <span class="badge-avail">${c.isAvailable ? '✓ Available' : '⚠️ Suffix added'}</span>
+          `;
+
+          const meta = document.createElement('div');
+          meta.className = 'candidate-meta';
+          meta.textContent = c.rationale || 'Optimized for high CTR and brand clarity.';
+
+          info.appendChild(urlDiv);
+          info.appendChild(meta);
+
+          const actions = document.createElement('div');
+          actions.className = 'candidate-actions';
+
+          const btnCopy = document.createElement('button');
+          btnCopy.type = 'button';
+          btnCopy.className = 'btn-action';
+          btnCopy.textContent = 'Copy';
+          btnCopy.onclick = () => {
+            navigator.clipboard.writeText(`https://hea.link/${c.slug}`);
+            btnCopy.textContent = 'Copied! ✓';
+            setTimeout(() => { btnCopy.textContent = 'Copy'; }, 2000);
+          };
+
+          const btnUse = document.createElement('a');
+          btnUse.className = 'btn-action primary';
+          btnUse.href = `/app.html#create-link?dest=${encodeURIComponent(originalUrl)}&slug=${encodeURIComponent(c.slug)}`;
+          btnUse.textContent = 'Use in Dashboard →';
+
+          actions.appendChild(btnCopy);
+          actions.appendChild(btnUse);
+
+          card.appendChild(info);
+          card.appendChild(actions);
+          candidatesList.appendChild(card);
+        });
+
+        resultsSection.style.display = 'block';
+        resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      function escapeHtml(str) {
+        return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+    })();
+  </script>
+</body>
+</html>

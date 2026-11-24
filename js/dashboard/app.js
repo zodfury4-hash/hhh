@@ -610,35 +610,21 @@ const device = () =>
   /mobi|android|iphone/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop';
 
 function recordClick(l, extra = {}) {
-
   if (!l) return;
-
   if (Array.isArray(l.clicks)) {
-
-    const region = ((navigator.language || '').split('-')[1] || 'US').toUpperCase();
-
+    // Country and telemetry are determined by backend server (GeoIP / CF headers)
+    const region = extra.c || 'Unknown';
     l.clicks.push(Object.assign({
-
       t: Date.now(),
-
       d: device(),
-
       r: document.referrer ? new URL(document.referrer).hostname : 'Direct',
-
       c: region
-
     }, extra));
-
   } else {
-
     const cur = typeof l.clicks === 'number' ? l.clicks : 0;
-
     l.clicks = cur + 1;
-
   }
-
   saveLinks();
-
 }
 
 const isExpired = l => l.expires && new Date(l.expires + 'T23:59:59') < new Date();
@@ -1075,7 +1061,7 @@ const MEGA = {
 
         </div>
 
-        <a class="mega-side-link" href="#integrations">See 100+ integrations →</a>
+        <a class="mega-side-link" href="/integrations">Explore Integrations Hub →</a>
 
         <div style="border-top:1px solid rgba(56,189,248,0.15);margin-top:4px;padding-top:8px;">
 
@@ -1103,27 +1089,27 @@ const MEGA = {
 
         <h4>AI FEATURES</h4>
 
-        <a class="mega-item" href="#assist">
+        <a class="mega-item" href="/ai/slug-generator">
+
+          <div class="mega-img-box"><img src="images/products/ai-llm.svg" alt="AI Slug Generator" width="38" height="38" loading="eager"></div>
+
+          <div><b>AI SLUG GENERATOR</b><span>Recommends high-converting back-halves</span></div>
+
+        </a>
+
+        <a class="mega-item" href="/ai/assist">
 
           <div class="mega-img-box"><img src="images/products/ai-assist.svg" alt="HEA Assist" width="38" height="38" loading="eager"></div>
 
-          <div><b>HEA ASSIST</b><span>AI-Powered link and QR Code analysis</span></div>
+          <div><b>HEA ASSIST AI</b><span>Conversational telemetry &amp; campaign assistant</span></div>
 
         </a>
 
-        <a class="mega-item" href="#assist">
+        <a class="mega-item" href="/ai/mcp">
 
           <div class="mega-img-box"><img src="images/products/ai-mcp.svg" alt="HEA MCP" width="38" height="38" loading="eager"></div>
 
-          <div><b>HEA MCP</b><span>Connect to AI agents with Model Context Protocol</span></div>
-
-        </a>
-
-        <a class="mega-item" href="#assist">
-
-          <div class="mega-img-box"><img src="images/products/ai-llm.svg" alt="LLM Integrations" width="38" height="38" loading="eager"></div>
-
-          <div><b>LLM INTEGRATIONS</b><span>Bring link management to your AI assistants</span></div>
+          <div><b>MODEL CONTEXT PROTOCOL</b><span>Native MCP server for Claude, Cursor &amp; agents</span></div>
 
         </a>
 
@@ -1159,11 +1145,11 @@ const MEGA = {
 
         </a>
 
-        <a class="mega-item" href="#integrations">
+        <a class="mega-item" href="/integrations">
 
           <div class="mega-img-box"><img src="images/products/marketplace.svg" alt="Marketplace" width="38" height="38" loading="eager"></div>
 
-          <div><b>INTEGRATIONS MARKETPLACE</b><span>Plug into 100+ platforms</span></div>
+          <div><b>INTEGRATIONS HUB</b><span>Webhooks, Slack, Discord &amp; Exports</span></div>
 
         </a>
 
@@ -1327,29 +1313,29 @@ const MEGA = {
 
       <div class="mega-col">
 
-        <h4>LEARN MORE</h4>
+        <h4>LEARN &amp; BUILD</h4>
 
-        <a class="mega-item" href="#resources">
+        <a class="mega-item" href="/resources/utm-guide">
 
-          <div class="mega-img-box"><img src="images/products/guides.svg" alt="Guides" width="38" height="38" loading="eager"></div>
+          <div class="mega-img-box"><img src="images/products/guides.svg" alt="UTM Campaign Guide" width="38" height="38" loading="eager"></div>
 
-          <div><b>GUIDES &amp; EBOOKS</b><span>Practical tactics to increase CTR</span></div>
-
-        </a>
-
-        <a class="mega-item" href="#resources">
-
-          <div class="mega-img-box"><img src="images/products/blog.svg" alt="Blog" width="38" height="38" loading="eager"></div>
-
-          <div><b>BLOG &amp; INSIGHTS</b><span>Latest trends in short link branding</span></div>
+          <div><b>UTM CAMPAIGN GUIDE</b><span>Master GA4 campaign attribution</span></div>
 
         </a>
 
-        <a class="mega-item" href="#assist">
+        <a class="mega-item" href="/developers">
 
-          <div class="mega-img-box"><img src="images/products/ai-assist.svg" alt="HEA Assist AI" width="38" height="38" loading="eager"></div>
+          <div class="mega-img-box"><img src="images/products/developers.svg" alt="Developer API" width="38" height="38" loading="eager"></div>
 
-          <div><b>HEA ASSIST AI</b><span>Ask questions about your data</span></div>
+          <div><b>DEVELOPER REST API</b><span>OpenAPI 3.1 &amp; live console</span></div>
+
+        </a>
+
+        <a class="mega-item" href="/integrations">
+
+          <div class="mega-img-box"><img src="images/products/marketplace.svg" alt="Integrations Hub" width="38" height="38" loading="eager"></div>
+
+          <div><b>INTEGRATIONS HUB</b><span>Webhooks, Slack, Discord &amp; exports</span></div>
 
         </a>
 
@@ -1359,27 +1345,27 @@ const MEGA = {
 
         <h4>FIND ANSWERS</h4>
 
-        <a class="mega-item" href="#faq">
+        <a class="mega-item" href="/help">
 
           <div class="mega-img-box"><img src="images/products/help-center.svg" alt="Help Center" width="38" height="38" loading="eager"></div>
 
-          <div><b>HELP CENTER</b><span>FAQs and setup troubleshooting</span></div>
+          <div><b>HELP CENTER &amp; FAQ</b><span>20+ guides and troubleshooting</span></div>
 
         </a>
 
-        <a class="mega-item" href="#pricing">
+        <a class="mega-item" href="/faq">
 
-          <div class="mega-img-box"><img src="images/products/pricing.svg" alt="Pricing" width="38" height="38" loading="eager"></div>
+          <div class="mega-img-box"><img src="images/products/blog.svg" alt="FAQ Directory" width="38" height="38" loading="eager"></div>
 
-          <div><b>PRICING</b><span>Transparent plans for all teams</span></div>
+          <div><b>FAQ DIRECTORY</b><span>Common questions answered</span></div>
 
         </a>
 
-        <a class="mega-item" href="#solutions">
+        <a class="mega-item" href="/help/contact">
 
-          <div class="mega-img-box"><img src="images/products/contact.svg" alt="Contact Sales" width="38" height="38" loading="eager"></div>
+          <div class="mega-img-box"><img src="images/products/contact.svg" alt="Contact Support" width="38" height="38" loading="eager"></div>
 
-          <div><b>CONTACT SALES</b><span>Custom enterprise plans &amp; SLAs</span></div>
+          <div><b>CONTACT SUPPORT</b><span>Engineering team tickets</span></div>
 
         </a>
 
@@ -1734,123 +1720,54 @@ function openAnalyticsSandboxModal() {
 window.openAnalyticsSandboxModal = openAnalyticsSandboxModal;
 
 const API_SNIPPETS = {
-
-  curl: `curl -X POST https://healink.store/api/shorten \\
-
+  curl: `curl -X POST https://healink.store/api/v1/links \\
   -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -d '{"dest":"https://instagram.com/mybrand","title":"Social Profile"}'`,
 
-  -H "Authorization: Bearer hea_live_sk_89f2a9" \\
-
-  -d '{"url":"https://instagram.com/mybrand","title":"Social Profile"}'`,
-
-  node: `const fetch = require('node-fetch');
-
-const res = await fetch('https://healink.store/api/shorten', {
-
+  node: `const res = await fetch('https://healink.store/api/v1/links', {
   method: 'POST',
-
   headers: {
-
     'Content-Type': 'application/json',
-
-    'Authorization': 'Bearer hea_live_sk_89f2a9'
-
+    'Authorization': 'Bearer YOUR_API_KEY'
   },
-
   body: JSON.stringify({
-
-    url: 'https://instagram.com/mybrand',
-
+    dest: 'https://instagram.com/mybrand',
     title: 'Social Profile'
-
   })
-
 });
-
-const data = await res.json();
-
+const { data } = await res.json();
 console.log('Short URL:', data.shortUrl);`,
 
   python: `import requests
 
-url = "https://healink.store/api/shorten"
-
+url = "https://healink.store/api/v1/links"
 headers = {
-
     "Content-Type": "application/json",
-
-    "Authorization": "Bearer hea_live_sk_89f2a9"
-
+    "Authorization": "Bearer YOUR_API_KEY"
 }
-
 payload = {
-
-    "url": "https://instagram.com/mybrand",
-
+    "dest": "https://instagram.com/mybrand",
     "title": "Social Profile"
-
 }
 
 response = requests.post(url, json=payload, headers=headers)
-
-print("Short URL:", response.json()["shortUrl"])`
-
+print("Short URL:", response.json()["data"]["shortUrl"])`
 };
 
 function switchApiTab(lang) {
-
   const codeEl = $('#apiSnippetCode');
-
   if (codeEl) codeEl.textContent = API_SNIPPETS[lang] || API_SNIPPETS.curl;
-
   ['curl', 'node', 'python'].forEach(l => {
-
     const btn = $('#tab' + l.charAt(0).toUpperCase() + l.slice(1));
-
     if (btn) btn.classList.toggle('active', l === lang);
-
   });
-
 }
-
 window.switchApiTab = switchApiTab;
 
 function testLiveApiEndpoint() {
-
-  const resEl = $('#liveApiResult');
-
-  if (!resEl) return;
-
-  resEl.hidden = false;
-
-  resEl.innerHTML = `<span style="color:#f59e0b;">⚡ Dispatching request to https://tinyurl.com/api-create.php...</span>`;
-
-  setTimeout(() => {
-
-    const slug = generateShortSlug(6);
-
-    resEl.innerHTML = `HTTP/1.1 200 OK (Latency: 28ms)
-
-{
-
-  "success": true,
-
-  "slug": "${slug}",
-
-  "shortUrl": "https://healink.store/${slug}",
-
-  "destination": "https://instagram.com/mybrand",
-
-  "clicks": 0,
-
-  "qrCode": "https://api.qrserver.com/v1/create-qr-code/?data=https://healink.store/${slug}"
-
-}`;
-
-  }, 350);
-
+  window.open('/developers#try-it', '_blank');
 }
-
 window.testLiveApiEndpoint = testLiveApiEndpoint;
 
 function openGlobalAssist() {
@@ -2141,7 +2058,7 @@ function handleMegaAction(e) {
 
       location.hash = '#pricing';
 
-      toast('100+ Platform Integrations included in HEA Link PRO');
+      toast('Explore real-time webhooks & integrations in the Integrations Hub');
 
     }
 
@@ -2471,11 +2388,13 @@ const STEPS = [
 
 const PLANS = [
 
-  ['Free', 'Rs 0', ['50 short links a month', 'Standard QR codes', '7-day analytics retention', '1 Link-in-Bio page'], 'Get Started Free', false],
+  ['Free', 'Rs 0', ['25 active short links', '5 vector QR codes', '30-day analytics retention', '1 link-in-bio page'], 'Get Started Free', false],
 
-  ['Pro', 'Rs 1,499', ['Unlimited short links', 'Dynamic QR with logo & colours', 'Password, expiry & UTM builder', '1-year analytics + AI summaries', '5 Link-in-Bio pages'], 'Start Pro Free', true],
+  ['Pro', 'Rs 1,499', ['500 active short links', '50 vector QR codes', '3 custom branded domains', '90-day analytics retention', 'CSV/JSON data exports'], 'Start Pro Free', true],
 
-  ['Enterprise', 'Custom', ['Everything in Pro', 'Custom branded domains', 'Dynamic routing & REST API', 'Team workspaces & SSO', 'Dedicated SLA support'], 'Contact Sales', false]
+  ['Business', 'Rs 4,999', ['5,000 active short links', '500 vector QR codes', '5 workspace team seats', '10 custom branded domains', 'Full workspace audit logs'], 'Start Business', false],
+
+  ['Enterprise', 'Rs 29,999', ['Unlimited links & QR codes', 'SAML 2.0 & OIDC SSO', '50 workspace team seats', 'IP allowlisting & audit logs', 'Dedicated support manager'], 'Contact Sales', false]
 
 ];
 
@@ -5048,47 +4967,44 @@ $('#search').oninput = renderDash;
 
 $('#newBtn').onclick = () => linkModal();
 
-$('#demoBtn').onclick = () => {
-
-  const m = mine();
-
-  if (!m.length) {
-
-    toast('Please create a link first');
-
-    return;
-
+const demoBtnEl = $('#demoBtn');
+if (demoBtnEl) {
+  // Hide in production environments to prevent synthetic telemetry contamination
+  const isDevHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  if (!isDevHost) {
+    demoBtnEl.style.display = 'none';
+  } else {
+    demoBtnEl.title = 'Demo Sandbox: Simulate test clicks for local preview';
   }
 
-  m.forEach(l => {
-
-    const num = 10 + Math.floor(Math.random() * 35);
-
-    for (let i = 0; i < num; i++) {
-
-      l.clicks.push({
-
-        t: Date.now() - Math.random() * 13 * 864e5,
-
-        d: pick(['Mobile', 'Mobile', 'Desktop', 'Desktop', 'Tablet']),
-
-        r: pick(['Instagram', 'WhatsApp', 'Direct', 'Google', 'Facebook', 'LinkedIn']),
-
-        c: pick(['US', 'PK', 'GB', 'AE', 'CA', 'DE'])
-
-      });
-
+  demoBtnEl.onclick = () => {
+    const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (!isDev) {
+      toast('Demo data generation is disabled in production');
+      return;
     }
-
-  });
-
-  saveLinks();
-
-  renderDash();
-
-  toast('Generated realistic demo clicks!');
-
-};
+    const m = mine();
+    if (!m.length) {
+      toast('Please create a link first');
+      return;
+    }
+    toast('⚡ [Demo Mode] Adding simulated local sandbox clicks');
+    m.forEach(l => {
+      const num = 5 + Math.floor(Math.random() * 15);
+      if (!Array.isArray(l.clicks)) l.clicks = [];
+      for (let i = 0; i < num; i++) {
+        l.clicks.push({
+          t: Date.now() - Math.random() * 7 * 864e5,
+          d: pick(['Mobile', 'Desktop', 'Tablet']),
+          r: pick(['Instagram', 'WhatsApp', 'Direct', 'Google', 'Facebook']),
+          c: pick(['US', 'PK', 'GB', 'AE', 'CA'])
+        });
+      }
+    });
+    saveLinks();
+    renderDash();
+  };
+}
 
 $('#exportBtn').onclick = () => {
 
@@ -7064,7 +6980,29 @@ function route() {
 
   updateHomeCtaForAuth();
 
-  const rawHash = (location.hash.slice(1) || '').split('?')[0];
+  const rawHash = (location.hash.slice(1) || '').split('?')[0].toLowerCase();
+
+  // Legacy resource route redirection to dedicated pages
+  if (rawHash === 'integrations') {
+    window.location.href = '/integrations';
+    return;
+  }
+  if (rawHash === 'utm' || rawHash === 'utm-guide' || rawHash === 'campaigns-guide') {
+    window.location.href = '/resources/utm-guide';
+    return;
+  }
+  if (rawHash === 'faq') {
+    window.location.href = '/faq';
+    return;
+  }
+  if (rawHash === 'developers' || rawHash === 'api-docs') {
+    window.location.href = '/developers';
+    return;
+  }
+  if (rawHash === 'help' || rawHash === 'help-center') {
+    window.location.href = '/help';
+    return;
+  }
 
   if (!rawHash || rawHash === 'home') {
     if (session && session.isVerified) {

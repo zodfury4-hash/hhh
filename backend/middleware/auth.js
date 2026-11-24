@@ -1,17 +1,40 @@
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const config = require('../config');
 
 const JWT_SECRET = config.jwtSecret;
 
 function authMiddleware(req, res, next) {
+  let token = null;
   const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Unauthorized: No token provided', code: 'NO_TOKEN' });
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.split(' ')[1];
+  } else if (req.query && req.query.token) {
+    token = req.query.token;
   }
 
-  const token = authHeader.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({ error: 'Unauthorized: No token provided', code: 'NO_TOKEN' });
+  }
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
+    if (decoded.tokenVersion !== undefined && mongoose.connection.readyState === 1) {
+      const User = require('../models/User');
+      User.findOne({ email: decoded.email.toLowerCase() }, 'tokenVersion status')
+        .lean()
+        .then((dbUser) => {
+          if (dbUser && dbUser.tokenVersion !== undefined && dbUser.tokenVersion > decoded.tokenVersion) {
+            return res.status(401).json({
+              error: 'Unauthorized: Session revoked. Please log in again.',
+              code: 'SESSION_REVOKED'
+            });
+          }
+          req.user = decoded;
+          next();
+        })
+        .catch(next);
+      return;
+    }
     req.user = decoded;
     next();
   } catch (err) {

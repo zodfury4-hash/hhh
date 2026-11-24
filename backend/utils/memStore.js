@@ -4,7 +4,13 @@ const memStore = {
   links: [],
   qrs: [],
   bios: [],
-  domains: []
+  domains: [],
+  clicks: [],
+  notifications: [],
+  workspaces: [],
+  memberships: [],
+  invites: [],
+  auditLogs: []
 };
 
 module.exports = memStore;

@@ -15,6 +15,7 @@ const { requireDatabase } = require('./middleware/dbCheck');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 
 const app = express();
+app.set('trust proxy', config.trustProxy);
 const PORT = config.port;
 const MONGODB_URI = config.mongoUri;
 const projectRoot = path.join(__dirname, '..');
@@ -241,8 +242,21 @@ app.use('/', require('./routes/links'));
 app.use('/', require('./routes/qr'));
 app.use('/', require('./routes/bio'));
 app.use('/', require('./routes/analytics'));
+app.use('/', require('./routes/domains'));
 app.use('/', require('./routes/billing'));
 app.use('/', require('./routes/assist'));
+app.use('/', require('./routes/slugs'));
+app.use('/', require('./routes/tokens'));
+app.use('/', require('./routes/keys'));
+app.use('/', require('./routes/mcp'));
+app.use('/', require('./routes/integrations'));
+app.use('/', require('./routes/export'));
+app.use('/', require('./routes/help'));
+app.use('/', require('./routes/plans'));
+app.use('/', require('./routes/workspaces'));
+app.use('/', require('./routes/dashboard'));
+app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/v1', require('./routes/v1'));
 
 // ---------------- STATIC ASSETS & CLIENT SPA ROUTES ---------------- //
 app.get('/login', (req, res) => res.redirect('/#login'));
@@ -258,6 +272,34 @@ app.get(['/', '/index.html'], (req, res) => {
 // Serve compiled dashboard for app.html
 app.get('/app.html', (req, res) => {
   return res.sendFile(path.join(projectRoot, 'app.html'));
+});
+
+// Dedicated AI Feature Pages
+app.get(['/ai/slug-generator', '/ai/slugs'], (req, res) => {
+  return res.sendFile(path.join(projectRoot, 'pages', 'ai-slug-generator.html'));
+});
+
+app.get(['/ai/assist', '/ai'], (req, res) => {
+  return res.sendFile(path.join(projectRoot, 'pages', 'ai-assist.html'));
+});
+
+app.get(['/ai/mcp'], (req, res) => {
+  return res.sendFile(path.join(projectRoot, 'pages', 'ai-mcp.html'));
+});
+
+// Dedicated Developer API Docs Page
+app.get('/developers', (req, res) => {
+  return res.sendFile(path.join(projectRoot, 'pages', 'developers.html'));
+});
+
+// Dedicated Integrations Hub Page
+app.get('/integrations', (req, res) => {
+  return res.sendFile(path.join(projectRoot, 'pages', 'integrations.html'));
+});
+
+// Dedicated UTM Campaign Tracking Guide & Interactive Builder
+app.get(['/resources/utm-guide', '/utm-guide'], (req, res) => {
+  return res.sendFile(path.join(projectRoot, 'pages', 'resources-utm-guide.html'));
 });
 
 // Serve static project files with intelligent caching

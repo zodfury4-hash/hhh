@@ -1,52 +1,34 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 const Link = require('../models/Link');
 const BioPage = require('../models/BioPage');
+const CustomDomain = require('../models/CustomDomain');
 const firebaseRtdb = require('../firebase-service');
 const memStore = require('../utils/memStore');
+const config = require('../config');
 const { authMiddleware, optionalAuth } = require('../middleware/auth');
-const { linkCreateLimiter, bulkShortenLimiter } = require('../middleware/rateLimiter');
+const { linkCreateLimiter, bulkShortenLimiter, passwordAttemptLimiter } = require('../middleware/rateLimiter');
 const {
   validate,
   createLinkSchema,
+  updateLinkSchema,
   bulkShortenSchema,
   isValidDestinationUrl,
   RESERVED_SLUGS
 } = require('../middleware/validation');
 const { inspectUrlSecurity } = require('../services/abuse-service');
+const { recordClick } = require('../services/telemetry-service');
+const { isSlugAuthorized, setSlugCookie } = require('../utils/cookieAuth');
+const { renderPasswordChallengeHtml, renderExpiredLinkHtml } = require('../utils/protectedLinkHtml');
+const { generateCryptoSlug } = require('../utils/slugGenerator');
+const { getEntitlements, assertWithinLimit } = require('../config/plans');
+const { createNotification } = require('../services/notificationService');
 
 function isDbConnected() {
   return mongoose.connection.readyState === 1;
-}
-
-function parseDevice(ua = '') {
-  if (/ipad|tablet|(android(?!.*mobile))/i.test(ua)) return 'Tablet';
-  if (/mobile|iphone|ipod|android|blackberry|opera mini|iemobile/i.test(ua)) return 'Mobile';
-  return 'Desktop';
-}
-
-function parseReferrer(ref = '') {
-  if (!ref || ref === 'direct') return 'Direct';
-  try {
-    const host = new URL(ref).hostname.toLowerCase().replace(/^www\./, '');
-    if (host.includes('google')) return 'Google';
-    if (host.includes('facebook') || host.includes('fb.')) return 'Facebook';
-    if (host.includes('twitter') || host.includes('t.co') || host.includes('x.com')) return 'Twitter / X';
-    if (host.includes('linkedin')) return 'LinkedIn';
-    if (host.includes('instagram')) return 'Instagram';
-    if (host.includes('youtube')) return 'YouTube';
-    return host;
-  } catch (e) {
-    return 'Direct';
-  }
-}
-
-function isBotUserAgent(ua = '') {
-  const botPatterns =
-    /bot|crawl|spider|slurp|facebookexternalhit|whatsapp|telegrambot|twitterbot|pinterest|slackbot|linkedinbot|discordbot|bingbot|googlebot|yandex|applebot/i;
-  return botPatterns.test(ua);
 }
 
 // Working short URL helper (TinyURL fallback)
@@ -88,7 +70,7 @@ router.post('/api/shorten-online', linkCreateLimiter, async (req, res) => {
       return res.status(400).json({ error: securityCheck.reason, code: 'URL_BLOCKED' });
     }
 
-    const finalSlug = (requestedSlug || Math.random().toString(36).substring(2, 8)).trim().toLowerCase();
+    const finalSlug = (requestedSlug || generateCryptoSlug(6)).trim().toLowerCase();
     if (RESERVED_SLUGS.has(finalSlug)) {
       return res.status(400).json({ error: 'This slug is reserved by the system. Please choose another.' });
     }
@@ -158,7 +140,7 @@ router.post('/api/shorten', linkCreateLimiter, optionalAuth, async (req, res) =>
       return res.status(400).json({ error: securityCheck.reason, code: 'URL_BLOCKED' });
     }
 
-    const finalSlug = (slug || Math.random().toString(36).substring(2, 8)).trim().toLowerCase();
+    const finalSlug = (slug || generateCryptoSlug(6)).trim().toLowerCase();
     if (RESERVED_SLUGS.has(finalSlug)) {
       return res.status(400).json({ error: 'This slug is reserved. Please pick another back-half.' });
     }
@@ -228,6 +210,17 @@ router.post('/api/shorten', linkCreateLimiter, optionalAuth, async (req, res) =>
       link
     });
   } catch (err) {
+    if (err.name === 'PlanError') {
+      return res.status(err.statusCode || 403).json({
+        ok: false,
+        error: err.message,
+        code: err.code,
+        meta: err.meta
+      });
+    }
+    if (err.code === 11000) {
+      return res.status(400).json({ error: 'This custom back-half is already taken', code: 'SLUG_COLLISION' });
+    }
     res.status(500).json({ error: err.message });
   }
 });
@@ -273,13 +266,31 @@ router.get('/api/links', authMiddleware, async (req, res) => {
       redirectUrl: `https://${host}/r/${l.slug}`,
       title: l.title || 'Untitled Link',
       tag: l.tag || 'General',
-      clicks: Array.isArray(l.clicks) ? l.clicks.length : typeof l.clicks === 'number' ? l.clicks : 0,
+      clicks:
+        l.humanClicks ??
+        l.totalClicks ??
+        (Array.isArray(l.clicks) ? l.clicks.length : typeof l.clicks === 'number' ? l.clicks : 0),
       scans: l.scans || 0,
+      hasPassword: !!(l.passwordHash || l.password),
+      expiresAt: l.expiresAt || null,
+      maxClicks: l.maxClicks || null,
+      utm: l.utm || null,
       createdAt: l.createdAt
     }));
 
     res.json({ links: formatted });
   } catch (err) {
+    if (err.name === 'PlanError') {
+      return res.status(err.statusCode || 403).json({
+        ok: false,
+        error: err.message,
+        code: err.code,
+        meta: err.meta
+      });
+    }
+    if (err.code === 11000) {
+      return res.status(400).json({ error: 'This custom back-half is already taken', code: 'SLUG_COLLISION' });
+    }
     res.status(500).json({ error: err.message });
   }
 });
@@ -289,33 +300,27 @@ router.post('/api/links', authMiddleware, linkCreateLimiter, validate(createLink
   try {
     const email = req.user.email;
     const isAdmin = req.user.role === 'admin' || req.user.isAdmin;
-    const isPro = !!req.user.isPro;
-    const isDev = process.env.NODE_ENV === 'development';
 
-    // Free plan limits: 100 links (bypassed only in dev, or for PRO/Admin)
-    if (!isAdmin && !isPro && !isDev) {
+    // Plan entitlement check (bypassed for system Admin)
+    const entitlements = getEntitlements(req.user);
+    if (!isAdmin) {
       let count = 0;
       if (isDbConnected()) {
         count = await Link.countDocuments({ ownerEmail: email.toLowerCase() });
       } else {
         count = memStore.links.filter((l) => l.ownerEmail === email.toLowerCase()).length;
       }
-      if (count >= 100) {
-        return res.status(403).json({
-          error: 'Free plan limit reached (100 links). Upgrade to Core PRO for unlimited short links and analytics!',
-          code: 'PLAN_LIMIT_REACHED'
-        });
-      }
+      assertWithinLimit(entitlements, 'links', count);
     }
 
-    let { dest, slug, title, tag, qr, password, expiresAt, maxClicks } = req.body;
+    let { dest, slug, title, tag, qr, password, expiresAt, maxClicks, utm } = req.body;
 
     const securityCheck = await inspectUrlSecurity(dest);
     if (!securityCheck.safe) {
       return res.status(400).json({ error: securityCheck.reason, code: 'URL_BLOCKED' });
     }
 
-    const finalSlug = (slug || Math.random().toString(36).substring(2, 8)).trim().toLowerCase();
+    const finalSlug = (slug || generateCryptoSlug(6)).trim().toLowerCase();
     if (RESERVED_SLUGS.has(finalSlug)) {
       return res.status(400).json({ error: 'This custom slug is reserved. Please pick another back-half.' });
     }
@@ -324,6 +329,13 @@ router.post('/api/links', authMiddleware, linkCreateLimiter, validate(createLink
     if (expiresAt) {
       const expDate = new Date(expiresAt);
       if (!isNaN(expDate.getTime())) parsedExpires = expDate;
+    }
+
+    const parsedMaxClicks = maxClicks ? parseInt(maxClicks, 10) : null;
+
+    let passwordHash = null;
+    if (password && typeof password === 'string' && password.trim()) {
+      passwordHash = await bcrypt.hash(password.trim(), 10);
     }
 
     let newLink = null;
@@ -340,9 +352,11 @@ router.post('/api/links', authMiddleware, linkCreateLimiter, validate(createLink
         title: title || 'Untitled Link',
         tag: tag || 'General',
         qr: qr !== false,
-        password: password ? password.trim() : null,
+        password: null,
+        passwordHash,
         expiresAt: parsedExpires,
-        maxClicks: maxClicks ? parseInt(maxClicks, 10) : null,
+        maxClicks: parsedMaxClicks,
+        utm: utm || null,
         scans: 0,
         clicks: []
       });
@@ -356,9 +370,11 @@ router.post('/api/links', authMiddleware, linkCreateLimiter, validate(createLink
         title: title || 'Untitled Link',
         tag: tag || 'General',
         qr: qr !== false,
-        password: password ? password.trim() : null,
+        password: null,
+        passwordHash,
         expiresAt: parsedExpires,
-        maxClicks: maxClicks ? parseInt(maxClicks, 10) : null,
+        maxClicks: parsedMaxClicks,
+        utm: utm || null,
         scans: 0,
         clicks: [],
         createdAt: new Date()
@@ -373,13 +389,13 @@ router.post('/api/links', authMiddleware, linkCreateLimiter, validate(createLink
         title: title || 'Untitled Link',
         tag: tag || 'General',
         qr: qr !== false,
-        password: password ? password.trim() : null,
+        hasPassword: !!passwordHash,
         expiresAt: parsedExpires ? parsedExpires.toISOString() : null,
-        maxClicks: maxClicks ? parseInt(maxClicks, 10) : null,
+        maxClicks: parsedMaxClicks,
         scans: 0,
         clicks: []
       });
-    } catch (fbErr) {}
+    } catch (_fbErr) {}
 
     let realShort = req.body.realShort;
     if (!realShort) {
@@ -391,17 +407,43 @@ router.post('/api/links', authMiddleware, linkCreateLimiter, validate(createLink
     const localShort = `${proto}://${host}/${finalSlug}`;
     const cleanShortUrl = realShort && realShort !== dest ? realShort : localShort;
 
+    const linkDoc = newLink._doc ? { ...newLink._doc } : { ...newLink };
+    delete linkDoc.password;
+    delete linkDoc.passwordHash;
+    linkDoc.hasPassword = !!passwordHash;
+    linkDoc.url = cleanShortUrl;
+    linkDoc.realShort = cleanShortUrl;
+    linkDoc.redirectUrl = cleanShortUrl;
+    linkDoc.clicks = 0;
+
+    try {
+      createNotification({
+        ownerEmail: email,
+        userId: req.user ? (req.user._id || req.user.id) : null,
+        type: 'system',
+        title: 'Short Link Created',
+        body: `Your short link /${finalSlug} is now live and routing to ${dest}`,
+        link: cleanShortUrl,
+        refId: `link_${finalSlug}_created`
+      }).catch(() => {});
+    } catch (_notifErr) {}
+
     res.json({
       success: true,
-      link: {
-        ...(newLink._doc || newLink),
-        url: cleanShortUrl,
-        realShort: cleanShortUrl,
-        redirectUrl: cleanShortUrl,
-        clicks: 0
-      }
+      link: linkDoc
     });
   } catch (err) {
+    if (err.name === 'PlanError') {
+      return res.status(err.statusCode || 403).json({
+        ok: false,
+        error: err.message,
+        code: err.code,
+        meta: err.meta
+      });
+    }
+    if (err.code === 11000) {
+      return res.status(400).json({ error: 'This custom back-half is already taken', code: 'SLUG_COLLISION' });
+    }
     res.status(500).json({ error: err.message });
   }
 });
@@ -421,7 +463,7 @@ router.post('/api/links/bulk', authMiddleware, bulkShortenLimiter, validate(bulk
       if (!u) continue;
       if (!isValidDestinationUrl(u)) continue;
 
-      const slug = Math.random().toString(36).substring(2, 8);
+      const slug = generateCryptoSlug(6).toLowerCase();
       const realShort = await getRealWorkingShortUrl(u);
       const cleanUrl = realShort && realShort !== u ? realShort : `${proto}://${host}/${slug}`;
 
@@ -438,7 +480,7 @@ router.post('/api/links/bulk', authMiddleware, bulkShortenLimiter, validate(bulk
         createdLinks.push({ slug, dest: u, url: cleanUrl, realShort: cleanUrl });
       } else {
         const item = {
-          id: 'lnk_' + Date.now() + Math.random().toString(36).slice(2, 4),
+          id: 'lnk_' + Date.now() + generateCryptoSlug(4).toLowerCase(),
           ownerEmail: email,
           dest: u,
           slug,
@@ -464,23 +506,61 @@ router.post('/api/links/bulk', authMiddleware, bulkShortenLimiter, validate(bulk
 
     res.json({ success: true, links: createdLinks });
   } catch (err) {
+    if (err.name === 'PlanError') {
+      return res.status(err.statusCode || 403).json({
+        ok: false,
+        error: err.message,
+        code: err.code,
+        meta: err.meta
+      });
+    }
+    if (err.code === 11000) {
+      return res.status(400).json({ error: 'This custom back-half is already taken', code: 'SLUG_COLLISION' });
+    }
     res.status(500).json({ error: err.message });
   }
 });
 
 // Update link with strict ownership verification
-router.put('/api/links/:slug', authMiddleware, async (req, res) => {
+router.put('/api/links/:slug', authMiddleware, validate(updateLinkSchema), async (req, res) => {
   try {
     const email = req.user.email;
     const isAdmin = req.user.role === 'admin' || req.user.isAdmin;
     const slug = req.params.slug.toLowerCase().trim();
-    const { dest, title, tag } = req.body;
+    const { dest, title, tag, password, removePassword, expiresAt, maxClicks, utm } = req.body;
 
     if (dest) {
       const securityCheck = await inspectUrlSecurity(dest);
       if (!securityCheck.safe) {
         return res.status(400).json({ error: securityCheck.reason, code: 'URL_BLOCKED' });
       }
+    }
+
+    let parsedExpires = undefined;
+    if (expiresAt !== undefined) {
+      if (expiresAt === null || expiresAt === '') {
+        parsedExpires = null;
+      } else {
+        const expDate = new Date(expiresAt);
+        if (!isNaN(expDate.getTime())) parsedExpires = expDate;
+      }
+    }
+
+    let parsedMaxClicks = undefined;
+    if (maxClicks !== undefined) {
+      if (maxClicks === null || maxClicks === '') {
+        parsedMaxClicks = null;
+      } else {
+        const mc = parseInt(maxClicks, 10);
+        if (!isNaN(mc) && mc > 0) parsedMaxClicks = mc;
+      }
+    }
+
+    let newPasswordHash = undefined;
+    if (removePassword === true || password === '') {
+      newPasswordHash = null;
+    } else if (password && typeof password === 'string' && password.trim()) {
+      newPasswordHash = await bcrypt.hash(password.trim(), 10);
     }
 
     if (isDbConnected()) {
@@ -497,13 +577,34 @@ router.put('/api/links/:slug', authMiddleware, async (req, res) => {
       if (dest) link.dest = dest;
       if (title) link.title = title;
       if (tag) link.tag = tag;
+      if (newPasswordHash !== undefined) {
+        link.passwordHash = newPasswordHash;
+        link.password = null;
+      }
+      if (parsedExpires !== undefined) link.expiresAt = parsedExpires;
+      if (parsedMaxClicks !== undefined) link.maxClicks = parsedMaxClicks;
+      if (utm !== undefined) link.utm = utm;
+
       await link.save();
 
       try {
-        await firebaseRtdb.saveLink(link.ownerEmail, { slug, dest: link.dest, title: link.title, tag: link.tag });
-      } catch (e) {}
+        await firebaseRtdb.saveLink(link.ownerEmail, {
+          slug,
+          dest: link.dest,
+          title: link.title,
+          tag: link.tag,
+          hasPassword: !!link.passwordHash,
+          expiresAt: link.expiresAt ? link.expiresAt.toISOString() : null,
+          maxClicks: link.maxClicks
+        });
+      } catch (_e) {}
 
-      return res.json({ success: true, link });
+      const sanitized = link._doc ? { ...link._doc } : { ...link };
+      delete sanitized.password;
+      delete sanitized.passwordHash;
+      sanitized.hasPassword = !!link.passwordHash;
+
+      return res.json({ success: true, link: sanitized });
     } else {
       const link = memStore.links.find((l) => l.slug === slug);
       if (!link) return res.status(404).json({ error: 'Link not found' });
@@ -517,10 +618,33 @@ router.put('/api/links/:slug', authMiddleware, async (req, res) => {
       if (dest) link.dest = dest;
       if (title) link.title = title;
       if (tag) link.tag = tag;
+      if (newPasswordHash !== undefined) {
+        link.passwordHash = newPasswordHash;
+        link.password = null;
+      }
+      if (parsedExpires !== undefined) link.expiresAt = parsedExpires;
+      if (parsedMaxClicks !== undefined) link.maxClicks = parsedMaxClicks;
+      if (utm !== undefined) link.utm = utm;
 
-      return res.json({ success: true, link });
+      const sanitized = { ...link };
+      delete sanitized.password;
+      delete sanitized.passwordHash;
+      sanitized.hasPassword = !!link.passwordHash;
+
+      return res.json({ success: true, link: sanitized });
     }
   } catch (err) {
+    if (err.name === 'PlanError') {
+      return res.status(err.statusCode || 403).json({
+        ok: false,
+        error: err.message,
+        code: err.code,
+        meta: err.meta
+      });
+    }
+    if (err.code === 11000) {
+      return res.status(400).json({ error: 'This custom back-half is already taken', code: 'SLUG_COLLISION' });
+    }
     res.status(500).json({ error: err.message });
   }
 });
@@ -562,12 +686,23 @@ router.delete('/api/links/:slug', authMiddleware, async (req, res) => {
 
     res.json({ success: true, message: 'Link deleted successfully' });
   } catch (err) {
+    if (err.name === 'PlanError') {
+      return res.status(err.statusCode || 403).json({
+        ok: false,
+        error: err.message,
+        code: err.code,
+        meta: err.meta
+      });
+    }
+    if (err.code === 11000) {
+      return res.status(400).json({ error: 'This custom back-half is already taken', code: 'SLUG_COLLISION' });
+    }
     res.status(500).json({ error: err.message });
   }
 });
 
 /* =========================================================
-   FAST & SECURE URL REDIRECTION ENGINE (HTTP 302 DIRECT)
+   FAST & SECURE URL REDIRECTION & PASSWORD VERIFICATION
    ========================================================= */
 
 const handleRedirect = async (req, res, next) => {
@@ -575,144 +710,162 @@ const handleRedirect = async (req, res, next) => {
     const slug = (req.params.slug || '').trim().toLowerCase();
     if (!slug) return next();
 
-    let link = null;
-    if (isDbConnected()) {
-      link = await Link.findOne({ slug });
-    } else {
-      link = memStore.links.find((l) => l.slug.toLowerCase() === slug);
-    }
+    // 1. Resolve host (Branded Custom Domain vs Primary Host)
+    const reqHost = (req.hostname || req.get('host') || '').toLowerCase().split(':')[0];
+    const isPrimaryHost = config.primaryHosts && config.primaryHosts.has(reqHost);
 
-    if (!link) {
-      try {
-        link = await firebaseRtdb.getLinkBySlug(slug);
-      } catch (fbErr) {}
-    }
-
-    if (link && link.dest) {
-      // 1. Expiration Checks
-      const isTimeExpired = link.expiresAt && new Date() > new Date(link.expiresAt);
-      const isClicksExpired =
-        link.maxClicks && Array.isArray(link.clicks) && link.clicks.filter((c) => !c.isBot).length >= link.maxClicks;
-
-      if (isTimeExpired || isClicksExpired) {
-        return res.status(410).send(`
+    let domainOwnerEmail = null;
+    if (!isPrimaryHost) {
+      let customDomain = null;
+      if (isDbConnected()) {
+        customDomain = await CustomDomain.findOne({ domain: reqHost, status: 'active' });
+      } else {
+        customDomain = memStore.domains.find((d) => d.domain === reqHost && d.status === 'active');
+      }
+      if (!customDomain) {
+        return res.status(404).send(`
           <!DOCTYPE html>
           <html>
-          <head>
-            <meta charset="utf-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-            <title>Link Expired · HEA Link</title>
-            <style>
-              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #060b18; color: #fff; display: grid; place-items: center; min-height: 100vh; margin: 0; text-align: center; padding: 20px; }
-              .box { background: #090f22; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 36px 30px; max-width: 440px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
-              h2 { font-size: 22px; margin-top: 12px; color: #f87171; }
-              p { color: #94a3b8; font-size: 14px; line-height: 1.6; }
-              a { display: inline-block; margin-top: 16px; color: #38bdf8; text-decoration: none; font-weight: 700; }
-            </style>
-          </head>
+          <head><title>Domain Not Active - HEA Link</title><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>body{font-family:system-ui,-apple-system,sans-serif;background:#0b132b;color:#f8fafc;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;padding:20px;text-align:center;} .card{max-width:440px;background:#1c2541;padding:32px;border-radius:16px;border:1px solid #3a506b;} h1{color:#38bdf8;font-size:22px;margin:0 0 12px;} p{color:#94a3b8;font-size:14px;line-height:1.6;margin:0 0 20px;} a{color:#0070f3;text-decoration:none;font-weight:600;}</style></head>
           <body>
-            <div class="box">
-              <div style="font-size: 44px;">⏳</div>
-              <h2>This Link Has Expired</h2>
-              <p>The creator set an expiration date or click limit for this short link, which has now elapsed.</p>
-              <a href="/#home">Learn more about HEA Link →</a>
+            <div class="card">
+              <h1>🌐 Custom Domain Not Active</h1>
+              <p>The domain <strong>${reqHost}</strong> is pointing to HEA Link, but has not been verified or activated.</p>
+              <a href="https://healink.store">Go to HEA Link Homepage →</a>
             </div>
           </body>
           </html>
         `);
       }
+      domainOwnerEmail = customDomain.ownerEmail.toLowerCase().trim();
+    }
 
-      // 2. Password Protection Check
-      if (link.password) {
-        const providedPwd = req.query.pwd || req.body?.pwd;
-        if (providedPwd !== link.password) {
-          return res.status(401).send(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <meta charset="utf-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1">
-              <title>Password Required · HEA Link</title>
-              <style>
-                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #060b18; color: #fff; display: grid; place-items: center; min-height: 100vh; margin: 0; text-align: center; padding: 20px; }
-                .box { background: #090f22; border: 1px solid rgba(56,189,248,0.25); border-radius: 16px; padding: 36px 30px; max-width: 440px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
-                h2 { font-size: 20px; margin-top: 10px; color: #fff; }
-                p { color: #94a3b8; font-size: 14px; margin-bottom: 20px; }
-                input { width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 12px; color: #fff; font-size: 15px; margin-bottom: 12px; outline: none; }
-                button { width: 100%; background: linear-gradient(135deg, #0084ff, #00d2ff); border: 0; color: #fff; padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 15px; }
-              </style>
-            </head>
-            <body>
-              <div class="box">
-                <div style="font-size: 38px;">🔒</div>
-                <h2>Password Protected Link</h2>
-                <p>This link is protected with a password. Please enter the passcode to continue.</p>
-                <form method="GET">
-                  <input type="password" name="pwd" placeholder="Enter password..." required autofocus>
-                  <button type="submit">Unlock &amp; Proceed →</button>
-                </form>
-              </div>
-            </body>
-            </html>
-          `);
+    // 2. Fetch Link (scoped to custom domain owner if routed through custom domain)
+    let link = null;
+    const query = { slug };
+    if (domainOwnerEmail) {
+      query.ownerEmail = domainOwnerEmail;
+    }
+
+    if (isDbConnected()) {
+      link = await Link.findOne(query);
+    } else {
+      link = memStore.links.find(
+        (l) => l.slug.toLowerCase() === slug && (!domainOwnerEmail || l.ownerEmail.toLowerCase() === domainOwnerEmail)
+      );
+    }
+
+    if (!link && !domainOwnerEmail) {
+      try {
+        link = await firebaseRtdb.getLinkBySlug(slug);
+      } catch (_fbErr) {}
+    }
+
+    if (link && link.dest) {
+      // 3. Expiration Check (Time-based, returns HTTP 410 Gone)
+      if (link.expiresAt && new Date() > new Date(link.expiresAt)) {
+        return res.status(410).send(renderExpiredLinkHtml({ reason: 'date' }));
+      }
+
+      // 4. Click Capacity Limit Check (Atomic findOneAndUpdate check, returns HTTP 410 Gone)
+      if (link.maxClicks && link.maxClicks > 0) {
+        if (isDbConnected()) {
+          const updated = await Link.findOneAndUpdate(
+            {
+              _id: link._id,
+              $expr: { $lt: ['$humanClicks', link.maxClicks] }
+            },
+            { $inc: { humanClicks: 1, totalClicks: 1 } },
+            { new: true }
+          );
+          if (!updated) {
+            return res.status(410).send(renderExpiredLinkHtml({ reason: 'clicks' }));
+          }
+          link = updated;
+        } else {
+          if ((link.humanClicks || 0) >= link.maxClicks) {
+            return res.status(410).send(renderExpiredLinkHtml({ reason: 'clicks' }));
+          }
+          link.humanClicks = (link.humanClicks || 0) + 1;
+          link.totalClicks = (link.totalClicks || 0) + 1;
         }
       }
 
-      // 3. Telemetry Click Recording (Asynchronous: do NOT block 302 redirect)
-      const userAgent = req.headers['user-agent'] || '';
-      const isBot = isBotUserAgent(userAgent);
-      const device = parseDevice(userAgent);
-      const referer = parseReferrer(req.headers.referer || '');
-      const country = req.headers['cf-ipcountry'] || req.headers['x-country'] || 'US';
+      // 5. Password Protection Check (Strict signed HMAC cookie, NO ?pwd= query bypass)
+      const hasPasswordProtection = !!(link.passwordHash || link.password);
+      if (hasPasswordProtection) {
+        const authorized = isSlugAuthorized(req, slug);
+        if (!authorized) {
+          // Serve clean password challenge HTML
+          return res.status(200).send(renderPasswordChallengeHtml({ slug }));
+        }
+      }
 
-      // Perform click recording in background
+      // 6. Asynchronous Telemetry Recording (Never block 302 redirect)
+      const isQr = req.query.qr === '1';
+      const skipCounterIncrement = !!(link.maxClicks && link.maxClicks > 0);
       setImmediate(async () => {
         try {
-          if (!Array.isArray(link.clicks)) link.clicks = [];
-          link.clicks.push({
-            timestamp: new Date(),
-            ip: req.ip,
-            country,
-            referer,
-            userAgent,
-            device,
-            isBot
-          });
-          if (req.query.qr === '1') {
-            link.scans = (link.scans || 0) + 1;
-          }
-          if (isDbConnected()) {
-            await Link.updateOne(
-              { slug },
-              {
-                $push: {
-                  clicks: {
-                    timestamp: new Date(),
-                    ip: req.ip,
-                    country,
-                    referer,
-                    userAgent,
-                    device,
-                    isBot
-                  }
-                },
-                $inc: { scans: req.query.qr === '1' ? 1 : 0 }
-              }
-            );
-          }
+          await recordClick({ link, slug, req, isQr, skipCounterIncrement });
           firebaseRtdb.recordClick(slug, {
             ip: req.ip,
-            referer,
-            userAgent,
-            device
+            referer: req.headers.referer || req.headers.referrer || '',
+            userAgent: req.headers['user-agent'] || '',
+            device: req.headers['user-agent']?.includes('Mobi') ? 'Mobile' : 'Desktop'
           });
+          const clicksNow = (link.humanClicks || link.totalClicks || 0) + 1;
+          if ([10, 50, 100, 500, 1000, 5000, 10000].includes(clicksNow)) {
+            const email = link.ownerEmail || link.userEmail || link.email;
+            if (email) {
+              createNotification({
+                ownerEmail: email,
+                userId: link.userId,
+                type: 'link_milestone',
+                title: `Link Milestone: ${clicksNow} Clicks! 🔥`,
+                body: `Your short link /${slug} just reached ${clicksNow} total clicks.`,
+                link: `/${slug}`,
+                refId: `link_${slug}_milestone_${clicksNow}`
+              }).catch(() => {});
+            }
+          }
         } catch (recordErr) {
           console.warn('[Telemetry record click warn]', recordErr.message);
         }
       });
 
-      // 4. Instant 302 Redirect
-      return res.redirect(302, link.dest);
+      // 7. Destination URL with UTM Parameters (WHATWG URL API)
+      let finalDest = link.dest;
+      try {
+        const urlObj = new URL(link.dest);
+        if (link.utm) {
+          if (link.utm.source && !urlObj.searchParams.has('utm_source')) {
+            urlObj.searchParams.set('utm_source', link.utm.source);
+          }
+          if (link.utm.medium && !urlObj.searchParams.has('utm_medium')) {
+            urlObj.searchParams.set('utm_medium', link.utm.medium);
+          }
+          if (link.utm.campaign && !urlObj.searchParams.has('utm_campaign')) {
+            urlObj.searchParams.set('utm_campaign', link.utm.campaign);
+          }
+          if (link.utm.term && !urlObj.searchParams.has('utm_term')) {
+            urlObj.searchParams.set('utm_term', link.utm.term);
+          }
+          if (link.utm.content && !urlObj.searchParams.has('utm_content')) {
+            urlObj.searchParams.set('utm_content', link.utm.content);
+          }
+        }
+        // Forward non-internal query parameters
+        for (const [key, val] of Object.entries(req.query || {})) {
+          const lowerKey = key.toLowerCase();
+          if (!['pwd', 'password', 'qr'].includes(lowerKey) && !urlObj.searchParams.has(key)) {
+            urlObj.searchParams.set(key, val);
+          }
+        }
+        finalDest = urlObj.toString();
+      } catch (_urlErr) {}
+
+      // 8. Instant HTTP 302 Redirect
+      return res.redirect(302, finalDest);
     }
 
     // Check if it's a bio page slug
@@ -726,11 +879,27 @@ const handleRedirect = async (req, res, next) => {
     if (!bio) {
       try {
         bio = await firebaseRtdb.getBioBySlug(slug);
-      } catch (fbErr) {}
+      } catch (_fbErr) {}
     }
 
     if (bio) {
       return res.redirect(302, `/m/${slug}`);
+    }
+
+    // On branded custom domains, missing links must return 404 (never fallback to platform index.html)
+    if (domainOwnerEmail) {
+      return res.status(404).send(`
+        <!DOCTYPE html>
+        <html>
+        <head><title>Link Not Found</title><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>body{font-family:system-ui,-apple-system,sans-serif;background:#0b132b;color:#f8fafc;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;padding:20px;text-align:center;} .card{max-width:440px;background:#1c2541;padding:32px;border-radius:16px;border:1px solid #3a506b;} h1{color:#38bdf8;font-size:22px;margin:0 0 12px;} p{color:#94a3b8;font-size:14px;line-height:1.6;margin:0;}</style></head>
+        <body>
+          <div class="card">
+            <h1>404 · Link Not Found</h1>
+            <p>The requested shortlink does not exist on this custom domain.</p>
+          </div>
+        </body>
+        </html>
+      `);
     }
 
     return next();
@@ -740,6 +909,94 @@ const handleRedirect = async (req, res, next) => {
   }
 };
 
+// Password verification handler (Form POST)
+const handlePasswordVerification = async (req, res, next) => {
+  try {
+    const slug = (req.params.slug || '').trim().toLowerCase();
+    if (!slug || RESERVED_SLUGS.has(slug)) return next();
+
+    let link = null;
+    if (isDbConnected()) {
+      link = await Link.findOne({ slug });
+    } else {
+      link = memStore.links.find((l) => l.slug.toLowerCase() === slug);
+    }
+
+    if (!link) return next();
+
+    const pwdHash = link.passwordHash;
+    const legacyPwd = link.password;
+
+    if (!pwdHash && !legacyPwd) {
+      return res.redirect(302, `/${slug}`);
+    }
+
+    const submitted = (req.body?.password || req.body?.pwd || '').trim();
+    if (!submitted) {
+      return res.status(401).send(
+        renderPasswordChallengeHtml({
+          slug,
+          error: 'Please enter a passcode to continue.'
+        })
+      );
+    }
+
+    let isMatch = false;
+    if (pwdHash) {
+      isMatch = await bcrypt.compare(submitted, pwdHash);
+    } else if (legacyPwd) {
+      isMatch = submitted === legacyPwd;
+      if (isMatch) {
+        // Upgrade legacy plaintext password to bcrypt hash
+        try {
+          const hashed = await bcrypt.hash(legacyPwd, 10);
+          link.passwordHash = hashed;
+          link.password = null;
+          if (isDbConnected()) await link.save();
+        } catch (_hashErr) {}
+      }
+    }
+
+    if (!isMatch) {
+      return res.status(401).send(
+        renderPasswordChallengeHtml({
+          slug,
+          error: 'Incorrect passcode. Please check and try again.'
+        })
+      );
+    }
+
+    // Passcode verified! Set signed HMAC cookie and redirect
+    setSlugCookie(res, slug);
+    return res.redirect(302, `/${slug}`);
+  } catch (err) {
+    if (err.name === 'PlanError') {
+      return res.status(err.statusCode || 403).json({
+        ok: false,
+        error: err.message,
+        code: err.code,
+        meta: err.meta
+      });
+    }
+    if (err.code === 11000) {
+      return res.status(400).json({ error: 'This custom back-half is already taken', code: 'SLUG_COLLISION' });
+    }
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Mount Password Verification POST Routes
+router.post('/r/:slug', passwordAttemptLimiter, handlePasswordVerification);
+router.post('/api/links/:slug/verify-password', passwordAttemptLimiter, handlePasswordVerification);
+router.post('/:slug', passwordAttemptLimiter, (req, res, next) => {
+  const raw = req.params.slug.toLowerCase();
+  if (RESERVED_SLUGS.has(raw) || raw.includes('.')) {
+    return next();
+  }
+  return handlePasswordVerification(req, res, next);
+});
+
+// Mount Redirection GET Routes
 router.get('/r/:slug', handleRedirect);
 router.get('/go/:slug', handleRedirect);
 

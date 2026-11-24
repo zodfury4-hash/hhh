@@ -258,10 +258,88 @@ async function sendPasswordResetEmail(email, name, code) {
   }
 }
 
+async function sendSupportTicketConfirmation(email, name, ticketId, subject) {
+  console.log(`\n======================================================`);
+  console.log(`📧 [SUPPORT TICKET] Target: ${email}`);
+  console.log(`🎫 Ticket ID: [ ${ticketId} ]`);
+  console.log(`📋 Subject: [ ${subject} ]`);
+  console.log(`⏱️  Estimated Response: 24 business hours`);
+  console.log(`======================================================\n`);
+
+  if (!mailTransporter) {
+    return { success: false, simulated: true, ticketId, reason: 'SMTP credentials missing in .env' };
+  }
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #060b18; color: #f8fafc; margin: 0; padding: 40px 20px; }
+        .box { max-width: 520px; margin: 0 auto; background: #090f22; border: 1px solid rgba(0, 112, 243, 0.3); border-radius: 16px; padding: 36px 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .logo { font-size: 24px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; margin-bottom: 24px; text-align: center; }
+        .logo span { color: #0070f3; }
+        h1 { font-size: 20px; font-weight: 700; color: #ffffff; margin-top: 0; }
+        p { color: #94a3b8; font-size: 14px; line-height: 1.6; }
+        .ticket-badge { background: rgba(0, 112, 243, 0.1); border: 1px solid #0070f3; color: #38bdf8; font-family: monospace; font-size: 16px; font-weight: 700; padding: 8px 16px; border-radius: 8px; display: inline-block; margin: 12px 0; }
+        .meta { font-size: 12px; color: #64748b; margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px; text-align: center; }
+      </style>
+    </head>
+    <body>
+      <div class="box">
+        <div class="logo">HEA <span>Link</span> Support</div>
+        <h1>We received your support request</h1>
+        <p>Hi ${name || 'there'},</p>
+        <p>Thank you for reaching out to the HEA Link engineering &amp; support team. Your support ticket has been received and logged:</p>
+        <div class="ticket-badge">${ticketId}</div>
+        <p><strong>Subject:</strong> ${subject}</p>
+        <p>Our team investigates all technical, API, and billing inquiries within 24 business hours.</p>
+        <div class="meta">
+          HEA Link Support Desk · Reference: ${ticketId}
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  try {
+    const fromAddr = process.env.EMAIL_FROM || `"HEA Link Support" <${process.env.SMTP_USER || 'support@healink.store'}>`;
+    const info = await mailTransporter.sendMail({
+      from: fromAddr,
+      to: email,
+      subject: `[${ticketId}] Support Request Received: ${subject}`,
+      html
+    });
+    console.log(`✅ [Email Service] Support ticket confirmation sent to ${email}! MessageId: ${info.messageId}`);
+    return { success: true, messageId: info.messageId, ticketId };
+  } catch (err) {
+    console.error('❌ Failed to send support confirmation email:', err.message);
+    return { success: false, error: err.message, simulated: true, ticketId };
+  }
+}
+
+async function sendWorkspaceInviteEmail(email, workspaceName, role, acceptUrl) {
+  if (!mailTransporter) {
+    console.log(`✉️ [DEV EMAIL - WORKSPACE INVITE] To: ${email} | Workspace: ${workspaceName} | Role: ${role} | URL: ${acceptUrl}`);
+    return true;
+  }
+  return mailTransporter.sendMail({
+    from: process.env.SMTP_FROM || process.env.SMTP_USER || 'no-reply@healink.store',
+    to: email,
+    subject: `Invitation to collaborate in ${workspaceName} on HEA Link`,
+    text: `You have been invited to join the ${workspaceName} workspace as a ${role.toUpperCase()}.\n\nAccept your invite here: ${acceptUrl}\n\nThis link expires in 7 days.`,
+    html: `<p>You have been invited to join the <strong>${workspaceName}</strong> workspace as a <strong>${role.toUpperCase()}</strong>.</p><p><a href="${acceptUrl}">Accept Invitation</a></p>`
+  });
+}
+
 // In-Memory Fallback Store (active if MongoDB is momentarily unreachable)
 
 module.exports = {
   mailTransporter,
+  sendMail: (opts) => (mailTransporter ? mailTransporter.sendMail(opts) : Promise.resolve(true)),
   sendVerificationEmail,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  sendSupportTicketConfirmation,
+  sendWorkspaceInviteEmail
 };

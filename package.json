@@ -31,22 +31,31 @@
     "url": "https://github.com/zodfury4-hash/hhh/issues"
   },
   "homepage": "https://github.com/zodfury4-hash/hhh#readme",
+  "bin": {
+    "hea-link-mcp": "./bin/hea-link-mcp.js"
+  },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^18.0.9",
     "express": "^5.3.0",
     "express-rate-limit": "^8.7.4",
+    "geoip-lite": "^2.0.3",
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.11.4",
     "nodemailer": "^10.3.1",
     "pino": "^10.4.0",
     "stripe": "^23.1.0",
-    "zod": "^4.6.7"
+    "ua-parser-js": "^2.0.10",
+    "zod": "^4.6.7",
+    "marked": "^15.0.7",
+    "js-yaml": "^4.1.0"
   },
   "devDependencies": {
     "eslint": "^10.14.0",
+    "mongodb-memory-server": "^10.1.4",
     "prettier": "^3.10.1"
   }
 }

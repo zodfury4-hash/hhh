@@ -1,0 +1,93 @@
+# HEA Link Master FAQ Database
+# Single source of truth for /faq, /help, Landing Page, and Dashboard
+
+categories:
+  - id: general
+    title: General & Platform Overview
+    description: Core features, platform capabilities, and getting started.
+    faqs:
+      - question: "What is HEA Link and what does it include?"
+        answer: >-
+          HEA Link is an all-in-one link infrastructure platform combining ultra-fast branded URL shortening, customizable vector QR codes, mobile-optimized link-in-bio pages, real-time analytics telemetry, and developer REST APIs.
+      - question: "How fast are link redirects on HEA Link?"
+        answer: >-
+          HEA Link redirect handlers execute in under 10ms with in-memory caching and resilient database failover, returning standard HTTP 301/302 redirects with full query preservation.
+      - question: "Is HEA Link free to use?"
+        answer: >-
+          Yes. HEA Link provides a generous Free plan including up to 1,000 links per month, custom back-halves, vector QR codes, basic bio pages, and standard analytics. Advanced features like custom CNAME domains, webhooks, and REST API access are available on Pro and Enterprise tiers.
+
+  - id: links-domains
+    title: Links & Custom Domains
+    description: Shortening, custom back-halves, password protection, and domain mapping.
+    faqs:
+      - question: "How do I attach my own custom branded domain?"
+        answer: >-
+          In the Custom Domains studio, add your apex domain or subdomain (e.g., go.mybrand.com). Configure a DNS CNAME record pointing to healink.store, and verify domain ownership using our automated TXT challenge record.
+      - question: "Can I password-protect sensitive short links?"
+        answer: >-
+          Yes. You can assign a password when creating or editing a link. Visitors must enter the correct password before being redirected. Passwords are securely hashed with PBKDF2 with SHA-512, and brute-force attempts are strictly rate-limited.
+      - question: "What happens when a link reaches its expiration date or maximum clicks?"
+        answer: >-
+          Once a link passes its set expiration date or reaches its configured max click limit, HEA Link automatically ceases redirection and returns an HTTP 410 Gone status with an informative expiration notice.
+      - question: "Can I bulk-shorten multiple URLs simultaneously?"
+        answer: >-
+          Yes. Use the Bulk Shorten tab on the homepage or in the dashboard to submit up to 20 URLs at once. Each link receives an instant short URL and can be exported as a batch.
+
+  - id: qr-bio
+    title: QR Codes & Bio Pages
+    description: Dynamic vector codes, high-resolution exports, and mobile microsites.
+    faqs:
+      - question: "Are HEA Link QR codes vector-based?"
+        answer: >-
+          Yes. All QR codes are generated with vector precision and can be downloaded as high-resolution PNGs or crisp vector SVGs suitable for print media, billboards, and merchandise packaging.
+      - question: "Can I customize QR code colors and design?"
+        answer: >-
+          Absolutely. You can select custom foreground colors, background contrast, and embed brand logos into your QR codes without compromising error-correction readability.
+      - question: "What is a Link-in-Bio page and how do I build one?"
+        answer: >-
+          A Bio Page is a mobile-responsive landing page housing all your social channels, featured products, newsletters, and announcements under a single memorable short link (e.g., hea.link/bio/yourname).
+
+  - id: analytics
+    title: Analytics & Real-Time Telemetry
+    description: Click tracking, geographic attribution, bot filtering, and data exports.
+    faqs:
+      - question: "How does HEA Link distinguish unique visitors from total clicks?"
+        answer: >-
+          Each redirect calculates an anonymous, daily-salted SHA-256 hash of the visitor's IP and User-Agent. This ensures strict privacy compliance without tracking personal data while delivering accurate unique visitor metrics.
+      - question: "Does HEA Link filter out search engine crawlers and web bots?"
+        answer: >-
+          Yes. Automatic user-agent inspection flags crawlers, scrapers, and bot previews (e.g., Googlebot, Twitterbot, Discordbot), filtering them from your legitimate engagement metrics and click limits.
+      - question: "How is visitor location and geographic attribution determined?"
+        answer: >-
+          HEA Link checks edge CDN headers (such as cf-ipcountry and x-country) followed by local geoip-lite lookup. When location cannot be verified, it is marked as 'Unknown' rather than guessed.
+      - question: "Can I export my analytics and link click history?"
+        answer: >-
+          Yes. You can stream full CSV or JSON data exports for links and individual click logs anytime via the dashboard or directly through our /api/export endpoints.
+
+  - id: developers-api
+    title: Developer REST API & Integrations
+    description: API keys, webhooks, HMAC verification, and MCP server tooling.
+    faqs:
+      - question: "How do I authenticate with the Developer REST API?"
+        answer: >-
+          Generate an API key in the Developer Portal (/developers) with either live (hea_live_...) or test (hea_test_...) scope. Include it in requests using the Authorization: Bearer <key> or X-API-Key: <key> header.
+      - question: "How do outbound webhooks work and how are they signed?"
+        answer: >-
+          Outbound webhooks deliver real-time notifications for link.created, link.clicked, and domain.verified. Each payload includes an X-HEA-Signature header containing an HMAC-SHA256 signature calculated with your secret key for verification.
+      - question: "What is the Model Context Protocol (MCP) server?"
+        answer: >-
+          HEA Link provides an official MCP server enabling AI coding assistants like Claude Desktop, Cursor, and VS Code to shorten links, generate QR codes, and query analytics directly from your IDE.
+
+  - id: billing-security
+    title: Billing, Security & Privacy
+    description: Subscription plans, Stripe billing, GDPR compliance, and data retention.
+    faqs:
+      - question: "How does Stripe billing and subscription management work?"
+        answer: >-
+          All payments are processed securely through Stripe with 3D Secure verification. You can upgrade, downgrade, or cancel your Pro or Enterprise subscription anytime with immediate prorated adjustments.
+      - question: "What is the click data retention policy?"
+        answer: >-
+          Individual click telemetry records are retained for 400 days in our MongoDB database with automatic TTL indexing. Summary counters (totalClicks, totalScans) on your Link documents are preserved permanently.
+      - question: "How does HEA Link prevent abuse and malicious links?"
+        answer: >-
+          We employ automated destination inspection blocking private IP ranges (SSRF), dangerous schemes (javascript:, data:), and known phishing domains. Users can also report suspicious links via /api/abuse/report for immediate administrative review.

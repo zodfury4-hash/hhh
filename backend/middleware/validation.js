@@ -1,4 +1,5 @@
 const { z } = require('zod');
+const config = require('../config');
 
 // Reserved words that cannot be used as custom shortlink slugs
 const RESERVED_SLUGS = new Set([
@@ -176,6 +177,46 @@ const resetPasswordSchema = z.object({
   newPassword: z.string().min(8, 'New password must be at least 8 characters long').max(128)
 });
 
+// Reusable Link Protection & Campaign Attribution Schemas
+const expiresAtSchema = z
+  .union([
+    z.string().trim().refine(
+      (val) => {
+        if (!val) return true;
+        const d = new Date(val);
+        return !isNaN(d.getTime()) && d.getTime() > Date.now();
+      },
+      { message: 'Expiration date must be a valid future date and time' }
+    ),
+    z.null()
+  ])
+  .optional();
+
+const maxClicksSchema = z
+  .union([
+    z.number().int().positive('Max clicks must be at least 1'),
+    z
+      .string()
+      .trim()
+      .regex(/^\d+$/, 'Max clicks must be a positive number')
+      .transform((v) => parseInt(v, 10))
+      .refine((n) => n > 0, 'Max clicks must be at least 1'),
+    z.null(),
+    z.literal('')
+  ])
+  .optional();
+
+const utmSchema = z
+  .object({
+    source: z.string().trim().max(100).optional().nullable(),
+    medium: z.string().trim().max(100).optional().nullable(),
+    campaign: z.string().trim().max(100).optional().nullable(),
+    term: z.string().trim().max(100).optional().nullable(),
+    content: z.string().trim().max(100).optional().nullable()
+  })
+  .optional()
+  .nullable();
+
 // Create link validation
 const createLinkSchema = z.object({
   dest: destinationUrlSchema,
@@ -184,8 +225,21 @@ const createLinkSchema = z.object({
   tag: z.string().trim().max(50, 'Tag cannot exceed 50 characters').optional(),
   qr: z.boolean().optional(),
   password: z.string().trim().max(64).optional(),
-  expiresAt: z.string().optional(),
-  maxClicks: z.union([z.number(), z.string()]).optional()
+  expiresAt: expiresAtSchema,
+  maxClicks: maxClicksSchema,
+  utm: utmSchema
+});
+
+// Update link validation
+const updateLinkSchema = z.object({
+  dest: destinationUrlSchema.optional(),
+  title: z.string().trim().max(120, 'Title cannot exceed 120 characters').optional(),
+  tag: z.string().trim().max(50, 'Tag cannot exceed 50 characters').optional(),
+  password: z.string().trim().max(64).optional(),
+  removePassword: z.boolean().optional(),
+  expiresAt: expiresAtSchema,
+  maxClicks: maxClicksSchema,
+  utm: utmSchema
 });
 
 // Bulk shorten validation
@@ -236,6 +290,9 @@ const customDomainSchema = z.object({
     .refine((val) => !isPrivateOrReservedHost(val), {
       message: 'Private, loopback, or internal domains are not permitted.'
     })
+    .refine((val) => !config.primaryHosts || !config.primaryHosts.has(val.toLowerCase()), {
+      message: 'Platform primary domains cannot be attached as custom domains.'
+    })
 });
 
 // Abuse report validation
@@ -283,6 +340,7 @@ module.exports = {
   forgotPasswordSchema,
   resetPasswordSchema,
   createLinkSchema,
+  updateLinkSchema,
   bulkShortenSchema,
   createQrSchema,
   bioPageSchema,

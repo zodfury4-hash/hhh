@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exporting Analytics Data in CSV and JSON | HEA Link Help</title>
+  <meta name="description" content="Stream raw link performance and visitor click records directly into spreadsheets, BI dashboards, and warehouse pipelines.">
+  <link rel="icon" type="image/png" href="/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/landing.css">
+  <style>
+    :root {
+      --art-bg: #f8fafc;
+      --art-border: #e2e8f0;
+      --art-primary: #0070f3;
+      --art-text: #0b132b;
+      --art-muted: #64748b;
+    }
+    body {
+      background: var(--art-bg); color: var(--art-text);
+      font-family: 'Poppins', sans-serif; margin: 0; padding: 0; min-height: 100vh;
+      display: flex; flex-direction: column;
+    }
+    code, pre { font-family: 'JetBrains Mono', monospace; }
+    .art-nav {
+      background: #ffffff; border-bottom: 1px solid var(--art-border);
+      padding: 14px 24px; position: sticky; top: 0; z-index: 100;
+    }
+    .art-nav-in {
+      max-width: 1240px; margin: 0 auto; display: flex;
+      align-items: center; justify-content: space-between;
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; font-size: 1.25rem; font-weight: 800; color: var(--art-primary);
+    }
+    .nav-links { display: flex; align-items: center; gap: 20px; }
+    .nav-link { color: var(--art-muted); text-decoration: none; font-size: 0.9rem; font-weight: 600; }
+    .nav-link:hover { color: var(--art-primary); }
+    .art-layout {
+      max-width: 1200px; margin: 32px auto 60px; padding: 0 24px;
+      display: grid; grid-template-columns: 280px 1fr; gap: 40px; width: 100%; box-sizing: border-box;
+    }
+    @media(max-width: 860px) {
+      .art-layout { grid-template-columns: 1fr; }
+      .art-sidebar { display: none; }
+    }
+    .art-sidebar {
+      background: #ffffff; border: 1px solid var(--art-border);
+      border-radius: 12px; padding: 20px; height: fit-content; position: sticky; top: 80px;
+    }
+    .art-sidebar h4 {
+      font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
+      color: var(--art-muted); margin: 0 0 12px;
+    }
+    .art-sidebar ul { list-style: none; padding: 0; margin: 0; }
+    .art-sidebar li { margin-bottom: 8px; }
+    .art-sidebar li a {
+      color: var(--art-muted); text-decoration: none; font-size: 0.88rem;
+      display: block; padding: 6px 10px; border-radius: 6px; transition: all 0.15s;
+    }
+    .art-sidebar li.active a, .art-sidebar li a:hover {
+      background: rgba(0, 112, 243, 0.08); color: var(--art-primary); font-weight: 600;
+    }
+    .art-main {
+      background: #ffffff; border: 1px solid var(--art-border);
+      border-radius: 16px; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    }
+    .breadcrumbs {
+      display: flex; gap: 8px; font-size: 0.84rem; color: var(--art-muted); margin-bottom: 20px;
+    }
+    .breadcrumbs a { color: var(--art-primary); text-decoration: none; }
+    .art-content { line-height: 1.7; color: #334155; }
+    .art-content h1 { font-size: 2rem; font-weight: 800; color: var(--art-text); margin: 0 0 16px; }
+    .art-content h2 { font-size: 1.4rem; font-weight: 700; color: var(--art-text); margin: 32px 0 12px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }
+    .art-content h3 { font-size: 1.15rem; font-weight: 700; color: var(--art-primary); margin: 24px 0 8px; }
+    .art-content p, .art-content li { font-size: 0.96rem; }
+    .art-content table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.88rem; }
+    .art-content th, .art-content td { border: 1px solid var(--art-border); padding: 10px 12px; text-align: left; }
+    .art-content th { background: #f8fafc; font-weight: 700; }
+    .feedback-box {
+      margin-top: 48px; padding: 24px; background: #f8fafc; border: 1px solid var(--art-border);
+      border-radius: 12px; text-align: center;
+    }
+    .feedback-box h4 { margin: 0 0 12px; font-size: 1rem; }
+    .feedback-btns { display: flex; gap: 12px; justify-content: center; }
+    .fb-btn {
+      padding: 8px 18px; border: 1.5px solid var(--art-border); border-radius: 8px;
+      background: #ffffff; cursor: pointer; font-size: 0.9rem; font-weight: 600;
+      transition: all 0.15s;
+    }
+    .fb-btn:hover { border-color: var(--art-primary); color: var(--art-primary); }
+    .feedback-comment {
+      margin-top: 14px; display: none; flex-direction: column; gap: 8px; max-width: 440px; margin-left: auto; margin-right: auto;
+    }
+    .feedback-comment textarea {
+      padding: 10px; border: 1px solid var(--art-border); border-radius: 8px; font-family: inherit; font-size: 0.88rem;
+    }
+    .art-footer {
+      background: #ffffff; border-top: 1px solid var(--art-border);
+      padding: 32px 24px; text-align: center; font-size: 0.88rem; color: var(--art-muted);
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+  <header class="art-nav">
+    <div class="art-nav-in">
+      <a class="nav-brand" href="/">
+        <svg width="30" height="20" viewBox="0 0 54 36" fill="none">
+          <path d="M15.5 8C10.25 8 6 12.25 6 17.5C6 22.75 10.25 27 15.5 27C21.2 27 24.6 20.8 27 17.5C29.4 14.2 32.8 8 38.5 8C43.75 8 48 12.25 48 17.5C48 22.75 43.75 27 38.5 27C32.8 27 29.4 20.8 27 17.5C24.6 14.2 21.2 8 15.5 8Z" stroke="#0070f3" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>HEA Link Help</span>
+      </a>
+      <nav class="nav-links">
+        <a class="nav-link" href="/help">Help Hub</a>
+        <a class="nav-link" href="/developers">Developers</a>
+        <a class="nav-link" href="/integrations">Integrations</a>
+        <a class="nav-link" href="/faq">FAQ</a>
+        <a class="nav-link" href="/help/contact" style="background:#0070f3;color:#fff;padding:6px 14px;border-radius:6px;">Contact Support</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="art-layout">
+    <aside class="art-sidebar">
+      <h4>Articles in this Category</h4>
+      <ul>
+      <li class="">
+        <a href="/help/analytics-telemetry/understanding-metrics">Understanding Total Clicks vs Unique Visitors</a>
+      </li>
+    
+      <li class="">
+        <a href="/help/analytics-telemetry/geo-attribution-rules">Geographic Attribution and Location Accuracy</a>
+      </li>
+    
+      <li class="">
+        <a href="/help/analytics-telemetry/realtime-clicks-bot-filtering">Real-Time Click Streaming and Bot Filtering</a>
+      </li>
+    
+      <li class="active">
+        <a href="/help/analytics-telemetry/exporting-data">Exporting Analytics Data in CSV and JSON</a>
+      </li>
+    </ul>
+    </aside>
+
+    <main class="art-main">
+      <div class="breadcrumbs">
+        <a href="/help">Help</a> <span>›</span>
+        <a href="/help">analytics-telemetry</a> <span>›</span>
+        <span>Exporting Analytics Data in CSV and JSON</span>
+      </div>
+
+      <article class="art-content">
+        <h1>Exporting Analytics Data in CSV and JSON</h1>
+<p>HEA Link provides direct streaming export endpoints for importing link metrics and click telemetry into Google Sheets, Microsoft Excel, Tableau, or data warehouses.</p>
+<h2>Available Export Endpoints</h2>
+<ul>
+<li><strong>Links CSV:</strong> <code>GET /api/export/links.csv</code> — Full inventory of your links with title, short slug, destination, total clicks, QR scans, and creation dates.</li>
+<li><strong>Links JSON:</strong> <code>GET /api/export/links.json</code> — Structured JSON array of your link catalog.</li>
+<li><strong>Clicks CSV:</strong> <code>GET /api/export/clicks.csv</code> — Granular click records including timestamp, slug, country, city, device, browser, OS, referrer, and UTM parameters.</li>
+<li><strong>Clicks JSON:</strong> <code>GET /api/export/clicks.json</code> — High-fidelity NDJSON/JSON stream for automated ETL pipelines.</li>
+</ul>
+<h2>How to Export from the Dashboard</h2>
+<ol>
+<li>Navigate to <strong>Analytics</strong> (<code>#analytics</code>) or <strong>Integrations</strong> (<code>/integrations</code>).</li>
+<li>Select your desired timeframe (Last 7 Days, Last 30 Days, or All Time).</li>
+<li>Click <strong>Export CSV</strong> or <strong>Export JSON</strong>. Your browser will stream the file directly to your downloads folder.</li>
+</ol>
+
+      </article>
+
+      <div class="feedback-box" id="feedbackBox">
+        <h4>Was this article helpful?</h4>
+        <div class="feedback-btns" id="fbBtnRow">
+          <button type="button" class="fb-btn" id="fbYes">👍 Yes</button>
+          <button type="button" class="fb-btn" id="fbNo">👎 No</button>
+        </div>
+        <div class="feedback-comment" id="fbCommentWrap">
+          <textarea id="fbCommentText" rows="3" placeholder="Tell us how we can improve this guide (optional)..."></textarea>
+          <button type="button" class="fb-btn" id="fbSubmitComment" style="background:#0070f3;color:#fff;">Send Feedback</button>
+        </div>
+        <div id="fbThanks" style="display:none;color:#10b981;font-weight:700;font-size:0.95rem;">Thank you for your feedback!</div>
+      </div>
+    </main>
+  </div>
+
+  <footer class="art-footer">
+    © 2026 HEA Link Inc. Documentation Desk.
+  </footer>
+
+  <script>
+    (function() {
+      const slug = "exporting-data";
+      const fbYes = document.getElementById('fbYes');
+      const fbNo = document.getElementById('fbNo');
+      const fbBtnRow = document.getElementById('fbBtnRow');
+      const fbCommentWrap = document.getElementById('fbCommentWrap');
+      const fbCommentText = document.getElementById('fbCommentText');
+      const fbSubmitComment = document.getElementById('fbSubmitComment');
+      const fbThanks = document.getElementById('fbThanks');
+
+      let chosenHelpful = true;
+
+      async function sendFeedback(helpful, comment = '') {
+        try {
+          await fetch('/api/help/feedback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ articleSlug: slug, helpful, comment })
+          });
+        } catch (_e) {}
+      }
+
+      fbYes.addEventListener('click', () => {
+        chosenHelpful = true;
+        sendFeedback(true);
+        fbBtnRow.style.display = 'none';
+        fbThanks.style.display = 'block';
+      });
+
+      fbNo.addEventListener('click', () => {
+        chosenHelpful = false;
+        fbBtnRow.style.display = 'none';
+        fbCommentWrap.style.display = 'flex';
+      });
+
+      fbSubmitComment.addEventListener('click', () => {
+        const comment = fbCommentText.value.trim();
+        sendFeedback(false, comment);
+        fbCommentWrap.style.display = 'none';
+        fbThanks.style.display = 'block';
+      });
+    })();
+  </script>
+</body>
+</html>

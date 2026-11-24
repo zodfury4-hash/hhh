@@ -7,6 +7,7 @@ const firebaseRtdb = require('../firebase-service');
 const memStore = require('../utils/memStore');
 const { authMiddleware } = require('../middleware/auth');
 const { validate, createQrSchema } = require('../middleware/validation');
+const { getEntitlements, assertWithinLimit } = require('../config/plans');
 
 function isDbConnected() {
   return mongoose.connection.readyState === 1;
@@ -47,7 +48,19 @@ router.get('/api/qrs', authMiddleware, async (req, res) => {
 router.post('/api/qrs', authMiddleware, validate(createQrSchema), async (req, res) => {
   try {
     const email = req.user.email;
+    const isAdmin = req.user.role === 'admin' || req.user.isAdmin;
     const { title, dest, color } = req.body;
+
+    const entitlements = getEntitlements(req.user);
+    if (!isAdmin) {
+      let currentUsage = 0;
+      if (isDbConnected()) {
+        currentUsage = await QRCode.countDocuments({ ownerEmail: email.toLowerCase() });
+      } else {
+        currentUsage = memStore.qrs.filter((q) => q.ownerEmail === email.toLowerCase()).length;
+      }
+      assertWithinLimit(entitlements, 'qrCodes', currentUsage);
+    }
 
     let qr = null;
     if (isDbConnected()) {
@@ -84,6 +97,14 @@ router.post('/api/qrs', authMiddleware, validate(createQrSchema), async (req, re
 
     res.json({ success: true, qr });
   } catch (err) {
+    if (err.name === 'PlanError') {
+      return res.status(err.statusCode || 403).json({
+        ok: false,
+        error: err.message,
+        code: err.code,
+        meta: err.meta
+      });
+    }
     res.status(500).json({ error: err.message });
   }
 });

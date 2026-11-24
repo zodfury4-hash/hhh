@@ -41,29 +41,43 @@
   <div class="checkout-card" style="max-width:700px;">
     <div class="checkout-header">
       <div style="display:flex;align-items:center;gap:12px;">
-        <div class="checkout-crown-icon" style="background:rgba(212,255,36,0.15);border-color:#0070f3;color:#0070f3;">💻</div>
+        <div class="checkout-crown-icon" style="background:rgba(0,112,243,0.1);border-color:#0070f3;color:#0070f3;">💻</div>
         <div>
           <h3 class="checkout-title">Developer Hub &amp; REST APIs</h3>
-          <p class="checkout-sub">Integrate link shortening, QR generation, and click telemetry into your codebase.</p>
+          <p class="checkout-sub">Production v1 REST API for programmatic short links, QR codes, domains, and analytics.</p>
         </div>
       </div>
       <button type="button" class="checkout-close" aria-label="Close modal" onclick="closeAllCustomModals()">✕</button>
     </div>
     <div class="checkout-body" style="padding:22px 28px;">
-      <!-- Tabs for languages -->
-      <div class="billing-cycle-toggle" style="margin-bottom:16px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:12px 14px;border-radius:10px;">
+          <div style="font-weight:700;font-size:12px;color:#0b132b;margin-bottom:2px;">🔑 Scoped API Keys</div>
+          <div style="font-size:11.5px;color:#64748b;">Live (<code style="color:#0070f3;">hea_live_...</code>) and sandbox test keys (<code style="color:#10b981;">hea_test_...</code>) with granular permissions.</div>
+        </div>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:12px 14px;border-radius:10px;">
+          <div style="font-weight:700;font-size:12px;color:#0b132b;margin-bottom:2px;">⚡ OpenAPI 3.1 &amp; Idempotency</div>
+          <div style="font-size:11.5px;color:#64748b;">Safe retries with <code style="color:#0070f3;">Idempotency-Key</code> header and complete OpenAPI schema.</div>
+        </div>
+      </div>
+
+      <div class="billing-cycle-toggle" style="margin-bottom:14px;">
         <button type="button" class="cycle-tab active" id="tabCurl" onclick="switchApiTab('curl')">cURL</button>
         <button type="button" class="cycle-tab" id="tabNode" onclick="switchApiTab('node')">Node.js</button>
         <button type="button" class="cycle-tab" id="tabPython" onclick="switchApiTab('python')">Python</button>
       </div>
 
-      <pre id="apiSnippetCode" style="background:#f8fafc;border:1px solid rgba(56,189,248,0.25);border-radius:12px;padding:16px;font-family:monospace;font-size:12px;color:#38bdf8;overflow-x:auto;line-height:1.6;margin:0 0 16px;"></pre>
+      <pre id="apiSnippetCode" style="background:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:16px;font-family:monospace;font-size:12px;color:#38bdf8;overflow-x:auto;line-height:1.6;margin:0 0 16px;"></pre>
 
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;background:rgba(255,255,255,0.03);padding:12px 16px;border-radius:12px;">
-        <span style="font-size:13px;color:#000000;">Endpoint: <code style="color:#0070f3;">POST /api/shorten</code></span>
-        <button type="button" class="sso-btn" style="width:auto;padding:8px 16px;font-size:12px;" onclick="testLiveApiEndpoint()">▶ Test Live Request</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+        <a href="/developers" class="checkout-submit-btn" style="text-align:center;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;flex:1;background:#0070f3;color:#ffffff;font-weight:700;border-radius:10px;box-shadow:0 4px 14px rgba(0,112,243,0.3);">
+          <span>Launch Full API Docs &amp; Live Console</span>
+          <span>→</span>
+        </a>
+        <a href="/api/v1/openapi.json" target="_blank" rel="noopener noreferrer" style="font-size:12px;color:#64748b;text-decoration:none;padding:12px 16px;border:1px solid #e2e8f0;border-radius:10px;font-weight:600;background:#ffffff;">
+          OpenAPI 3.1 JSON ↗
+        </a>
       </div>
-      <div id="liveApiResult" style="margin-top:12px;font-family:monospace;font-size:11px;color:#10b981;" hidden></div>
     </div>
   </div>
 </div>
@@ -169,24 +183,28 @@
     </div>
     <div class="checkout-body" style="padding:22px 28px;">
       <p style="color:#000000;font-size:13px;line-height:1.6;margin-bottom:12px;">
-        Add HEA Link to your <code>claude_desktop_config.json</code> or Antigravity MCP settings to let your agents create, analyze, and track short links autonomously:
+        Connect Claude Desktop, Cursor, or Claude Code to HEA Link via the official Model Context Protocol:
       </p>
-      <pre style="background:#f8fafc;border:1px solid rgba(168,85,247,0.3);border-radius:12px;padding:16px;font-family:monospace;font-size:12px;color:#c084fc;overflow-x:auto;line-height:1.6;margin:0 0 16px;">
+      <pre style="background:#f8fafc;border:1px solid rgba(168,85,247,0.3);border-radius:12px;padding:16px;font-family:monospace;font-size:12px;color:#7c3aed;overflow-x:auto;line-height:1.6;margin:0 0 16px;">
 {
   "mcpServers": {
     "hea-link": {
-      "command": "node",
-      "args": ["d:/github/hhh/server.js"],
+      "command": "npx",
+      "args": ["-y", "hea-link-mcp"],
       "env": {
-        "PORT": "3000",
-        "API_KEY": "hea_live_sk_948f219b48e"
+        "HEA_API_TOKEN": "YOUR_PERSONAL_ACCESS_TOKEN"
       }
     }
   }
 }</pre>
-      <button type="button" class="checkout-submit-btn" onclick="navigator.clipboard.writeText('{\n  \"mcpServers\": {\n    \"hea-link\": {\n      \"command\": \"node\",\n      \"args\": [\"d:/github/hhh/server.js\"]\n    }\n  }\n}');toast('MCP Configuration Copied to Clipboard!');" style="background:linear-gradient(135deg,#a855f7,#c084fc);color:#0070f3;">
-        📋 Copy MCP Config JSON
-      </button>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button type="button" class="checkout-submit-btn" onclick="navigator.clipboard.writeText('{\n  &quot;mcpServers&quot;: {\n    &quot;hea-link&quot;: {\n      &quot;command&quot;: &quot;npx&quot;,\n      &quot;args&quot;: [&quot;-y&quot;, &quot;hea-link-mcp&quot;],\n      &quot;env&quot;: {\n        &quot;HEA_API_TOKEN&quot;: &quot;YOUR_PERSONAL_ACCESS_TOKEN&quot;\n      }\n    }\n  }\n}');toast('MCP Configuration Copied to Clipboard!');" style="flex:1;background:linear-gradient(135deg,#a855f7,#c084fc);color:#ffffff;">
+          📋 Copy Config JSON
+        </button>
+        <a href="/ai/mcp" class="checkout-submit-btn" style="flex:1;background:#0070f3;color:#ffffff;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;">
+          ⚙️ Open MCP Studio &amp; Keys →
+        </a>
+      </div>
     </div>
   </div>
 </div>
@@ -221,6 +239,39 @@
         </label>
         <button type="submit" class="checkout-submit-btn" style="background:linear-gradient(135deg,#0070f3,#a3e635);color:#000;font-weight:800;margin-top:10px;">
           📅 Request VIP Consultation &amp; Custom Quote
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- 6B. INVITE TEAM MEMBER MODAL -->
+<div class="checkout-modal-overlay" id="inviteMemberModal" hidden>
+  <div class="checkout-card" style="max-width:480px;">
+    <div class="checkout-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="checkout-crown-icon" style="background:#e0f2fe;color:#0284c7;">👥</div>
+        <div>
+          <h3 class="checkout-title">Invite Team Member</h3>
+          <p class="checkout-sub">Add a collaborator to your active workspace.</p>
+        </div>
+      </div>
+      <button type="button" class="checkout-close" aria-label="Close modal" onclick="closeAllCustomModals()">✕</button>
+    </div>
+    <div class="checkout-body" style="padding:22px 28px;">
+      <form id="inviteMemberForm" class="checkout-form">
+        <label>Teammate Work Email
+          <input type="email" id="inviteEmail" placeholder="colleague@yourcompany.com" required autocomplete="off">
+        </label>
+        <label>Workspace Role
+          <select id="inviteRole" style="width:100%;margin-top:4px;background:#ffffff;color:#0f172a;border:1.5px solid #cbd5e1;padding:10px 14px;border-radius:10px;font-weight:600;">
+            <option value="viewer">Viewer (Read-only analytics and links)</option>
+            <option value="editor" selected>Editor (Create, edit &amp; manage links)</option>
+            <option value="admin">Admin (Manage members, domains &amp; integrations)</option>
+          </select>
+        </label>
+        <button type="submit" class="checkout-submit-btn" id="btnSendInvite" style="background:#0070f3;color:#ffffff;font-weight:700;margin-top:14px;">
+          ✉️ Send Workspace Invitation
         </button>
       </form>
     </div>

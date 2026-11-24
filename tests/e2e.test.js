@@ -323,6 +323,12 @@ async function run() {
 
   console.log('\n🌐 5. Custom Domains & Telemetry:');
 
+  const liveUser = memStore.users.find((u) => u.email === testEmail);
+  if (liveUser) {
+    liveUser.plan = 'pro';
+    liveUser.isPro = true;
+  }
+
   createdDomain = `links-${Math.random().toString(36).slice(2, 6)}.brand.com`;
 
   // Add Domain

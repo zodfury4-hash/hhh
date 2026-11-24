@@ -71,6 +71,22 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  tokenVersion: {
+    type: Number,
+    default: 0
+  },
+  twoFactorEnabled: {
+    type: Boolean,
+    default: false
+  },
+  twoFactorSecretEncrypted: {
+    type: String,
+    default: null
+  },
+  twoFactorRecoveryCodes: {
+    type: [String],
+    default: []
+  },
   createdAt: {
     type: Date,
     default: Date.now

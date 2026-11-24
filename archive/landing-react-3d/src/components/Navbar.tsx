@@ -177,7 +177,7 @@ export function Navbar({ onOpenAuth }: NavbarProps) {
                 style={{ backgroundColor: '#ffffff', opacity: 1, backdropFilter: 'none', WebkitBackdropFilter: 'none' }}
                 className="absolute top-full left-0 mt-2 w-80 bg-white solid-card-dropdown rounded-2xl shadow-2xl border border-slate-200 p-5 space-y-3 z-50"
               >
-                <a href="#ai" className="flex items-start gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors group">
+                <a href="/ai/slug-generator" className="flex items-start gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors group">
                   <div className="p-2 rounded-lg bg-blue-50 text-[#0070f3] shrink-0 group-hover:bg-[#0070f3] group-hover:text-white transition-colors">
                     <Sparkles className="w-4 h-4" />
                   </div>
@@ -187,7 +187,7 @@ export function Navbar({ onOpenAuth }: NavbarProps) {
                   </div>
                 </a>
 
-                <a href="#ai" className="flex items-start gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors group">
+                <a href="/ai/assist" className="flex items-start gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors group">
                   <div className="p-2 rounded-lg bg-sky-50 text-sky-600 shrink-0 group-hover:bg-sky-600 group-hover:text-white transition-colors">
                     <Bot className="w-4 h-4" />
                   </div>
@@ -197,7 +197,7 @@ export function Navbar({ onOpenAuth }: NavbarProps) {
                   </div>
                 </a>
 
-                <a href="#ai" className="flex items-start gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors group">
+                <a href="/ai/mcp" className="flex items-start gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors group">
                   <div className="p-2 rounded-lg bg-purple-50 text-purple-600 shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors">
                     <Cpu className="w-4 h-4" />
                   </div>
@@ -340,16 +340,16 @@ export function Navbar({ onOpenAuth }: NavbarProps) {
                 style={{ backgroundColor: '#ffffff', opacity: 1, backdropFilter: 'none', WebkitBackdropFilter: 'none' }}
                 className="absolute top-full left-0 mt-2 w-72 bg-white solid-card-dropdown rounded-2xl shadow-2xl border border-slate-200 p-5 space-y-2 z-50"
               >
-                <a href="#features" className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors text-xs font-semibold text-[#0b132b]">
+                <a href="/integrations" className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors text-xs font-semibold text-[#0b132b]">
                   <Layers className="w-4 h-4 text-[#0070f3]" /> Integrations Hub
                 </a>
-                <a href="#features" className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors text-xs font-semibold text-[#0b132b]">
+                <a href="/resources/utm-guide" className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors text-xs font-semibold text-[#0b132b]">
                   <Tag className="w-4 h-4 text-[#38bdf8]" /> UTM Campaign Guide
                 </a>
-                <a href="#faq" className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors text-xs font-semibold text-[#0b132b]">
+                <a href="/help" className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors text-xs font-semibold text-[#0b132b]">
                   <HelpCircle className="w-4 h-4 text-purple-600" /> Help Center &amp; FAQ
                 </a>
-                <a href="#features" className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors text-xs font-semibold text-[#0b132b]">
+                <a href="/developers" className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors text-xs font-semibold text-[#0b132b]">
                   <Cpu className="w-4 h-4 text-emerald-600" /> Developer REST API
                 </a>
               </div>

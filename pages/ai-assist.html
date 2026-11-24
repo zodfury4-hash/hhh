@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HEA Assist AI Studio | HEA Link</title>
+  <meta name="description" content="Intelligent conversational assistant for your links, QR codes, audience analytics, and automated campaign tracking.">
+  <link rel="icon" type="image/png" href="/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/landing.css">
+  <style>
+    body {
+      background: #eef6ff;
+      color: #0b132b;
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .assist-nav {
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 14px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .assist-nav-inner {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0070f3;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .nav-link {
+      color: #475569;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: color 0.15s;
+    }
+    .nav-link:hover, .nav-link.active {
+      color: #0070f3;
+    }
+    .btn-nav-dash {
+      background: #0070f3;
+      color: #ffffff;
+      padding: 8px 18px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .btn-nav-dash:hover {
+      background: #0056b3;
+    }
+    .assist-workspace {
+      flex: 1;
+      max-width: 1300px;
+      width: 100%;
+      margin: 20px auto;
+      padding: 0 20px 24px;
+      box-sizing: border-box;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 20px;
+      height: calc(100vh - 120px);
+    }
+    @media (max-width: 860px) {
+      .assist-workspace {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+      .conv-sidebar {
+        display: none;
+      }
+    }
+    .conv-sidebar {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 16px rgba(0, 112, 243, 0.04);
+      height: 100%;
+      box-sizing: border-box;
+    }
+    .btn-new-chat {
+      width: 100%;
+      padding: 10px 14px;
+      background: #eff6ff;
+      color: #0070f3;
+      border: 1.5px solid #bfdbfe;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 14px;
+      transition: all 0.15s;
+    }
+    .btn-new-chat:hover {
+      background: #0070f3;
+      color: #ffffff;
+      border-color: #0070f3;
+    }
+    .conv-list {
+      flex: 1;
+      overflow-y: auto;
+    }
+    .conv-item {
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: #334155;
+      cursor: pointer;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.15s;
+    }
+    .conv-item:hover, .conv-item.active {
+      background: #f1f5f9;
+      color: #0070f3;
+      font-weight: 600;
+    }
+    .conv-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 190px;
+    }
+    .chat-card {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0, 112, 243, 0.04);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    .chat-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #ffffff;
+    }
+    .chat-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #10b981;
+      background: #ecfdf5;
+      padding: 4px 10px;
+      border-radius: 9999px;
+    }
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+    }
+    .chat-messages {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .msg-wrap {
+      display: flex;
+      gap: 12px;
+      max-width: 85%;
+    }
+    .msg-wrap.user {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+    .msg-wrap.assistant {
+      align-self: flex-start;
+    }
+    .msg-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #eff6ff;
+      color: #0070f3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .msg-wrap.user .msg-avatar {
+      background: #0070f3;
+      color: #ffffff;
+    }
+    .msg-bubble {
+      padding: 12px 18px;
+      border-radius: 16px;
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+    .msg-wrap.user .msg-bubble {
+      background: #0070f3;
+      color: #ffffff;
+      border-bottom-right-radius: 4px;
+    }
+    .msg-wrap.assistant .msg-bubble {
+      background: #f8fafc;
+      color: #0b132b;
+      border: 1px solid #e2e8f0;
+      border-bottom-left-radius: 4px;
+    }
+    .msg-bubble pre {
+      background: #1e293b;
+      color: #f8fafc;
+      padding: 10px 14px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+    }
+    .msg-bubble code {
+      font-family: monospace;
+      background: rgba(0,0,0,0.06);
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+    .msg-wrap.user .msg-bubble code {
+      background: rgba(255,255,255,0.2);
+      color: #ffffff;
+    }
+    .action-card {
+      background: #ffffff;
+      border: 1.5px solid #0070f3;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 10px;
+      box-shadow: 0 4px 12px rgba(0, 112, 243, 0.08);
+    }
+    .action-card-header {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #0070f3;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .action-summary {
+      font-size: 0.9rem;
+      color: #1e293b;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-confirm {
+      background: #10b981;
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-confirm:hover {
+      background: #059669;
+    }
+    .btn-cancel {
+      background: #f1f5f9;
+      color: #64748b;
+      border: 1px solid #cbd5e1;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-cancel:hover {
+      background: #e2e8f0;
+    }
+    .empty-hero {
+      text-align: center;
+      margin: auto 0;
+      padding: 20px;
+    }
+    .empty-hero h3 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #0b132b;
+      margin: 0 0 8px;
+    }
+    .empty-hero p {
+      font-size: 0.9rem;
+      color: #64748b;
+      max-width: 480px;
+      margin: 0 auto 20px;
+    }
+    .prompt-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .prompt-pill {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      padding: 8px 14px;
+      border-radius: 9999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .prompt-pill:hover {
+      border-color: #0070f3;
+      color: #0070f3;
+      background: #eff6ff;
+    }
+    .chat-input-bar {
+      padding: 16px 20px;
+      border-top: 1px solid #f1f5f9;
+      background: #ffffff;
+    }
+    .chat-form {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .chat-input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .chat-input:focus {
+      border-color: #0070f3;
+    }
+    .btn-send {
+      padding: 12px 20px;
+      background: #0070f3;
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-send:hover:not(:disabled) {
+      background: #0056b3;
+    }
+    .btn-send:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .auth-warning {
+      background: #fffbeb;
+      color: #b45309;
+      border: 1px solid #fde68a;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      text-align: center;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Header -->
+  <header class="assist-nav">
+    <div class="assist-nav-inner">
+      <a href="/" class="nav-brand">
+        <svg width="28" height="20" viewBox="0 0 54 36" fill="none">
+          <path d="M15.5 8C10.25 8 6 12.25 6 17.5C6 22.75 10.25 27 15.5 27C21.2 27 24.6 20.8 27 17.5C29.4 14.2 32.8 8 38.5 8C43.75 8 48 12.25 48 17.5C48 22.75 43.75 27 38.5 27C32.8 27 29.4 20.8 27 17.5C24.6 14.2 21.2 8 15.5 8Z" stroke="#0070f3" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>HEA Link</span>
+      </a>
+      <div class="nav-links">
+        <a href="/ai/slug-generator" class="nav-link">Slug AI</a>
+        <a href="/ai/assist" class="nav-link active">HEA Assist</a>
+        <a href="/ai/mcp" class="nav-link">MCP Server</a>
+        <a href="/pricing" class="nav-link">Pricing</a>
+        <a href="/app.html" class="btn-nav-dash">Dashboard →</a>
+      </div>
+    </div>
+  </header>
+
+  <div id="authWarning" class="auth-warning">
+    You are browsing in guest mode. <a href="/#login" style="color:#0070f3;font-weight:700;">Sign in</a> to let HEA Assist read your real links and analytics.
+  </div>
+
+  <!-- Workspace Container -->
+  <main class="assist-workspace">
+    <!-- Sidebar: Conversation History -->
+    <aside class="conv-sidebar">
+      <button type="button" id="btnNewChat" class="btn-new-chat">
+        <span>+</span> New Conversation
+      </button>
+      <div class="conv-list" id="convList">
+        <div style="font-size:0.82rem;color:#94a3b8;padding:8px 4px;">Recent sessions</div>
+      </div>
+    </aside>
+
+    <!-- Main Chat Window -->
+    <section class="chat-card">
+      <div class="chat-header">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <b style="font-size:1.05rem;">HEA Assist AI Studio</b>
+          <span class="chat-status-pill">
+            <span class="status-dot"></span> Online
+          </span>
+        </div>
+        <button type="button" id="btnClearChat" style="background:none;border:none;color:#64748b;font-size:0.82rem;font-weight:600;cursor:pointer;">
+          Clear View
+        </button>
+      </div>
+
+      <div class="chat-messages" id="chatMessages">
+        <div class="empty-hero" id="emptyHero">
+          <div style="font-size:2.5rem;margin-bottom:8px;">✨</div>
+          <h3>Welcome to HEA Assist</h3>
+          <p>Your intelligent assistant for shortening links, analyzing audience traffic, generating high-CTR slugs, and managing campaigns.</p>
+          <div class="prompt-pills">
+            <button type="button" class="prompt-pill" data-prompt="List my recent shortlinks">📋 Show my recent links</button>
+            <button type="button" class="prompt-pill" data-prompt="What was my click volume this week?">📊 Account click telemetry</button>
+            <button type="button" class="prompt-pill" data-prompt="Shorten https://store.example.com/summer-sale with a catchy slug">⚡ Shorten a URL</button>
+            <button type="button" class="prompt-pill" data-prompt="Suggest UTM tags for my email newsletter campaign">🏷️ Suggest UTM campaign tags</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input-bar">
+        <form id="chatForm" class="chat-form">
+          <input type="text" id="chatInput" class="chat-input" placeholder="Ask about clicks, shorten URLs, or inspect performance..." autocomplete="off">
+          <button type="submit" id="btnSend" class="btn-send">Send →</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function() {
+      let currentConversationId = null;
+      const chatMessages = document.getElementById('chatMessages');
+      const chatForm = document.getElementById('chatForm');
+      const chatInput = document.getElementById('chatInput');
+      const btnSend = document.getElementById('btnSend');
+      const emptyHero = document.getElementById('emptyHero');
+      const convList = document.getElementById('convList');
+      const btnNewChat = document.getElementById('btnNewChat');
+      const btnClearChat = document.getElementById('btnClearChat');
+      const authWarning = document.getElementById('authWarning');
+
+      function getToken() {
+        return localStorage.getItem('token') || localStorage.getItem('hea_token') || sessionStorage.getItem('token');
+      }
+
+      const token = getToken();
+      if (!token) {
+        authWarning.style.display = 'block';
+      }
+
+      function getAuthHeaders() {
+        const t = getToken();
+        return t ? { 'Authorization': 'Bearer ' + t } : {};
+      }
+
+      // Load Conversations
+      async function loadConversations() {
+        if (!getToken()) return;
+        try {
+          const res = await fetch('/api/assist/conversations', { headers: getAuthHeaders() });
+          const data = await res.json();
+          if (data.conversations && data.conversations.length > 0) {
+            convList.innerHTML = '<div style="font-size:0.82rem;color:#94a3b8;padding:8px 4px;">Recent sessions</div>';
+            data.conversations.forEach(c => {
+              const div = document.createElement('div');
+              div.className = 'conv-item' + (c.conversationId === currentConversationId ? ' active' : '');
+              div.innerHTML = `<span class="conv-title">${escapeHtml(c.title)}</span>`;
+              div.onclick = () => switchConversation(c.conversationId);
+              convList.appendChild(div);
+            });
+          }
+        } catch (_e) {}
+      }
+
+      async function switchConversation(id) {
+        currentConversationId = id;
+        loadConversations();
+        chatMessages.innerHTML = '';
+        try {
+          const res = await fetch(`/api/assist/conversations/${id}`, { headers: getAuthHeaders() });
+          const data = await res.json();
+          if (data.conversation && Array.isArray(data.conversation.messages)) {
+            data.conversation.messages.forEach(m => {
+              if (m.role === 'user' || m.role === 'assistant') {
+                appendMessage(m.role, m.content);
+              } else if (m.role === 'system') {
+                appendSystemNotice(m.content);
+              }
+            });
+            if (data.conversation.pendingAction) {
+              appendActionCard(data.conversation.pendingAction);
+            }
+          }
+        } catch (_e) {}
+      }
+
+      btnNewChat.addEventListener('click', () => {
+        currentConversationId = null;
+        chatMessages.innerHTML = '';
+        chatMessages.appendChild(emptyHero);
+        emptyHero.style.display = 'block';
+        loadConversations();
+      });
+
+      btnClearChat.addEventListener('click', () => {
+        chatMessages.innerHTML = '';
+        chatMessages.appendChild(emptyHero);
+        emptyHero.style.display = 'block';
+      });
+
+      document.querySelectorAll('.prompt-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          chatInput.value = btn.dataset.prompt;
+          chatForm.dispatchEvent(new Event('submit'));
+        });
+      });
+
+      chatForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const text = chatInput.value.trim();
+        if (!text) return;
+
+        if (emptyHero && emptyHero.parentNode) {
+          emptyHero.style.display = 'none';
+        }
+
+        appendMessage('user', text);
+        chatInput.value = '';
+        btnSend.disabled = true;
+
+        const assistantBubble = appendMessage('assistant', 'Thinking...');
+
+        try {
+          const resp = await fetch('/api/assist/chat', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...getAuthHeaders()
+            },
+            body: JSON.stringify({
+              message: text,
+              conversationId: currentConversationId,
+              stream: false
+            })
+          });
+
+          const data = await resp.json();
+
+          if (!resp.ok) {
+            assistantBubble.textContent = data.error || 'Failed to reach HEA Assist.';
+            return;
+          }
+
+          currentConversationId = data.conversationId;
+          assistantBubble.innerHTML = renderMarkdown(data.reply || '');
+
+          if (data.pendingAction) {
+            appendActionCard(data.pendingAction);
+          }
+
+          loadConversations();
+        } catch (err) {
+          assistantBubble.textContent = 'Network error: ' + err.message;
+        } finally {
+          btnSend.disabled = false;
+        }
+      });
+
+      function appendMessage(role, content) {
+        const wrap = document.createElement('div');
+        wrap.className = 'msg-wrap ' + role;
+
+        const avatar = document.createElement('div');
+        avatar.className = 'msg-avatar';
+        avatar.textContent = role === 'user' ? '👤' : '✨';
+
+        const bubble = document.createElement('div');
+        bubble.className = 'msg-bubble';
+        bubble.innerHTML = renderMarkdown(content);
+
+        wrap.appendChild(avatar);
+        wrap.appendChild(bubble);
+        chatMessages.appendChild(wrap);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        return bubble;
+      }
+
+      function appendSystemNotice(text) {
+        const div = document.createElement('div');
+        div.style.cssText = 'text-align:center;font-size:0.82rem;color:#10b981;font-weight:600;margin:8px 0;';
+        div.textContent = text;
+        chatMessages.appendChild(div);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      function appendActionCard(action) {
+        const card = document.createElement('div');
+        card.className = 'action-card';
+
+        card.innerHTML = `
+          <div class="action-card-header">⚡ Pending Action Confirmation</div>
+          <div class="action-summary">${escapeHtml(action.summary || 'Execute link action')}</div>
+          <div class="action-buttons">
+            <button type="button" class="btn-confirm" id="btnConfirm_${action.actionId}">✓ Confirm &amp; Execute</button>
+            <button type="button" class="btn-cancel" id="btnCancel_${action.actionId}">✕ Cancel</button>
+          </div>
+        `;
+
+        chatMessages.appendChild(card);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        const btnConf = card.querySelector(`#btnConfirm_${action.actionId}`);
+        const btnCanc = card.querySelector(`#btnCancel_${action.actionId}`);
+
+        btnConf.onclick = async () => {
+          btnConf.disabled = true;
+          btnConf.textContent = 'Executing...';
+          try {
+            const res = await fetch(`/api/assist/actions/${action.actionId}/confirm`, {
+              method: 'POST',
+              headers: { ...getAuthHeaders() }
+            });
+            const d = await res.json();
+            if (res.ok) {
+              card.innerHTML = `<div style="color:#10b981;font-weight:700;">✅ Action confirmed: ${escapeHtml(d.summary || '')}</div>`;
+            } else {
+              card.innerHTML = `<div style="color:#ef4444;">⚠️ ${escapeHtml(d.error || 'Failed to execute')}</div>`;
+            }
+          } catch (e) {
+            card.innerHTML = `<div style="color:#ef4444;">Error: ${escapeHtml(e.message)}</div>`;
+          }
+        };
+
+        btnCanc.onclick = async () => {
+          btnCanc.disabled = true;
+          try {
+            await fetch(`/api/assist/actions/${action.actionId}/cancel`, {
+              method: 'POST',
+              headers: { ...getAuthHeaders() }
+            });
+            card.innerHTML = `<div style="color:#64748b;">✕ Action cancelled</div>`;
+          } catch (_e) {
+            card.innerHTML = `<div style="color:#64748b;">✕ Cancelled</div>`;
+          }
+        };
+      }
+
+      function renderMarkdown(str) {
+        let esc = escapeHtml(str);
+        // Bold
+        esc = esc.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        // Italic
+        esc = esc.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        // Inline code
+        esc = esc.replace(/`([^`]+)`/g, '<code>$1</code>');
+        // Markdown Links
+        esc = esc.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" style="color:#0070f3;text-decoration:underline;">$1</a>');
+        // Newlines
+        esc = esc.replace(/\n/g, '<br>');
+        return esc;
+      }
+
+      function escapeHtml(s) {
+        return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+
+      loadConversations();
+    })();
+  </script>
+</body>
+</html>

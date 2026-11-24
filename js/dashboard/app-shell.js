@@ -236,6 +236,43 @@
 
     }
 
+    // Topbar Plan Badge
+    const topbarBadge = $('#topbarProBadge');
+    if (topbarBadge) {
+      if (appUser.isPro) {
+        topbarBadge.innerHTML = `<span>👑</span> ${appUser.plan || 'Pro Active'}`;
+        topbarBadge.style.background = '';
+        topbarBadge.style.color = '';
+        topbarBadge.style.borderColor = '';
+      } else {
+        topbarBadge.innerHTML = `<span>⚡</span> Free Plan · Upgrade`;
+        topbarBadge.style.background = '#f1f5f9';
+        topbarBadge.style.color = '#475569';
+        topbarBadge.style.borderColor = '#cbd5e1';
+        topbarBadge.onclick = () => window.openCheckoutModal && window.openCheckoutModal('pro');
+        topbarBadge.style.cursor = 'pointer';
+      }
+    }
+
+    // Topbar Notifications Badge Sync
+    try {
+      const s = JSON.parse(localStorage.getItem('hea_session') || '{}');
+      const token = s.token || localStorage.getItem('hea_token') || sessionStorage.getItem('hea_token');
+      if (token) {
+        fetch('/api/notifications/unread-count', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        }).then(r => r.json()).then(d => {
+          if (d && typeof d.unreadCount === 'number') {
+            const badges = document.querySelectorAll('.topbar-notif-badge, #topbarNotifBadge');
+            badges.forEach(b => {
+              b.textContent = d.unreadCount;
+              b.style.display = d.unreadCount > 0 ? '' : 'none';
+            });
+          }
+        }).catch(() => {});
+      }
+    } catch (e) {}
+
   }
 
   try {
@@ -357,6 +394,28 @@
       }
     } catch (e) {}
     return [];
+  }
+
+  async function syncLinksFromServer() {
+    try {
+      const s = JSON.parse(localStorage.getItem('hea_session') || '{}');
+      if (!s || !s.token) return;
+      const res = await fetch('/api/links', {
+        headers: { Authorization: 'Bearer ' + s.token }
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data && Array.isArray(data.links)) {
+        localStorage.setItem('hea_links', JSON.stringify(data.links));
+        data.links.forEach(l => {
+          if (l.slug && l.dest) {
+            try {
+              localStorage.setItem('hea_slug_' + l.slug.toLowerCase(), l.dest);
+            } catch (_e) {}
+          }
+        });
+      }
+    } catch (_err) {}
   }
 
   function getStoredPages() {
@@ -771,9 +830,10 @@
           break;
 
         case 'links':
-
           renderLinks(pane);
-
+          syncLinksFromServer().then(() => {
+            if (currentView === 'links') renderLinks(pane);
+          }).catch(() => {});
           break;
 
         case 'qr':
@@ -914,22 +974,51 @@
 
   }
 
-  // ---------------- 1. HOME SCREEN (Frame 1 & Frame 6 - 1:1 with reference) ---------------- //
+  // Number and Trend formatting utilities
+  function formatNumber(val) {
+    if (val === null || val === undefined || isNaN(val)) return '0';
+    const num = Number(val);
+    if (num === 0) return '0';
+    const abs = Math.abs(num);
+    const sign = num < 0 ? '-' : '';
+    if (abs < 1000) return sign + String(Math.round(num));
+    if (abs < 1000000) return `${sign}${(abs / 1000).toFixed(1).replace(/\.0$/, '')}K`;
+    if (abs < 1000000000) return `${sign}${(abs / 1000000).toFixed(1).replace(/\.0$/, '')}M`;
+    return `${sign}${(abs / 1000000000).toFixed(1).replace(/\.0$/, '')}B`;
+  }
+
+  function formatWithCommas(val) {
+    if (val === null || val === undefined || isNaN(val)) return '0';
+    return Number(val).toLocaleString('en-US');
+  }
+
+  function formatTrend(pct) {
+    if (pct === null || pct === undefined || isNaN(pct)) return '—';
+    const num = Number(pct);
+    if (num === 0) return '0%';
+    if (num > 0) return `↑ +${num}%`;
+    return `↓ ${num}%`;
+  }
+
+  // ---------------- 1. HOME SCREEN (100% Data-Driven & Real-Time) ---------------- //
 
   function renderHome(container) {
     let activeType = 'link'; // 'link' or 'qr'
-    const links = getStoredLinks();
-    const pages = getStoredPages();
+    let currentRange = '7d';
+    const userTz = (typeof Intl !== 'undefined' && Intl.DateTimeFormat) 
+      ? (Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC') 
+      : 'UTC';
+
+    // Clear previous live poll timer to prevent memory leaks
+    if (window.__heaLivePollTimer) {
+      clearInterval(window.__heaLivePollTimer);
+      window.__heaLivePollTimer = null;
+    }
 
     // Time-based dynamic greeting & user name
     const hour = new Date().getHours();
     const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-    const firstName = (appUser.name || 'Fury').split(' ')[0];
-
-    // Compute live click stats (with baseline matching reference)
-    let totalClicks = links.reduce((sum, l) => sum + (parseInt(l.clicks, 10) || 0), 0);
-    const displayClicks = totalClicks > 0 ? (totalClicks >= 1000 ? (totalClicks/1000).toFixed(1) + 'K' : totalClicks) : '48.7K';
-    const totalLinksCount = links.length > 0 ? links.length : 247;
+    const firstName = (appUser.name || 'Account').split(' ')[0];
 
     container.innerHTML = `
       <div class="dashboard-v2-container">
@@ -940,7 +1029,7 @@
         <div class="dash-kpi-grid">
           
           <!-- KPI 1: Total Links -->
-          <div class="kpi-card">
+          <div class="kpi-card" id="kpiCardLinks">
             <div class="kpi-left-group">
               <div class="kpi-icon-box" style="background:#e0f2fe;color:#0284c7;">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
@@ -948,12 +1037,12 @@
               <div class="kpi-meta">
                 <span class="kpi-label">Total Links</span>
                 <div class="kpi-value-row">
-                  <span class="kpi-value">${totalLinksCount}</span>
-                  <span class="kpi-trend">↑ +12%</span>
+                  <span class="kpi-value" id="kpiTotalLinksVal">0</span>
+                  <span class="kpi-trend" id="kpiTotalLinksTrend">—</span>
                 </div>
               </div>
             </div>
-            <div class="kpi-sparkline">
+            <div class="kpi-sparkline" id="kpiTotalLinksSparkline">
               <svg width="68" height="28" viewBox="0 0 68 28" fill="none">
                 <path d="M2 22 Q 18 28, 30 16 T 50 12 T 66 4" stroke="#0A6CFF" stroke-width="2.6" stroke-linecap="round"/>
               </svg>
@@ -961,7 +1050,7 @@
           </div>
 
           <!-- KPI 2: Total Clicks -->
-          <div class="kpi-card">
+          <div class="kpi-card" id="kpiCardClicks">
             <div class="kpi-left-group">
               <div class="kpi-icon-box" style="background:#f3e8ff;color:#9333ea;">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
@@ -969,12 +1058,12 @@
               <div class="kpi-meta">
                 <span class="kpi-label">Total Clicks</span>
                 <div class="kpi-value-row">
-                  <span class="kpi-value">${displayClicks}</span>
-                  <span class="kpi-trend">↑ +18%</span>
+                  <span class="kpi-value" id="kpiTotalClicksVal">0</span>
+                  <span class="kpi-trend" id="kpiTotalClicksTrend">—</span>
                 </div>
               </div>
             </div>
-            <div class="kpi-sparkline">
+            <div class="kpi-sparkline" id="kpiTotalClicksSparkline">
               <svg width="68" height="28" viewBox="0 0 68 28" fill="none">
                 <path d="M2 24 Q 18 16, 32 20 T 52 14 T 66 8" stroke="#a855f7" stroke-width="2.6" stroke-linecap="round"/>
               </svg>
@@ -982,7 +1071,7 @@
           </div>
 
           <!-- KPI 3: Unique Visitors -->
-          <div class="kpi-card">
+          <div class="kpi-card" id="kpiCardVisitors">
             <div class="kpi-left-group">
               <div class="kpi-icon-box" style="background:#dcfce7;color:#16a34a;">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="18" y1="20" y2="10"></line><line x1="12" x2="12" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="14"></line></svg>
@@ -990,12 +1079,12 @@
               <div class="kpi-meta">
                 <span class="kpi-label">Unique Visitors</span>
                 <div class="kpi-value-row">
-                  <span class="kpi-value">32.4K</span>
-                  <span class="kpi-trend">↑ +16%</span>
+                  <span class="kpi-value" id="kpiUniqueVisitorsVal">0</span>
+                  <span class="kpi-trend" id="kpiUniqueVisitorsTrend">—</span>
                 </div>
               </div>
             </div>
-            <div class="kpi-sparkline">
+            <div class="kpi-sparkline" id="kpiUniqueVisitorsSparkline">
               <svg width="68" height="28" viewBox="0 0 68 28" fill="none">
                 <path d="M2 22 Q 18 25, 30 14 T 50 16 T 66 6" stroke="#10b981" stroke-width="2.6" stroke-linecap="round"/>
               </svg>
@@ -1003,7 +1092,7 @@
           </div>
 
           <!-- KPI 4: Top Performer -->
-          <div class="kpi-card">
+          <div class="kpi-card" id="kpiCardTopPerformer">
             <div class="kpi-left-group">
               <div class="kpi-icon-box" style="background:#fef3c7;color:#d97706;">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
@@ -1011,12 +1100,12 @@
               <div class="kpi-meta">
                 <span class="kpi-label">Top Performer</span>
                 <div class="kpi-value-row">
-                  <span class="kpi-value">2.8K</span>
-                  <span class="kpi-trend">↑ +24%</span>
+                  <span class="kpi-value" id="kpiTopPerformerVal">0</span>
+                  <span class="kpi-trend" id="kpiTopPerformerTrend">—</span>
                 </div>
               </div>
             </div>
-            <div class="kpi-sparkline">
+            <div class="kpi-sparkline" id="kpiTopPerformerSparkline">
               <svg width="68" height="28" viewBox="0 0 68 28" fill="none">
                 <path d="M2 20 Q 16 12, 30 22 T 50 14 T 66 8" stroke="#f59e0b" stroke-width="2.6" stroke-linecap="round"/>
               </svg>
@@ -1033,18 +1122,14 @@
           <!-- Left: Hero Shortener Card -->
           <div class="hero-shorten-card">
             <div class="hero-top-badges">
-              <div class="live-activity-pill">
-                <span class="live-dot"></span>
-                <span class="live-text">Live Activity · 42 visitors right now</span>
-                <div class="live-avatars">
-                  <div class="live-avatar-item" style="background:#0A6CFF;">FZ</div>
-                  <div class="live-avatar-item" style="background:#7928ca;">AK</div>
-                  <div class="live-avatar-item" style="background:#10b981;">EM</div>
-                </div>
-                <span class="live-more-text">+1.4k active</span>
+              <div class="live-activity-pill" id="homeLivePill">
+                <span class="live-dot" id="homeLiveDot"></span>
+                <span class="live-text" id="homeLiveText">Live Activity · Real-time telemetry</span>
+                <div class="live-avatars" id="homeLiveAvatars" style="display:none;"></div>
+                <span class="live-more-text" id="homeLiveMoreText" style="display:none;"></span>
               </div>
-              <div class="core-pro-badge" onclick="window.openCheckoutModal('pro')" style="cursor:pointer;">
-                <span>👑</span> Core PRO Active
+              <div class="core-pro-badge" id="homePlanBadge" onclick="window.openCheckoutModal && window.openCheckoutModal('pro')" style="cursor:pointer;">
+                <span>👑</span> Pro Active
               </div>
             </div>
 
@@ -1130,102 +1215,44 @@
           <div class="dash-right-stack">
             
             <!-- Widget 1: Calendar Week -->
-            <div class="calendar-widget-card">
+            <div class="calendar-widget-card" id="homeCalendarWidget">
               <div class="widget-header-row">
-                <div class="widget-title">📅 November 2026</div>
-                <button type="button" class="widget-dropdown-btn">This Week ˇ</button>
+                <div class="widget-title" id="homeCalTitle">📅 Calendar</div>
+                <button type="button" class="widget-dropdown-btn">Current Week ˇ</button>
               </div>
-              <div class="cal-week-grid">
-                <div class="cal-day-col active">
-                  <span class="cal-day-name">MON</span>
-                  <span class="cal-day-number">9</span>
-                </div>
-                <div class="cal-day-col">
-                  <span class="cal-day-name">TUE</span>
-                  <span class="cal-day-number">10</span>
-                </div>
-                <div class="cal-day-col">
-                  <span class="cal-day-name">WED</span>
-                  <span class="cal-day-number">11</span>
-                </div>
-                <div class="cal-day-col">
-                  <span class="cal-day-name">THU</span>
-                  <span class="cal-day-number">12</span>
-                </div>
-                <div class="cal-day-col">
-                  <span class="cal-day-name">FRI</span>
-                  <span class="cal-day-number">13</span>
-                </div>
-                <div class="cal-day-col">
-                  <span class="cal-day-name">SAT</span>
-                  <span class="cal-day-number">14</span>
-                </div>
-                <div class="cal-day-col">
-                  <span class="cal-day-name">SUN</span>
-                  <span class="cal-day-number">15</span>
-                </div>
+              <div class="cal-week-grid" id="homeCalGrid">
+                <!-- Dynamically populated -->
               </div>
             </div>
 
             <!-- Widget 2: Visitor Velocity Chart -->
-            <div class="velocity-widget-card">
+            <div class="velocity-widget-card" id="homeVelocityWidget">
               <div class="widget-header-row">
                 <div class="widget-title">📈 Visitor Velocity</div>
-                <span style="background:#dcfce7;color:#16a34a;padding:3px 8px;border-radius:9999px;font-size:11.5px;font-weight:700;">↑ +42%</span>
+                <span id="homeVelocityTrendBadge" style="background:#e2e8f0;color:#64748b;padding:3px 8px;border-radius:9999px;font-size:11.5px;font-weight:700;">—</span>
               </div>
               
               <!-- SVG Velocity Chart with Axes & Peak Tooltip -->
-              <div class="velocity-chart-wrap">
-                <!-- Peak Tooltip pinned right above Saturday 14 point -->
-                <div style="position:absolute;left:82%;top:5px;transform:translateX(-50%);background:#0f172a;color:#ffffff;padding:2px 7px;border-radius:6px;font-size:10px;font-weight:800;box-shadow:0 2px 6px rgba(0,0,0,0.2);z-index:2;">
-                  2.8K
+              <div class="velocity-chart-wrap" id="homeVelocityChartWrap">
+                <div id="homeVelocityTooltip" style="display:none;position:absolute;background:#0f172a;color:#ffffff;padding:2px 7px;border-radius:6px;font-size:10px;font-weight:800;box-shadow:0 2px 6px rgba(0,0,0,0.2);z-index:2;transform:translateX(-50%);">
+                  0
                 </div>
-                <svg width="100%" height="95" viewBox="0 0 340 95" fill="none" preserveAspectRatio="none">
+                <svg width="100%" height="95" viewBox="0 0 340 95" fill="none" preserveAspectRatio="none" id="homeVelocitySvg">
                   <defs>
                     <linearGradient id="velocityGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stop-color="#0A6CFF" stop-opacity="0.32"/>
                       <stop offset="100%" stop-color="#0A6CFF" stop-opacity="0.0"/>
                     </linearGradient>
                   </defs>
-                  <!-- Horizontal Grid Lines -->
                   <line x1="28" y1="18" x2="335" y2="18" stroke="#f1f5f9" stroke-width="1"/>
                   <line x1="28" y1="40" x2="335" y2="40" stroke="#f1f5f9" stroke-width="1"/>
                   <line x1="28" y1="62" x2="335" y2="62" stroke="#f1f5f9" stroke-width="1"/>
                   <line x1="28" y1="80" x2="335" y2="80" stroke="#f1f5f9" stroke-width="1"/>
-
-                  <!-- Y-Axis Labels -->
-                  <text x="5" y="21" fill="#94a3b8" font-size="9" font-weight="600">3K</text>
-                  <text x="5" y="43" fill="#94a3b8" font-size="9" font-weight="600">2K</text>
-                  <text x="5" y="65" fill="#94a3b8" font-size="9" font-weight="600">1K</text>
-                  <text x="8" y="82" fill="#94a3b8" font-size="9" font-weight="600">0</text>
-
-                  <!-- Area Fill -->
-                  <path d="M 38 65 C 55 52, 70 48, 86 50 C 102 52, 118 60, 134 56 C 150 52, 166 40, 182 42 C 198 44, 214 50, 230 46 C 255 42, 265 18, 278 18 C 295 18, 310 52, 325 58 L 325 80 L 38 80 Z" fill="url(#velocityGrad)"/>
-
-                  <!-- Smooth Curve Line -->
-                  <path d="M 38 65 C 55 52, 70 48, 86 50 C 102 52, 118 60, 134 56 C 150 52, 166 40, 182 42 C 198 44, 214 50, 230 46 C 255 42, 265 18, 278 18 C 295 18, 310 52, 325 58" 
-                        stroke="#0A6CFF" stroke-width="2.6" stroke-linecap="round" fill="none"/>
-
-                  <!-- Data Point Dots -->
-                  <circle cx="38" cy="65" r="3" fill="#0A6CFF" stroke="#ffffff" stroke-width="1.5"/>
-                  <circle cx="86" cy="50" r="3" fill="#0A6CFF" stroke="#ffffff" stroke-width="1.5"/>
-                  <circle cx="134" cy="56" r="3" fill="#0A6CFF" stroke="#ffffff" stroke-width="1.5"/>
-                  <circle cx="182" cy="42" r="3" fill="#0A6CFF" stroke="#ffffff" stroke-width="1.5"/>
-                  <circle cx="230" cy="46" r="3" fill="#0A6CFF" stroke="#ffffff" stroke-width="1.5"/>
-                  <circle cx="278" cy="18" r="4.5" fill="#0A6CFF" stroke="#ffffff" stroke-width="2"/>
-                  <circle cx="325" cy="58" r="3" fill="#0A6CFF" stroke="#ffffff" stroke-width="1.5"/>
+                  <path id="homeVelocityArea" d="" fill="url(#velocityGrad)"/>
+                  <path id="homeVelocityLine" d="" stroke="#0A6CFF" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+                  <g id="homeVelocityDots"></g>
                 </svg>
-
-                <!-- X-Axis Labels -->
-                <div style="display:flex;justify-content:space-between;padding:0 4px 0 28px;margin-top:2px;">
-                  <span style="font-size:9.5px;color:#94a3b8;font-weight:600;">Mon<br>9</span>
-                  <span style="font-size:9.5px;color:#94a3b8;font-weight:600;">Tue<br>10</span>
-                  <span style="font-size:9.5px;color:#94a3b8;font-weight:600;">Wed<br>11</span>
-                  <span style="font-size:9.5px;color:#94a3b8;font-weight:600;">Thu<br>12</span>
-                  <span style="font-size:9.5px;color:#94a3b8;font-weight:600;">Fri<br>13</span>
-                  <span style="font-size:9.5px;color:#0A6CFF;font-weight:800;">Sat<br>14</span>
-                  <span style="font-size:9.5px;color:#94a3b8;font-weight:600;">Sun<br>15</span>
-                </div>
+                <div id="homeVelocityXAxis" style="display:flex;justify-content:space-between;padding:0 4px 0 28px;margin-top:2px;"></div>
               </div>
 
             </div>
@@ -1240,169 +1267,77 @@
         <div class="dash-bottom-grid">
           
           <!-- Card 1: Overview (Metrics Summary) -->
-          <div class="bottom-widget-card">
+          <div class="bottom-widget-card" id="homeOverviewCard">
             <div class="widget-header-row">
               <div class="widget-title">📊 Overview</div>
-              <button type="button" class="widget-dropdown-btn">Last 7 Days ˇ</button>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <select id="homeOverviewRangeSelect" class="widget-dropdown-btn" style="cursor:pointer;border:none;background:rgba(0,112,243,0.06);color:#0A6CFF;font-weight:700;border-radius:8px;padding:4px 8px;font-size:12px;">
+                  <option value="24h">Last 24 Hours</option>
+                  <option value="7d" selected>Last 7 Days</option>
+                  <option value="30d">Last 30 Days</option>
+                </select>
+              </div>
             </div>
             <div class="overview-stats-grid">
               <!-- Visitors -->
               <div class="overview-col">
                 <div class="overview-icon-badge" style="background:#e0f2fe;color:#0284c7;">👁️</div>
-                <span class="overview-num">32.4K</span>
+                <span class="overview-num" id="overviewVisitorsNum">0</span>
                 <span class="overview-lbl">Visitors</span>
-                <span class="overview-pct">↑ +16%</span>
+                <span class="overview-pct" id="overviewVisitorsPct">—</span>
               </div>
               <!-- Clicks -->
               <div class="overview-col">
                 <div class="overview-icon-badge" style="background:#f3e8ff;color:#9333ea;">🔗</div>
-                <span class="overview-num">48.7K</span>
+                <span class="overview-num" id="overviewClicksNum">0</span>
                 <span class="overview-lbl">Clicks</span>
-                <span class="overview-pct">↑ +18%</span>
+                <span class="overview-pct" id="overviewClicksPct">—</span>
               </div>
               <!-- Links -->
               <div class="overview-col">
                 <div class="overview-icon-badge" style="background:#dcfce7;color:#16a34a;">⛓️</div>
-                <span class="overview-num">1.5K</span>
+                <span class="overview-num" id="overviewLinksNum">0</span>
                 <span class="overview-lbl">Links</span>
-                <span class="overview-pct">↑ +12%</span>
+                <span class="overview-pct" id="overviewLinksPct">—</span>
               </div>
-              <!-- Avg Time -->
+              <!-- Avg Clicks / Link -->
               <div class="overview-col">
-                <div class="overview-icon-badge" style="background:#fef3c7;color:#d97706;">⏱️</div>
-                <span class="overview-num">2m 24s</span>
-                <span class="overview-lbl">Avg. Time</span>
-                <span class="overview-pct">↑ +8%</span>
+                <div class="overview-icon-badge" style="background:#fef3c7;color:#d97706;">⚡</div>
+                <span class="overview-num" id="overviewAvgClicksNum">0</span>
+                <span class="overview-lbl">Avg. clicks / link</span>
+                <span class="overview-pct" id="overviewAvgClicksPct">—</span>
               </div>
             </div>
           </div>
 
           <!-- Card 2: Recent Links -->
-          <div class="bottom-widget-card">
+          <div class="bottom-widget-card" id="homeRecentLinksCard">
             <div class="widget-header-row">
               <div class="widget-title">🔗 Recent Links</div>
-              <a href="#links" class="view-all-link" onclick="window.appShell.navigate('links'); return false;">View All →</a>
+              <a href="#links" class="view-all-link" onclick="window.appShell && window.appShell.navigate('links'); return false;">View All →</a>
             </div>
             
-            <div class="recent-links-list">
-              <!-- Link Row 1 -->
-              <div class="recent-link-row-item">
-                <div class="recent-left-meta">
-                  <div class="recent-link-icon-box">🔗</div>
-                  <div class="recent-link-titles">
-                    <span class="recent-dest-title" title="https://yourwebsite.com/product">https://yourwebsite.com/product</span>
-                    <a href="https://healink.store/abc123" target="_blank" rel="noopener" class="recent-short-slug">fury.link/abc123</a>
-                  </div>
-                </div>
-                <div class="recent-right-telemetry">
-                  <span class="recent-click-count">2.8K clicks</span>
-                  <svg width="42" height="18" viewBox="0 0 42 18" fill="none">
-                    <path d="M2 14 Q 10 16, 18 8 T 32 10 T 40 4" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
-                  </svg>
-                  <button type="button" class="recent-more-btn" title="Options">•••</button>
-                </div>
-              </div>
-
-              <!-- Link Row 2 -->
-              <div class="recent-link-row-item">
-                <div class="recent-left-meta">
-                  <div class="recent-link-icon-box">🔗</div>
-                  <div class="recent-link-titles">
-                    <span class="recent-dest-title" title="https://github.com/fury">https://github.com/fury</span>
-                    <a href="https://healink.store/github" target="_blank" rel="noopener" class="recent-short-slug">fury.link/github</a>
-                  </div>
-                </div>
-                <div class="recent-right-telemetry">
-                  <span class="recent-click-count">1.4K clicks</span>
-                  <svg width="42" height="18" viewBox="0 0 42 18" fill="none">
-                    <path d="M2 12 Q 10 15, 18 6 T 32 12 T 40 4" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
-                  </svg>
-                  <button type="button" class="recent-more-btn" title="Options">•••</button>
-                </div>
-              </div>
-
-              <!-- Link Row 3 -->
-              <div class="recent-link-row-item">
-                <div class="recent-left-meta">
-                  <div class="recent-link-icon-box">🔗</div>
-                  <div class="recent-link-titles">
-                    <span class="recent-dest-title" title="https://store.com/deals">https://store.com/deals</span>
-                    <a href="https://healink.store/deals" target="_blank" rel="noopener" class="recent-short-slug">fury.link/deals</a>
-                  </div>
-                </div>
-                <div class="recent-right-telemetry">
-                  <span class="recent-click-count">872 clicks</span>
-                  <svg width="42" height="18" viewBox="0 0 42 18" fill="none">
-                    <path d="M2 14 Q 10 16, 20 10 T 32 12 T 40 6" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
-                  </svg>
-                  <button type="button" class="recent-more-btn" title="Options">•••</button>
-                </div>
+            <div class="recent-links-list" id="homeRecentLinksList">
+              <div style="text-align:center;padding:32px 16px;color:#64748b;font-size:13px;">
+                <div style="font-size:24px;margin-bottom:8px;">🔗</div>
+                <b>No links created yet</b>
+                <p style="margin:4px 0 12px;font-size:12px;">Create your first link using the shortener above.</p>
               </div>
             </div>
           </div>
 
           <!-- Card 3: Top Referrers -->
-          <div class="bottom-widget-card">
+          <div class="bottom-widget-card" id="homeReferrersCard">
             <div class="widget-header-row">
               <div class="widget-title">👥 Top Referrers</div>
-              <a href="#analytics" class="view-all-link" onclick="window.appShell.navigate('analytics'); return false;">View All →</a>
+              <a href="#analytics" class="view-all-link" onclick="window.appShell && window.appShell.navigate('analytics'); return false;">View All →</a>
             </div>
             
-            <div class="referrers-body">
-              <!-- Donut Chart -->
-              <div class="donut-chart-box">
-                <svg width="100" height="100" viewBox="0 0 100 100" style="transform:rotate(-90deg);">
-                  <!-- Background circle track -->
-                  <circle cx="50" cy="50" r="36" stroke="#f1f5f9" stroke-width="14" fill="none"/>
-                  <!-- Segment 1: Organic Search (68%) - Blue -->
-                  <circle cx="50" cy="50" r="36" stroke="#0A6CFF" stroke-width="14" fill="none"
-                          stroke-dasharray="153.8 226.2" stroke-dashoffset="0"/>
-                  <!-- Segment 2: Direct (16%) - Purple -->
-                  <circle cx="50" cy="50" r="36" stroke="#a855f7" stroke-width="14" fill="none"
-                          stroke-dasharray="36.2 226.2" stroke-dashoffset="-153.8"/>
-                  <!-- Segment 3: Social Media (10%) - Green -->
-                  <circle cx="50" cy="50" r="36" stroke="#10b981" stroke-width="14" fill="none"
-                          stroke-dasharray="22.6 226.2" stroke-dashoffset="-190"/>
-                  <!-- Segment 4: Others (6%) - Amber -->
-                  <circle cx="50" cy="50" r="36" stroke="#f59e0b" stroke-width="14" fill="none"
-                          stroke-dasharray="13.6 226.2" stroke-dashoffset="-212.6"/>
-                </svg>
-                <div class="donut-center-info">
-                  <span class="donut-pct-bold">68%</span>
-                  <span class="donut-pct-label">Organic</span>
-                </div>
-              </div>
-
-              <!-- Legend List -->
-              <div class="referrers-legend-list">
-                <div class="legend-item">
-                  <div class="legend-left">
-                    <span class="legend-dot" style="background:#0A6CFF;"></span>
-                    <span>Organic Search</span>
-                  </div>
-                  <span class="legend-val">68%</span>
-                </div>
-                <div class="legend-item">
-                  <div class="legend-left">
-                    <span class="legend-dot" style="background:#a855f7;"></span>
-                    <span>Direct</span>
-                  </div>
-                  <span class="legend-val">16%</span>
-                </div>
-                <div class="legend-item">
-                  <div class="legend-left">
-                    <span class="legend-dot" style="background:#10b981;"></span>
-                    <span>Social Media</span>
-                  </div>
-                  <span class="legend-val">10%</span>
-                </div>
-                <div class="legend-item">
-                  <div class="legend-left">
-                    <span class="legend-dot" style="background:#f59e0b;"></span>
-                    <span>Others</span>
-                  </div>
-                  <span class="legend-val">6%</span>
-                </div>
+            <div class="referrers-body" id="homeReferrersBody">
+              <div style="text-align:center;padding:32px 16px;color:#64748b;font-size:13px;width:100%;">
+                <div style="font-size:24px;margin-bottom:8px;">👥</div>
+                <b>No referrer telemetry yet</b>
+                <p style="margin:4px 0;font-size:12px;">Share your short links to start tracking traffic channels.</p>
               </div>
             </div>
           </div>
@@ -1411,6 +1346,433 @@
 
       </div>
     `;
+
+    // ---------------- Real Dashboard Telemetry Hydration ---------------- //
+
+    async function loadDashboardSummary(range = currentRange) {
+      currentRange = range;
+      const token = (function() {
+        try {
+          const s = JSON.parse(localStorage.getItem('hea_session') || '{}');
+          return s.token || localStorage.getItem('hea_token') || sessionStorage.getItem('hea_token') || '';
+        } catch (e) { return ''; }
+      })();
+
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = 'Bearer ' + token;
+
+      try {
+        const res = await fetch(`/api/dashboard/summary?range=${encodeURIComponent(range)}&tz=${encodeURIComponent(userTz)}`, { headers });
+        if (!res.ok) return;
+        const data = await res.json();
+        hydrateDashboard(data);
+      } catch (err) {
+        console.warn('[Dashboard] Summary fetch error:', err);
+      }
+    }
+
+    function hydrateDashboard(d) {
+      if (!d) return;
+
+      // 1. KPI Cards
+      const totals = d.totals || {};
+      const trends = d.trends || {};
+
+      const elTotalLinks = $('#kpiTotalLinksVal');
+      if (elTotalLinks) elTotalLinks.textContent = formatWithCommas(totals.links || 0);
+      const elTotalLinksTrend = $('#kpiTotalLinksTrend');
+      if (elTotalLinksTrend) elTotalLinksTrend.textContent = formatTrend(trends.linksPct);
+
+      const elTotalClicks = $('#kpiTotalClicksVal');
+      if (elTotalClicks) elTotalClicks.textContent = formatNumber(totals.humanClicks || 0);
+      const elTotalClicksTrend = $('#kpiTotalClicksTrend');
+      if (elTotalClicksTrend) elTotalClicksTrend.textContent = formatTrend(trends.clicksPct);
+
+      const elVisitors = $('#kpiUniqueVisitorsVal');
+      if (elVisitors) elVisitors.textContent = formatNumber(totals.uniqueVisitors || 0);
+      const elVisitorsTrend = $('#kpiUniqueVisitorsTrend');
+      if (elVisitorsTrend) elVisitorsTrend.textContent = formatTrend(trends.visitorsPct);
+
+      const elTopPerformer = $('#kpiTopPerformerVal');
+      if (elTopPerformer) {
+        if (d.topPerformer && d.topPerformer.clicks > 0) {
+          elTopPerformer.textContent = formatNumber(d.topPerformer.clicks);
+          const elPerfCard = elTopPerformer.closest('.kpi-card');
+          if (elPerfCard) elPerfCard.title = `${d.topPerformer.title || d.topPerformer.slug} (${d.topPerformer.clicks} clicks)`;
+        } else {
+          elTopPerformer.textContent = '0';
+        }
+      }
+      const elTopPerfTrend = $('#kpiTopPerformerTrend');
+      if (elTopPerfTrend) {
+        elTopPerfTrend.textContent = (d.topPerformer && d.topPerformer.clicks > 0) ? (d.topPerformer.slug || 'Top') : '—';
+      }
+
+      // 2. Plan Badge
+      const elPlanBadge = $('#homePlanBadge');
+      if (elPlanBadge && d.plan) {
+        if (d.plan.isPaid) {
+          elPlanBadge.innerHTML = `<span>👑</span> ${d.plan.badge || d.plan.name}`;
+          elPlanBadge.style.background = '';
+          elPlanBadge.style.color = '';
+          elPlanBadge.style.borderColor = '';
+        } else {
+          elPlanBadge.innerHTML = `<span>⚡</span> Free Plan · Upgrade`;
+          elPlanBadge.style.background = '#f1f5f9';
+          elPlanBadge.style.color = '#475569';
+          elPlanBadge.style.borderColor = '#cbd5e1';
+        }
+      }
+
+      // 3. Live Activity Pill
+      const liveCount = (d.activeNow && d.activeNow.visitors) ? d.activeNow.visitors : 0;
+      const elLiveDot = $('#homeLiveDot');
+      const elLiveText = $('#homeLiveText');
+      const elLiveAvatars = $('#homeLiveAvatars');
+      const elLiveMore = $('#homeLiveMoreText');
+
+      if (elLiveText) {
+        if (liveCount > 0) {
+          elLiveText.textContent = `Live Activity · ${liveCount} visitor${liveCount === 1 ? '' : 's'} right now`;
+          if (elLiveDot) elLiveDot.style.background = '#10b981';
+          if (elLiveAvatars) {
+            elLiveAvatars.style.display = 'flex';
+            elLiveAvatars.innerHTML = `
+              <div class="live-avatar-item" style="background:#0A6CFF;">V1</div>
+              ${liveCount > 1 ? '<div class="live-avatar-item" style="background:#7928ca;">V2</div>' : ''}
+              ${liveCount > 2 ? '<div class="live-avatar-item" style="background:#10b981;">V3</div>' : ''}
+            `;
+          }
+          if (elLiveMore && liveCount > 3) {
+            elLiveMore.style.display = 'inline';
+            elLiveMore.textContent = `+${liveCount - 3} more`;
+          } else if (elLiveMore) {
+            elLiveMore.style.display = 'none';
+          }
+        } else {
+          elLiveText.textContent = 'Live Activity · No active visitors right now';
+          if (elLiveDot) elLiveDot.style.background = '#94a3b8';
+          if (elLiveAvatars) elLiveAvatars.style.display = 'none';
+          if (elLiveMore) elLiveMore.style.display = 'none';
+        }
+      }
+
+      // 4. Calendar Week Widget
+      renderCalendarWeek(d.timeseries || []);
+
+      // 5. Visitor Velocity Dynamic SVG Chart
+      renderVelocityChart(d.timeseries || [], d.peak, trends.clicksPct);
+
+      // 6. Overview Card
+      const elOvVisitors = $('#overviewVisitorsNum');
+      if (elOvVisitors) elOvVisitors.textContent = formatNumber(totals.uniqueVisitors || 0);
+      const elOvVisitorsTrend = $('#overviewVisitorsPct');
+      if (elOvVisitorsTrend) elOvVisitorsTrend.textContent = formatTrend(trends.visitorsPct);
+
+      const elOvClicks = $('#overviewClicksNum');
+      if (elOvClicks) elOvClicks.textContent = formatNumber(totals.humanClicks || 0);
+      const elOvClicksTrend = $('#overviewClicksPct');
+      if (elOvClicksTrend) elOvClicksTrend.textContent = formatTrend(trends.clicksPct);
+
+      const elOvLinks = $('#overviewLinksNum');
+      if (elOvLinks) elOvLinks.textContent = formatWithCommas(totals.links || 0);
+      const elOvLinksTrend = $('#overviewLinksPct');
+      if (elOvLinksTrend) elOvLinksTrend.textContent = formatTrend(trends.linksPct);
+
+      const elOvAvgClicks = $('#overviewAvgClicksNum');
+      if (elOvAvgClicks) elOvAvgClicks.textContent = String(totals.avgClicksPerLink || 0);
+      const elOvAvgClicksTrend = $('#overviewAvgClicksPct');
+      if (elOvAvgClicksTrend) elOvAvgClicksTrend.textContent = totals.links > 0 ? 'avg/link' : '—';
+
+      // 7. Recent Links List
+      renderRecentLinks(d.recentLinks || []);
+
+      // 8. Top Referrers Donut & Legend
+      renderTopReferrers(d.referrers || [], totals.humanClicks || 0);
+    }
+
+    function renderCalendarWeek(timeseries) {
+      const now = new Date();
+      const elTitle = $('#homeCalTitle');
+      if (elTitle) {
+        const monthYear = now.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+        elTitle.textContent = `📅 ${monthYear}`;
+      }
+
+      const elGrid = $('#homeCalGrid');
+      if (!elGrid) return;
+
+      const today = new Date();
+      const currentDay = today.getDay(); // 0 is Sun, 1 is Mon
+      const distToMon = (currentDay + 6) % 7;
+      const monday = new Date(today);
+      monday.setDate(today.getDate() - distToMon);
+
+      const dayNames = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+      let html = '';
+
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        const isToday = d.toDateString() === today.toDateString();
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        const dateKey = `${yyyy}-${mm}-${dd}`;
+
+        const match = timeseries.find(t => t.date && t.date.startsWith(dateKey));
+        const clicks = match ? (match.clicks || 0) : 0;
+
+        html += `
+          <div class="cal-day-col ${isToday ? 'active' : ''}" data-date="${dateKey}" title="${clicks} click${clicks === 1 ? '' : 's'}" style="cursor:pointer;" onclick="this.parentElement.querySelectorAll('.cal-day-col').forEach(c => c.classList.remove('active')); this.classList.add('active');">
+            <span class="cal-day-name">${dayNames[i]}</span>
+            <span class="cal-day-number">${d.getDate()}</span>
+            <span style="font-size:9px;color:${isToday ? '#ffffff' : '#94a3b8'};font-weight:700;margin-top:2px;">${clicks > 0 ? formatNumber(clicks) : '0'}</span>
+          </div>
+        `;
+      }
+
+      elGrid.innerHTML = html;
+    }
+
+    function renderVelocityChart(timeseries, peak, trendPct) {
+      const elTrend = $('#homeVelocityTrendBadge');
+      if (elTrend) {
+        const trText = formatTrend(trendPct);
+        elTrend.textContent = trText;
+        if (trendPct !== null && trendPct !== undefined && !isNaN(trendPct)) {
+          elTrend.style.background = trendPct >= 0 ? '#dcfce7' : '#fee2e2';
+          elTrend.style.color = trendPct >= 0 ? '#16a34a' : '#dc2626';
+        } else {
+          elTrend.style.background = '#e2e8f0';
+          elTrend.style.color = '#64748b';
+        }
+      }
+
+      const areaEl = $('#homeVelocityArea');
+      const lineEl = $('#homeVelocityLine');
+      const dotsEl = $('#homeVelocityDots');
+      const xAxisEl = $('#homeVelocityXAxis');
+      const tooltip = $('#homeVelocityTooltip');
+
+      if (!timeseries || timeseries.length === 0) {
+        if (lineEl) lineEl.setAttribute('d', 'M 38 80 L 325 80');
+        if (areaEl) areaEl.setAttribute('d', '');
+        if (dotsEl) dotsEl.innerHTML = '';
+        if (xAxisEl) xAxisEl.innerHTML = '<span style="font-size:9.5px;color:#94a3b8;">No data for period</span>';
+        if (tooltip) tooltip.style.display = 'none';
+        return;
+      }
+
+      const maxVal = Math.max(peak ? peak.clicks : 0, 5);
+      const chartLeft = 38;
+      const chartRight = 325;
+      const chartTop = 18;
+      const chartBottom = 80;
+      const width = chartRight - chartLeft;
+      const height = chartBottom - chartTop;
+
+      const points = timeseries.map((pt, i) => {
+        const x = chartLeft + (i / Math.max(timeseries.length - 1, 1)) * width;
+        const val = pt.clicks || 0;
+        const y = chartBottom - (val / maxVal) * height;
+        return { x, y, label: pt.label || pt.date, clicks: val };
+      });
+
+      let linePath = `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
+      for (let i = 1; i < points.length; i++) {
+        const prev = points[i - 1];
+        const curr = points[i];
+        const cpx1 = prev.x + (curr.x - prev.x) / 2;
+        const cpy1 = prev.y;
+        const cpx2 = prev.x + (curr.x - prev.x) / 2;
+        const cpy2 = curr.y;
+        linePath += ` C ${cpx1.toFixed(1)} ${cpy1.toFixed(1)}, ${cpx2.toFixed(1)} ${cpy2.toFixed(1)}, ${curr.x.toFixed(1)} ${curr.y.toFixed(1)}`;
+      }
+
+      const last = points[points.length - 1];
+      const areaPath = `${linePath} L ${last.x.toFixed(1)} ${chartBottom} L ${points[0].x.toFixed(1)} ${chartBottom} Z`;
+
+      if (lineEl) lineEl.setAttribute('d', linePath);
+      if (areaEl) areaEl.setAttribute('d', areaPath);
+
+      let dotsHtml = '';
+      points.forEach((p, idx) => {
+        const isPeak = peak && peak.index === idx && p.clicks > 0;
+        dotsHtml += `
+          <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${isPeak ? '4.5' : '3'}" fill="#0A6CFF" stroke="#ffffff" stroke-width="${isPeak ? '2' : '1.5'}">
+            <title>${p.label}: ${p.clicks} clicks</title>
+          </circle>
+        `;
+      });
+      if (dotsEl) dotsEl.innerHTML = dotsHtml;
+
+      if (tooltip) {
+        if (peak && peak.clicks > 0 && points[peak.index]) {
+          const pkPt = points[peak.index];
+          const pctX = ((pkPt.x / 340) * 100).toFixed(1);
+          tooltip.style.left = `${pctX}%`;
+          tooltip.style.top = `${Math.max(pkPt.y - 20, 2).toFixed(1)}px`;
+          tooltip.textContent = formatNumber(peak.clicks);
+          tooltip.style.display = 'block';
+        } else {
+          tooltip.style.display = 'none';
+        }
+      }
+
+      if (xAxisEl) {
+        let xHtml = '';
+        const step = Math.ceil(points.length / 7);
+        for (let i = 0; i < points.length; i += step) {
+          const p = points[i];
+          const isPeak = peak && peak.index === i && p.clicks > 0;
+          xHtml += `<span style="font-size:9px;color:${isPeak ? '#0A6CFF' : '#94a3b8'};font-weight:${isPeak ? '800' : '600'};">${p.label}</span>`;
+        }
+        xAxisEl.innerHTML = xHtml;
+      }
+    }
+
+    function renderRecentLinks(links) {
+      const elList = $('#homeRecentLinksList');
+      if (!elList) return;
+
+      if (!links || links.length === 0) {
+        elList.innerHTML = `
+          <div style="text-align:center;padding:32px 16px;color:#64748b;font-size:13px;">
+            <div style="font-size:24px;margin-bottom:8px;">🔗</div>
+            <b>No links created yet</b>
+            <p style="margin:4px 0 12px;font-size:12px;">Create your first link using the shortener above.</p>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      links.slice(0, 5).forEach(l => {
+        const dest = l.dest || '';
+        const shortUrl = l.shortUrl || `/${l.slug}`;
+        const shortDisplay = shortUrl.replace(/^https?:\/\//, '');
+        const clicks = l.clicks || 0;
+
+        let sparkPath = 'M 2 14 L 40 14';
+        if (Array.isArray(l.sparkline) && l.sparkline.length > 1) {
+          const maxSp = Math.max(...l.sparkline, 1);
+          const spPts = l.sparkline.map((v, idx) => {
+            const x = 2 + (idx / (l.sparkline.length - 1)) * 38;
+            const y = 16 - (v / maxSp) * 12;
+            return `${x.toFixed(1)} ${y.toFixed(1)}`;
+          });
+          sparkPath = 'M ' + spPts.join(' L ');
+        }
+
+        html += `
+          <div class="recent-link-row-item">
+            <div class="recent-left-meta">
+              <div class="recent-link-icon-box">🔗</div>
+              <div class="recent-link-titles">
+                <span class="recent-dest-title" title="${dest}">${dest}</span>
+                <a href="${shortUrl}" target="_blank" rel="noopener" class="recent-short-slug">${shortDisplay}</a>
+              </div>
+            </div>
+            <div class="recent-right-telemetry">
+              <span class="recent-click-count">${formatNumber(clicks)} click${clicks === 1 ? '' : 's'}</span>
+              <svg width="42" height="18" viewBox="0 0 42 18" fill="none">
+                <path d="${sparkPath}" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <button type="button" class="recent-more-btn" title="Copy Link" onclick="window.appShell && window.appShell.copy('${shortUrl}')">📋</button>
+            </div>
+          </div>
+        `;
+      });
+
+      elList.innerHTML = html;
+    }
+
+    function renderTopReferrers(referrers, totalClicks) {
+      const elBody = $('#homeReferrersBody');
+      if (!elBody) return;
+
+      if (!referrers || referrers.length === 0 || totalClicks === 0) {
+        elBody.innerHTML = `
+          <div style="text-align:center;padding:32px 16px;color:#64748b;font-size:13px;width:100%;">
+            <div style="font-size:24px;margin-bottom:8px;">👥</div>
+            <b>No referrer telemetry yet</b>
+            <p style="margin:4px 0;font-size:12px;">Share your short links to start tracking traffic channels.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const colors = ['#0A6CFF', '#a855f7', '#10b981', '#f59e0b', '#64748b'];
+      const circumference = 2 * Math.PI * 36; // ~226.2
+      let currentOffset = 0;
+      let circlesHtml = '';
+      let legendHtml = '';
+
+      referrers.forEach((r, i) => {
+        const color = colors[i % colors.length];
+        const pct = Math.max(0, Math.min(100, Number(r.percent) || 0));
+        const segLen = (pct / 100) * circumference;
+        const gapLen = circumference - segLen;
+
+        circlesHtml += `
+          <circle cx="50" cy="50" r="36" stroke="${color}" stroke-width="14" fill="none"
+                  stroke-dasharray="${segLen.toFixed(1)} ${gapLen.toFixed(1)}" stroke-dashoffset="${(-currentOffset).toFixed(1)}"/>
+        `;
+        currentOffset += segLen;
+
+        legendHtml += `
+          <div class="legend-item">
+            <div class="legend-left">
+              <span class="legend-dot" style="background:${color};"></span>
+              <span>${r.name || 'Direct'}</span>
+            </div>
+            <span class="legend-val">${pct}%</span>
+          </div>
+        `;
+      });
+
+      const topRef = referrers[0] || { name: 'Direct', percent: 100 };
+
+      elBody.innerHTML = `
+        <div class="donut-chart-box">
+          <svg width="100" height="100" viewBox="0 0 100 100" style="transform:rotate(-90deg);">
+            <circle cx="50" cy="50" r="36" stroke="#f1f5f9" stroke-width="14" fill="none"/>
+            ${circlesHtml}
+          </svg>
+          <div class="donut-center-info">
+            <span class="donut-pct-bold">${topRef.percent}%</span>
+            <span class="donut-pct-label">${topRef.name}</span>
+          </div>
+        </div>
+
+        <div class="referrers-legend-list">
+          ${legendHtml}
+        </div>
+      `;
+    }
+
+    // Range selector listener
+    const selRange = $('#homeOverviewRangeSelect');
+    if (selRange) {
+      selRange.value = currentRange;
+      selRange.onchange = e => {
+        loadDashboardSummary(e.target.value);
+      };
+    }
+
+    // Initial load
+    loadDashboardSummary(currentRange);
+
+    // Live Activity 20-second background polling
+    window.__heaLivePollTimer = setInterval(() => {
+      if (document.body.contains(container)) {
+        loadDashboardSummary(currentRange);
+      } else {
+        clearInterval(window.__heaLivePollTimer);
+        window.__heaLivePollTimer = null;
+      }
+    }, 20000);
 
     // Interactive Tab Switching for Shorten vs QR Code
     const tabLink = $('#tabShortLinkOpt');
@@ -1442,7 +1804,7 @@
       form.onsubmit = async e => {
         e.preventDefault();
         const dest = $('#homeShortenInput').value.trim();
-        const dom = 'healink.store';
+        const dom = (typeof window !== 'undefined' && window.location) ? window.location.host : 'healink.store';
         if (!dest) return;
 
         const btn = $('#homeSubmitBtn');
@@ -1451,34 +1813,39 @@
           btn.innerHTML = '<span>Creating...</span>';
         }
 
-        if (activeType === 'qr') {
-          const newL = await createLinkDirect(dest, '', dom);
-          const newId = (newL && newL.id) || ('lnk_' + Date.now());
-          navigate('qr-detail', newId);
-        } else {
-          const newL = await createLinkDirect(dest, '', dom);
-          const resBox = $('#homeShortenResult');
-          if (resBox && newL) {
-            const liveUrl = (newL.realShort && newL.realShort !== dest) ? newL.realShort : (newL.url && newL.url !== dest ? newL.url : `https://${dom}/${newL.slug}`);
-            resBox.innerHTML = `
-              <div style="background:#ffffff;border:1px solid #bfdbfe;border-radius:14px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 2px 10px rgba(10,108,255,0.08);">
-                <div style="min-width:0;">
-                  <div style="font-size:11px;font-weight:700;color:#0284c7;text-transform:uppercase;">Live Short Link Ready</div>
-                  <a href="${liveUrl}" target="_blank" rel="noopener" style="font-size:13.5px;font-weight:700;color:#0A6CFF;text-decoration:none;">${liveUrl}</a>
+        try {
+          if (activeType === 'qr') {
+            const newL = await createLinkDirect(dest, '', dom);
+            const newId = (newL && newL.id) || ('lnk_' + Date.now());
+            navigate('qr-detail', newId);
+          } else {
+            const newL = await createLinkDirect(dest, '', dom);
+            const resBox = $('#homeShortenResult');
+            if (resBox && newL) {
+              const liveUrl = (newL.realShort && newL.realShort !== dest) ? newL.realShort : (newL.url && newL.url !== dest ? newL.url : `${window.location.protocol}//${dom}/${newL.slug}`);
+              resBox.innerHTML = `
+                <div style="background:#ffffff;border:1px solid #bfdbfe;border-radius:14px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 2px 10px rgba(10,108,255,0.08);">
+                  <div style="min-width:0;">
+                    <div style="font-size:11px;font-weight:700;color:#0284c7;text-transform:uppercase;">Live Short Link Ready</div>
+                    <a href="${liveUrl}" target="_blank" rel="noopener" style="font-size:13.5px;font-weight:700;color:#0A6CFF;text-decoration:none;">${liveUrl}</a>
+                  </div>
+                  <div style="display:flex;gap:8px;flex-shrink:0;">
+                    <button type="button" onclick="window.appShell && window.appShell.copy('${liveUrl}')" style="background:#0A6CFF;color:#ffffff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;">Copy</button>
+                    <a href="${liveUrl}" target="_blank" rel="noopener" style="background:#f1f5f9;color:#334155;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;text-decoration:none;display:inline-block;">Visit ↗</a>
+                  </div>
                 </div>
-                <div style="display:flex;gap:8px;flex-shrink:0;">
-                  <button type="button" onclick="window.appShell.copy('${liveUrl}')" style="background:#0A6CFF;color:#ffffff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;">Copy</button>
-                  <a href="${liveUrl}" target="_blank" rel="noopener" style="background:#f1f5f9;color:#334155;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;text-decoration:none;display:inline-block;">Visit ↗</a>
-                </div>
-              </div>
-            `;
-            resBox.style.display = 'block';
-            if ($('#homeShortenInput')) $('#homeShortenInput').value = '';
+              `;
+              resBox.style.display = 'block';
+              if ($('#homeShortenInput')) $('#homeShortenInput').value = '';
+              // Refresh dashboard metrics immediately after link creation!
+              loadDashboardSummary(currentRange);
+            }
           }
-        }
-        if (btn) {
-          btn.disabled = false;
-          btn.innerHTML = '<span>Create Now</span> →';
+        } finally {
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<span>Create Now</span> →';
+          }
         }
       };
     }
@@ -1719,41 +2086,69 @@
             </div>
 
             <label class="app-toggle-switch">
-
               <input type="checkbox" id="chkUtmParams">
-
               <span class="app-toggle-slider"></span>
-
             </label>
-
+          </div>
+          <div id="wrapUtmFields" style="display:none;margin-top:12px;padding:12px;background:rgba(0,112,243,0.03);border:1px solid #e2e8f0;border-radius:12px;flex-direction:column;gap:10px;">
+            <div>
+              <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Campaign Name</label>
+              <input type="text" id="newUtmCampaign" placeholder="e.g. spring_launch_2026" style="width:100%;height:38px;padding:0 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;color:#0b132b;background:#ffffff;">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <div>
+                <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Medium</label>
+                <input type="text" id="newUtmMedium" placeholder="e.g. cpc, email, social" style="width:100%;height:38px;padding:0 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;color:#0b132b;background:#ffffff;">
+              </div>
+              <div>
+                <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Source</label>
+                <input type="text" id="newUtmSource" placeholder="e.g. google, twitter" style="width:100%;height:38px;padding:0 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;color:#0b132b;background:#ffffff;">
+              </div>
+            </div>
           </div>
 
           <!-- Link expiration -->
-
           <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
-
             <div style="display:flex;align-items:center;gap:12px;">
-
               <span style="font-size:18px;color:#94a3b8;">⏱️</span>
-
               <div>
-
                 <b style="color:#0b132b !important;-webkit-text-fill-color:#0b132b !important;font-size:14px;font-weight:700;">Link expiration</b>
-
                 <span style="color:#fbbf24;font-size:13px;margin-left:6px;">👑</span>
-
               </div>
-
             </div>
-
             <label class="app-toggle-switch">
-
               <input type="checkbox" id="chkLinkExpiration">
-
               <span class="app-toggle-slider"></span>
-
             </label>
+          </div>
+          <div id="wrapExpirationFields" style="display:none;margin-top:12px;padding:12px;background:rgba(0,112,243,0.03);border:1px solid #e2e8f0;border-radius:12px;">
+            <div style="margin-bottom:10px;">
+              <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Expiration Date &amp; Time</label>
+              <input type="datetime-local" id="newExpiresAt" style="width:100%;height:38px;padding:0 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;color:#0b132b;background:#ffffff;">
+            </div>
+            <div>
+              <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Maximum Clicks Limit (optional)</label>
+              <input type="number" id="newMaxClicks" min="1" placeholder="e.g. 100" style="width:100%;height:38px;padding:0 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;color:#0b132b;background:#ffffff;">
+            </div>
+          </div>
 
+          <!-- Password Protection -->
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span style="font-size:18px;color:#0070f3;">🔒</span>
+              <div>
+                <b style="color:#0b132b !important;-webkit-text-fill-color:#0b132b !important;font-size:14px;font-weight:700;">Password protection</b>
+                <span style="color:#fbbf24;font-size:13px;margin-left:6px;">👑</span>
+              </div>
+            </div>
+            <label class="app-toggle-switch">
+              <input type="checkbox" id="chkPasswordProtect">
+              <span class="app-toggle-slider"></span>
+            </label>
+          </div>
+          <div id="wrapPasswordFields" style="display:none;margin-top:12px;padding:12px;background:rgba(0,112,243,0.03);border:1px solid #e2e8f0;border-radius:12px;">
+            <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Link Passcode</label>
+            <input type="password" id="newLinkPassword" placeholder="Enter link passcode..." autocomplete="new-password" style="width:100%;height:38px;padding:0 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;color:#0b132b;background:#ffffff;">
           </div>
 
           <!-- Dynamic routing toggle -->
@@ -1811,44 +2206,57 @@
     `;
 
     $('#btnGenerateSlug').onclick = () => {
-
       $('#newBackHalf').value = generateShortSlug(6);
-
     };
 
+    const chkUtm = $('#chkUtmParams');
+    if (chkUtm) {
+      chkUtm.onchange = (e) => {
+        const wrap = $('#wrapUtmFields');
+        if (wrap) wrap.style.display = e.target.checked ? 'flex' : 'none';
+      };
+    }
+    const chkExp = $('#chkLinkExpiration');
+    if (chkExp) {
+      chkExp.onchange = (e) => {
+        const wrap = $('#wrapExpirationFields');
+        if (wrap) wrap.style.display = e.target.checked ? 'block' : 'none';
+      };
+    }
+    const chkPwd = $('#chkPasswordProtect');
+    if (chkPwd) {
+      chkPwd.onchange = (e) => {
+        const wrap = $('#wrapPasswordFields');
+        if (wrap) wrap.style.display = e.target.checked ? 'block' : 'none';
+      };
+    }
+
     $('#btnSubmitNewLink').onclick = async () => {
-
       const dest = $('#newDestUrl').value.trim();
-
       if (!dest) {
-
         alert('Please enter a destination URL');
-
         return;
-
       }
 
       const checkLimit = (typeof window.canCreateLinkOrQr === 'function') ? window.canCreateLinkOrQr() : { allowed: true };
-
       if (!checkLimit.allowed) {
-
         window.appShell.toast(checkLimit.message);
-
         if (typeof window.openCheckoutModal === 'function') window.openCheckoutModal('pro');
-
         return;
-
       }
 
       const domain = $('#newDomainSelect').value;
-
       const slug = $('#newBackHalf').value.trim() || generateShortSlug(6);
-
       const title = $('#newTitle').value.trim() || 'Untitled ' + new Date().toISOString().slice(0, 10);
-
       const tag = $('#newTagsSelect').value || 'Website';
-
       const hasQR = $('#chkGenerateQR').checked;
+
+      const password = $('#chkPasswordProtect')?.checked ? ($('#newLinkPassword')?.value.trim() || null) : null;
+      const expiresAt = $('#chkLinkExpiration')?.checked ? ($('#newExpiresAt')?.value || null) : null;
+      const maxClicks = $('#chkLinkExpiration')?.checked ? ($('#newMaxClicks')?.value || null) : null;
+      const utmCampaign = $('#chkUtmParams')?.checked ? ($('#newUtmCampaign')?.value.trim() || null) : null;
+      const utmSource = $('#chkUtmParams')?.checked ? ($('#newUtmSource')?.value.trim() || null) : null;
+      const utmMedium = $('#chkUtmParams')?.checked ? ($('#newUtmMedium')?.value.trim() || null) : null;
 
       const btn = $('#btnSubmitNewLink');
       if (btn) {
@@ -1878,8 +2286,56 @@
         createdAt: 'Just now',
         clicks: 0,
         scans: 0,
-        qr: hasQR
+        qr: hasQR,
+        hasPassword: !!password,
+        expiresAt: expiresAt || null,
+        maxClicks: maxClicks ? parseInt(maxClicks, 10) : null,
+        utm: (utmCampaign || utmSource || utmMedium) ? { campaign: utmCampaign, source: utmSource, medium: utmMedium } : null
       };
+
+      try {
+        const s = JSON.parse(localStorage.getItem('hea_session') || '{}');
+        if (s && s.token) {
+          const payload = {
+            dest,
+            slug,
+            title: newL.title,
+            tag: newL.tag,
+            qr: hasQR,
+            realShort: cleanUrl
+          };
+          if (password) payload.password = password;
+          if (expiresAt) payload.expiresAt = expiresAt;
+          if (maxClicks) payload.maxClicks = parseInt(maxClicks, 10);
+          if (newL.utm) payload.utm = newL.utm;
+
+          const res = await fetch('/api/links', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + s.token
+            },
+            body: JSON.stringify(payload)
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            if (btn) {
+              btn.disabled = false;
+              btn.textContent = 'Create your link';
+            }
+            window.appShell.toast(data.error || 'Failed to create link');
+            return;
+          }
+          if (data.link) {
+            newL.hasPassword = !!data.link.hasPassword;
+            newL.expiresAt = data.link.expiresAt;
+            newL.maxClicks = data.link.maxClicks;
+            newL.utm = data.link.utm;
+          }
+        }
+      } catch (err) {
+        console.warn('[Sync API Error]', err.message);
+      }
 
       links.unshift(newL);
       localStorage.setItem('hea_links', JSON.stringify(links));
@@ -1907,17 +2363,6 @@
         }
       } catch (e) {}
 
-      try {
-        const s = JSON.parse(localStorage.getItem('hea_session'));
-        if (s && s.token) {
-          fetch('/api/links', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.token },
-            body: JSON.stringify({ dest, slug, title: newL.title, tag: newL.tag, qr: hasQR, realShort: cleanUrl })
-          }).catch(() => {});
-        }
-      } catch (e) {}
-
       if (typeof window.recordFreeCreation === 'function') window.recordFreeCreation();
       window.appShell.toast(`Created link: ${cleanUrl}`);
       navigator.clipboard.writeText(cleanUrl).catch(() => {});
@@ -1926,7 +2371,7 @@
 
   }
 
-  async function createLinkDirect(dest, customSlug, domain) {
+  async function createLinkDirect(dest, customSlug, domain, options = {}) {
     const checkLimit = (typeof window.canCreateLinkOrQr === 'function') ? window.canCreateLinkOrQr() : { allowed: true };
     if (!checkLimit.allowed) {
       window.appShell.toast(checkLimit.message);
@@ -1949,12 +2394,13 @@
     const links = getStoredLinks();
     const newL = {
       id: 'lnk_' + Date.now(),
-      title: 'Untitled ' + new Date().toISOString().slice(0, 10),
+      title: options.title || ('Untitled ' + new Date().toISOString().slice(0, 10)),
       dest: dest,
       slug: slug,
       url: cleanUrl,
       realShort: cleanUrl,
-      tag: 'Website',
+      tag: options.tag || 'Website',
+      utm: options.utm || null,
       createdAt: 'Just now',
       clicks: 0,
       scans: 0,
@@ -1992,10 +2438,19 @@
     try {
       const s = JSON.parse(localStorage.getItem('hea_session'));
       if (s && s.token) {
+        const payload = {
+          dest,
+          slug,
+          title: newL.title,
+          tag: newL.tag,
+          qr: true,
+          realShort: cleanUrl
+        };
+        if (options.utm) payload.utm = options.utm;
         fetch('/api/links', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.token },
-          body: JSON.stringify({ dest, slug, title: newL.title, tag: newL.tag, qr: true, realShort: cleanUrl })
+          body: JSON.stringify(payload)
         }).catch(() => {});
       }
     } catch (e) {}
@@ -2096,8 +2551,12 @@
           return `
           <div class="qr-card-item">
             <div style="flex:1;min-width:0;overflow:hidden;">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap;">
                 <span style="background:rgba(0,112,243,0.08);color:#0070f3;font-weight:700;font-size:11px;padding:3px 9px;border-radius:6px;border:1px solid rgba(0,112,243,0.18);">${l.tag || 'Website'}</span>
+                ${l.hasPassword ? '<span style="background:rgba(239,68,68,0.08);color:#ef4444;font-weight:700;font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid rgba(239,68,68,0.2);">🔒 Passcode</span>' : ''}
+                ${l.expiresAt ? '<span style="background:rgba(245,158,11,0.08);color:#d97706;font-weight:700;font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid rgba(245,158,11,0.2);">⏳ Expiring</span>' : ''}
+                ${l.maxClicks ? `<span style="background:rgba(16,185,129,0.08);color:#059669;font-weight:700;font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid rgba(16,185,129,0.2);">🎯 Max ${l.maxClicks}</span>` : ''}
+                ${l.utm && (l.utm.campaign || l.utm.source) ? `<span style="background:rgba(99,102,241,0.08);color:#6366f1;font-weight:700;font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid rgba(99,102,241,0.2);">🏷️ ${l.utm.campaign || l.utm.source}</span>` : ''}
                 <span style="font-size:12px;color:#64748b;">${l.createdAt || 'Recent'}</span>
               </div>
               <h4 style="margin:0 0 4px;font-size:16px;color:#0070f3 !important;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;">${l.title || 'Untitled Link'}</h4>
@@ -4823,303 +5282,214 @@
   // ---------------- 7. ANALYTICS SCREEN (Frame 17 Bitly Flow) ---------------- //
 
   async function renderAnalytics(container) {
-
     const links = getStoredLinks();
-
     let totalClicks = links.reduce((a, l) => {
-
       const c = typeof l.clicks === 'number' ? l.clicks : (Array.isArray(l.clicks) ? l.clicks.length : 0);
-
       return a + c;
-
     }, 0);
-
     let totalScans = links.reduce((a, l) => {
-
       const sc = typeof l.scans === 'number' ? l.scans : (parseInt(l.scans, 10) || 0);
-
       return a + sc;
-
     }, 0);
+    let uniqueVisitors = 0;
+    let topReferrers = [];
+    let deviceBreakdown = { mobile: 0, desktop: 0, tablet: 0 };
+    let recentClicks = [];
 
-    // Fetch live backend metrics
-
+    // Fetch live backend metrics via Mongo aggregation
+    const s = JSON.parse(localStorage.getItem('hea_session') || '{}');
     try {
-
-      const s = JSON.parse(localStorage.getItem('hea_session'));
-
       if (s && s.token) {
-
-        const res = await fetch('/api/analytics/overview', {
-
+        const res = await fetch('/api/analytics/overview?range=7d', {
           headers: { 'Authorization': 'Bearer ' + s.token }
-
         });
-
         if (res.ok) {
-
           const d = await res.json();
-
-          if (d.totalClicks !== undefined) {
-            const bClicks = typeof d.totalClicks === 'number' ? d.totalClicks : (Array.isArray(d.totalClicks) ? d.totalClicks.length : (parseInt(d.totalClicks, 10) || 0));
-            totalClicks = Math.max(totalClicks, bClicks);
-          }
-
-          if (d.totalScans !== undefined) totalScans = Math.max(totalScans, d.totalScans);
-
+          if (d.totalClicks !== undefined) totalClicks = d.totalClicks;
+          if (d.totalScans !== undefined) totalScans = d.totalScans;
+          if (d.uniqueVisitors !== undefined) uniqueVisitors = d.uniqueVisitors;
+          if (Array.isArray(d.topReferrers)) topReferrers = d.topReferrers;
+          if (d.deviceBreakdown) deviceBreakdown = d.deviceBreakdown;
+          if (Array.isArray(d.recentClicks)) recentClicks = d.recentClicks;
         }
-
       }
-
     } catch (e) {}
 
-    container.innerHTML = `
-
-      <div class="analytics-actions-bar" style="display:none !important;">
-        <div class="assist-status-pill" style="padding:6px 14px;">
-          <span class="status-pulse-dot"></span>
-          <span>Real-time Sync</span>
+    // Build Dynamic Traffic Channels HTML
+    let channelsHtml = '';
+    if (topReferrers && topReferrers.length > 0) {
+      channelsHtml = topReferrers.map((r) => {
+        const p = Math.min(Math.max(r.percent || 0, 0), 100);
+        return `
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+              <span style="color:#0b132b;font-weight:600;">${r.name || 'Direct'}</span>
+              <span style="color:#0070f3;font-weight:700;">${p}% <span style="font-size:11px;color:#64748b;font-weight:500;">(${r.count || 0})</span></span>
+            </div>
+            <div style="height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+              <div style="width:${p}%;height:100%;background:#0070f3;border-radius:99px;transition:width 0.4s ease;"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    } else {
+      channelsHtml = `
+        <div style="text-align:center;padding:24px 12px;color:#64748b;font-size:13px;">
+          <div style="font-size:24px;margin-bottom:6px;">📊</div>
+          <b>No traffic channels yet</b>
+          <p style="margin:4px 0 0;font-size:12px;color:#94a3b8;">Share your short links across social, email or QR to begin tracking channel telemetry.</p>
         </div>
-        <button class="header-secondary-btn" id="btnExportCSV" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:12px;border:1px solid #cbd5e1;background:#ffffff;color:#0b132b;font-size:13px;font-weight:700;cursor:pointer;">
+      `;
+    }
+
+    // Build Dynamic Devices HTML
+    let devicesHtml = '';
+    const hasDeviceData = (deviceBreakdown.mobile > 0 || deviceBreakdown.desktop > 0 || deviceBreakdown.tablet > 0);
+    if (hasDeviceData) {
+      devicesHtml = `
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+            <span style="color:#0b132b;font-weight:600;">Mobile (iOS &amp; Android)</span>
+            <span style="color:#059669;font-weight:700;">${deviceBreakdown.mobile}%</span>
+          </div>
+          <div style="height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+            <div style="width:${deviceBreakdown.mobile}%;height:100%;background:#059669;border-radius:99px;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+            <span style="color:#0b132b;font-weight:600;">Desktop (Windows &amp; Mac)</span>
+            <span style="color:#0070f3;font-weight:700;">${deviceBreakdown.desktop}%</span>
+          </div>
+          <div style="height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+            <div style="width:${deviceBreakdown.desktop}%;height:100%;background:#0070f3;border-radius:99px;"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+            <span style="color:#0b132b;font-weight:600;">Tablet</span>
+            <span style="color:#8b5cf6;font-weight:700;">${deviceBreakdown.tablet}%</span>
+          </div>
+          <div style="height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+            <div style="width:${deviceBreakdown.tablet}%;height:100%;background:#8b5cf6;border-radius:99px;"></div>
+          </div>
+        </div>
+      `;
+    } else {
+      devicesHtml = `
+        <div style="text-align:center;padding:24px 12px;color:#64748b;font-size:13px;">
+          <div style="font-size:24px;margin-bottom:6px;">📱</div>
+          <b>No device data yet</b>
+          <p style="margin:4px 0 0;font-size:12px;color:#94a3b8;">Visitor device classifications (Mobile, Desktop, Tablet) will automatically render here as clicks arrive.</p>
+        </div>
+      `;
+    }
+
+    container.innerHTML = `
+      <div class="analytics-actions-bar" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+        <div class="assist-status-pill" style="padding:6px 14px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:99px;display:inline-flex;align-items:center;gap:8px;">
+          <span class="status-pulse-dot" style="width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981;"></span>
+          <span style="font-size:12.5px;font-weight:700;color:#059669;">Live Telemetry</span>
+          <span id="analyticsLastUpdated" style="font-size:11.5px;color:#64748b;font-weight:500;">· Updated just now</span>
+        </div>
+        <button class="header-secondary-btn" id="btnExportCSV" onclick="window.appShell.exportAnalyticsCSV()" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:12px;border:1px solid #cbd5e1;background:#ffffff;color:#0b132b;font-size:13px;font-weight:700;cursor:pointer;">
           <span>📥</span> Export CSV Report
         </button>
       </div>
 
       <!-- 3 Metrics Top Cards -->
-
       <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:16px;margin-bottom:24px;">
-
         <div class="dash-white-card">
-
           <div style="font-size:13px;color:#64748b;margin-bottom:6px;">TOTAL SHORTENED LINKS</div>
-
           <div style="font-size:32px;font-weight:800;color:#0070f3;">${links.length}</div>
-
           <div style="font-size:12px;color:#10b981;margin-top:6px;">🟢 Active &amp; tracked in MongoDB</div>
-
         </div>
-
         <div class="dash-white-card">
-
           <div style="font-size:13px;color:#64748b;margin-bottom:6px;">TOTAL LIVE CLICKS</div>
-
-          <div style="font-size:32px;font-weight:800;color:#0070f3;">${totalClicks}</div>
-
-          <div style="font-size:12px;color:#0070f3;margin-top:6px;">↗ Real-time click tracking</div>
-
+          <div style="font-size:32px;font-weight:800;color:#0070f3;" id="analyticsLiveClicks">${totalClicks}</div>
+          <div style="font-size:12px;color:#0070f3;margin-top:6px;">↗ Unique Visitors: <b>${uniqueVisitors}</b></div>
         </div>
-
         <div class="dash-white-card">
-
           <div style="font-size:13px;color:#64748b;margin-bottom:6px;">TOTAL QR SCANS</div>
-
           <div style="font-size:32px;font-weight:800;color:#ff007f;">${totalScans}</div>
-
           <div style="font-size:12px;color:#ff007f;margin-top:6px;">📱 Dynamic code scans</div>
-
         </div>
-
       </div>
 
       <!-- 3-Step Guided Journey matching Frame 17 -->
-
       <div class="dash-grid-3 analytics-steps-grid" style="display:grid;grid-template-columns:repeat(3, 1fr);gap:16px;margin-bottom:24px;">
-
         <div class="dash-white-card" style="padding:20px;display:flex;flex-direction:column;justify-content:space-between;">
-
           <div>
-
             <div style="font-size:11px;font-weight:800;color:#0070f3;text-transform:uppercase;margin-bottom:6px;">Step 1</div>
-
             <h4 style="color:#0070f3;font-size:16px;font-weight:700;margin:0 0 8px;">Create links and codes</h4>
-
             <p style="color:#64748b;font-size:12px;line-height:1.5;margin:0 0 16px;">Transform any long URL into a short, trackable link or QR Code. It's quick, easy, and takes seconds.</p>
-
           </div>
-
           <button class="sso-btn" style="width:100%;padding:8px;font-size:12px;color:#0070f3;" onclick="window.appShell.navigate('create-link')">
-
             Create a link →
-
           </button>
-
         </div>
-
         <div class="dash-white-card" style="padding:20px;display:flex;flex-direction:column;justify-content:space-between;">
-
           <div>
-
             <div style="font-size:11px;font-weight:800;color:#059669;text-transform:uppercase;margin-bottom:6px;">Step 2</div>
-
             <h4 style="color:#0070f3;font-size:16px;font-weight:700;margin:0 0 8px;">Share them anywhere</h4>
-
             <p style="color:#64748b;font-size:12px;line-height:1.5;margin:0 0 16px;">Post on social, include in emails, or share however you want. Every click is tracked in real-time.</p>
-
           </div>
-
           <button class="sso-btn" style="width:100%;padding:8px;font-size:12px;color:#059669;" onclick="window.appShell.navigate('pages')">
-
             Tips to drive engagement →
-
           </button>
-
         </div>
-
         <div class="dash-white-card" style="padding:20px;display:flex;flex-direction:column;justify-content:space-between;">
-
           <div>
-
             <div style="font-size:11px;font-weight:800;color:#ff007f;text-transform:uppercase;margin-bottom:6px;">Step 3</div>
-
             <h4 style="color:#0070f3;font-size:16px;font-weight:700;margin:0 0 8px;">Come back for insights</h4>
-
             <p style="color:#64748b;font-size:12px;line-height:1.5;margin:0 0 16px;">Bring your analytics to life—from weekly insights to detailed dashboards about clicks and audience.</p>
-
           </div>
-
           <button class="auth-submit-btn" style="width:100%;margin:0;padding:8px;font-size:12px;" onclick="window.appShell.exportAnalyticsCSV()">
-
             Export report 📥
-
           </button>
-
         </div>
-
       </div>
 
       <!-- Top Referrers & Channels -->
-
       <div class="dash-grid-2 analytics-channels-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
-
         <div class="dash-white-card">
-
           <h4 style="font-size:16px;font-weight:800;color:#0070f3;margin:0 0 16px;">Top Traffic Channels</h4>
-
           <div style="display:flex;flex-direction:column;gap:12px;font-size:13px;">
-
-            <div>
-
-              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-
-                <span style="color:#0b132b;font-weight:600;">Direct / SMS / WhatsApp</span>
-
-                <span style="color:#0070f3;font-weight:700;">58%</span>
-
-              </div>
-
-              <div style="height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
-
-                <div style="width:58%;height:100%;background:#0070f3;border-radius:99px;"></div>
-
-              </div>
-
-            </div>
-
-            <div>
-
-              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-
-                <span style="color:#0b132b;font-weight:600;">Instagram &amp; Threads</span>
-
-                <span style="color:#ff007f;font-weight:700;">24%</span>
-
-              </div>
-
-              <div style="height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
-
-                <div style="width:24%;height:100%;background:#ff007f;border-radius:99px;"></div>
-
-              </div>
-
-            </div>
-
-            <div>
-
-              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-
-                <span style="color:#0b132b;font-weight:600;">Google Search</span>
-
-                <span style="color:#10b981;font-weight:700;">12%</span>
-
-              </div>
-
-              <div style="height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
-
-                <div style="width:12%;height:100%;background:#10b981;border-radius:99px;"></div>
-
-              </div>
-
-            </div>
-
+            ${channelsHtml}
           </div>
-
         </div>
-
         <div class="dash-white-card">
-
           <h4 style="font-size:16px;font-weight:800;color:#0070f3;margin:0 0 16px;">Device &amp; Platform Split</h4>
-
           <div style="display:flex;flex-direction:column;gap:12px;font-size:13px;">
-
-            <div>
-
-              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-
-                <span style="color:#0b132b;font-weight:600;">Mobile (iOS &amp; Android)</span>
-
-                <span style="color:#059669;font-weight:700;">72%</span>
-
-              </div>
-
-              <div style="height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
-
-                <div style="width:72%;height:100%;background:#059669;border-radius:99px;"></div>
-
-              </div>
-
-            </div>
-
-            <div>
-
-              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-
-                <span style="color:#0b132b;font-weight:600;">Desktop (Windows &amp; Mac)</span>
-
-                <span style="color:#0070f3;font-weight:700;">25%</span>
-
-              </div>
-
-              <div style="height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
-
-                <div style="width:25%;height:100%;background:#0070f3;border-radius:99px;"></div>
-
-              </div>
-
-            </div>
-
-            <div>
-
-              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-
-                <span style="color:#0b132b;font-weight:600;">Tablet</span>
-
-                <span style="color:#8b5cf6;font-weight:700;">3%</span>
-
-              </div>
-
-              <div style="height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
-
-                <div style="width:3%;height:100%;background:#8b5cf6;border-radius:99px;"></div>
-
-              </div>
-
-            </div>
-
+            ${devicesHtml}
           </div>
-
         </div>
-
       </div>
+    `;
+
+    // Connect Server-Sent Events (SSE) for Real-Time Click Updates
+    if (window.EventSource && s && s.token) {
+      if (window._analyticsEventSource) {
+        try { window._analyticsEventSource.close(); } catch (_e) {}
+      }
+      try {
+        const es = new EventSource('/api/analytics/stream?token=' + encodeURIComponent(s.token));
+        window._analyticsEventSource = es;
+        es.addEventListener('click', (e) => {
+          try {
+            const liveEl = document.getElementById('analyticsLiveClicks');
+            if (liveEl) {
+              const cur = parseInt(liveEl.textContent.replace(/,/g, ''), 10) || 0;
+              liveEl.textContent = (cur + 1).toLocaleString();
+            }
+            const updatedEl = document.getElementById('analyticsLastUpdated');
+            if (updatedEl) {
+              updatedEl.textContent = '· Click recorded just now!';
+            }
+          } catch (_err) {}
+        });
+      } catch (_esErr) {}
+    }
 
     `;
 
@@ -5156,9 +5526,7 @@
   // ---------------- 8. CAMPAIGNS SCREEN (Frame 20 Bitly Flow) ---------------- //
 
   function renderCampaigns(container) {
-
     container.innerHTML = `
-
       <div class="view-header">
         <div class="header-title-col">
           <div style="display:flex;align-items:center;gap:10px;">
@@ -5182,184 +5550,249 @@
         </div>
       </div>
 
-      <!-- Hero Banner matching Frame 20 -->
-
-      <div class="dash-white-card" style="text-align:center;padding:40px 24px;margin-bottom:24px;">
-
-        <div style="width:160px;height:100px;margin:0 auto 20px;background:rgba(0,112,243,0.06);border:1px solid rgba(0,112,243,0.25);border-radius:12px;display:flex;flex-direction:column;justify-content:center;padding:12px;gap:6px;">
-
-          <div style="display:flex;justify-content:space-between;font-size:10px;color:#0b132b;background:#f8fafc;padding:4px 8px;border-radius:4px;border:1px solid #e2e8f0;"><span>TikTok</span> <b>840 clicks</b></div>
-
-          <div style="display:flex;justify-content:space-between;font-size:10px;color:#0b132b;background:#f8fafc;padding:4px 8px;border-radius:4px;border:1px solid #e2e8f0;"><span>YouTube</span> <b>520 clicks</b></div>
-
-          <div style="display:flex;justify-content:space-between;font-size:10px;color:#0b132b;background:#f8fafc;padding:4px 8px;border-radius:4px;border:1px solid #e2e8f0;"><span>Direct Mail QR</span> <b>310 scans</b></div>
-
+      <!-- Real-time Campaign Attribution Hero Banner -->
+      <div class="dash-white-card" style="text-align:center;padding:32px 24px;margin-bottom:24px;">
+        <div id="campHeroStats" style="min-height:90px;max-width:360px;margin:0 auto 16px;background:rgba(0,112,243,0.04);border:1px solid rgba(0,112,243,0.15);border-radius:12px;display:flex;flex-direction:column;justify-content:center;padding:12px;gap:6px;">
+          <div style="font-size:12px;color:#64748b;">Loading campaign telemetry...</div>
         </div>
-
-        <h3 style="font-size:24px;font-weight:800;color:#0070f3;margin:0 0 10px;">Some links belong together</h3>
-
-        <p style="color:#64748b;font-size:14px;max-width:520px;margin:0 auto 20px;line-height:1.5;">
-
-          Organize your links in HEA Campaigns and compare performance across channels. Available on the Premium plan.
-
+        <h3 style="font-size:22px;font-weight:800;color:#0070f3;margin:0 0 8px;">Multi-Channel Attribution</h3>
+        <p style="color:#64748b;font-size:13.5px;max-width:520px;margin:0 auto 16px;line-height:1.5;">
+          Organize your links into campaigns to compare performance across social channels, paid ads, and newsletters in real-time.
         </p>
-
-        <button class="auth-submit-btn" style="width:auto;padding:10px 28px;margin:0 auto;" onclick="window.openCheckoutModal('pro')">
-
-          View our plans
-
-        </button>
-
       </div>
 
       <!-- Live Interactive UTM Builder Card -->
-
       <div class="dash-white-card" style="margin-bottom:24px;padding:24px;">
-
         <h3 style="color:#0070f3;margin-top:0;font-size:18px;font-weight:700;">⚡ UTM Campaign URL Builder</h3>
-
         <p style="color:#64748b;font-size:13px;margin-bottom:16px;">Add trackable campaign tags to your links to monitor conversions across TikTok, Google Ads, Meta, and newsletters in MongoDB.</p>
-
         <div class="dash-grid-2 camp-grid-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
-
           <div class="create-link-field" style="margin:0;">
-
             <label>Destination Website URL</label>
-
             <input type="url" id="campDestUrl" placeholder="https://yourstore.com/summer-collection" value="">
-
           </div>
-
           <div class="create-link-field" style="margin:0;">
-
             <label>Campaign Name (utm_campaign)</label>
-
             <input type="text" id="campName" placeholder="e.g. summer_collection_meta_2026" value="">
-
           </div>
-
         </div>
-
         <div class="dash-grid-2 camp-grid-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
-
           <div class="create-link-field" style="margin:0;">
-
             <label>Campaign Source (utm_source)</label>
-
             <select id="campSource" class="home-domain-select" style="width:100%;">
-
               <option value="facebook" selected>Facebook / Meta</option>
-
               <option value="instagram">Instagram</option>
-
               <option value="tiktok">TikTok</option>
-
               <option value="google">Google Ads</option>
-
               <option value="email">Email Newsletter</option>
-
             </select>
-
           </div>
-
           <div class="create-link-field" style="margin:0;">
-
             <label>Campaign Medium (utm_medium)</label>
-
             <select id="campMedium" class="home-domain-select" style="width:100%;">
-
               <option value="cpc" selected>CPC (Cost Per Click)</option>
-
               <option value="social">Social Organic</option>
-
               <option value="email">Email</option>
-
               <option value="banner">Display Banner</option>
-
             </select>
-
           </div>
-
         </div>
-
         <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px;margin:16px 0;">
-
           <span style="font-size:11px;color:#94a3b8;display:block;margin-bottom:4px;">GENERATED TAGGED URL:</span>
-
-          <code id="campPreviewUrl" style="color:#38bdf8;font-size:13px;word-break:break-all;">https://myshopify.com/drop?utm_source=facebook&amp;utm_medium=cpc&amp;utm_campaign=summer_launch_2026</code>
-
+          <code id="campPreviewUrl" style="color:#38bdf8;font-size:13px;word-break:break-all;">https://yourstore.com/summer-collection?utm_source=facebook&amp;utm_medium=cpc&amp;utm_campaign=summer_collection_meta_2026</code>
         </div>
-
         <div style="display:flex;gap:12px;">
-
           <button class="auth-submit-btn" id="btnShortenCampaign" style="width:auto;padding:10px 24px;">
-
             🔗 Shorten &amp; Save Campaign Link
-
           </button>
-
           <button class="sso-btn" id="btnCopyTaggedUrl" style="width:auto;padding:10px 20px;">
-
             📋 Copy Tagged URL
-
           </button>
-
         </div>
-
       </div>
 
+      <!-- Real Campaign Attribution Performance Table -->
+      <div class="dash-white-card" style="margin-bottom:24px;padding:24px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3 style="color:#0b132b;margin:0;font-size:18px;font-weight:700;">📊 Tracked Campaigns &amp; Channel Attribution</h3>
+          <span id="campSummaryBadge" style="font-size:12px;color:#64748b;background:#f1f5f9;padding:3px 10px;border-radius:99px;">Live Data</span>
+        </div>
+        <div id="campaignsListContainer">
+          <div style="text-align:center;padding:24px;color:#94a3b8;font-size:13px;">Loading attribution data...</div>
+        </div>
+      </div>
     `;
 
     const updatePreview = () => {
-
       const dest = $('#campDestUrl')?.value.trim() || 'https://example.com';
-
       const name = $('#campName')?.value.trim() || 'campaign';
-
-      const source = $('#campSource')?.value || 'social';
-
+      const source = $('#campSource')?.value || 'facebook';
       const medium = $('#campMedium')?.value || 'cpc';
-
-      const full = `${dest}${dest.includes('?') ? '&' : '?'}utm_source=${source}&utm_medium=${medium}&utm_campaign=${name}`;
-
+      let full = '';
+      if (window.HeaUtm && typeof window.HeaUtm.buildUtmUrl === 'function') {
+        try {
+          full = window.HeaUtm.buildUtmUrl(dest, {
+            utm_source: source,
+            utm_medium: medium,
+            utm_campaign: name
+          });
+        } catch (_e) {
+          full = `${dest}${dest.includes('?') ? '&' : '?'}utm_source=${encodeURIComponent(source)}&utm_medium=${encodeURIComponent(medium)}&utm_campaign=${encodeURIComponent(name)}`;
+        }
+      } else {
+        full = `${dest}${dest.includes('?') ? '&' : '?'}utm_source=${encodeURIComponent(source)}&utm_medium=${encodeURIComponent(medium)}&utm_campaign=${encodeURIComponent(name)}`;
+      }
       const preview = $('#campPreviewUrl');
-
       if (preview) preview.textContent = full;
-
       return full;
-
     };
 
     ['#campDestUrl', '#campName', '#campSource', '#campMedium'].forEach(sel => {
-
       const el = $(sel);
-
       if (el) el.oninput = updatePreview;
-
     });
 
     const copyBtn = $('#btnCopyTaggedUrl');
-
     if (copyBtn) copyBtn.onclick = () => window.appShell.copy(updatePreview());
 
     const shortenBtn = $('#btnShortenCampaign');
-
     if (shortenBtn) {
-
-      shortenBtn.onclick = () => {
-
-        const fullUrl = updatePreview();
-
+      shortenBtn.onclick = async () => {
+        const dest = $('#campDestUrl')?.value.trim();
+        if (!dest) {
+          toast('Please enter a destination URL');
+          return;
+        }
         const campName = $('#campName')?.value.trim() || 'campaign';
+        const source = $('#campSource')?.value || 'social';
+        const medium = $('#campMedium')?.value || 'cpc';
 
-        createLinkDirect(fullUrl, '', 'healink.store');
-
-        toast(`Campaign link created: ${campName}`);
-
+        try {
+          await createLinkDirect(dest, '', 'healink.store', {
+            title: `Campaign: ${campName}`,
+            tag: 'Campaign',
+            utm: {
+              campaign: campName,
+              source,
+              medium
+            }
+          });
+          toast(`Campaign link created: ${campName}`);
+          loadCampaignData();
+        } catch (err) {
+          toast(`Failed to create campaign link: ${err.message}`);
+        }
       };
-
     }
 
+    // Load real attribution data from /api/analytics/overview
+    async function loadCampaignData() {
+      const heroContainer = $('#campHeroStats');
+      const tableContainer = $('#campaignsListContainer');
+      const token = (window.appUser && window.appUser.token) || (() => {
+        try { return JSON.parse(localStorage.getItem('hea_session') || '{}').token; } catch (_e) { return null; }
+      })();
+
+      if (!token) {
+        if (heroContainer) {
+          heroContainer.innerHTML = `
+            <div style="font-size:12px;color:#64748b;padding:8px 0;">Sign in to view real campaign telemetry</div>
+          `;
+        }
+        if (tableContainer) {
+          tableContainer.innerHTML = `
+            <div style="text-align:center;padding:24px;color:#64748b;font-size:13px;">
+              Please sign in to view live campaign attribution metrics.
+            </div>
+          `;
+        }
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/analytics/overview?range=30d', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        const campaigns = Array.isArray(data.byCampaign) ? data.byCampaign : [];
+        const sources = Array.isArray(data.bySource) ? data.bySource : [];
+
+        // 1. Update Hero Stats
+        if (heroContainer) {
+          if (campaigns.length === 0 && sources.length === 0) {
+            heroContainer.innerHTML = `
+              <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px 0;">
+                <span style="font-size:16px;">🎯</span>
+                <span style="font-size:12px;font-weight:600;color:#0b132b;">No campaign clicks yet</span>
+                <span style="font-size:11px;color:#94a3b8;">Zero fake data • Live attribution ready</span>
+              </div>
+            `;
+          } else {
+            const topChips = campaigns.slice(0, 3).map(c => `
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:#0b132b;background:#ffffff;padding:5px 10px;border-radius:6px;border:1px solid #e2e8f0;">
+                <span style="font-weight:600;">${c.campaign || 'Direct'}</span>
+                <b>${c.count} ${c.count === 1 ? 'click' : 'clicks'} (${c.percent}%)</b>
+              </div>
+            `).join('');
+            heroContainer.innerHTML = topChips;
+          }
+        }
+
+        // 2. Update Table
+        if (tableContainer) {
+          if (campaigns.length === 0) {
+            tableContainer.innerHTML = `
+              <div style="text-align:center;padding:32px 16px;color:#64748b;">
+                <div style="font-size:28px;margin-bottom:8px;">🎯</div>
+                <p style="margin:0 0 6px;font-weight:600;color:#0b132b;">No campaign clicks tracked yet</p>
+                <p style="margin:0;font-size:13px;color:#64748b;">Shorten a campaign URL above to track channel attribution and conversion rates.</p>
+              </div>
+            `;
+          } else {
+            tableContainer.innerHTML = `
+              <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;font-size:13px;text-align:left;">
+                  <thead>
+                    <tr style="border-bottom:1.5px solid #e2e8f0;color:#64748b;font-size:11px;text-transform:uppercase;">
+                      <th style="padding:10px 12px;">Campaign Name</th>
+                      <th style="padding:10px 12px;">Verified Clicks</th>
+                      <th style="padding:10px 12px;">Traffic Share</th>
+                      <th style="padding:10px 12px;text-align:right;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${campaigns.map(c => `
+                      <tr style="border-bottom:1px solid #f1f5f9;">
+                        <td style="padding:12px;font-weight:600;color:#0b132b;">🏷️ ${c.campaign}</td>
+                        <td style="padding:12px;color:#0b132b;font-weight:700;">${c.count.toLocaleString()}</td>
+                        <td style="padding:12px;color:#64748b;">
+                          <div style="display:flex;align-items:center;gap:8px;">
+                            <div style="flex:1;max-width:80px;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;">
+                              <div style="width:${c.percent}%;height:100%;background:#6366f1;"></div>
+                            </div>
+                            <span style="font-size:11px;font-weight:600;">${c.percent}%</span>
+                          </div>
+                        </td>
+                        <td style="padding:12px;text-align:right;">
+                          <button class="sso-btn" style="padding:4px 10px;font-size:11px;border-radius:6px;" onclick="window.appShell.navigate('analytics')">
+                            View Analytics →
+                          </button>
+                        </td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            `;
+          }
+        }
+      } catch (err) {
+        if (heroContainer) heroContainer.innerHTML = `<div style="font-size:12px;color:#94a3b8;">Attribution offline</div>`;
+        if (tableContainer) tableContainer.innerHTML = `<div style="text-align:center;padding:24px;color:#ef4444;font-size:12px;">Failed to load campaign telemetry.</div>`;
+      }
+    }
+
+    loadCampaignData();
   }
 
   // ---------------- 9. CUSTOM DOMAINS SCREEN (Frame 22 & Frame 23) ---------------- //
@@ -5623,124 +6056,194 @@
         const savedDomain = localStorage.getItem('hea_custom_domain') || '';
 
         content.innerHTML = `
-
           <!-- Add Domain Card -->
-
           <div class="dash-white-card" style="margin-bottom:24px;padding:24px;">
-
             <h3 style="color:#0b132b;margin-top:0;font-size:18px;font-weight:700;">🌐 Connect a Custom Domain</h3>
-
-            <p style="color:#64748b;font-size:13px;margin-bottom:16px;">Point a CNAME record from your DNS registrar (GoDaddy, Cloudflare, Namecheap) to <code style="color:#0070f3;background:rgba(0,112,243,0.08);padding:2px 6px;border-radius:4px;font-weight:600;">cname.healink.store</code>.</p>
-
+            <p style="color:#64748b;font-size:13px;margin-bottom:16px;">
+              Point a CNAME record from your DNS registrar (GoDaddy, Cloudflare, Namecheap) to
+              <code style="color:#0070f3;background:rgba(0,112,243,0.08);padding:2px 6px;border-radius:4px;font-weight:600;">cname.healink.store</code>
+              or add a TXT verification record.
+            </p>
             <div style="display:flex;gap:12px;max-width:540px;">
-
               <input type="text" id="customDomainInput" class="home-shorten-input" style="flex:1;" placeholder="e.g. links.yourbrand.com or go.domain.io" value="">
-
               <button class="auth-submit-btn" id="btnAddDomain" style="width:auto;margin:0;padding:10px 22px;">
-
                 + Connect Domain
-
               </button>
-
             </div>
-
           </div>
 
           <!-- Active Domains Table -->
-
           <div class="dash-white-card" style="padding:20px;">
-
-            <h4 style="font-size:16px;font-weight:800;color:#0b132b;margin:0 0 16px;">Configured Domains</h4>
-
-            <div style="display:flex;flex-direction:column;gap:12px;">
-
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;">
-
-                <div>
-
-                  <b style="color:#0b132b;font-size:15px;font-weight:700;">healink.store</b>
-
-                  <div style="font-size:12px;color:#64748b;">Default Platform Domain · SSL Active</div>
-
-                </div>
-
-                <span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;font-size:12px;padding:4px 10px;border-radius:6px;">✓ Primary</span>
-
-              </div>
-
-              ${savedDomain ? `
-
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;">
-
-                  <div>
-
-                    <b style="color:#0070f3;font-size:15px;font-weight:700;" id="dispCustomDomain">${savedDomain}</b>
-
-                    <div style="font-size:12px;color:#64748b;">CNAME: cname.healink.store · Verified</div>
-
-                  </div>
-
-                  <div style="display:flex;gap:8px;align-items:center;">
-
-                    <span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;font-size:12px;padding:4px 10px;border-radius:6px;">🟢 Active</span>
-
-                    <button class="sso-btn" style="width:auto;padding:4px 10px;font-size:12px;" onclick="window.appShell.toast('DNS Verified: All checks passed')">Check DNS</button>
-
-                  </div>
-
-                </div>
-
-              ` : `
-
-                <div style="text-align:center;padding:24px 16px;color:#64748b;font-size:13px;border:1px dashed #cbd5e1;border-radius:8px;background:#f8fafc;">
-
-                  No custom domains connected yet. Enter your branded subdomain above to connect.
-
-                </div>
-
-              `}
-
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <h4 style="font-size:16px;font-weight:800;color:#0b132b;margin:0;">Configured Domains</h4>
+              <span id="domainsStatusBadge" style="font-size:12px;color:#64748b;">Live Verification</span>
             </div>
-
+            <div id="domainsListContainer" style="display:flex;flex-direction:column;gap:12px;">
+              <div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;">Loading configured domains...</div>
+            </div>
           </div>
-
         `;
 
         const addBtn = $('#btnAddDomain');
-
         if (addBtn) {
-
           addBtn.onclick = async () => {
-
             const d = $('#customDomainInput')?.value.trim();
-
-            if (!d) return;
+            if (!d) {
+              toast('Please enter a valid domain name');
+              return;
+            }
 
             try {
-
-              localStorage.setItem('hea_custom_domain', d);
-
-              const s = JSON.parse(localStorage.getItem('hea_session'));
-
-              if (s && s.token) {
-
-                await fetch('/api/domains', {
-
-                  method: 'POST',
-
-                  headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.token },
-
-                  body: JSON.stringify({ domain: d })
-
-                });
-
+              const s = JSON.parse(localStorage.getItem('hea_session') || '{}');
+              if (!s || !s.token) {
+                toast('Please sign in to connect custom domains');
+                return;
               }
 
-            } catch (e) {}
+              const res = await fetch('/api/domains', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + s.token },
+                body: JSON.stringify({ domain: d })
+              });
+              const data = await res.json();
+              if (!res.ok) {
+                throw new Error(data.error || 'Failed to connect domain');
+              }
 
-            toast(`Custom domain "${d}" added and verified!`);
+              toast(`Domain "${d}" added! Please configure DNS to verify.`);
+              loadUserDomains();
+            } catch (err) {
+              toast(`Error: ${err.message}`);
+            }
+          };
+        }
 
-            renderView();
+        async function loadUserDomains() {
+          const listContainer = $('#domainsListContainer');
+          if (!listContainer) return;
+
+          const s = JSON.parse(localStorage.getItem('hea_session') || '{}');
+          const token = s.token || (window.appUser && window.appUser.token);
+
+          // Primary default row
+          const defaultDomainHtml = `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;">
+              <div>
+                <b style="color:#0b132b;font-size:15px;font-weight:700;">healink.store</b>
+                <div style="font-size:12px;color:#64748b;">Default Platform Domain · SSL Active</div>
+              </div>
+              <span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;font-size:12px;padding:4px 10px;border-radius:6px;">✓ Primary</span>
+            </div>
+          `;
+
+          if (!token) {
+            listContainer.innerHTML = defaultDomainHtml;
+            return;
+          }
+
+          try {
+            const res = await fetch('/api/domains', {
+              headers: { Authorization: 'Bearer ' + token }
+            });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const data = await res.json();
+            const domains = Array.isArray(data.domains) ? data.domains : [];
+
+            const userRows = domains.map((dom) => {
+              const domId = dom._id || dom.id || dom.domain;
+              const isActive = dom.status === 'active';
+              const isFailed = dom.status === 'failed';
+              const statusBadge = isActive
+                ? `<span style="background:rgba(16,185,129,0.15);color:#10b981;font-weight:700;font-size:12px;padding:4px 10px;border-radius:6px;">🟢 Active</span>`
+                : isFailed
+                ? `<span style="background:rgba(239,68,68,0.12);color:#ef4444;font-weight:700;font-size:12px;padding:4px 10px;border-radius:6px;">🔴 Verification Failed</span>`
+                : `<span style="background:rgba(245,158,11,0.12);color:#d97706;font-weight:700;font-size:12px;padding:4px 10px;border-radius:6px;">🟡 Pending DNS</span>`;
+
+              return `
+                <div style="padding:14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;display:flex;flex-direction:column;gap:10px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                      <b style="color:#0070f3;font-size:15px;font-weight:700;">${dom.domain}</b>
+                      <div style="font-size:12px;color:#64748b;margin-top:2px;">
+                        CNAME: <code>${dom.cnameTarget || 'cname.healink.store'}</code>
+                        ${dom.verificationToken ? ` · TXT: <code style="font-size:11px;">${dom.verificationToken}</code>` : ''}
+                      </div>
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                      ${statusBadge}
+                      ${!isActive ? `
+                        <button class="sso-btn btn-verify-dns" data-id="${domId}" style="width:auto;padding:5px 12px;font-size:12px;color:#0070f3;font-weight:700;">
+                          ⚡ Verify DNS
+                        </button>
+                      ` : ''}
+                      <button class="sso-btn btn-delete-domain" data-id="${domId}" style="width:auto;padding:5px 10px;font-size:12px;color:#ef4444;" title="Remove domain">
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                  ${dom.lastError ? `
+                    <div style="font-size:11.5px;color:#ef4444;background:#fef2f2;padding:6px 10px;border-radius:6px;border:1px solid #fee2e2;">
+                      ⚠️ ${dom.lastError}
+                    </div>
+                  ` : ''}
+                </div>
+              `;
+            }).join('');
+
+            listContainer.innerHTML = defaultDomainHtml + userRows;
+
+            // Wire verify buttons
+            $$('.btn-verify-dns').forEach((btn) => {
+              btn.onclick = async () => {
+                const id = btn.dataset.id;
+                btn.textContent = 'Verifying...';
+                try {
+                  const vRes = await fetch(`/api/domains/${encodeURIComponent(id)}/verify`, {
+                    method: 'POST',
+                    headers: { Authorization: 'Bearer ' + token }
+                  });
+                  const vData = await vRes.json();
+                  if (vData.verified) {
+                    toast('🎉 Domain verified and active!');
+                  } else {
+                    toast('⚠️ ' + (vData.error || 'Verification check failed. Check DNS propagation.'));
+                  }
+                  loadUserDomains();
+                } catch (vErr) {
+                  toast('Verification error: ' + vErr.message);
+                  loadUserDomains();
+                }
+              };
+            });
+
+            // Wire delete buttons
+            $$('.btn-delete-domain').forEach((btn) => {
+              btn.onclick = async () => {
+                const id = btn.dataset.id;
+                if (!confirm('Are you sure you want to remove this domain?')) return;
+                try {
+                  const dRes = await fetch(`/api/domains/${encodeURIComponent(id)}`, {
+                    method: 'DELETE',
+                    headers: { Authorization: 'Bearer ' + token }
+                  });
+                  if (dRes.ok) {
+                    toast('Custom domain removed');
+                    loadUserDomains();
+                  } else {
+                    const dData = await dRes.json();
+                    toast('Error: ' + dData.error);
+                  }
+                } catch (dErr) {
+                  toast('Error: ' + dErr.message);
+                }
+              };
+            });
+          } catch (err) {
+            listContainer.innerHTML = defaultDomainHtml;
+          }
+        }
+
+        loadUserDomains();
 
           };
 
@@ -6134,21 +6637,46 @@
 
           <div class="settings-section-divider"></div>
 
-          <!-- 4. Users Section -->
+          <!-- 4. Users & Team Section -->
           <div id="setSectionUsers" class="settings-content-section">
-            <h3 style="font-size:20px;font-weight:800;color:#0b132b;margin:0 0 8px;">Users &amp; Team</h3>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:10px;">
+              <h3 style="font-size:20px;font-weight:800;color:#0b132b;margin:0;">Users &amp; Team</h3>
+              <span id="teamSeatUsageBadge" style="background:#e0f2fe;color:#0284c7;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700;">1 Active Seat</span>
+            </div>
             <p style="color:#64748b;font-size:13px;margin:0 0 16px;">
-              Collaborators and team members assigned to this workspace.
+              Manage team members, roles (Admin, Editor, Viewer), and invite collaborators to your active workspace.
             </p>
-            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
-              <div style="display:flex;align-items:center;gap:10px;">
-                <div style="width:34px;height:34px;border-radius:50%;background:#0070f3;color:#ffffff;display:grid;place-items:center;font-weight:700;font-size:13px;">${(appUser.name||'HA').substring(0,2).toUpperCase()}</div>
-                <div>
-                  <div style="font-weight:700;color:#0b132b;font-size:14px;">${appUser.name} <span style="font-size:11px;color:#10b981;font-weight:700;background:#dcfce7;padding:2px 6px;border-radius:4px;margin-left:6px;">Owner</span></div>
-                  <div style="font-size:12px;color:#64748b;">${appUser.email}</div>
+            <div id="teamMembersListContainer" style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div style="width:34px;height:34px;border-radius:50%;background:#0070f3;color:#ffffff;display:grid;place-items:center;font-weight:700;font-size:13px;">${(appUser.name||'HA').substring(0,2).toUpperCase()}</div>
+                  <div>
+                    <div style="font-weight:700;color:#0b132b;font-size:14px;">${appUser.name} <span style="font-size:11px;color:#10b981;font-weight:700;background:#dcfce7;padding:2px 6px;border-radius:4px;margin-left:6px;">Owner</span></div>
+                    <div style="font-size:12px;color:#64748b;">${appUser.email}</div>
+                  </div>
                 </div>
+                <button type="button" class="sso-btn" style="width:auto;padding:6px 16px;font-size:13px;" onclick="const m=document.getElementById('inviteMemberModal');if(m)m.hidden=false;">+ Invite Member</button>
               </div>
-              <button class="sso-btn" style="width:auto;padding:6px 14px;font-size:13px;" onclick="window.appShell.toast('Team invitation sent to clipboard')">Invite Member</button>
+            </div>
+            <div id="teamPendingInvitesContainer" style="display:none;margin-top:14px;">
+              <h4 style="font-size:13px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 8px;">Pending Invitations</h4>
+              <div id="pendingInvitesList" style="display:flex;flex-direction:column;gap:8px;"></div>
+            </div>
+          </div>
+
+          <div class="settings-section-divider"></div>
+
+          <!-- 4B. Workspace Audit Logs Section -->
+          <div id="setSectionAuditLogs" class="settings-content-section">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:10px;">
+              <h3 style="font-size:20px;font-weight:800;color:#0b132b;margin:0;">Workspace Audit Logs</h3>
+              <button type="button" id="btnExportAuditLogs" class="btn sm ghost" style="font-size:12px;padding:6px 14px;border-radius:8px;">📥 Export CSV</button>
+            </div>
+            <p style="color:#64748b;font-size:13px;margin:0 0 16px;">
+              Tamper-evident trail of member events, role modifications, link deletions, and security settings.
+            </p>
+            <div id="auditLogsContainer" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px;">
+              <div style="color:#64748b;font-size:13px;text-align:center;padding:20px 0;">Loading workspace audit history...</div>
             </div>
           </div>
 
@@ -6677,87 +7205,32 @@
 
 
   
-  // ---------------- 12. NOTIFICATIONS CENTER VIEW ---------------- //
-  function renderNotifications(container) {
-    const NOTIF_STORAGE_KEY = 'hea_user_notifications';
-
-    const initialList = [
-      {
-        id: 'notif_1',
-        category: 'links',
-        icon: '🔥',
-        iconBg: '#e0f2fe',
-        iconColor: '#0A6CFF',
-        title: 'Traffic Surge: +10,480 Clicks Today',
-        desc: 'Your short link <b>healink.store/summer-deal</b> went viral across TikTok and Instagram Reels.',
-        time: '14 minutes ago',
-        unread: true,
-        actionTab: 'analytics',
-        actionLabel: 'View Analytics Report →'
-      },
-      {
-        id: 'notif_2',
-        category: 'system',
-        icon: '🌐',
-        iconBg: '#dcfce7',
-        iconColor: '#10b981',
-        title: 'Custom Domain SSL Verified: links.brand.com',
-        desc: 'DNS records validated with Cloudflare Edge. Branded short links are now live and serving visitor traffic.',
-        time: '2 hours ago',
-        unread: true,
-        actionTab: 'domains',
-        actionLabel: 'Manage Branded Domains →'
-      },
-      {
-        id: 'notif_3',
-        category: 'assist',
-        icon: '✨',
-        iconBg: '#f3e8ff',
-        iconColor: '#7928ca',
-        title: 'HEA Assist AI Recommendation',
-        desc: '42% of traffic to your latest campaign has untracked UTM parameters. Generate tags now for accurate analytics.',
-        time: '5 hours ago',
-        unread: true,
-        actionTab: 'assist',
-        actionLabel: 'Open HEA Assist Studio →'
-      },
-      {
-        id: 'notif_4',
-        category: 'system',
-        icon: '🛡️',
-        iconBg: '#e0f2fe',
-        iconColor: '#0284c7',
-        title: 'New Dashboard Sign-in Detected',
-        desc: 'A successful login was registered from Windows (Chrome) in Karachi, Pakistan. If this was you, no action is needed.',
-        time: 'Yesterday at 8:42 PM',
-        unread: false,
-        actionTab: 'settings',
-        actionLabel: 'Review Account Security →'
-      },
-      {
-        id: 'notif_5',
-        category: 'billing',
-        icon: '👑',
-        iconBg: '#fef3c7',
-        iconColor: '#d97706',
-        title: 'HEA Link Core PRO Active',
-        desc: 'Your subscription is active with unlimited QR styling, 100,000 links/mo, and 12 link-in-bio mobile templates.',
-        time: '3 days ago',
-        unread: false,
-        actionTab: 'settings',
-        actionLabel: 'View Plan & Invoices →'
-      }
-    ];
-
+  // ---------------- 12. NOTIFICATIONS CENTER VIEW (100% Data-Driven) ---------------- //
+  async function renderNotifications(container) {
     let items = [];
-    try {
-      const stored = localStorage.getItem(NOTIF_STORAGE_KEY);
-      items = stored ? JSON.parse(stored) : initialList;
-    } catch (e) {
-      items = initialList;
+    let activeFilter = 'all';
+
+    function getAuthToken() {
+      try {
+        const s = JSON.parse(localStorage.getItem('hea_session') || '{}');
+        return s.token || localStorage.getItem('hea_token') || sessionStorage.getItem('hea_token') || '';
+      } catch (e) { return ''; }
     }
 
-    let activeFilter = 'all';
+    function timeAgo(date) {
+      if (!date) return '';
+      const now = new Date();
+      const past = new Date(date);
+      const diffSec = Math.floor((now - past) / 1000);
+      if (diffSec < 60) return 'Just now';
+      const diffMin = Math.floor(diffSec / 60);
+      if (diffMin < 60) return `${diffMin}m ago`;
+      const diffHr = Math.floor(diffMin / 60);
+      if (diffHr < 24) return `${diffHr}h ago`;
+      const diffDays = Math.floor(diffHr / 24);
+      if (diffDays < 7) return `${diffDays}d ago`;
+      return past.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
 
     function updateBadge() {
       const unreadCount = items.filter(n => n.unread).length;
@@ -6771,13 +7244,6 @@
         inPageBadge.textContent = unreadCount + ' New';
         inPageBadge.style.display = unreadCount > 0 ? '' : 'none';
       }
-    }
-
-    function save() {
-      try {
-        localStorage.setItem(NOTIF_STORAGE_KEY, JSON.stringify(items));
-      } catch (e) {}
-      updateBadge();
     }
 
     function renderList() {
@@ -6840,17 +7306,24 @@
       });
 
       listContainer.querySelectorAll('.notif-dismiss-btn').forEach(btn => {
-        btn.onclick = () => {
+        btn.onclick = async () => {
           const id = btn.dataset.dismiss;
           items = items.filter(n => n.id !== id);
-          save();
+          updateBadge();
           renderList();
           toast('Notification dismissed');
+          const token = getAuthToken();
+          if (token) {
+            try {
+              await fetch(`/api/notifications/${encodeURIComponent(id)}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': 'Bearer ' + token }
+              });
+            } catch (e) {}
+          }
         };
       });
     }
-
-    const unreadCount = items.filter(n => n.unread).length;
 
     container.innerHTML = `
       <div class="notif-page-wrap card-3d-reveal">
@@ -6860,7 +7333,7 @@
             <div>
               <div class="notif-title-row">
                 <h2 class="notif-page-title">Notifications Center</h2>
-                <span class="notif-count-badge" id="notifCountBadge" style="${unreadCount > 0 ? '' : 'display:none;'}">${unreadCount} New</span>
+                <span class="notif-count-badge" id="notifCountBadge" style="display:none;">0 New</span>
               </div>
               <p class="notif-page-sub">Track click milestones, system audits, and domain verifications in real-time</p>
             </div>
@@ -6876,43 +7349,102 @@
         </div>
 
         <div class="notif-filter-bar">
-          <button type="button" class="notif-filter-pill active" data-filter="all">All (${items.length})</button>
-          <button type="button" class="notif-filter-pill" data-filter="unread">Unread (${unreadCount})</button>
+          <button type="button" class="notif-filter-pill active" data-filter="all">All (0)</button>
+          <button type="button" class="notif-filter-pill" data-filter="unread">Unread (0)</button>
           <button type="button" class="notif-filter-pill" data-filter="links">Links &amp; Clicks</button>
           <button type="button" class="notif-filter-pill" data-filter="system">Security &amp; System</button>
         </div>
 
-        <div class="notif-list-container" id="notifItemsList"></div>
+        <div class="notif-list-container" id="notifItemsList">
+          <div style="text-align:center;padding:32px 16px;color:#64748b;font-size:13px;">
+            Loading notifications...
+          </div>
+        </div>
       </div>
     `;
+
+    // Fetch from real server endpoint
+    const token = getAuthToken();
+    if (token) {
+      try {
+        const res = await fetch('/api/notifications', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (res.ok) {
+          const d = await res.json();
+          if (Array.isArray(d.notifications)) {
+            items = d.notifications.map(n => {
+              const isLink = n.type.includes('link');
+              const isDomain = n.type.includes('domain');
+              const isPay = n.type.includes('payment');
+              return {
+                id: n.id,
+                category: isLink ? 'links' : (isDomain || isPay ? 'system' : 'system'),
+                icon: isLink ? '🔥' : (isDomain ? '🌐' : (isPay ? '👑' : '🔔')),
+                iconBg: isLink ? '#e0f2fe' : (isDomain ? '#dcfce7' : (isPay ? '#fef3c7' : '#f1f5f9')),
+                iconColor: isLink ? '#0A6CFF' : (isDomain ? '#10b981' : (isPay ? '#d97706' : '#64748b')),
+                title: n.title,
+                desc: n.body,
+                time: timeAgo(n.createdAt),
+                unread: !n.read,
+                actionTab: n.link ? n.link.replace(/^#/, '') : '',
+                actionLabel: n.link ? 'View Details →' : ''
+              };
+            });
+          }
+        }
+      } catch (err) {
+        console.warn('Notifications fetch error:', err);
+      }
+    }
 
     renderList();
     updateBadge();
 
+    const allPill = container.querySelector('.notif-filter-pill[data-filter="all"]');
+    if (allPill) allPill.textContent = `All (${items.length})`;
+    const unreadPill = container.querySelector('.notif-filter-pill[data-filter="unread"]');
+    if (unreadPill) unreadPill.textContent = `Unread (${items.filter(n => n.unread).length})`;
+
     const markAllBtn = document.getElementById('markAllReadBtn');
     if (markAllBtn) {
-      markAllBtn.onclick = () => {
+      markAllBtn.onclick = async () => {
         items.forEach(n => { n.unread = false; });
-        save();
+        updateBadge();
         renderList();
-        const unreadFilterPill = container.querySelector('.notif-filter-pill[data-filter="unread"]');
-        if (unreadFilterPill) unreadFilterPill.textContent = 'Unread (0)';
+        if (unreadPill) unreadPill.textContent = 'Unread (0)';
         toast('All notifications marked as read');
+        if (token) {
+          try {
+            await fetch('/api/notifications/read', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+              body: JSON.stringify({ all: true })
+            });
+          } catch (e) {}
+        }
       };
     }
 
     const clearAllBtn = document.getElementById('clearAllNotifsBtn');
     if (clearAllBtn) {
-      clearAllBtn.onclick = () => {
+      clearAllBtn.onclick = async () => {
         if (confirm('Clear all notifications?')) {
+          const ids = items.map(n => n.id);
           items = [];
-          save();
+          updateBadge();
           renderList();
-          container.querySelectorAll('.notif-filter-pill').forEach(p => {
-            if (p.dataset.filter === 'all') p.textContent = 'All (0)';
-            if (p.dataset.filter === 'unread') p.textContent = 'Unread (0)';
-          });
+          if (allPill) allPill.textContent = 'All (0)';
+          if (unreadPill) unreadPill.textContent = 'Unread (0)';
           toast('All notifications cleared');
+          if (token) {
+            for (const id of ids) {
+              fetch(`/api/notifications/${encodeURIComponent(id)}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': 'Bearer ' + token }
+              }).catch(() => {});
+            }
+          }
         }
       };
     }
@@ -6936,8 +7468,8 @@
 
     container.innerHTML = `
       <div class="assist-page-wrap card-3d-reveal">
-        <!-- 1. Sticky Frosted Header -->
-        <div class="view-header assist-view-header">
+        <!-- 1. Sticky Frosted Header (Hidden per user request) -->
+        <div class="view-header assist-view-header" style="display:none !important;">
           <div class="header-title-col">
             <div style="display:flex;align-items:center;gap:10px;">
               <h2>HEA Assist AI Studio</h2>
@@ -7028,10 +7560,10 @@
             <!-- Floating Command Input Bar -->
             <form id="assistPageForm" class="assist-input-bar">
               <div class="input-glow-icon">✨</div>
-              <input type="text" id="assistPageInput" class="assist-text-input" placeholder="Ask HEA Assist to optimize links, generate UTMs, or analyze clicks... (Enter to send)" autocomplete="off" required>
+              <input type="text" id="assistPageInput" class="assist-text-input" placeholder="Ask HEA Assist to optimize links, generate UTMs, or analyze clicks... (Enter to send)" autocomplete="off" required style="border:none !important;background:transparent !important;box-shadow:none !important;outline:none !important;border-radius:0 !important;padding:8px 6px !important;font-size:14px !important;color:#0b132b !important;height:auto !important;min-height:unset !important;margin:0 !important;flex:1 1 auto !important;">
               <div class="input-actions-grp">
-                <span class="input-kbd-hint">↵ Enter</span>
-                <button type="submit" class="assist-send-btn" id="assistPageSubmit" title="Send message" style="color:#ffffff !important;">
+                <span class="input-kbd-hint" style="background:#0A6CFF !important;color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;font-weight:700 !important;border:none !important;border-radius:8px !important;padding:4px 8px !important;font-size:11.5px !important;display:inline-flex !important;align-items:center !important;user-select:none !important;">↵ Enter</span>
+                <button type="submit" class="assist-send-btn header-primary-btn" id="assistPageSubmit" title="Send message" style="background:#0A6CFF !important;color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;border-radius:99px !important;padding:8px 18px !important;border:none !important;font-weight:700 !important;font-size:13px !important;cursor:pointer !important;display:inline-flex !important;align-items:center !important;gap:4px !important;">
                   <span style="color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;">Send</span> ↗
                 </button>
               </div>
@@ -7050,9 +7582,9 @@
                 </div>
               </div>
               <div class="tool-body">
-                <div class="tool-input-row">
-                  <input type="text" id="quickSlugTopic" class="tool-text-input" placeholder="e.g. Summer Drop 40% Off" autocomplete="off">
-                  <button type="button" class="header-primary-btn" id="btnGenSlugs">Generate</button>
+                <div class="tool-input-row" style="display:flex !important;align-items:center !important;gap:10px !important;margin-top:12px !important;width:100% !important;box-sizing:border-box !important;">
+                  <input type="text" id="quickSlugTopic" class="tool-text-input" placeholder="e.g. Summer Drop 40% Off" autocomplete="off" style="flex:1 1 auto !important;width:100% !important;height:42px !important;min-height:42px !important;padding:0 14px !important;background:#ffffff !important;border:1.5px solid #cbd5e1 !important;border-radius:12px !important;font-size:13.5px !important;font-family:inherit !important;color:#0b132b !important;outline:none !important;box-shadow:none !important;box-sizing:border-box !important;margin:0 !important;">
+                  <button type="button" class="header-primary-btn" id="btnGenSlugs" style="height:42px !important;min-height:42px !important;padding:0 18px !important;border-radius:12px !important;font-size:13px !important;font-weight:700 !important;white-space:nowrap !important;flex-shrink:0 !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;background:#0A6CFF !important;color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;border:none !important;cursor:pointer !important;margin:0 !important;box-sizing:border-box !important;">Generate</button>
                 </div>
                 <div id="quickSlugResults" class="slug-results-list" style="margin-top:12px;display:none;"></div>
               </div>
@@ -7224,28 +7756,65 @@
     const slugRes = $('#quickSlugResults');
 
     if (btnGen && slugTopic && slugRes) {
-      btnGen.onclick = () => {
+      btnGen.onclick = async () => {
         const val = slugTopic.value.trim();
         if (!val) {
-          toast('Please enter a topic or campaign keyword');
+          toast('Please enter a topic, URL, or campaign keyword');
           return;
         }
-        const clean = val.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-        const suggestions = [
-          clean,
-          clean + '-vip',
-          clean + '-drop'
-        ];
-
-        slugRes.innerHTML = suggestions.map(s => `
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px;font-size:12.5px;">
-            <code style="color:#0A6CFF;font-weight:700;">healink.store/${s}</code>
-            <button type="button" class="header-primary-btn" style="height:28px;padding:0 10px;font-size:11px;" onclick="window.appShell.openCreateModal('link'); setTimeout(() => { const inp = document.querySelector('#customSlug'); if (inp) inp.value = '${s}'; }, 100);">
-              Use ⚡
-            </button>
-          </div>
-        `).join('');
+        btnGen.disabled = true;
+        btnGen.textContent = 'Generating...';
+        slugRes.innerHTML = '<div style="font-size:12px;color:#64748b;padding:8px 0;">✨ Generating smart slugs with AI...</div>';
         slugRes.style.display = 'block';
+
+        try {
+          const isUrl = /^https?:\/\//i.test(val);
+          const targetUrl = isUrl ? val : `https://example.com/${encodeURIComponent(val.toLowerCase().replace(/\s+/g, '-'))}`;
+          const token = localStorage.getItem('token') || localStorage.getItem('hea_token');
+          const resp = await fetch('/api/ai/slugs', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+            },
+            body: JSON.stringify({
+              url: targetUrl,
+              title: isUrl ? undefined : val,
+              tone: 'catchy'
+            })
+          });
+
+          const data = await resp.json();
+          if (!resp.ok) {
+            toast(data.error || 'Failed to generate slugs');
+            slugRes.innerHTML = `<div style="font-size:12px;color:#ef4444;padding:8px 0;">⚠️ ${data.error || 'Failed to generate'}</div>`;
+            return;
+          }
+
+          const candidates = data.candidates || [];
+          if (!candidates.length) {
+            slugRes.innerHTML = '<div style="font-size:12px;color:#64748b;">No slugs could be generated.</div>';
+            return;
+          }
+
+          slugRes.innerHTML = candidates.map(c => `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px;font-size:12.5px;">
+              <div>
+                <code style="color:#0A6CFF;font-weight:700;">healink.store/${c.slug}</code>
+                <div style="font-size:11px;color:#64748b;">${c.rationale || 'High CTR slug'}</div>
+              </div>
+              <button type="button" class="header-primary-btn" style="height:28px;padding:0 10px;font-size:11px;" onclick="window.appShell.openCreateModal('link'); setTimeout(() => { const inp = document.querySelector('#customSlug'); if (inp) inp.value = '${c.slug}'; }, 100);">
+                Use ⚡
+              </button>
+            </div>
+          `).join('');
+        } catch (err) {
+          toast('Network error while generating slugs');
+          slugRes.innerHTML = '<div style="font-size:12px;color:#ef4444;">Network error</div>';
+        } finally {
+          btnGen.disabled = false;
+          btnGen.textContent = 'Generate Slugs ⚡';
+        }
       };
     }
   }
@@ -7416,170 +7985,111 @@ Here are recommended optimizations for your links and campaigns:<br>
 
     }
 
-    function handleUserPrompt(promptText) {
-
+    async function handleUserPrompt(promptText) {
       if (!promptText) return;
 
-      const checkLimit = (typeof window.canChatWithAssist === 'function') ? window.canChatWithAssist() : { allowed: true };
-
-      if (!checkLimit.allowed) {
-
-        input.value = '';
-
-        const limitMsg = document.createElement('div');
-
-        limitMsg.className = 'drawer-chat-bubble ai';
-
-        limitMsg.innerHTML = `
-
-          <div style="background:rgba(239,68,68,0.15);border:1px solid #ef4444;border-radius:12px;padding:12px;margin:4px 0;">
-
-            <b style="color:#ef4444;font-size:13px;">🔒 Free AI Limit Reached (5/5 Messages)</b>
-
-            <p style="color:#cbd5e1;font-size:12px;margin:6px 0 10px;line-height:1.5;">You have used all 5 free AI chat messages with HEA Assist. Upgrade to Pro for unlimited real-time chat, analytics insights, and AI link generation!</p>
-
-            <button type="button" class="btn" style="background:#D4FF24;color:#060b18;font-weight:800;padding:6px 14px;border-radius:8px;font-size:12px;border:none;cursor:pointer;" onclick="window.openCheckoutModal('pro')">⚡ Upgrade to Pro</button>
-
-          </div>
-
-        `;
-
-        log.appendChild(limitMsg);
-
-        scrollChatToBottom();
-
-        if (typeof window.openCheckoutModal === 'function') {
-
-          window.openCheckoutModal('pro');
-
-        }
-
-        return;
-
-      }
-
-      if (typeof window.recordFreeChat === 'function') window.recordFreeChat();
-
-      // Add user bubble
-
       const uMsg = document.createElement('div');
-
       uMsg.className = 'drawer-chat-bubble user';
-
       uMsg.textContent = promptText;
-
       log.appendChild(uMsg);
 
-      // AI Response logic
-
       const aiMsg = document.createElement('div');
-
       aiMsg.className = 'drawer-chat-bubble ai';
-
-      aiMsg.innerHTML = '<span style="opacity:0.7">Thinking…</span>';
-
+      aiMsg.innerHTML = '<span style="opacity:0.7">✨ Thinking with HEA Assist...</span>';
       log.appendChild(aiMsg);
-
       scrollChatToBottom();
-
-      // Real-time URL shortener inside drawer
-
-      const urlMatch = promptText.match(/https?:\/\/[^\s]+/i);
-
-      if (urlMatch) {
-
-        const dest = urlMatch[0];
-
-        const chars = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
-
-        let slug = '';
-
-        for (let i = 0; i < 6; i++) slug += chars.charAt(Math.floor(Math.random() * chars.length));
-
-        (async () => {
-
-          let realShort = '';
-
-          try {
-
-            realShort = await fetchOnlineShortUrl(dest);
-
-          } catch (e) {}
-
-          const shortUrl = (realShort && realShort !== dest && !realShort.includes('firebase.google.com') && realShort.length < 60) ? realShort : `${window.location.origin}/${slug}`;
-
-          const links = getStoredLinks();
-
-          links.unshift({
-
-            id: 'l_' + Date.now(),
-
-            slug,
-
-            dest,
-
-            url: shortUrl,
-
-            realShort: shortUrl,
-
-            title: 'AI Shortened Link',
-
-            tag: 'AI Assist',
-
-            clicks: 0,
-
-            scans: 0,
-
-            createdAt: 'Just now'
-
-          });
-
-          saveStoredLinks(links);
-
-          try {
-
-            localStorage.setItem('hea_slug_' + slug.toLowerCase(), dest);
-
-          } catch (e) {}
-
-          aiMsg.innerHTML = `
-
-            🎉 <b>Link Shortened in Real-Time!</b><br><br>
-
-            <div style="background:rgba(56,189,248,0.12);padding:10px 12px;border-radius:10px;margin-bottom:8px;border:1px solid #38bdf8;">
-
-              <div style="font-size:10px;color:#94a3b8;">SHORT LINK</div>
-
-              <a href="${shortUrl}" target="_blank" style="color:#D4FF24;font-weight:700;word-break:break-all;">${shortUrl}</a>
-
-            </div>
-
-            <button class="sso-btn" style="width:auto;padding:5px 12px;font-size:12px;" onclick="window.appShell.copy('${shortUrl}')">📋 Copy Short Link</button>
-
-          `;
-
-          scrollChatToBottom();
-
-          renderActiveView();
-
-        })();
-
-        input.value = '';
-
-        return;
-
-      }
-
-      setTimeout(() => {
-
-        aiMsg.innerHTML = getLocalAiReply(promptText);
-
-        scrollChatToBottom();
-
-      }, 350);
-
       input.value = '';
 
+      try {
+        const token = localStorage.getItem('token') || localStorage.getItem('hea_token') || sessionStorage.getItem('token');
+        const resp = await fetch('/api/assist/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+          },
+          body: JSON.stringify({
+            message: promptText,
+            conversationId: window.__assistConvId || undefined,
+            stream: false
+          })
+        });
+
+        const data = await resp.json();
+        if (!resp.ok) {
+          aiMsg.innerHTML = `<span style="color:#ef4444;">⚠️ ${data.error || 'Failed to communicate with HEA Assist.'}</span>`;
+          scrollChatToBottom();
+          return;
+        }
+
+        if (data.conversationId) window.__assistConvId = data.conversationId;
+
+        let formatted = (data.reply || '')
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+          .replace(/\*(.*?)\*/g, '<i>$1</i>')
+          .replace(/`([^`]+)`/g, '<code style="background:rgba(0,0,0,0.15);padding:1px 4px;border-radius:4px;">$1</code>')
+          .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" style="color:#38bdf8;text-decoration:underline;">$1</a>')
+          .replace(/\n/g, '<br>');
+
+        aiMsg.innerHTML = formatted;
+
+        if (data.pendingAction) {
+          const act = data.pendingAction;
+          const actCard = document.createElement('div');
+          actCard.style.cssText = 'background:#ffffff;color:#0b132b;border:1.5px solid #0070f3;border-radius:10px;padding:12px;margin-top:10px;box-shadow:0 4px 12px rgba(0,0,0,0.1);';
+          actCard.innerHTML = `
+            <div style="font-size:12px;font-weight:700;color:#0070f3;margin-bottom:6px;">⚡ Action Confirmation</div>
+            <div style="font-size:12px;margin-bottom:10px;line-height:1.4;">${act.summary}</div>
+            <div style="display:flex;gap:6px;">
+              <button type="button" class="sso-btn" style="width:auto;padding:4px 12px;font-size:11px;background:#10b981;color:#ffffff;border:none;" id="btnConf_${act.actionId}">✓ Confirm</button>
+              <button type="button" class="sso-btn" style="width:auto;padding:4px 10px;font-size:11px;background:#f1f5f9;color:#64748b;border:1px solid #cbd5e1;" id="btnCanc_${act.actionId}">✕ Cancel</button>
+            </div>
+          `;
+          aiMsg.appendChild(actCard);
+
+          const confBtn = actCard.querySelector(`#btnConf_${act.actionId}`);
+          const cancBtn = actCard.querySelector(`#btnCanc_${act.actionId}`);
+
+          confBtn.onclick = async () => {
+            confBtn.disabled = true;
+            confBtn.textContent = 'Executing...';
+            try {
+              const res = await fetch(`/api/assist/actions/${act.actionId}/confirm`, {
+                method: 'POST',
+                headers: { ...(token ? { 'Authorization': 'Bearer ' + token } : {}) }
+              });
+              const d = await res.json();
+              if (res.ok) {
+                actCard.innerHTML = `<div style="color:#10b981;font-size:12px;font-weight:700;">✅ Confirmed: ${d.summary}</div>`;
+                renderActiveView();
+              } else {
+                actCard.innerHTML = `<div style="color:#ef4444;font-size:12px;">⚠️ ${d.error || 'Failed'}</div>`;
+              }
+            } catch (err) {
+              actCard.innerHTML = `<div style="color:#ef4444;font-size:12px;">Error: ${err.message}</div>`;
+            }
+          };
+
+          cancBtn.onclick = async () => {
+            cancBtn.disabled = true;
+            try {
+              await fetch(`/api/assist/actions/${act.actionId}/cancel`, {
+                method: 'POST',
+                headers: { ...(token ? { 'Authorization': 'Bearer ' + token } : {}) }
+              });
+              actCard.innerHTML = '<div style="color:#64748b;font-size:12px;">✕ Action cancelled</div>';
+            } catch (_e) {
+              actCard.innerHTML = '<div style="color:#64748b;font-size:12px;">✕ Cancelled</div>';
+            }
+          };
+        }
+
+        scrollChatToBottom();
+      } catch (err) {
+        aiMsg.innerHTML = `<span style="color:#ef4444;">Network error: ${err.message}</span>`;
+        scrollChatToBottom();
+      }
     }
 
     form.onsubmit = e => {

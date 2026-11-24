@@ -51,10 +51,40 @@ const abuseReportLimiter = rateLimit({
   message: { error: 'Too many abuse reports submitted. Please wait before submitting more.', code: 'RATE_LIMITED' }
 });
 
+// Password challenge attempt rate limit: 5 attempts per 10 minutes per IP+slug
+const passwordAttemptLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: false,
+  keyGenerator: (req) => `${req.ip || 'unknown'}_${(req.params.slug || '').toLowerCase()}`,
+  handler: (req, res) => {
+    const { renderPasswordChallengeHtml } = require('../utils/protectedLinkHtml');
+    return res.status(429).send(
+      renderPasswordChallengeHtml({
+        slug: req.params.slug,
+        error: 'Too many incorrect password attempts. Please wait 10 minutes before trying again.'
+      })
+    );
+  }
+});
+
+// General API rate limit: 120 requests per minute
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 120,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests. Please wait a moment before trying again.', code: 'RATE_LIMITED' }
+});
+
 module.exports = {
   authLimiter,
   linkCreateLimiter,
   bulkShortenLimiter,
   assistLimiter,
-  abuseReportLimiter
+  abuseReportLimiter,
+  passwordAttemptLimiter,
+  apiLimiter
 };

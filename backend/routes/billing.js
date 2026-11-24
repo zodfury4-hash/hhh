@@ -6,6 +6,8 @@ const User = require('../models/User');
 const ProcessedPayment = require('../models/ProcessedPayment');
 const firebaseRtdb = require('../firebase-service');
 const { optionalAuth } = require('../middleware/auth');
+const { PLANS } = require('../config/plans');
+const { createNotification } = require('../services/notificationService');
 
 function isDbConnected() {
   return mongoose.connection.readyState === 1;
@@ -51,20 +53,13 @@ router.post('/api/stripe/create-checkout-session', optionalAuth, async (req, res
 
     const planKey = (plan || 'pro').toLowerCase();
     const cycle = (billingCycle || 'monthly').toLowerCase();
+    const planObj = PLANS[planKey] || PLANS.pro;
+    const seats = Math.max(1, parseInt(req.body.seats || req.body.quantity || 1, 10));
 
-    const planPrices = {
-      monthly: { growth: 800, pro: 3500, enterprise: 19900 },
-      annual: { growth: 7200, pro: 33600, enterprise: 190800 }
-    };
-
-    const planDisplayNames = {
-      growth: 'Growth Plan',
-      pro: 'Core PRO Plan',
-      enterprise: 'Enterprise Plan'
-    };
-
-    const amountInCents = (planPrices[cycle] && planPrices[cycle][planKey]) || 3500;
-    const planName = planDisplayNames[planKey] || 'Core PRO Plan';
+    // Dynamic price calculation from central plans configuration
+    const basePrice = cycle === 'annual' ? planObj.priceAnnual : planObj.priceMonthly;
+    const amountInCents = Math.round(basePrice * seats * 100);
+    const planName = planObj.name;
     const origin = req.headers.origin || `${req.protocol}://${req.get('host')}` || 'http://localhost:3000';
 
     // Sandbox / Demo mode only available in development / test
@@ -76,7 +71,8 @@ router.post('/api/stripe/create-checkout-session', optionalAuth, async (req, res
           message: 'Running in development sandbox mode (Stripe API keys not set in .env).',
           plan: planName,
           billingCycle: cycle,
-          amount: amountInCents / 100
+          amount: amountInCents / 100,
+          amountTotal: amountInCents
         });
       }
       return res.status(503).json({
@@ -272,6 +268,17 @@ router.post('/api/stripe/webhook', async (req, res) => {
         }
 
         await firebaseRtdb.saveUserProfile(cleanEmail, { isPro: true, plan: plan });
+
+        try {
+          createNotification({
+            ownerEmail: cleanEmail,
+            type: 'payment_success',
+            title: 'Subscription Upgraded! 👑',
+            body: `Your account has been upgraded to ${plan}. Enjoy all premium features!`,
+            link: '#settings',
+            refId: `payment_${eventId}`
+          }).catch(() => {});
+        } catch (_nErr) {}
       } catch (e) {
         console.error('Error applying webhook payment:', e);
       }

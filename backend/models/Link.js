@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const linkSchema = new mongoose.Schema({
+  workspaceId: {
+    type: mongoose.Schema.Types.Mixed,
+    default: null,
+    index: true
+  },
   ownerEmail: {
     type: String,
     required: true,
@@ -37,9 +42,48 @@ const linkSchema = new mongoose.Schema({
   },
   scans: {
     type: Number,
-    default: 0
+    default: 0,
+    min: 0
+  },
+  totalClicks: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  humanClicks: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  botClicks: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  totalScans: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  domain: {
+    type: String,
+    lowercase: true,
+    trim: true,
+    default: null,
+    index: true
+  },
+  utm: {
+    source: { type: String, lowercase: true, trim: true, default: null },
+    medium: { type: String, lowercase: true, trim: true, default: null },
+    campaign: { type: String, lowercase: true, trim: true, default: null },
+    term: { type: String, lowercase: true, trim: true, default: null },
+    content: { type: String, lowercase: true, trim: true, default: null }
   },
   password: {
+    type: String,
+    default: null
+  },
+  passwordHash: {
     type: String,
     default: null
   },
@@ -51,17 +95,6 @@ const linkSchema = new mongoose.Schema({
     type: Number,
     default: null
   },
-  clicks: [
-    {
-      timestamp: { type: Date, default: Date.now },
-      ip: String,
-      country: String,
-      referer: String,
-      userAgent: String,
-      device: String,
-      isBot: { type: Boolean, default: false }
-    }
-  ],
   createdAt: {
     type: Date,
     default: Date.now

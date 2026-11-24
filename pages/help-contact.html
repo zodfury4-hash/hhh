@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Engineering Support | HEA Link Help</title>
+  <meta name="description" content="Submit a support inquiry or report an issue directly to the HEA Link engineering and customer operations team.">
+  <link rel="icon" type="image/png" href="/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/landing.css">
+  <style>
+    :root {
+      --c-bg: #f8fafc;
+      --c-border: #e2e8f0;
+      --c-primary: #0070f3;
+      --c-text: #0b132b;
+      --c-muted: #64748b;
+    }
+    body {
+      background: var(--c-bg); color: var(--c-text);
+      font-family: 'Poppins', sans-serif; margin: 0; padding: 0; min-height: 100vh;
+      display: flex; flex-direction: column;
+    }
+    .c-nav {
+      background: #ffffff; border-bottom: 1px solid var(--c-border);
+      padding: 14px 24px; position: sticky; top: 0; z-index: 100;
+    }
+    .c-nav-in {
+      max-width: 1240px; margin: 0 auto; display: flex;
+      align-items: center; justify-content: space-between;
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; font-size: 1.25rem; font-weight: 800; color: var(--c-primary);
+    }
+    .c-hero {
+      padding: 48px 24px 24px; text-align: center;
+    }
+    .c-hero h1 { font-size: 2.2rem; font-weight: 800; margin: 0 0 8px; }
+    .c-hero p { color: var(--c-muted); margin: 0 auto; max-width: 500px; }
+    .c-card {
+      max-width: 640px; margin: 0 auto 60px; background: #ffffff;
+      border: 1.5px solid var(--c-border); border-radius: 16px; padding: 36px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.03); width: 100%; box-sizing: border-box;
+    }
+    .form-group { margin-bottom: 20px; display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 0.85rem; font-weight: 700; }
+    .form-input, .form-select, .form-textarea {
+      width: 100%; border: 1.5px solid var(--c-border); border-radius: 8px;
+      font-family: inherit; font-size: 0.92rem; padding: 10px 14px; box-sizing: border-box;
+      outline: none; transition: border-color 0.15s;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--c-primary); }
+    .btn-submit {
+      width: 100%; height: 46px; background: var(--c-primary); color: #fff;
+      border: none; border-radius: 8px; font-weight: 700; font-size: 1rem;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .btn-submit:hover { background: #0056b3; }
+    .alert-success {
+      display: none; padding: 16px; background: #ecfdf5; border: 1px solid #10b981;
+      border-radius: 8px; color: #065f46; font-size: 0.92rem; margin-bottom: 20px;
+    }
+    .alert-error {
+      display: none; padding: 16px; background: #fef2f2; border: 1px solid #ef4444;
+      border-radius: 8px; color: #991b1b; font-size: 0.92rem; margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header class="c-nav">
+    <div class="c-nav-in">
+      <a class="nav-brand" href="/">
+        <svg width="30" height="20" viewBox="0 0 54 36" fill="none">
+          <path d="M15.5 8C10.25 8 6 12.25 6 17.5C6 22.75 10.25 27 15.5 27C21.2 27 24.6 20.8 27 17.5C29.4 14.2 32.8 8 38.5 8C43.75 8 48 12.25 48 17.5C48 22.75 43.75 27 38.5 27C32.8 27 29.4 20.8 27 17.5C24.6 14.2 21.2 8 15.5 8Z" stroke="#0070f3" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>HEA Link Support</span>
+      </a>
+      <a href="/help" style="color:var(--c-primary);text-decoration:none;font-weight:700;font-size:0.9rem;">← Back to Help Hub</a>
+    </div>
+  </header>
+
+  <section class="c-hero">
+    <h1>Submit a Support Request</h1>
+    <p>We typically respond within 24 business hours.</p>
+  </section>
+
+  <main style="padding:0 24px;">
+    <div class="c-card">
+      <div id="alertSuccess" class="alert-success"></div>
+      <div id="alertError" class="alert-error"></div>
+
+      <form id="supportForm">
+        <!-- Hidden Honeypot Field -->
+        <div style="display:none !important;" aria-hidden="true">
+          <input type="text" name="website_hp" id="inputHp" tabindex="-1" autocomplete="off">
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="form-group">
+            <label for="inputName">Your Full Name *</label>
+            <input type="text" id="inputName" class="form-input" placeholder="Sarah Connor" required>
+          </div>
+          <div class="form-group">
+            <label for="inputEmail">Work Email *</label>
+            <input type="email" id="inputEmail" class="form-input" placeholder="sarah@company.com" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="inputCategory">Inquiry Category *</label>
+          <select id="inputCategory" class="form-select">
+            <option value="technical">Technical &amp; Bugs</option>
+            <option value="api">Developer API &amp; Webhooks</option>
+            <option value="billing">Billing &amp; Stripe Invoices</option>
+            <option value="abuse">Report Abuse / Malicious Link</option>
+            <option value="general" selected>General Question</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="inputSubject">Subject *</label>
+          <input type="text" id="inputSubject" class="form-input" placeholder="Brief summary of your inquiry" required>
+        </div>
+
+        <div class="form-group">
+          <label for="inputMessage">Message *</label>
+          <textarea id="inputMessage" class="form-textarea" rows="5" placeholder="Please describe what you are experiencing with steps to reproduce or affected short links..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn-submit" id="btnSubmit">Submit Support Ticket →</button>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    (function() {
+      const form = document.getElementById('supportForm');
+      const btn = document.getElementById('btnSubmit');
+      const alertSuccess = document.getElementById('alertSuccess');
+      const alertError = document.getElementById('alertError');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        alertSuccess.style.display = 'none';
+        alertError.style.display = 'none';
+
+        btn.disabled = true;
+        btn.textContent = 'Submitting Ticket...';
+
+        const payload = {
+          name: document.getElementById('inputName').value.trim(),
+          email: document.getElementById('inputEmail').value.trim(),
+          category: document.getElementById('inputCategory').value,
+          subject: document.getElementById('inputSubject').value.trim(),
+          message: document.getElementById('inputMessage').value.trim(),
+          honeypot: document.getElementById('inputHp').value
+        };
+
+        try {
+          const res = await fetch('/api/support', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            alertSuccess.innerHTML = '<b>Ticket Submitted Successfully!</b><br>Reference ID: <code>' + data.ticketId + '</code>. A confirmation has been emailed to ' + payload.email + '.';
+            alertSuccess.style.display = 'block';
+            form.reset();
+          } else {
+            alertError.textContent = data.error || 'Failed to submit ticket. Please check your inputs.';
+            alertError.style.display = 'block';
+          }
+        } catch (err) {
+          alertError.textContent = 'Network error: ' + err.message;
+          alertError.style.display = 'block';
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Submit Support Ticket →';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

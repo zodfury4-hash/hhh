@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Developer REST API v1 | HEA Link Documentation & Live Console</title>
+  <meta name="description" content="Integrate URL shortening, vector QR codes, branded custom domains, and real-time click telemetry into your applications with the HEA Link v1 REST API.">
+  <link rel="icon" type="image/png" href="/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/landing.css">
+  <style>
+    :root {
+      --dev-bg: #f8fafc;
+      --dev-card-bg: #ffffff;
+      --dev-border: #e2e8f0;
+      --dev-primary: #0070f3;
+      --dev-primary-hover: #0056b3;
+      --dev-text: #0b132b;
+      --dev-muted: #64748b;
+      --dev-code-bg: #0f172a;
+      --dev-code-text: #e2e8f0;
+      --dev-success: #10b981;
+      --dev-warning: #f59e0b;
+      --dev-error: #ef4444;
+    }
+    body {
+      background: var(--dev-bg);
+      color: var(--dev-text);
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    code, pre {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .dev-nav {
+      background: #ffffff;
+      border-bottom: 1px solid var(--dev-border);
+      padding: 14px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .dev-nav-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--dev-primary);
+    }
+    .nav-brand .badge {
+      background: rgba(0, 112, 243, 0.1);
+      color: var(--dev-primary);
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-left: 6px;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .nav-link {
+      color: var(--dev-muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 600;
+      transition: color 0.15s;
+    }
+    .nav-link:hover {
+      color: var(--dev-primary);
+    }
+    .nav-btn {
+      background: var(--dev-primary);
+      color: #ffffff;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .nav-btn:hover {
+      background: var(--dev-primary-hover);
+    }
+    .dev-layout {
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 32px;
+      padding: 32px 24px 64px;
+      box-sizing: border-box;
+      flex: 1;
+    }
+    @media (max-width: 1024px) {
+      .dev-layout {
+        grid-template-columns: 1fr;
+      }
+      .dev-sidebar {
+        display: none;
+      }
+    }
+    /* Sticky Sidebar */
+    .dev-sidebar {
+      position: sticky;
+      top: 86px;
+      height: calc(100vh - 110px);
+      overflow-y: auto;
+      padding-right: 16px;
+    }
+    .sidebar-section {
+      margin-bottom: 24px;
+    }
+    .sidebar-title {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--dev-muted);
+      margin-bottom: 8px;
+    }
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      color: #334155;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border-radius: 6px;
+      transition: all 0.15s;
+    }
+    .sidebar-item:hover, .sidebar-item.active {
+      background: #eff6ff;
+      color: var(--dev-primary);
+      font-weight: 600;
+    }
+    .sidebar-item .method {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+    .method-get { background: #e0f2fe; color: #0284c7; }
+    .method-post { background: #dcfce7; color: #16a34a; }
+    .method-patch { background: #fef3c7; color: #d97706; }
+    .method-delete { background: #fee2e2; color: #dc2626; }
+
+    /* Content Area */
+    .dev-content {
+      min-width: 0;
+    }
+    .hero-banner {
+      background: linear-gradient(135deg, #0b132b 0%, #1c2a4f 100%);
+      color: #ffffff;
+      padding: 40px 36px;
+      border-radius: 16px;
+      margin-bottom: 40px;
+      box-shadow: 0 10px 30px -10px rgba(11, 19, 43, 0.3);
+    }
+    .hero-banner h1 {
+      margin: 0 0 12px;
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .hero-banner p {
+      margin: 0 0 24px;
+      color: #94a3b8;
+      font-size: 1.05rem;
+      max-width: 760px;
+      line-height: 1.6;
+    }
+    .hero-badges {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 6px 14px;
+      border-radius: 99px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #ffffff;
+    }
+    .doc-section {
+      background: #ffffff;
+      border: 1px solid var(--dev-border);
+      border-radius: 14px;
+      padding: 28px 32px;
+      margin-bottom: 32px;
+      box-shadow: 0 4px 14px -2px rgba(15, 23, 42, 0.04);
+    }
+    .doc-section h2 {
+      margin: 0 0 8px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .doc-section p {
+      color: #475569;
+      line-height: 1.6;
+      margin: 0 0 16px;
+      font-size: 0.95rem;
+    }
+
+    /* Key-Value Tables */
+    .param-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 24px;
+      font-size: 0.88rem;
+    }
+    .param-table th {
+      text-align: left;
+      padding: 10px 14px;
+      background: #f8fafc;
+      border-bottom: 2px solid var(--dev-border);
+      color: var(--dev-muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .param-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--dev-border);
+      vertical-align: top;
+    }
+    .param-table code {
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #0f172a;
+      font-size: 0.82rem;
+    }
+    .param-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 6px;
+    }
+    .badge-req { background: #fee2e2; color: #dc2626; }
+    .badge-opt { background: #f1f5f9; color: #64748b; }
+
+    /* Code Block Containers */
+    .code-box {
+      background: var(--dev-code-bg);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 16px 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
+    }
+    .code-tabs {
+      display: flex;
+      gap: 6px;
+    }
+    .code-tab-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .code-tab-btn.active, .code-tab-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+    }
+    .code-pre {
+      margin: 0;
+      padding: 16px;
+      font-size: 0.85rem;
+      color: var(--dev-code-text);
+      overflow-x: auto;
+      line-height: 1.6;
+    }
+
+    /* Live Interactive Console Widget */
+    .console-card {
+      background: #ffffff;
+      border: 2px solid var(--dev-primary);
+      border-radius: 14px;
+      padding: 28px;
+      margin-top: 32px;
+      box-shadow: 0 10px 30px -4px rgba(0, 112, 243, 0.12);
+    }
+    .console-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .console-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #0b132b;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .console-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 900px) {
+      .console-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .field-group {
+      margin-bottom: 16px;
+    }
+    .field-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .field-input, .field-select, .field-textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px 14px;
+      border: 1px solid var(--dev-border);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      background: #f8fafc;
+      transition: all 0.15s;
+    }
+    .field-input:focus, .field-select:focus, .field-textarea:focus {
+      outline: none;
+      border-color: var(--dev-primary);
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.15);
+    }
+    .field-textarea {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    .send-btn {
+      background: var(--dev-primary);
+      color: #ffffff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s;
+    }
+    .send-btn:hover {
+      background: var(--dev-primary-hover);
+      box-shadow: 0 4px 12px rgba(0, 112, 243, 0.3);
+    }
+    .send-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .response-pane {
+      background: #0f172a;
+      border-radius: 10px;
+      border: 1px solid #1e293b;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 380px;
+      box-sizing: border-box;
+    }
+    .response-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #334155;
+      margin-bottom: 12px;
+      font-size: 0.8rem;
+    }
+    .status-pill {
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 0.78rem;
+    }
+    .status-2xx { background: #064e3b; color: #34d399; }
+    .status-4xx { background: #7f1d1d; color: #f87171; }
+    .status-5xx { background: #7f1d1d; color: #f87171; }
+    .status-idle { background: #334155; color: #94a3b8; }
+    .latency-tag {
+      color: #94a3b8;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .response-body-pre {
+      margin: 0;
+      flex: 1;
+      overflow: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+    .footer {
+      background: #ffffff;
+      border-top: 1px solid var(--dev-border);
+      padding: 24px;
+      text-align: center;
+      color: var(--dev-muted);
+      font-size: 0.88rem;
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Navigation -->
+  <nav class="dev-nav">
+    <div class="dev-nav-inner">
+      <a href="/" class="nav-brand">
+        <span>🔗 HEA Link</span>
+        <span class="badge">API v1</span>
+      </a>
+      <div class="nav-links">
+        <a href="#quickstart" class="nav-link">Quickstart</a>
+        <a href="#authentication" class="nav-link">Auth &amp; Keys</a>
+        <a href="#endpoints" class="nav-link">Endpoints</a>
+        <a href="#try-it" class="nav-link" style="color:var(--dev-primary);font-weight:700;">Try It Console</a>
+        <a href="/api/v1/openapi.json" target="_blank" class="nav-link">OpenAPI 3.1 ↗</a>
+        <a href="/app.html#keys" class="nav-btn">Manage API Keys</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Docs Grid -->
+  <div class="dev-layout">
+    <!-- Left Navigation Sidebar -->
+    <aside class="dev-sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-title">Getting Started</div>
+        <a href="#overview" class="sidebar-item active">Overview</a>
+        <a href="#quickstart" class="sidebar-item">Quickstart Guide</a>
+        <a href="#authentication" class="sidebar-item">Authentication &amp; Scopes</a>
+        <a href="#idempotency" class="sidebar-item">Idempotent Requests</a>
+        <a href="#rate-limits" class="sidebar-item">Rate Limits &amp; Headers</a>
+        <a href="#pagination" class="sidebar-item">Cursor Pagination</a>
+        <a href="#errors" class="sidebar-item">Error Format</a>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-title">v1 Core Endpoints</div>
+        <a href="#ep-create-link" class="sidebar-item">
+          <span class="method method-post">POST</span>
+          <span>Create Link</span>
+        </a>
+        <a href="#ep-list-links" class="sidebar-item">
+          <span class="method method-get">GET</span>
+          <span>List Links</span>
+        </a>
+        <a href="#ep-get-link" class="sidebar-item">
+          <span class="method method-get">GET</span>
+          <span>Get Link</span>
+        </a>
+        <a href="#ep-update-link" class="sidebar-item">
+          <span class="method method-patch">PATCH</span>
+          <span>Update Link</span>
+        </a>
+        <a href="#ep-delete-link" class="sidebar-item">
+          <span class="method method-delete">DEL</span>
+          <span>Delete Link</span>
+        </a>
+        <a href="#ep-link-analytics" class="sidebar-item">
+          <span class="method method-get">GET</span>
+          <span>Link Analytics</span>
+        </a>
+        <a href="#ep-analytics" class="sidebar-item">
+          <span class="method method-get">GET</span>
+          <span>Account Analytics</span>
+        </a>
+        <a href="#ep-qr" class="sidebar-item">
+          <span class="method method-post">POST</span>
+          <span>Generate QR</span>
+        </a>
+        <a href="#ep-domains" class="sidebar-item">
+          <span class="method method-get">GET</span>
+          <span>Custom Domains</span>
+        </a>
+        <a href="#ep-me" class="sidebar-item">
+          <span class="method method-get">GET</span>
+          <span>Verify Token/Key</span>
+        </a>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-title">Interactive Tools</div>
+        <a href="#try-it" class="sidebar-item" style="color:var(--dev-primary);font-weight:700;">▶ Live "Try It" Console</a>
+        <a href="/api/v1/openapi.json" target="_blank" class="sidebar-item">📄 OpenAPI Specification</a>
+      </div>
+    </aside>
+
+    <!-- Content Pane -->
+    <main class="dev-content">
+      <!-- Hero Banner -->
+      <section class="hero-banner" id="overview">
+        <h1>HEA Link Developer REST API v1</h1>
+        <p>Integrate ultra-fast URL shortening, dynamic vector QR codes, branded custom domains, and real-time click telemetry directly into your production backend, scripts, and automation workflows.</p>
+        <div class="hero-badges">
+          <div class="hero-badge">⚡ Base URL: <code>https://hea.link/api/v1</code></div>
+          <div class="hero-badge">🔑 Scoped API Keys (Live &amp; Sandbox)</div>
+          <div class="hero-badge">🔄 24h Idempotency Replay</div>
+          <div class="hero-badge">📐 OpenAPI 3.1.0 Compliant</div>
+        </div>
+      </section>
+
+      <!-- Quickstart Section -->
+      <section class="doc-section" id="quickstart">
+        <h2>🚀 Quickstart</h2>
+        <p>Start shortening links in under 60 seconds with our official REST endpoints. You'll need an active API key to authenticate.</p>
+        <ol style="color:#475569;line-height:1.8;padding-left:20px;margin-bottom:20px;">
+          <li><b>Generate an API Key:</b> Visit <a href="/app.html#keys" style="color:var(--dev-primary);font-weight:600;">Dashboard &gt; API Keys</a> or make a request to <code>POST /api/keys</code> to create a key with <code>links:write</code> and <code>links:read</code> scopes. Use <code>hea_test_...</code> for staging/CI environments and <code>hea_live_...</code> for production.</li>
+          <li><b>Send Your First Request:</b> Pass your secret key in the <code>Authorization: Bearer &lt;key&gt;</code> or <code>X-API-Key: &lt;key&gt;</code> header.</li>
+        </ol>
+
+        <div class="code-box">
+          <div class="code-header">
+            <div class="code-tabs">
+              <button type="button" class="code-tab-btn active" onclick="switchSnippet(this, 'qs-curl')">cURL</button>
+              <button type="button" class="code-tab-btn" onclick="switchSnippet(this, 'qs-node')">Node.js</button>
+              <button type="button" class="code-tab-btn" onclick="switchSnippet(this, 'qs-python')">Python</button>
+            </div>
+            <button type="button" class="copy-btn" onclick="copySnippetText(this)">Copy</button>
+          </div>
+          <pre class="code-pre" id="qs-curl">curl -X POST https://hea.link/api/v1/links \
+  -H "Authorization: Bearer hea_live_YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  -d '{
+    "dest": "https://store.yourbrand.com/products/summer26",
+    "title": "Summer Campaign",
+    "tags": ["summer", "promo"]
+  }'</pre>
+          <pre class="code-pre" id="qs-node" style="display:none;">// Node.js 18+ native fetch
+const res = await fetch('https://hea.link/api/v1/links', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer ' + process.env.HEA_API_KEY,
+    'Content-Type': 'application/json',
+    'Idempotency-Key': crypto.randomUUID()
+  },
+  body: JSON.stringify({
+    dest: 'https://store.yourbrand.com/products/summer26',
+    title: 'Summer Campaign',
+    tags: ['summer', 'promo']
+  })
+});
+const link = await res.json();
+console.log('Short URL:', link.shortUrl);</pre>
+          <pre class="code-pre" id="qs-python" style="display:none;"># Python 3 requests
+import requests
+import uuid
+
+res = requests.post(
+    'https://hea.link/api/v1/links',
+    headers={
+        'Authorization': f'Bearer {API_KEY}',
+        'Content-Type': 'application/json',
+        'Idempotency-Key': str(uuid.uuid4())
+    },
+    json={
+        'dest': 'https://store.yourbrand.com/products/summer26',
+        'title': 'Summer Campaign',
+        'tags': ['summer', 'promo']
+    }
+)
+print(res.json()['shortUrl'])</pre>
+        </div>
+      </section>
+
+      <!-- Authentication Section -->
+      <section class="doc-section" id="authentication">
+        <h2>🔑 Authentication &amp; Permissions</h2>
+        <p>The HEA Link API uses secret API keys to authenticate requests. Provide your key in the HTTP <code>Authorization</code> header using the Bearer scheme, or as an <code>X-API-Key</code> header.</p>
+        <p>Never commit secret API keys to public repositories or expose them in client-side mobile/browser applications.</p>
+
+        <h3 style="font-size:1.1rem;margin:20px 0 8px;">Key Prefixes &amp; Test Sandbox Mode</h3>
+        <table class="param-table">
+          <thead>
+            <tr>
+              <th>Prefix</th>
+              <th>Environment</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>hea_live_...</code></td>
+              <td><b>Production</b></td>
+              <td>Live requests targeting real links, live custom domains, and public click telemetry.</td>
+            </tr>
+            <tr>
+              <td><code>hea_test_...</code></td>
+              <td><b>Test Sandbox</b></td>
+              <td>Isolated test sandbox. Resources created with test keys are marked <code>isTest: true</code> and will never pollute production metrics or real link lists.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 style="font-size:1.1rem;margin:20px 0 8px;">Granular API Scopes</h3>
+        <table class="param-table">
+          <thead>
+            <tr>
+              <th>Scope</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>links:read</code></td>
+              <td>List and view short link details, destination URLs, tags, and settings.</td>
+            </tr>
+            <tr>
+              <td><code>links:write</code></td>
+              <td>Create, update, tag, and delete short links.</td>
+            </tr>
+            <tr>
+              <td><code>analytics:read</code></td>
+              <td>Retrieve click counts, geo-breakdown, referrer, and device telemetry.</td>
+            </tr>
+            <tr>
+              <td><code>qr:write</code></td>
+              <td>Generate dynamic vector QR codes (SVG, PNG, Data URIs).</td>
+            </tr>
+            <tr>
+              <td><code>domains:read</code></td>
+              <td>List registered branded custom domains and DNS verification status.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Idempotency Section -->
+      <section class="doc-section" id="idempotency">
+        <h2>🔄 Idempotent Requests</h2>
+        <p>The API supports idempotency for <code>POST</code> and <code>PATCH</code> requests to prevent accidental duplicate actions caused by network timeouts or automated retries.</p>
+        <p>To perform an idempotent request, attach a unique string in the <code>Idempotency-Key</code> header (such as a UUID v4). If a request with the same key is received within <b>24 hours</b>, the server returns the cached response with the header <code>X-Cache: HIT-Idempotency</code> without re-executing business logic.</p>
+      </section>
+
+      <!-- Rate Limits Section -->
+      <section class="doc-section" id="rate-limits">
+        <h2>⏱️ Rate Limits &amp; Response Headers</h2>
+        <p>API requests are throttled per API key on a 60-second sliding window based on your plan tier:</p>
+        <table class="param-table">
+          <thead>
+            <tr>
+              <th>Plan Tier</th>
+              <th>Rate Limit</th>
+              <th>Burst Allowance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>Free</b></td>
+              <td>60 requests / minute</td>
+              <td>10 req / sec</td>
+            </tr>
+            <tr>
+              <td><b>Pro</b></td>
+              <td>300 requests / minute</td>
+              <td>30 req / sec</td>
+            </tr>
+            <tr>
+              <td><b>Enterprise</b></td>
+              <td>1,200 requests / minute</td>
+              <td>100 req / sec</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>Every API response includes standard HTTP rate limit headers:</p>
+        <ul style="color:#475569;line-height:1.7;">
+          <li><code>X-RateLimit-Limit</code>: The maximum number of requests allowed in the current window.</li>
+          <li><code>X-RateLimit-Remaining</code>: The number of requests remaining in the current window.</li>
+          <li><code>X-RateLimit-Reset</code>: Unix timestamp (in seconds) when the current window resets.</li>
+          <li><code>X-Request-Id</code>: Unique trace ID assigned to every request for debugging.</li>
+        </ul>
+        <p>When the rate limit is exceeded, the server responds with <b>HTTP 429 Too Many Requests</b> and a <code>Retry-After</code> header indicating the number of seconds to back off.</p>
+      </section>
+
+      <!-- Pagination Section -->
+      <section class="doc-section" id="pagination">
+        <h2>📄 Cursor Pagination</h2>
+        <p>List endpoints (like <code>GET /api/v1/links</code>) use cursor-based pagination for high performance and consistent result streaming. Pass <code>limit</code> (default 20, max 100) and <code>cursor</code> query parameters.</p>
+        <pre class="code-pre" style="background:#f1f5f9;color:#0b132b;border:1px solid #cbd5e1;border-radius:8px;">GET /api/v1/links?limit=20&amp;cursor=lnk_65e12f90a
+
+{
+  "links": [...],
+  "pagination": {
+    "hasMore": true,
+    "nextCursor": "lnk_65e12f90b",
+    "total": 142
+  }
+}</pre>
+      </section>
+
+      <!-- Error Handling Section -->
+      <section class="doc-section" id="errors">
+        <h2>⚠️ Error Handling &amp; Format</h2>
+        <p>All client and server errors return standard JSON envelopes with descriptive codes, human-readable messages, and tracking request IDs:</p>
+        <pre class="code-pre" style="background:#0f172a;color:#f87171;border-radius:8px;">{
+  "error": {
+    "code": "INVALID_ARGUMENT",
+    "message": "Destination URL must be a valid public http/https address.",
+    "details": { "field": "dest" }
+  },
+  "requestId": "req_89f02b1c4e"
+}</pre>
+      </section>
+
+      <!-- Endpoints Details -->
+      <section class="doc-section" id="endpoints">
+        <h2>📚 Core v1 Endpoints</h2>
+
+        <!-- Endpoint: POST /api/v1/links -->
+        <div style="border-top:1px solid #e2e8f0;padding-top:24px;margin-top:24px;" id="ep-create-link">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <span class="method method-post">POST</span>
+            <code style="font-size:1.1rem;font-weight:700;">/api/v1/links</code>
+          </div>
+          <p>Create a shortened URL with optional custom slug, tags, password protection, and expiration date.</p>
+          <table class="param-table">
+            <thead>
+              <tr>
+                <th>Body Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>dest</code> <span class="param-badge badge-req">required</span></td>
+                <td>string</td>
+                <td>Target destination URL (HTTP or HTTPS).</td>
+              </tr>
+              <tr>
+                <td><code>customSlug</code> <span class="param-badge badge-opt">optional</span></td>
+                <td>string</td>
+                <td>Custom alphanumeric slug (3-40 chars, hyphens allowed).</td>
+              </tr>
+              <tr>
+                <td><code>title</code> <span class="param-badge badge-opt">optional</span></td>
+                <td>string</td>
+                <td>Friendly label for dashboard and reports.</td>
+              </tr>
+              <tr>
+                <td><code>tags</code> <span class="param-badge badge-opt">optional</span></td>
+                <td>array&lt;string&gt;</td>
+                <td>Array of tag strings for categorization.</td>
+              </tr>
+              <tr>
+                <td><code>password</code> <span class="param-badge badge-opt">optional</span></td>
+                <td>string</td>
+                <td>Passcode required before visitors are redirected.</td>
+              </tr>
+              <tr>
+                <td><code>expiresAt</code> <span class="param-badge badge-opt">optional</span></td>
+                <td>ISO-8601 string</td>
+                <td>Timestamp when the link will automatically expire (HTTP 410).</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Endpoint: GET /api/v1/links -->
+        <div style="border-top:1px solid #e2e8f0;padding-top:24px;margin-top:24px;" id="ep-list-links">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <span class="method method-get">GET</span>
+            <code style="font-size:1.1rem;font-weight:700;">/api/v1/links</code>
+          </div>
+          <p>List links with cursor pagination, tag filtering, and search.</p>
+        </div>
+
+        <!-- Endpoint: GET /api/v1/links/:slug -->
+        <div style="border-top:1px solid #e2e8f0;padding-top:24px;margin-top:24px;" id="ep-get-link">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <span class="method method-get">GET</span>
+            <code style="font-size:1.1rem;font-weight:700;">/api/v1/links/:slug</code>
+          </div>
+          <p>Retrieve single link configuration, click count, destination, and creation metadata.</p>
+        </div>
+
+        <!-- Endpoint: PATCH /api/v1/links/:slug -->
+        <div style="border-top:1px solid #e2e8f0;padding-top:24px;margin-top:24px;" id="ep-update-link">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <span class="method method-patch">PATCH</span>
+            <code style="font-size:1.1rem;font-weight:700;">/api/v1/links/:slug</code>
+          </div>
+          <p>Update destination URL, title, tags, password protection, or expiration of an existing link.</p>
+        </div>
+
+        <!-- Endpoint: DELETE /api/v1/links/:slug -->
+        <div style="border-top:1px solid #e2e8f0;padding-top:24px;margin-top:24px;" id="ep-delete-link">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <span class="method method-delete">DELETE</span>
+            <code style="font-size:1.1rem;font-weight:700;">/api/v1/links/:slug</code>
+          </div>
+          <p>Permanently remove a short link and release its custom slug.</p>
+        </div>
+
+        <!-- Endpoint: GET /api/v1/links/:slug/analytics -->
+        <div style="border-top:1px solid #e2e8f0;padding-top:24px;margin-top:24px;" id="ep-link-analytics">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <span class="method method-get">GET</span>
+            <code style="font-size:1.1rem;font-weight:700;">/api/v1/links/:slug/analytics</code>
+          </div>
+          <p>Fetch click telemetry, countries, referrer domains, and devices for a single short link.</p>
+        </div>
+
+        <!-- Endpoint: GET /api/v1/analytics -->
+        <div style="border-top:1px solid #e2e8f0;padding-top:24px;margin-top:24px;" id="ep-analytics">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <span class="method method-get">GET</span>
+            <code style="font-size:1.1rem;font-weight:700;">/api/v1/analytics</code>
+          </div>
+          <p>Fetch account-wide aggregate click telemetry, top performers, and timeline breakdowns.</p>
+        </div>
+
+        <!-- Endpoint: POST /api/v1/qr -->
+        <div style="border-top:1px solid #e2e8f0;padding-top:24px;margin-top:24px;" id="ep-qr">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <span class="method method-post">POST</span>
+            <code style="font-size:1.1rem;font-weight:700;">/api/v1/qr</code>
+          </div>
+          <p>Generate high-resolution vector QR code payload (PNG, SVG, or Data URL) with custom styling.</p>
+        </div>
+
+        <!-- Endpoint: GET /api/v1/domains -->
+        <div style="border-top:1px solid #e2e8f0;padding-top:24px;margin-top:24px;" id="ep-domains">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <span class="method method-get">GET</span>
+            <code style="font-size:1.1rem;font-weight:700;">/api/v1/domains</code>
+          </div>
+          <p>List authenticated branded custom CNAME domains and DNS verification status.</p>
+        </div>
+
+        <!-- Endpoint: GET /api/v1/me -->
+        <div style="border-top:1px solid #e2e8f0;padding-top:24px;margin-top:24px;" id="ep-me">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <span class="method method-get">GET</span>
+            <code style="font-size:1.1rem;font-weight:700;">/api/v1/me</code>
+          </div>
+          <p>Validate your API key or token, view account tier, scopes, and sandbox status.</p>
+        </div>
+      </section>
+
+      <!-- Interactive "Try It" Live Console -->
+      <section class="console-card" id="try-it">
+        <div class="console-header">
+          <div class="console-title">
+            <span>🎮 Interactive "Try It" Live Console</span>
+          </div>
+          <div>
+            <a href="/api/v1/openapi.json" target="_blank" style="font-size:0.8rem;color:var(--dev-primary);font-weight:700;text-decoration:none;">OpenAPI 3.1 Spec ↗</a>
+          </div>
+        </div>
+        <p style="color:#64748b;margin:0 0 20px;font-size:0.9rem;">
+          Test live requests against the actual v1 API endpoints. Responses reflect real database state, status codes, latency, and response headers.
+        </p>
+
+        <div class="console-grid">
+          <!-- Request Builder Column -->
+          <form id="tryItForm" onsubmit="executeConsoleRequest(event)">
+            <div class="field-group">
+              <label class="field-label" for="consoleApiKey">API Key or Bearer Token</label>
+              <input type="password" id="consoleApiKey" class="field-input" placeholder="hea_live_... or hea_test_... or user JWT token" autocomplete="off" />
+              <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:0.75rem;color:#64748b;">
+                <span>Keys are never stored remotely.</span>
+                <button type="button" onclick="useSandboxDemoKey()" style="background:none;border:none;color:var(--dev-primary);font-weight:600;cursor:pointer;padding:0;">Use Demo Sandbox Key</button>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="consoleEndpoint">Target Endpoint</label>
+              <select id="consoleEndpoint" class="field-select" onchange="onEndpointChange()">
+                <option value="POST /api/v1/links">POST /api/v1/links (Create short link)</option>
+                <option value="GET /api/v1/links">GET /api/v1/links (List user links)</option>
+                <option value="GET /api/v1/links/:slug">GET /api/v1/links/:slug (Get link info)</option>
+                <option value="GET /api/v1/analytics">GET /api/v1/analytics (Overview metrics)</option>
+                <option value="POST /api/v1/qr">POST /api/v1/qr (Generate vector QR)</option>
+                <option value="GET /api/v1/domains">GET /api/v1/domains (List custom domains)</option>
+                <option value="GET /api/v1/me">GET /api/v1/me (Verify key identity)</option>
+              </select>
+            </div>
+
+            <div class="field-group" id="slugParamGroup" style="display:none;">
+              <label class="field-label" for="consoleSlug">Slug Parameter</label>
+              <input type="text" id="consoleSlug" class="field-input" placeholder="e.g. summer26" />
+            </div>
+
+            <div class="field-group" id="bodyParamGroup">
+              <label class="field-label" for="consoleBody">JSON Request Body</label>
+              <textarea id="consoleBody" class="field-textarea" rows="6">{
+  "dest": "https://store.yourbrand.com/products/summer26",
+  "title": "Summer Campaign Link",
+  "tags": ["summer", "promo"]
+}</textarea>
+            </div>
+
+            <button type="submit" class="send-btn" id="consoleSubmitBtn">
+              <span>▶ Send Request</span>
+            </button>
+          </form>
+
+          <!-- Response Viewer Column -->
+          <div class="response-pane">
+            <div class="response-meta">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span class="status-pill status-idle" id="consoleStatusPill">IDLE</span>
+                <span class="latency-tag" id="consoleLatencyTag">-- ms</span>
+              </div>
+              <button type="button" class="copy-btn" onclick="copyConsoleOutput()">Copy JSON</button>
+            </div>
+            <pre class="response-body-pre" id="consoleOutput">// Click "Send Request" to test endpoint live...</pre>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <div>&copy; 2026 HEA Link Inc. All developer APIs protected with SLA guarantees.</div>
+      <div style="display:flex;gap:16px;">
+        <a href="/" style="color:#64748b;text-decoration:none;">Home</a>
+        <a href="/integrations" style="color:#64748b;text-decoration:none;">Integrations</a>
+        <a href="/resources/utm-guide" style="color:#64748b;text-decoration:none;">UTM Guide</a>
+        <a href="/help" style="color:#64748b;text-decoration:none;">Help Center</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Try to auto-populate user token from localStorage if user is logged in
+    document.addEventListener('DOMContentLoaded', () => {
+      const storedToken = localStorage.getItem('token') || localStorage.getItem('hea_token');
+      if (storedToken) {
+        document.getElementById('consoleApiKey').value = storedToken;
+      }
+    });
+
+    function switchSnippet(btn, id) {
+      const box = btn.closest('.code-box');
+      box.querySelectorAll('.code-tab-btn').forEach(b => b.classList.remove('active'));
+      box.querySelectorAll('.code-pre').forEach(p => p.style.display = 'none');
+      btn.classList.add('active');
+      const target = document.getElementById(id);
+      if (target) target.style.display = 'block';
+    }
+
+    function copySnippetText(btn) {
+      const box = btn.closest('.code-box');
+      const activePre = Array.from(box.querySelectorAll('.code-pre')).find(p => p.style.display !== 'none');
+      if (activePre) {
+        navigator.clipboard.writeText(activePre.innerText);
+        const oldText = btn.innerText;
+        btn.innerText = 'Copied!';
+        setTimeout(() => { btn.innerText = oldText; }, 1500);
+      }
+    }
+
+    function useSandboxDemoKey() {
+      // Demo test key prompt
+      const keyInput = document.getElementById('consoleApiKey');
+      const promptKey = prompt('Enter your live or sandbox key, or generate one in Dashboard > API Keys:', 'hea_test_sandbox_demo');
+      if (promptKey) {
+        keyInput.value = promptKey;
+      }
+    }
+
+    function onEndpointChange() {
+      const select = document.getElementById('consoleEndpoint');
+      const val = select.value;
+      const slugGroup = document.getElementById('slugParamGroup');
+      const bodyGroup = document.getElementById('bodyParamGroup');
+      const bodyTextarea = document.getElementById('consoleBody');
+
+      if (val.includes(':slug')) {
+        slugGroup.style.display = 'block';
+      } else {
+        slugGroup.style.display = 'none';
+      }
+
+      if (val.startsWith('GET')) {
+        bodyGroup.style.display = 'none';
+      } else {
+        bodyGroup.style.display = 'block';
+        if (val.includes('/qr')) {
+          bodyTextarea.value = JSON.stringify({
+            data: "https://hea.link",
+            size: 256,
+            color: "#0070f3"
+          }, null, 2);
+        } else {
+          bodyTextarea.value = JSON.stringify({
+            dest: "https://store.yourbrand.com/products/summer26",
+            title: "Summer Campaign Link",
+            tags: ["summer", "promo"]
+          }, null, 2);
+        }
+      }
+    }
+
+    async function executeConsoleRequest(e) {
+      e.preventDefault();
+      const apiKey = document.getElementById('consoleApiKey').value.trim();
+      const endpointVal = document.getElementById('consoleEndpoint').value;
+      const [method, pathTemplate] = endpointVal.split(' ');
+      const slug = document.getElementById('consoleSlug').value.trim() || 'demo';
+      const bodyStr = document.getElementById('consoleBody').value;
+      const submitBtn = document.getElementById('consoleSubmitBtn');
+      const statusPill = document.getElementById('consoleStatusPill');
+      const latencyTag = document.getElementById('consoleLatencyTag');
+      const outputPre = document.getElementById('consoleOutput');
+
+      let urlPath = pathTemplate.replace(':slug', encodeURIComponent(slug));
+
+      submitBtn.disabled = true;
+      statusPill.className = 'status-pill status-idle';
+      statusPill.innerText = 'SENDING...';
+      latencyTag.innerText = '-- ms';
+      outputPre.innerText = '// Executing request to ' + method + ' ' + urlPath + '...';
+
+      const startTime = performance.now();
+      try {
+        const headers = {
+          'Content-Type': 'application/json',
+          'Idempotency-Key': 'try_' + Date.now().toString(36)
+        };
+        if (apiKey) {
+          headers['Authorization'] = 'Bearer ' + apiKey;
+        }
+
+        const reqOptions = {
+          method,
+          headers
+        };
+        if (method !== 'GET' && method !== 'HEAD' && bodyStr) {
+          reqOptions.body = bodyStr;
+        }
+
+        const res = await fetch(urlPath, reqOptions);
+        const duration = Math.round(performance.now() - startTime);
+        latencyTag.innerText = duration + ' ms';
+
+        let data = null;
+        const text = await res.text();
+        try {
+          data = JSON.parse(text);
+        } catch (_e) {
+          data = text;
+        }
+
+        if (res.status >= 200 && res.status < 300) {
+          statusPill.className = 'status-pill status-2xx';
+          statusPill.innerText = `${res.status} OK`;
+        } else if (res.status >= 400 && res.status < 500) {
+          statusPill.className = 'status-pill status-4xx';
+          statusPill.innerText = `${res.status} ${res.statusText || 'Error'}`;
+        } else {
+          statusPill.className = 'status-pill status-5xx';
+          statusPill.innerText = `${res.status} Server Error`;
+        }
+
+        outputPre.innerText = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
+      } catch (err) {
+        const duration = Math.round(performance.now() - startTime);
+        latencyTag.innerText = duration + ' ms';
+        statusPill.className = 'status-pill status-5xx';
+        statusPill.innerText = 'NETWORK ERROR';
+        outputPre.innerText = JSON.stringify({
+          error: {
+            code: 'FETCH_ERROR',
+            message: err.message
+          }
+        }, null, 2);
+      } finally {
+        submitBtn.disabled = false;
+      }
+    }
+
+    function copyConsoleOutput() {
+      const output = document.getElementById('consoleOutput').innerText;
+      navigator.clipboard.writeText(output);
+      alert('Response copied to clipboard!');
+    }
+  </script>
+</body>
+</html>

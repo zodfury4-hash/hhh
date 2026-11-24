@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Complete UTM Campaign Tracking Guide (GA4) | HEA Link</title>
+  <meta name="description" content="Master Google Analytics 4 (GA4) campaign tracking with UTM parameters. Free interactive UTM builder, channel templates for Meta, Google Ads, TikTok, and attribution best practices.">
+  <link rel="icon" type="image/png" href="/logo.png">
+  <link rel="canonical" href="https://healink.store/resources/utm-guide">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/landing.css">
+
+  <!-- Schema.org Article & FAQPage JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Article",
+        "@id": "https://healink.store/resources/utm-guide#article",
+        "isPartOf": {
+          "@type": "WebPage",
+          "@id": "https://healink.store/resources/utm-guide"
+        },
+        "headline": "The Complete UTM Campaign Tracking Guide for Google Analytics 4 (GA4)",
+        "description": "Learn how to architect, normalize, and track marketing campaigns across Meta, Google Ads, TikTok, LinkedIn, and email using UTM parameters and short links.",
+        "inLanguage": "en-US",
+        "author": {
+          "@type": "Organization",
+          "name": "HEA Link Growth Engineering Team",
+          "url": "https://healink.store"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "HEA Link",
+          "url": "https://healink.store",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://healink.store/logo.png"
+          }
+        },
+        "datePublished": "2026-01-15T08:00:00+00:00",
+        "dateModified": "2026-11-20T12:00:00+00:00"
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://healink.store/resources/utm-guide#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What are UTM parameters and why are they important?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "UTM (Urchin Tracking Module) parameters are five standard URL query tags (utm_source, utm_medium, utm_campaign, utm_term, utm_content) appended to destinations to inform web analytics tools like Google Analytics 4 (GA4) exactly where incoming traffic originated, which campaign generated it, and what creative was clicked."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Why does character casing matter in Google Analytics 4 (GA4)?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Google Analytics 4 is strictly case-sensitive. If you tag links with 'Facebook', 'facebook', and 'FACEBOOK', GA4 will treat them as three distinct traffic sources, fragmenting your reports. Always enforce lowercase conventions."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Do HEA Link short links preserve UTM tracking parameters during redirect?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. When you shorten a destination URL with UTM tags or pass dynamic parameters to your short link (e.g. hea.link/summer?utm_source=instagram), HEA Link performs a clean 301/302 HTTP redirect preserving all query parameters and anchor hashes without double-encoding."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What is the difference between utm_source and utm_medium?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "utm_source identifies the specific platform sending traffic (e.g. google, facebook, newsletter), whereas utm_medium describes the marketing channel mechanism (e.g. cpc, paid_social, email, referral)."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I use spaces in UTM parameters?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Never use spaces in UTM tags. Spaces encode to '%20' or '+' which causes broken links and messy analytics breakdowns. Use hyphens (e.g., 'summer-sale-2026') or underscores."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    :root {
+      --guide-bg: #f8fafc;
+      --guide-card-bg: #ffffff;
+      --guide-border: #e2e8f0;
+      --guide-primary: #0070f3;
+      --guide-primary-hover: #0056b3;
+      --guide-text: #0b132b;
+      --guide-muted: #64748b;
+      --guide-success: #10b981;
+      --guide-purple: #7928ca;
+    }
+    body {
+      background: var(--guide-bg);
+      color: var(--guide-text);
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    code, pre {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .guide-nav {
+      background: #ffffff;
+      border-bottom: 1px solid var(--guide-border);
+      padding: 14px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .guide-nav-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--guide-primary);
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .nav-link {
+      color: var(--guide-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: color 0.15s;
+    }
+    .nav-link:hover, .nav-link.active {
+      color: var(--guide-primary);
+    }
+    .nav-cta {
+      background: var(--guide-primary);
+      color: #ffffff !important;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+    }
+
+    .guide-hero {
+      padding: 56px 24px 36px;
+      text-align: center;
+      background: radial-gradient(circle at top, rgba(0, 112, 243, 0.08) 0%, transparent 60%);
+    }
+    .guide-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 112, 243, 0.1);
+      color: var(--guide-primary);
+      padding: 4px 14px;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+    .guide-title {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      line-height: 1.2;
+      margin: 0 0 16px;
+      color: var(--guide-text);
+    }
+    .guide-subtitle {
+      font-size: 1.1rem;
+      color: var(--guide-muted);
+      max-width: 780px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .guide-container {
+      max-width: 1200px;
+      margin: 0 auto 64px;
+      padding: 0 24px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Builder Card */
+    .builder-card {
+      background: #ffffff;
+      border: 1.5px solid var(--guide-border);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 10px 30px rgba(0, 112, 243, 0.05);
+      margin-bottom: 48px;
+    }
+    .builder-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .builder-header h2 {
+      margin: 0 0 6px;
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--guide-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .builder-header p {
+      margin: 0;
+      color: var(--guide-muted);
+      font-size: 0.9rem;
+    }
+
+    .preset-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .preset-btn {
+      background: #f1f5f9;
+      border: 1px solid var(--guide-border);
+      border-radius: 9999px;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--guide-text);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .preset-btn:hover {
+      background: rgba(0, 112, 243, 0.1);
+      border-color: var(--guide-primary);
+      color: var(--guide-primary);
+    }
+    .preset-btn.active {
+      background: var(--guide-primary);
+      color: #ffffff;
+      border-color: var(--guide-primary);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-group label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--guide-text);
+      display: flex;
+      justify-content: space-between;
+    }
+    .form-group label span.req {
+      color: #ef4444;
+    }
+    .form-group label span.hint {
+      color: var(--guide-muted);
+      font-weight: 400;
+    }
+    .form-input {
+      height: 42px;
+      padding: 0 14px;
+      border: 1.5px solid var(--guide-border);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      background: #ffffff;
+      color: var(--guide-text);
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .form-input:focus {
+      border-color: var(--guide-primary);
+      box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.12);
+    }
+
+    .builder-options {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      font-size: 0.85rem;
+      color: var(--guide-text);
+      font-weight: 600;
+    }
+    .builder-options input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--guide-primary);
+      cursor: pointer;
+    }
+
+    /* Output Console */
+    .output-box {
+      background: #0b132b;
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 20px;
+    }
+    .output-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .output-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+      text-transform: uppercase;
+    }
+    .output-code {
+      font-family: 'JetBrains Mono', monospace;
+      color: #38bdf8;
+      font-size: 0.88rem;
+      word-break: break-all;
+      display: block;
+      line-height: 1.5;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+    }
+    .btn-action.primary {
+      background: var(--guide-primary);
+      color: #ffffff;
+    }
+    .btn-action.primary:hover {
+      background: var(--guide-primary-hover);
+    }
+    .btn-action.secondary {
+      background: #ffffff;
+      border: 1.5px solid var(--guide-border);
+      color: var(--guide-text);
+    }
+    .btn-action.secondary:hover {
+      background: #f1f5f9;
+    }
+
+    /* Shorten Result Card */
+    .short-result-card {
+      margin-top: 18px;
+      padding: 16px 20px;
+      background: rgba(16, 185, 129, 0.08);
+      border: 1.5px solid rgba(16, 185, 129, 0.3);
+      border-radius: 12px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .short-result-info b {
+      color: #10b981;
+      font-size: 0.85rem;
+      display: block;
+      margin-bottom: 2px;
+    }
+    .short-result-info a {
+      color: var(--guide-primary);
+      font-size: 1.05rem;
+      font-weight: 800;
+      text-decoration: underline;
+    }
+
+    /* Guide Prose Section */
+    .guide-prose {
+      background: #ffffff;
+      border: 1px solid var(--guide-border);
+      border-radius: 16px;
+      padding: 40px;
+      line-height: 1.7;
+    }
+    .guide-prose h2 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      margin: 40px 0 16px;
+      color: var(--guide-text);
+      border-bottom: 2px solid var(--guide-border);
+      padding-bottom: 10px;
+    }
+    .guide-prose h2:first-of-type {
+      margin-top: 0;
+    }
+    .guide-prose h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 28px 0 12px;
+      color: var(--guide-primary);
+    }
+    .guide-prose p, .guide-prose li {
+      font-size: 0.98rem;
+      color: #334155;
+    }
+    .guide-prose ul, .guide-prose ol {
+      padding-left: 24px;
+      margin-bottom: 20px;
+    }
+    .guide-prose li {
+      margin-bottom: 8px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin: 24px 0;
+    }
+    table.guide-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    table.guide-table th {
+      background: #f1f5f9;
+      color: var(--guide-text);
+      font-weight: 700;
+      padding: 12px 14px;
+      text-align: left;
+      border: 1px solid var(--guide-border);
+    }
+    table.guide-table td {
+      padding: 12px 14px;
+      border: 1px solid var(--guide-border);
+      color: #334155;
+    }
+    table.guide-table tr:nth-child(even) td {
+      background: #fafcff;
+    }
+
+    .callout {
+      border-left: 4px solid var(--guide-primary);
+      background: rgba(0, 112, 243, 0.05);
+      padding: 16px 20px;
+      border-radius: 0 8px 8px 0;
+      margin: 24px 0;
+    }
+    .callout.warning {
+      border-left-color: #f59e0b;
+      background: rgba(245, 158, 11, 0.08);
+    }
+    .callout p {
+      margin: 0;
+      font-size: 0.92rem;
+    }
+
+    /* Template Cards */
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+      margin: 24px 0;
+    }
+    .template-card {
+      background: #f8fafc;
+      border: 1px solid var(--guide-border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+    .template-card h4 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--guide-text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .template-snippet {
+      background: #0b132b;
+      color: #38bdf8;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.8rem;
+      word-break: break-all;
+      margin: 8px 0 12px;
+      display: block;
+    }
+
+    /* FAQ Section */
+    .faq-item {
+      border-bottom: 1px solid var(--guide-border);
+      padding: 18px 0;
+    }
+    .faq-q {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--guide-text);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .faq-a {
+      margin-top: 10px;
+      color: #475569;
+      font-size: 0.93rem;
+      line-height: 1.6;
+    }
+
+    /* Footer */
+    .guide-footer {
+      background: #ffffff;
+      border-top: 1px solid var(--guide-border);
+      padding: 40px 24px;
+      text-align: center;
+      font-size: 0.88rem;
+      color: var(--guide-muted);
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <header class="guide-nav">
+    <div class="guide-nav-inner">
+      <a class="nav-brand" href="/">
+        <svg width="30" height="20" viewBox="0 0 54 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15.5 8C10.25 8 6 12.25 6 17.5C6 22.75 10.25 27 15.5 27C21.2 27 24.6 20.8 27 17.5C29.4 14.2 32.8 8 38.5 8C43.75 8 48 12.25 48 17.5C48 22.75 43.75 27 38.5 27C32.8 27 29.4 20.8 27 17.5C24.6 14.2 21.2 8 15.5 8Z" stroke="#0070f3" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>HEA Link</span>
+      </a>
+      <nav class="nav-links">
+        <a class="nav-link" href="/developers">Developers</a>
+        <a class="nav-link" href="/integrations">Integrations</a>
+        <a class="nav-link active" href="/resources/utm-guide">UTM Guide</a>
+        <a class="nav-link" href="/help">Help Center</a>
+        <a class="nav-link nav-cta" href="/#dashboard">Open Dashboard →</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="guide-hero">
+    <div class="guide-eyebrow">🎯 GA4 Growth Engineering</div>
+    <h1 class="guide-title">The Complete UTM Campaign Guide for GA4</h1>
+    <p class="guide-subtitle">
+      Eliminate tracking errors, prevent reporting splits in Google Analytics 4, and generate bulletproof short links with standard attribution tags.
+    </p>
+  </section>
+
+  <!-- Main Container -->
+  <div class="guide-container">
+
+    <!-- Interactive Live Builder Widget -->
+    <div class="builder-card" id="utmBuilderSection">
+      <div class="builder-header">
+        <div>
+          <h2>⚡ Live Interactive UTM Builder</h2>
+          <p>Configure attribution tags in real-time. Matches the dashboard UTM generator byte-for-byte.</p>
+        </div>
+      </div>
+
+      <!-- Quick Preset Buttons -->
+      <div class="preset-chips" id="presetChips">
+        <span style="font-size:0.8rem;font-weight:700;color:var(--guide-muted);align-self:center;margin-right:4px;">Presets:</span>
+        <button type="button" class="preset-btn" data-preset="google_ads">Google Ads</button>
+        <button type="button" class="preset-btn" data-preset="meta">Meta / Facebook</button>
+        <button type="button" class="preset-btn" data-preset="instagram">Instagram</button>
+        <button type="button" class="preset-btn" data-preset="tiktok">TikTok</button>
+        <button type="button" class="preset-btn" data-preset="linkedin">LinkedIn</button>
+        <button type="button" class="preset-btn" data-preset="newsletter">Email Newsletter</button>
+        <button type="button" class="preset-btn" data-preset="twitter">Twitter / X</button>
+      </div>
+
+      <!-- Inputs Form Grid -->
+      <div class="form-grid">
+        <div class="form-group" style="grid-column: 1 / -1;">
+          <label for="inputDest">Destination Website URL <span class="req">*</span> <span class="hint">(e.g. https://yourstore.com/summer-drop)</span></label>
+          <input type="url" id="inputDest" class="form-input" placeholder="https://yourstore.com/summer-collection?ref=123#hero" value="https://example.com/summer-drop?ref=partner#pricing">
+        </div>
+
+        <div class="form-group">
+          <label for="inputCampaign">Campaign Name (utm_campaign) <span class="req">*</span></label>
+          <input type="text" id="inputCampaign" class="form-input" placeholder="summer_launch_2026" value="summer_launch_2026">
+        </div>
+
+        <div class="form-group">
+          <label for="inputSource">Campaign Source (utm_source) <span class="req">*</span></label>
+          <input type="text" id="inputSource" class="form-input" placeholder="google, facebook, newsletter" value="facebook">
+        </div>
+
+        <div class="form-group">
+          <label for="inputMedium">Campaign Medium (utm_medium) <span class="req">*</span></label>
+          <input type="text" id="inputMedium" class="form-input" placeholder="cpc, paid_social, email" value="paid_social">
+        </div>
+
+        <div class="form-group">
+          <label for="inputTerm">Campaign Term (utm_term) <span class="hint">(optional keyword)</span></label>
+          <input type="text" id="inputTerm" class="form-input" placeholder="sneakers, summer_shoes" value="sneakers">
+        </div>
+
+        <div class="form-group">
+          <label for="inputContent">Campaign Content (utm_content) <span class="hint">(optional creative ID)</span></label>
+          <input type="text" id="inputContent" class="form-input" placeholder="carousel_v1, video_ad_2" value="carousel_v1">
+        </div>
+      </div>
+
+      <!-- Normalization Option Toggle -->
+      <div class="builder-options">
+        <input type="checkbox" id="chkNormalize" checked>
+        <label for="chkNormalize">Auto-normalize parameters (lowercase, hyphenate spaces, strip invalid symbols per GA4 rules)</label>
+      </div>
+
+      <!-- Live Generated Output Console -->
+      <div class="output-box">
+        <div class="output-top">
+          <span class="output-label">GENERATED TRACKED DESTINATION URL</span>
+          <span id="outputCharCount" style="font-size:0.75rem;color:#64748b;font-family:'JetBrains Mono',monospace;">0 chars</span>
+        </div>
+        <code class="output-code" id="outputPreview">https://example.com</code>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-row">
+        <button type="button" class="btn-action primary" id="btnShorten">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+          Shorten with HEA Link
+        </button>
+        <button type="button" class="btn-action secondary" id="btnCopy">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy Tagged URL
+        </button>
+      </div>
+
+      <!-- Shorten Result Display -->
+      <div class="short-result-card" id="shortResultCard">
+        <div class="short-result-info">
+          <b>⚡ SHORTENED HEA LINK CREATED:</b>
+          <a href="#" target="_blank" id="shortLinkAnchor">hea.link/xyz</a>
+        </div>
+        <button type="button" class="btn-action secondary" id="btnCopyShort" style="background:#ffffff;">
+          Copy Short Link 📋
+        </button>
+      </div>
+    </div>
+
+    <!-- Comprehensive Guide Prose Content -->
+    <article class="guide-prose">
+      <h2>1. The 5 Standard UTM Parameters Explained</h2>
+      <p>
+        UTM parameters are the industry-standard mechanism for marketing attribution. When a user clicks a tagged link, Google Analytics 4 (GA4), Mixpanel, and backend data warehouses read these parameters to map user acquisition accurately.
+      </p>
+
+      <div class="table-wrap">
+        <table class="guide-table">
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Requirement</th>
+              <th>Purpose</th>
+              <th>Standard Examples</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>utm_source</code></td>
+              <td><strong>Required</strong></td>
+              <td>Identifies the platform, search engine, or vendor sending traffic.</td>
+              <td><code>google</code>, <code>facebook</code>, <code>instagram</code>, <code>newsletter</code></td>
+            </tr>
+            <tr>
+              <td><code>utm_medium</code></td>
+              <td><strong>Required</strong></td>
+              <td>Describes the top-level marketing medium or distribution mechanism.</td>
+              <td><code>cpc</code>, <code>paid_social</code>, <code>email</code>, <code>affiliate</code>, <code>organic</code></td>
+            </tr>
+            <tr>
+              <td><code>utm_campaign</code></td>
+              <td><strong>Required</strong></td>
+              <td>The specific product promotion, seasonal sale, or strategic launch.</td>
+              <td><code>summer-launch-2026</code>, <code>black-friday-early-access</code></td>
+            </tr>
+            <tr>
+              <td><code>utm_term</code></td>
+              <td>Optional</td>
+              <td>Used in search ads for paid keywords or targeting audience segments.</td>
+              <td><code>running-shoes</code>, <code>saas-crm-software</code></td>
+            </tr>
+            <tr>
+              <td><code>utm_content</code></td>
+              <td>Optional</td>
+              <td>Differentiates ads or links pointing to the same destination for A/B testing.</td>
+              <td><code>banner-hero-v1</code>, <code>cta-blue-button</code>, <code>carousel-slide-2</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>2. GA4 Attribution Standards &amp; Common Pitfalls</h2>
+      
+      <div class="callout warning">
+        <p><strong>⚠️ The Case-Sensitivity Trap:</strong> Google Analytics 4 is strictly case-sensitive. Tagging traffic with <code>utm_source=Facebook</code>, <code>utm_source=facebook</code>, and <code>utm_source=FB</code> will create three separate rows in your traffic acquisition reports. Always normalize to lowercase.</p>
+      </div>
+
+      <h3>Golden Rules for Bulletproof UTM Tags</h3>
+      <ul>
+        <li><strong>Enforce Lowercase:</strong> Always convert all parameter values to lowercase prior to deployment.</li>
+        <li><strong>Use Hyphens for Spaces:</strong> Never include spaces. Spaces encode to <code>%20</code> or <code>+</code>, which degrades readability and causes parsing glitches across email clients.</li>
+        <li><strong>Preserve Existing Query Strings:</strong> If your target URL already has parameters (e.g. <code>?variant=blue&amp;ref=123</code>), UTM tags must be merged using <code>&amp;</code> rather than a second <code>?</code>.</li>
+        <li><strong>Place Query Strings Before Hashes:</strong> Fragment identifiers (<code>#hero</code>, <code>#pricing</code>) must remain at the very end of the URL. Placing UTMs after a hash prevents servers from reading them.</li>
+        <li><strong>Never Double-Encode:</strong> Parameters should be encoded once using standard URL components.</li>
+      </ul>
+
+      <h2>3. Channel-by-Channel Best Practice Templates</h2>
+      <p>Use these tested configurations to ensure your traffic aligns with GA4's default channel definitions:</p>
+
+      <div class="template-grid">
+        <div class="template-card">
+          <h4>🟦 Google Ads (Search &amp; Performance Max)</h4>
+          <span class="template-snippet">utm_source=google&amp;utm_medium=cpc&amp;utm_campaign={campaignid}&amp;utm_term={keyword}&amp;utm_content={creative}</span>
+          <p style="font-size:0.84rem;color:var(--guide-muted);margin:0;">
+            Uses Google Ads ValueTrack dynamic macro tokens for automated campaign attribution.
+          </p>
+        </div>
+
+        <div class="template-card">
+          <h4>🟣 Meta Ads Manager (Facebook &amp; Instagram)</h4>
+          <span class="template-snippet">utm_source={{site_source_name}}&amp;utm_medium=paid_social&amp;utm_campaign={{campaign.name}}&amp;utm_content={{ad.name}}</span>
+          <p style="font-size:0.84rem;color:var(--guide-muted);margin:0;">
+            Resolves to <code>fb</code> or <code>ig</code> automatically with the active ad set names.
+          </p>
+        </div>
+
+        <div class="template-card">
+          <h4>⬛ TikTok Ads Manager</h4>
+          <span class="template-snippet">utm_source=tiktok&amp;utm_medium=paid_social&amp;utm_campaign=__CAMPAIGN_NAME__&amp;utm_content=__CID_NAME__</span>
+          <p style="font-size:0.84rem;color:var(--guide-muted);margin:0;">
+            Standard TikTok macros for video ad creatives and spark posts.
+          </p>
+        </div>
+
+        <div class="template-card">
+          <h4>💼 LinkedIn Campaign Manager</h4>
+          <span class="template-snippet">utm_source=linkedin&amp;utm_medium=paid_social&amp;utm_campaign=q4-b2b-leadgen&amp;utm_content=sponsored-content-carousel</span>
+          <p style="font-size:0.84rem;color:var(--guide-muted);margin:0;">
+            Ideal for B2B sponsored content, lead gen forms, and InMail broadcasts.
+          </p>
+        </div>
+
+        <div class="template-card">
+          <h4>📧 Email Newsletters (Klaviyo / Mailchimp)</h4>
+          <span class="template-snippet">utm_source=newsletter&amp;utm_medium=email&amp;utm_campaign=weekly-roundup-issue-42&amp;utm_content=primary-cta</span>
+          <p style="font-size:0.84rem;color:var(--guide-muted);margin:0;">
+            Maps directly into GA4's "Email" default channel group without misclassification.
+          </p>
+        </div>
+
+        <div class="template-card">
+          <h4>⭐ Influencer &amp; Affiliate Drops</h4>
+          <span class="template-snippet">utm_source=influencer-sarah&amp;utm_medium=affiliate&amp;utm_campaign=spring-launch&amp;utm_term=instagram-stories</span>
+          <p style="font-size:0.84rem;color:var(--guide-muted);margin:0;">
+            Combines influencer identification with affiliate tracking for precise ROI evaluation.
+          </p>
+        </div>
+      </div>
+
+      <h2>4. How HEA Link Handles UTMs on Redirect</h2>
+      <p>
+        One common problem with traditional short link services is parameter stripping: when a short URL redirects, query parameters are often discarded or double-encoded.
+      </p>
+      <div class="callout">
+        <p>
+          <strong>Automatic Parameter Forwarding:</strong> In HEA Link, redirects preserve all query parameters. If a short URL <code>hea.link/sale</code> points to <code>https://brand.com/store</code>, visiting <code>hea.link/sale?utm_source=tiktok</code> will cleanly forward the visitor to <code>https://brand.com/store?utm_source=tiktok</code> with zero latency penalty and zero data loss.
+        </p>
+      </div>
+
+      <h2>5. Frequently Asked Questions</h2>
+      <div class="faq-item">
+        <div class="faq-q">What are UTM parameters and why are they important? <span>▼</span></div>
+        <div class="faq-a">UTM (Urchin Tracking Module) parameters are five standardized query tags appended to destination URLs to inform web analytics systems (like GA4) where incoming visitors arrived from, what campaign prompted their visit, and which ad creative was clicked.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Why does character casing matter in Google Analytics 4? <span>▼</span></div>
+        <div class="faq-a">Google Analytics 4 is strictly case-sensitive. Tagging URLs with 'Facebook', 'facebook', and 'FACEBOOK' creates three independent source buckets, fragmenting your reports. Standardizing on lowercase prevents split metrics.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Does HEA Link support dynamic UTM parameters? <span>▼</span></div>
+        <div class="faq-a">Yes. You can pass dynamic macros (such as Google Ads {keyword} or Meta {{campaign.name}}) into your HEA Link destination, and our redirect engine safely forwards them to the destination page.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Can I track UTM parameters inside the HEA Link dashboard? <span>▼</span></div>
+        <div class="faq-a">Yes. In addition to passing them to GA4, HEA Link aggregates click performance by Campaign, Source, and Medium directly inside the Analytics and Campaigns views of your dashboard.</div>
+      </div>
+    </article>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="guide-footer">
+    <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
+      <div>© 2026 HEA Link Inc. Built for high-growth engineering teams.</div>
+      <div style="display:flex;gap:16px;">
+        <a href="/developers" style="color:var(--guide-muted);text-decoration:none;">API</a>
+        <a href="/integrations" style="color:var(--guide-muted);text-decoration:none;">Integrations</a>
+        <a href="/resources/utm-guide" style="color:var(--guide-muted);text-decoration:none;">UTM Guide</a>
+        <a href="/help" style="color:var(--guide-muted);text-decoration:none;">Help</a>
+        <a href="/privacy.html" style="color:var(--guide-muted);text-decoration:none;">Privacy</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Load Shared UTM Engine -->
+  <script src="/js/shared/utm.js"></script>
+
+  <script>
+    (function() {
+      const inputDest = document.getElementById('inputDest');
+      const inputCampaign = document.getElementById('inputCampaign');
+      const inputSource = document.getElementById('inputSource');
+      const inputMedium = document.getElementById('inputMedium');
+      const inputTerm = document.getElementById('inputTerm');
+      const inputContent = document.getElementById('inputContent');
+      const chkNormalize = document.getElementById('chkNormalize');
+      const outputPreview = document.getElementById('outputPreview');
+      const outputCharCount = document.getElementById('outputCharCount');
+      const btnCopy = document.getElementById('btnCopy');
+      const btnShorten = document.getElementById('btnShorten');
+      const shortResultCard = document.getElementById('shortResultCard');
+      const shortLinkAnchor = document.getElementById('shortLinkAnchor');
+      const btnCopyShort = document.getElementById('btnCopyShort');
+
+      function calculateUrl() {
+        const dest = inputDest.value.trim() || 'https://example.com';
+        const params = {
+          utm_campaign: inputCampaign.value,
+          utm_source: inputSource.value,
+          utm_medium: inputMedium.value,
+          utm_term: inputTerm.value,
+          utm_content: inputContent.value
+        };
+        const normalize = chkNormalize.checked;
+
+        let result = '';
+        if (window.HeaUtm && typeof window.HeaUtm.buildUtmUrl === 'function') {
+          try {
+            result = window.HeaUtm.buildUtmUrl(dest, params, { normalize });
+          } catch (_e) {
+            result = dest;
+          }
+        } else {
+          result = dest;
+        }
+
+        outputPreview.textContent = result;
+        outputCharCount.textContent = result.length + ' chars';
+        return result;
+      }
+
+      // Presets
+      const presets = window.HeaUtm ? window.HeaUtm.PRESETS : {};
+      document.querySelectorAll('.preset-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const pKey = btn.getAttribute('data-preset');
+          const p = presets[pKey];
+          if (p) {
+            inputSource.value = p.source;
+            inputMedium.value = p.medium;
+            calculateUrl();
+          }
+        });
+      });
+
+      // Bind input events
+      [inputDest, inputCampaign, inputSource, inputMedium, inputTerm, inputContent].forEach(el => {
+        el.addEventListener('input', calculateUrl);
+      });
+      chkNormalize.addEventListener('change', calculateUrl);
+
+      // Copy Action
+      btnCopy.addEventListener('click', () => {
+        const url = calculateUrl();
+        navigator.clipboard.writeText(url).then(() => {
+          const orig = btnCopy.innerHTML;
+          btnCopy.innerHTML = '✓ Copied!';
+          setTimeout(() => { btnCopy.innerHTML = orig; }, 2000);
+        });
+      });
+
+      // Shorten Action
+      btnShorten.addEventListener('click', async () => {
+        const taggedUrl = calculateUrl();
+        if (!taggedUrl || taggedUrl === 'https://example.com') {
+          alert('Please enter a valid destination website URL');
+          return;
+        }
+
+        // Check authentication
+        let token = null;
+        try {
+          const s = JSON.parse(localStorage.getItem('hea_session') || '{}');
+          if (s && s.token) token = s.token;
+          if (!token) token = localStorage.getItem('token');
+        } catch (_e) {}
+
+        if (!token) {
+          // Store pending URL and redirect to login/signup
+          sessionStorage.setItem('pending_utm_url', taggedUrl);
+          if (confirm('Create a free account or log in to shorten and track this campaign link! Open login?')) {
+            window.location.href = '/#login';
+          }
+          return;
+        }
+
+        btnShorten.disabled = true;
+        btnShorten.innerHTML = 'Shortening...';
+
+        try {
+          const res = await fetch('/api/links', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({
+              dest: taggedUrl,
+              title: 'Campaign: ' + (inputCampaign.value.trim() || 'UTM Link'),
+              utm: {
+                campaign: inputCampaign.value.trim(),
+                source: inputSource.value.trim(),
+                medium: inputMedium.value.trim(),
+                term: inputTerm.value.trim() || undefined,
+                content: inputContent.value.trim() || undefined
+              }
+            })
+          });
+
+          const data = await res.json();
+          if (res.ok && data.link) {
+            const shortUrl = window.location.origin + '/' + data.link.slug;
+            shortLinkAnchor.href = shortUrl;
+            shortLinkAnchor.textContent = shortUrl;
+            shortResultCard.style.display = 'flex';
+
+            btnCopyShort.onclick = () => {
+              navigator.clipboard.writeText(shortUrl).then(() => {
+                btnCopyShort.textContent = '✓ Copied!';
+                setTimeout(() => { btnCopyShort.textContent = 'Copy Short Link 📋'; }, 2000);
+              });
+            };
+          } else {
+            alert(data.error || 'Failed to shorten URL');
+          }
+        } catch (err) {
+          alert('Error shortening link: ' + err.message);
+        } finally {
+          btnShorten.disabled = false;
+          btnShorten.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg> Shorten with HEA Link';
+        }
+      });
+
+      // Initial calculation
+      calculateUrl();
+    })();
+  </script>
+</body>
+</html>

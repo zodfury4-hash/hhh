@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const qrCodeSchema = new mongoose.Schema({
+  workspaceId: {
+    type: mongoose.Schema.Types.Mixed,
+    default: null,
+    index: true
+  },
   ownerEmail: {
     type: String,
     required: true,

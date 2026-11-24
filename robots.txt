@@ -1,5 +1,11 @@
 User-agent: *
 Allow: /
+Allow: /ai/
+Allow: /developers
+Allow: /integrations
+Allow: /resources/
+Allow: /help
+Allow: /faq
 Disallow: /api/
 Disallow: /dashboard
 

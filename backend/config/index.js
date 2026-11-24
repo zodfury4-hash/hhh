@@ -58,6 +58,30 @@ const config = {
   firebase: {
     enableRtdb: process.env.ENABLE_FIREBASE_RTDB === 'true',
     databaseUrl: process.env.FIREBASE_DATABASE_URL || 'https://healinks-4ea4d-default-rtdb.firebaseio.com'
+  },
+  clickRetentionDays: parseInt(process.env.CLICK_RETENTION_DAYS || '400', 10),
+  trustProxy: process.env.TRUST_PROXY || '1',
+  primaryHosts: new Set(
+    (process.env.PRIMARY_HOSTS || 'healink.store,www.healink.store,localhost,127.0.0.1')
+      .split(',')
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean)
+  ),
+  cnameTarget: process.env.CNAME_TARGET || 'cname.healink.store',
+  internalRouterSecret: process.env.INTERNAL_ROUTER_SECRET || 'healink-internal-secret-2026',
+  ai: {
+    anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
+    modelChat: process.env.LLM_MODEL_CHAT || 'claude-3-5-sonnet-20241022',
+    modelFast: process.env.LLM_MODEL_FAST || 'claude-3-5-haiku-20241022',
+    quotaFree: parseInt(process.env.AI_DAILY_QUOTA_FREE || '10', 10),
+    quotaPro: parseInt(process.env.AI_DAILY_QUOTA_PRO || '200', 10),
+    quotaGuest: parseInt(process.env.AI_DAILY_QUOTA_GUEST || '3', 10)
+  },
+  mcp: {
+    allowedOrigins: (process.env.MCP_ALLOWED_ORIGINS || '')
+      .split(',')
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean)
   }
 };
 

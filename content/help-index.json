@@ -1,0 +1,170 @@
+[
+  {
+    "slug": "create-first-link",
+    "category": "getting-started",
+    "title": "Creating Your First Short Link",
+    "summary": "Learn how to paste long destinations, customize back-half slugs, and share instant short links on healink.store.",
+    "keywords": "short link, create url, custom backhalf, slug, getting started",
+    "url": "/help/getting-started/create-first-link"
+  },
+  {
+    "slug": "api-keys-and-auth",
+    "category": "developer-api",
+    "title": "Generating and Managing Developer API Keys",
+    "summary": "Authenticate with the HEA Link v1 REST API using live and test API keys with granular scopes and SHA-256 storage.",
+    "keywords": "api keys, authentication, bearer token, sha256, test mode",
+    "url": "/help/developer-api/api-keys-and-auth"
+  },
+  {
+    "slug": "password-protection",
+    "category": "link-management",
+    "title": "Password-Protecting Sensitive Short Links",
+    "summary": "Secure private files, internal wikis, and investor decks by locking your short links behind an encrypted password gate.",
+    "keywords": "password protection, encrypted links, private urls, link security, pbkdf2",
+    "url": "/help/link-management/password-protection"
+  },
+  {
+    "slug": "plan-limits-and-tiers",
+    "category": "account-billing",
+    "title": "Understanding Plan Limits and Account Tiers",
+    "summary": "Compare features across Free, Pro, and Enterprise tiers, including monthly link limits, custom domains, and API access.",
+    "keywords": "pricing tiers, plan limits, free vs pro, enterprise, monthly quota",
+    "url": "/help/account-billing/plan-limits-and-tiers"
+  },
+  {
+    "slug": "understanding-metrics",
+    "category": "analytics-telemetry",
+    "title": "Understanding Total Clicks vs Unique Visitors",
+    "summary": "Understand how HEA Link measures total clicks, unique visitors, and QR scans with privacy-first salted hashing.",
+    "keywords": "analytics metrics, total clicks, unique visitors, qr scans, click telemetry",
+    "url": "/help/analytics-telemetry/understanding-metrics"
+  },
+  {
+    "slug": "rate-limits-and-errors",
+    "category": "developer-api",
+    "title": "API Rate Limits and HTTP Status Reference",
+    "summary": "Understand rate limit headers, quotas, idempotency keys, and standard HTTP error response formats.",
+    "keywords": "api rate limits, http status codes, idempotency, 429 too many requests, error handling",
+    "url": "/help/developer-api/rate-limits-and-errors"
+  },
+  {
+    "slug": "custom-domains",
+    "category": "getting-started",
+    "title": "Attaching and Verifying a Custom Domain",
+    "summary": "Brand your short links with your own custom apex domain or subdomain using DNS CNAME and TXT ownership verification.",
+    "keywords": "custom domain, cname, dns verification, txt record, branded links",
+    "url": "/help/getting-started/custom-domains"
+  },
+  {
+    "slug": "geo-attribution-rules",
+    "category": "analytics-telemetry",
+    "title": "Geographic Attribution and Location Accuracy",
+    "summary": "How HEA Link determines country and city locations using edge headers and GeoIP databases without guessing.",
+    "keywords": "geo attribution, country breakdown, geoip, location tracking, cf-ipcountry",
+    "url": "/help/analytics-telemetry/geo-attribution-rules"
+  },
+  {
+    "slug": "stripe-subscriptions",
+    "category": "account-billing",
+    "title": "Managing Your Stripe Billing and Invoices",
+    "summary": "How to view invoices, update credit cards, and manage your subscription via the Stripe Customer Portal.",
+    "keywords": "stripe billing, invoices, credit card, cancel subscription, billing portal",
+    "url": "/help/account-billing/stripe-subscriptions"
+  },
+  {
+    "slug": "link-expiration-and-limits",
+    "category": "link-management",
+    "title": "Setting Link Expiration Dates and Click Limits",
+    "summary": "Automatically deactivate promotional links based on a future date/time or after reaching a maximum click quota.",
+    "keywords": "link expiration, click limits, 410 gone, temporary links, flash sale",
+    "url": "/help/link-management/link-expiration-and-limits"
+  },
+  {
+    "slug": "qr-codes",
+    "category": "getting-started",
+    "title": "Creating and Customizing Scannable QR Codes",
+    "summary": "Generate high-resolution vector QR codes with custom color palettes and instant PNG/SVG downloads for print and digital packaging.",
+    "keywords": "qr code, vector qr, generate qr, png download, qr customization",
+    "url": "/help/getting-started/qr-codes"
+  },
+  {
+    "slug": "bulk-shortening",
+    "category": "link-management",
+    "title": "How to Bulk-Shorten Multiple URLs",
+    "summary": "Shorten up to 20 long destinations in a single batch submission with instant copy and export options.",
+    "keywords": "bulk shortener, batch urls, mass shorten, batch links, csv export",
+    "url": "/help/link-management/bulk-shortening"
+  },
+  {
+    "slug": "realtime-clicks-bot-filtering",
+    "category": "analytics-telemetry",
+    "title": "Real-Time Click Streaming and Bot Filtering",
+    "summary": "Monitor live visitor clicks via Server-Sent Events (SSE) and learn how automated bot crawlers are filtered.",
+    "keywords": "real-time analytics, sse, bot filtering, crawler detection, live stream",
+    "url": "/help/analytics-telemetry/realtime-clicks-bot-filtering"
+  },
+  {
+    "slug": "webhooks-and-hmac",
+    "category": "developer-api",
+    "title": "Setting Up Webhooks and Verifying HMAC Signatures",
+    "summary": "Receive real-time HTTP POST notifications when links are created or clicked, and verify HMAC-SHA256 payload integrity.",
+    "keywords": "webhooks, hmac signature, x-hea-signature, real-time events, payload security",
+    "url": "/help/developer-api/webhooks-and-hmac"
+  },
+  {
+    "slug": "two-factor-auth-security",
+    "category": "account-billing",
+    "title": "Two-Factor Authentication and Security",
+    "summary": "Protect your account and links with email verification codes, secure session cookies, and strong passwords.",
+    "keywords": "2fa, two-factor auth, account security, password security, session cookies",
+    "url": "/help/account-billing/two-factor-auth-security"
+  },
+  {
+    "slug": "data-retention-privacy",
+    "category": "account-billing",
+    "title": "Data Retention, Privacy and GDPR Compliance",
+    "summary": "Details on how HEA Link handles click retention, salted IP hashing, and GDPR/CCPA data privacy compliance.",
+    "keywords": "data retention, gdpr, privacy policy, 400 day ttl, salted ip hash",
+    "url": "/help/account-billing/data-retention-privacy"
+  },
+  {
+    "slug": "exporting-data",
+    "category": "analytics-telemetry",
+    "title": "Exporting Analytics Data in CSV and JSON",
+    "summary": "Stream raw link performance and visitor click records directly into spreadsheets, BI dashboards, and warehouse pipelines.",
+    "keywords": "export data, csv export, json export, streaming analytics, bi pipeline",
+    "url": "/help/analytics-telemetry/exporting-data"
+  },
+  {
+    "slug": "organizing-tags-campaigns",
+    "category": "link-management",
+    "title": "Organizing Links with Tags and Campaign Names",
+    "summary": "Categorize your short links using custom tags and campaign groups to streamline portfolio search and performance filtering.",
+    "keywords": "link tags, campaign organization, filter links, link portfolio, grouping",
+    "url": "/help/link-management/organizing-tags-campaigns"
+  },
+  {
+    "slug": "link-in-bio",
+    "category": "getting-started",
+    "title": "Setting Up Your Link-in-Bio Mobile Page",
+    "summary": "Consolidate your products, portfolio, and social channels onto a single mobile-responsive landing page.",
+    "keywords": "link in bio, bio page, mobile landing page, social links, profile builder",
+    "url": "/help/getting-started/link-in-bio"
+  },
+  {
+    "slug": "mcp-server-integration",
+    "category": "developer-api",
+    "title": "Using the HEA Link Model Context Protocol (MCP) Server",
+    "summary": "Integrate HEA Link capabilities directly into Claude Desktop, Cursor, and modern AI development environments.",
+    "keywords": "mcp server, model context protocol, claude desktop, cursor, ai tools",
+    "url": "/help/developer-api/mcp-server-integration"
+  },
+  {
+    "slug": "abuse-reporting-safety",
+    "category": "link-management",
+    "title": "Link Safety and Abuse Reporting",
+    "summary": "Learn how HEA Link protects visitors from malware, phishing, and scam links, and how to file abuse reports.",
+    "keywords": "abuse report, phishing, malware, link safety, ssrf protection, blocklist",
+    "url": "/help/link-management/abuse-reporting-safety"
+  }
+]

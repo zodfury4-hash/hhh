@@ -70,9 +70,9 @@ export function Hero() {
               {!webglAvailable && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <picture>
-                    <source srcSet="/images/hero-infinity-hd.webp" type="image/webp" />
+                    <source srcSet="./images/hero-infinity-hd.webp" type="image/webp" />
                     <img
-                      src="/images/hero-infinity-hd.png"
+                      src="./images/hero-infinity-hd.png"
                       alt="HEA Link 3D Blue Infinity"
                       className="w-full max-w-[500px] h-auto object-contain select-none pointer-events-none drop-shadow-xl"
                       loading="eager"

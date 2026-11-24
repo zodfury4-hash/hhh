@@ -52,6 +52,7 @@ function errorHandler(err, req, res, _next) {
     ok: false,
     error: clientMessage,
     code: err.code || 'INTERNAL_ERROR',
+    ...(err.meta ? { meta: err.meta } : {}),
     ...(isProd ? {} : { stack: err.stack })
   });
 }

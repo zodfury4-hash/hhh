@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Frequently Asked Questions (FAQ) | HEA Link</title>
+  <meta name="description" content="Answers to common questions about HEA Link URL shortener, custom domains, vector QR codes, API access, and billing.">
+  <link rel="icon" type="image/png" href="/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/landing.css">
+
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is HEA Link and what does it include?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "HEA Link is an all-in-one link infrastructure platform combining ultra-fast branded URL shortening, customizable vector QR codes, mobile-optimized link-in-bio pages, real-time analytics telemetry, and developer REST APIs."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How fast are link redirects on HEA Link?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "HEA Link redirect handlers execute in under 10ms with in-memory caching and resilient database failover, returning standard HTTP 301/302 redirects with full query preservation."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is HEA Link free to use?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. HEA Link provides a generous Free plan including up to 1,000 links per month, custom back-halves, vector QR codes, basic bio pages, and standard analytics. Advanced features like custom CNAME domains, webhooks, and REST API access are available on Pro and Enterprise tiers."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I attach my own custom branded domain?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "In the Custom Domains studio, add your apex domain or subdomain (e.g., go.mybrand.com). Configure a DNS CNAME record pointing to healink.store, and verify domain ownership using our automated TXT challenge record."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I password-protect sensitive short links?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. You can assign a password when creating or editing a link. Visitors must enter the correct password before being redirected. Passwords are securely hashed with PBKDF2 with SHA-512, and brute-force attempts are strictly rate-limited."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens when a link reaches its expiration date or maximum clicks?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Once a link passes its set expiration date or reaches its configured max click limit, HEA Link automatically ceases redirection and returns an HTTP 410 Gone status with an informative expiration notice."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I bulk-shorten multiple URLs simultaneously?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Use the Bulk Shorten tab on the homepage or in the dashboard to submit up to 20 URLs at once. Each link receives an instant short URL and can be exported as a batch."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are HEA Link QR codes vector-based?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. All QR codes are generated with vector precision and can be downloaded as high-resolution PNGs or crisp vector SVGs suitable for print media, billboards, and merchandise packaging."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I customize QR code colors and design?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Absolutely. You can select custom foreground colors, background contrast, and embed brand logos into your QR codes without compromising error-correction readability."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is a Link-in-Bio page and how do I build one?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A Bio Page is a mobile-responsive landing page housing all your social channels, featured products, newsletters, and announcements under a single memorable short link (e.g., hea.link/bio/yourname)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does HEA Link distinguish unique visitors from total clicks?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Each redirect calculates an anonymous, daily-salted SHA-256 hash of the visitor's IP and User-Agent. This ensures strict privacy compliance without tracking personal data while delivering accurate unique visitor metrics."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does HEA Link filter out search engine crawlers and web bots?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Automatic user-agent inspection flags crawlers, scrapers, and bot previews (e.g., Googlebot, Twitterbot, Discordbot), filtering them from your legitimate engagement metrics and click limits."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How is visitor location and geographic attribution determined?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "HEA Link checks edge CDN headers (such as cf-ipcountry and x-country) followed by local geoip-lite lookup. When location cannot be verified, it is marked as 'Unknown' rather than guessed."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I export my analytics and link click history?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. You can stream full CSV or JSON data exports for links and individual click logs anytime via the dashboard or directly through our /api/export endpoints."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I authenticate with the Developer REST API?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Generate an API key in the Developer Portal (/developers) with either live (hea_live_...) or test (hea_test_...) scope. Include it in requests using the Authorization: Bearer <key> or X-API-Key: <key> header."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do outbound webhooks work and how are they signed?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Outbound webhooks deliver real-time notifications for link.created, link.clicked, and domain.verified. Each payload includes an X-HEA-Signature header containing an HMAC-SHA256 signature calculated with your secret key for verification."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the Model Context Protocol (MCP) server?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "HEA Link provides an official MCP server enabling AI coding assistants like Claude Desktop, Cursor, and VS Code to shorten links, generate QR codes, and query analytics directly from your IDE."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does Stripe billing and subscription management work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "All payments are processed securely through Stripe with 3D Secure verification. You can upgrade, downgrade, or cancel your Pro or Enterprise subscription anytime with immediate prorated adjustments."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the click data retention policy?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Individual click telemetry records are retained for 400 days in our MongoDB database with automatic TTL indexing. Summary counters (totalClicks, totalScans) on your Link documents are preserved permanently."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does HEA Link prevent abuse and malicious links?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We employ automated destination inspection blocking private IP ranges (SSRF), dangerous schemes (javascript:, data:), and known phishing domains. Users can also report suspicious links via /api/abuse/report for immediate administrative review."
+      }
+    }
+  ]
+}
+  </script>
+
+  <style>
+    :root {
+      --faq-bg: #f8fafc;
+      --faq-border: #e2e8f0;
+      --faq-primary: #0070f3;
+      --faq-text: #0b132b;
+      --faq-muted: #64748b;
+    }
+    body {
+      background: var(--faq-bg); color: var(--faq-text);
+      font-family: 'Poppins', sans-serif; margin: 0; padding: 0; min-height: 100vh;
+      display: flex; flex-direction: column;
+    }
+    .faq-nav {
+      background: #ffffff; border-bottom: 1px solid var(--faq-border);
+      padding: 14px 24px; position: sticky; top: 0; z-index: 100;
+    }
+    .faq-nav-in {
+      max-width: 1240px; margin: 0 auto; display: flex;
+      align-items: center; justify-content: space-between;
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; font-size: 1.25rem; font-weight: 800; color: var(--faq-primary);
+    }
+    .nav-links { display: flex; align-items: center; gap: 20px; }
+    .nav-link { color: var(--faq-muted); text-decoration: none; font-size: 0.9rem; font-weight: 600; }
+    .nav-link:hover, .nav-link.active { color: var(--faq-primary); }
+    .faq-hero {
+      padding: 56px 24px 32px; text-align: center;
+      background: radial-gradient(circle at top, rgba(0, 112, 243, 0.08) 0%, transparent 60%);
+    }
+    .faq-hero h1 { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 800; margin: 0 0 12px; }
+    .faq-hero p { color: var(--faq-muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+    .faq-wrap {
+      max-width: 900px; margin: 0 auto 64px; padding: 0 24px; width: 100%; box-sizing: border-box;
+    }
+    .faq-section {
+      background: #ffffff; border: 1px solid var(--faq-border);
+      border-radius: 16px; padding: 32px; margin-bottom: 32px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    }
+    .faq-section h2 {
+      font-size: 1.4rem; font-weight: 800; color: var(--faq-primary); margin: 0 0 4px;
+    }
+    .faq-cat-desc { font-size: 0.88rem; color: var(--faq-muted); margin: 0 0 20px; }
+    .faq-item { border-bottom: 1px solid #f1f5f9; padding: 18px 0; }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-q {
+      font-weight: 700; font-size: 1.02rem; color: var(--faq-text); cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    }
+    .faq-arrow { font-size: 0.8rem; color: var(--faq-muted); transition: transform 0.2s; }
+    .faq-item.open .faq-arrow { transform: rotate(180deg); color: var(--faq-primary); }
+    .faq-a {
+      display: none; margin-top: 10px; color: #475569; font-size: 0.94rem; line-height: 1.6;
+    }
+    .faq-item.open .faq-a { display: block; }
+    .faq-footer {
+      background: #ffffff; border-top: 1px solid var(--faq-border);
+      padding: 32px 24px; text-align: center; font-size: 0.88rem; color: var(--faq-muted);
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+  <header class="faq-nav">
+    <div class="faq-nav-in">
+      <a class="nav-brand" href="/">
+        <svg width="30" height="20" viewBox="0 0 54 36" fill="none">
+          <path d="M15.5 8C10.25 8 6 12.25 6 17.5C6 22.75 10.25 27 15.5 27C21.2 27 24.6 20.8 27 17.5C29.4 14.2 32.8 8 38.5 8C43.75 8 48 12.25 48 17.5C48 22.75 43.75 27 38.5 27C32.8 27 29.4 20.8 27 17.5C24.6 14.2 21.2 8 15.5 8Z" stroke="#0070f3" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>HEA Link FAQ</span>
+      </a>
+      <nav class="nav-links">
+        <a class="nav-link" href="/help">Help Center</a>
+        <a class="nav-link" href="/developers">Developers</a>
+        <a class="nav-link" href="/integrations">Integrations</a>
+        <a class="nav-link active" href="/faq">FAQ</a>
+        <a class="nav-link" href="/#dashboard" style="background:#0070f3;color:#fff;padding:6px 14px;border-radius:6px;">Dashboard →</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="faq-hero">
+    <h1>Frequently Asked Questions</h1>
+    <p>Everything you need to know about the product, billing, links, and API.</p>
+  </section>
+
+  <main class="faq-wrap">
+    
+      <section class="faq-section" id="general">
+        <h2>General & Platform Overview</h2>
+        <p class="faq-cat-desc">Core features, platform capabilities, and getting started.</p>
+        <div class="faq-list">
+          
+        <div class="faq-item">
+          <div class="faq-q">What is HEA Link and what does it include? <span class="faq-arrow">▼</span></div>
+          <div class="faq-a">HEA Link is an all-in-one link infrastructure platform combining ultra-fast branded URL shortening, customizable vector QR codes, mobile-optimized link-in-bio pages, real-time analytics telemetry, and developer REST APIs.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">How fast are link redirects on HEA Link? <span class="faq-arrow">▼</span></div>
+          <div class="faq-a">HEA Link redirect handlers execute in under 10ms with in-memory caching and resilient database failover, returning standard HTTP 301/302 redirects with full query preservation.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">Is HEA Link free to use? <span class="faq-arrow">▼</span></div>
+          <div class="faq-a">Yes. HEA Link provides a generous Free plan including up to 1,000 links per month, custom back-halves, vector QR codes, basic bio pages, and standard analytics. Advanced features like custom CNAME domains, webhooks, and REST API access are available on Pro and Enterprise tiers.</div>
+        </div>
+      
+        </div>
+      </section>
+    
+      <section class="faq-section" id="links-domains">
+        <h2>Links & Custom Domains</h2>
+        <p class="faq-cat-desc">Shortening, custom back-halves, password protection, and domain mapping.</p>
+        <div class="faq-list">
+          
+        <div class="faq-item">
+          <div class="faq-q">How do I attach my own custom branded domain? <span class="faq-arrow">▼</span></div>
+          <div class="faq-a">In the Custom Domains studio, add your apex domain or subdomain (e.g., go.mybrand.com). Configure a DNS CNAME record pointing to healink.store, and verify domain ownership using our automated TXT challenge record.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">Can I password-protect sensitive short links? <span class="faq-arrow">▼</span></div>
+          <div class="faq-a">Yes. You can assign a password when creating or editing a link. Visitors must enter the correct password before being redirected. Passwords are securely hashed with PBKDF2 with SHA-512, and brute-force attempts are strictly rate-limited.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">What happens when a link reaches its expiration date or maximum clicks? <span class="faq-arrow">▼</span></div>
+          <div class="faq-a">Once a link passes its set expiration date or reaches its configured max click limit, HEA Link automatically ceases redirection and returns an HTTP 410 Gone status with an informative expiration notice.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">Can I bulk-shorten multiple URLs simultaneously? <span class="faq-arrow">▼</span></div>
+          <div class="faq-a">Yes. Use the Bulk Shorten tab on the homepage or in the dashboard to submit up to 20 URLs at once. Each link receives an instant short URL and can be exported as a batch.</div>
+        </div>
+      
+        </div>
+      </section>
+    
+      <section class="faq-section" id="qr-bio">
+        <h2>QR Codes & Bio Pages</h2>
+        <p class="faq-cat-desc">Dynamic vector codes, high-resolution exports, and mobile microsites.</p>
+        <div class="faq-list">
+          
+        <div class="faq-item">
+          <div class="faq-q">Are HEA Link QR codes vector-based? <span class="faq-arrow">▼</span></div>
+          <div class="faq-a">Yes. All QR codes are generated with vector precision and can be downloaded as high-resolution PNGs or crisp vector SVGs suitable for print media, billboards, and merchandise packaging.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">Can I customize QR code colors and design? <span class="faq-arrow">▼</span></div>
+          <div class="faq-a">Absolutely. You can select custom foreground colors, background contrast, and embed brand logos into your QR codes without compromising error-correction readability.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">What is a Link-in-Bio page and how do I build one? <span class="faq-arrow">▼</span></div>
+          <div class="faq-a">A Bio Page is a mobile-responsive landing page housing all your social channels, featured products, newsletters, and announcements under a single memorable short link (e.g., hea.link/bio/yourname).</div>
+        </div>
+      
+        </div>
+      </section>
+    
+      <section class="faq-section" id="analytics">
+        <h2>Analytics & Real-Time Telemetry</h2>
+        <p class="faq-cat-desc">Click tracking, geographic attribution, bot filtering, and data exports.</p>
+        <div class="faq-list">
+          
+        <div class="faq-item">
+          <div class="faq-q">How does HEA Link distinguish unique visitors from total clicks? <span class="faq-arrow">▼</span></div>
+          <div class="faq-a">Each redirect calculates an anonymous, daily-salted SHA-256 hash of the visitor's IP and User-Agent. This ensures strict privacy compliance without tracking personal data while delivering accurate unique visitor metrics.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">Does HEA Link filter out search engine crawlers and web bots? <span class="faq-arrow">▼</span></div>
+          <div class="faq-a">Yes. Automatic user-agent inspection flags crawlers, scrapers, and bot previews (e.g., Googlebot, Twitterbot, Discordbot), filtering them from your legitimate engagement metrics and click limits.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">How is visitor location and geographic attribution determined? <span class="faq-arrow">▼</span></div>
+          <div class="faq-a">HEA Link checks edge CDN headers (such as cf-ipcountry and x-country) followed by local geoip-lite lookup. When location cannot be verified, it is marked as 'Unknown' rather than guessed.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">Can I export my analytics and link click history? <span class="faq-arrow">▼</span></div>
+          <div class="faq-a">Yes. You can stream full CSV or JSON data exports for links and individual click logs anytime via the dashboard or directly through our /api/export endpoints.</div>
+        </div>
+      
+        </div>
+      </section>
+    
+      <section class="faq-section" id="developers-api">
+        <h2>Developer REST API & Integrations</h2>
+        <p class="faq-cat-desc">API keys, webhooks, HMAC verification, and MCP server tooling.</p>
+        <div class="faq-list">
+          
+        <div class="faq-item">
+          <div class="faq-q">How do I authenticate with the Developer REST API? <span class="faq-arrow">▼</span></div>
+          <div class="faq-a">Generate an API key in the Developer Portal (/developers) with either live (hea_live_...) or test (hea_test_...) scope. Include it in requests using the Authorization: Bearer <key> or X-API-Key: <key> header.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">How do outbound webhooks work and how are they signed? <span class="faq-arrow">▼</span></div>
+          <div class="faq-a">Outbound webhooks deliver real-time notifications for link.created, link.clicked, and domain.verified. Each payload includes an X-HEA-Signature header containing an HMAC-SHA256 signature calculated with your secret key for verification.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">What is the Model Context Protocol (MCP) server? <span class="faq-arrow">▼</span></div>
+          <div class="faq-a">HEA Link provides an official MCP server enabling AI coding assistants like Claude Desktop, Cursor, and VS Code to shorten links, generate QR codes, and query analytics directly from your IDE.</div>
+        </div>
+      
+        </div>
+      </section>
+    
+      <section class="faq-section" id="billing-security">
+        <h2>Billing, Security & Privacy</h2>
+        <p class="faq-cat-desc">Subscription plans, Stripe billing, GDPR compliance, and data retention.</p>
+        <div class="faq-list">
+          
+        <div class="faq-item">
+          <div class="faq-q">How does Stripe billing and subscription management work? <span class="faq-arrow">▼</span></div>
+          <div class="faq-a">All payments are processed securely through Stripe with 3D Secure verification. You can upgrade, downgrade, or cancel your Pro or Enterprise subscription anytime with immediate prorated adjustments.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">What is the click data retention policy? <span class="faq-arrow">▼</span></div>
+          <div class="faq-a">Individual click telemetry records are retained for 400 days in our MongoDB database with automatic TTL indexing. Summary counters (totalClicks, totalScans) on your Link documents are preserved permanently.</div>
+        </div>
+      
+        <div class="faq-item">
+          <div class="faq-q">How does HEA Link prevent abuse and malicious links? <span class="faq-arrow">▼</span></div>
+          <div class="faq-a">We employ automated destination inspection blocking private IP ranges (SSRF), dangerous schemes (javascript:, data:), and known phishing domains. Users can also report suspicious links via /api/abuse/report for immediate administrative review.</div>
+        </div>
+      
+        </div>
+      </section>
+    
+  </main>
+
+  <footer class="faq-footer">
+    © 2026 HEA Link Inc. Frequently Asked Questions.
+  </footer>
+
+  <script>
+    document.querySelectorAll('.faq-q').forEach(q => {
+      q.addEventListener('click', () => {
+        const item = q.parentElement;
+        item.classList.toggle('open');
+      });
+    });
+  </script>
+</body>
+</html>

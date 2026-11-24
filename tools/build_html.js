@@ -44,6 +44,12 @@ function buildRoot() {
   const rootAppPath = path.join(rootDir, 'app.html');
   fs.writeFileSync(rootAppPath, compiled, 'utf8');
   console.log(`[build_html] Compiled static dashboard HTML to root app.html (${compiled.length} bytes, ${compiled.split('\n').length} lines)`);
+  try {
+    const buildHelp = require('./build_help');
+    buildHelp.buildAll();
+  } catch (err) {
+    console.warn('[build_html] Note: build_help warning:', err.message);
+  }
 }
 
 if (require.main === module) {

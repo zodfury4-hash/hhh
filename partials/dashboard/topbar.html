@@ -5,6 +5,11 @@
             <h1 class="topbar-title" id="topbarTitle">Dashboard</h1>
             <p class="topbar-subtitle" id="topbarSubtitle">Track, manage and grow your links</p>
           </div>
+          <div class="workspace-switcher-wrap" id="workspaceSwitcherWrap" style="display:inline-flex;align-items:center;margin-left:14px;">
+            <select id="workspaceSelect" aria-label="Active Workspace" style="background:#ffffff;border:1.5px solid #cbd5e1;border-radius:99px;padding:6px 14px;font-size:12.5px;font-weight:700;color:#0f172a;cursor:pointer;outline:none;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+              <option value="">Personal Workspace</option>
+            </select>
+          </div>
         </div>
         <div class="topbar-actions">
           <div class="topbar-pro-badge" id="topbarProBadge">
@@ -16,7 +21,7 @@
           </button>
           <div class="topbar-notif-wrap">
             <button class="topbar-circle-icon-btn" id="topbarNotifBtn" title="Notifications" aria-label="View notifications" onclick="if(window.appShell){window.appShell.navigate('notifications');}else{location.hash='#notifications';}">🔔</button>
-            <span class="topbar-notif-badge">3</span>
+            <span class="topbar-notif-badge" id="topbarNotifBadge" style="display:none;">0</span>
           </div>
           <button class="topbar-circle-icon-btn topbar-help-btn" id="topbarHelpBtn" title="Help &amp; Guides" aria-label="Help and resources" onclick="location.hash='#resources'">❓</button>
           <a href="#settings" class="topbar-avatar" id="topbarAvatar" title="Account" aria-label="Account settings">FZ</a>

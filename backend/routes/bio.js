@@ -7,6 +7,7 @@ const firebaseRtdb = require('../firebase-service');
 const memStore = require('../utils/memStore');
 const { authMiddleware } = require('../middleware/auth');
 const { validate, bioPageSchema } = require('../middleware/validation');
+const { getEntitlements, assertWithinLimit } = require('../config/plans');
 
 function isDbConnected() {
   return mongoose.connection.readyState === 1;
@@ -87,6 +88,11 @@ router.post('/api/bios', authMiddleware, validate(bioPageSchema), async (req, re
         page.links = links || page.links;
         await page.save();
       } else {
+        if (!isAdmin) {
+          const count = await BioPage.countDocuments({ ownerEmail: email });
+          const entitlements = getEntitlements(req.user);
+          assertWithinLimit(entitlements, 'bioPages', count);
+        }
         page = new BioPage({
           ownerEmail: email,
           slug: cleanSlug,
@@ -111,6 +117,11 @@ router.post('/api/bios', authMiddleware, validate(bioPageSchema), async (req, re
         page.tagline = tagline || page.tagline;
         page.links = links || page.links;
       } else {
+        if (!isAdmin) {
+          const count = memStore.bios.filter((b) => b.ownerEmail === email).length;
+          const entitlements = getEntitlements(req.user);
+          assertWithinLimit(entitlements, 'bioPages', count);
+        }
         page = {
           id: 'bio_' + Date.now(),
           ownerEmail: email,
@@ -141,6 +152,14 @@ router.post('/api/bios', authMiddleware, validate(bioPageSchema), async (req, re
 
     res.json({ success: true, page });
   } catch (err) {
+    if (err.name === 'PlanError') {
+      return res.status(err.statusCode || 403).json({
+        ok: false,
+        error: err.message,
+        code: err.code,
+        meta: err.meta
+      });
+    }
     res.status(500).json({ error: err.message });
   }
 });

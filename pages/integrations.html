@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Integrations Hub | HEA Link Webhooks, Slack, Discord &amp; Automation</title>
+  <meta name="description" content="Connect HEA Link to Slack, Discord, webhooks, Google Analytics, BI exports, and automation workflows. Fast, reliable, and secure.">
+  <link rel="icon" type="image/png" href="/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/landing.css">
+  <style>
+    :root {
+      --int-bg: #f8fafc;
+      --int-card-bg: #ffffff;
+      --int-border: #e2e8f0;
+      --int-primary: #0070f3;
+      --int-primary-hover: #0056b3;
+      --int-text: #0b132b;
+      --int-muted: #64748b;
+      --int-success: #10b981;
+      --int-purple: #8b5cf6;
+    }
+    body {
+      background: var(--int-bg);
+      color: var(--int-text);
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    code, pre {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .int-nav {
+      background: #ffffff;
+      border-bottom: 1px solid var(--int-border);
+      padding: 14px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .int-nav-inner {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--int-primary);
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+    .nav-link {
+      color: var(--int-muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 600;
+      transition: color 0.15s;
+    }
+    .nav-link:hover {
+      color: var(--int-primary);
+    }
+    .nav-btn {
+      background: var(--int-primary);
+      color: #ffffff;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .nav-btn:hover {
+      background: var(--int-primary-hover);
+    }
+
+    /* Hero Section */
+    .hero-wrap {
+      max-width: 1300px;
+      margin: 32px auto 0;
+      padding: 0 24px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .int-hero {
+      background: linear-gradient(135deg, #0b132b 0%, #1e293b 100%);
+      color: #ffffff;
+      padding: 48px 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px -10px rgba(11, 19, 43, 0.35);
+      position: relative;
+      overflow: hidden;
+    }
+    .int-hero h1 {
+      margin: 0 0 14px;
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .int-hero p {
+      margin: 0 0 24px;
+      color: #94a3b8;
+      font-size: 1.05rem;
+      max-width: 760px;
+      line-height: 1.6;
+    }
+    .hero-stats {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .hero-stat {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 8px 16px;
+      border-radius: 99px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Filter Tabs */
+    .filter-bar {
+      max-width: 1300px;
+      margin: 28px auto 0;
+      padding: 0 24px;
+      width: 100%;
+      box-sizing: border-box;
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+    .filter-tab {
+      background: #ffffff;
+      border: 1px solid var(--int-border);
+      padding: 8px 16px;
+      border-radius: 99px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #475569;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .filter-tab.active, .filter-tab:hover {
+      background: #eff6ff;
+      border-color: var(--int-primary);
+      color: var(--int-primary);
+    }
+
+    /* Integrations Grid */
+    .catalog-wrap {
+      max-width: 1300px;
+      margin: 24px auto 64px;
+      padding: 0 24px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .catalog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 24px;
+    }
+    @media (max-width: 640px) {
+      .catalog-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .integration-card {
+      background: var(--int-card-bg);
+      border: 1px solid var(--int-border);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 14px -2px rgba(15, 23, 42, 0.04);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .integration-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 24px -4px rgba(0, 112, 243, 0.1);
+      border-color: #cbd5e1;
+    }
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .card-icon-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .card-icon {
+      width: 44px;
+      height: 44px;
+      background: #f1f5f9;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+    }
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #0b132b;
+      margin: 0;
+    }
+    .card-category {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--int-muted);
+    }
+    .status-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 99px;
+    }
+    .badge-available {
+      background: #ecfdf5;
+      color: #059669;
+      border: 1px solid #a7f3d0;
+    }
+    .badge-waitlist {
+      background: #f5f3ff;
+      color: #7c3aed;
+      border: 1px solid #ddd6fe;
+    }
+    .card-desc {
+      color: #475569;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      margin: 0 0 18px;
+      flex: 1;
+    }
+    .event-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .event-tag {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: #334155;
+    }
+    .card-action-btn {
+      width: 100%;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s;
+      box-sizing: border-box;
+    }
+    .btn-available {
+      background: #eff6ff;
+      border: 1.5px solid var(--int-primary);
+      color: var(--int-primary);
+    }
+    .btn-available:hover {
+      background: var(--int-primary);
+      color: #ffffff;
+    }
+    .btn-waitlist {
+      background: #f8fafc;
+      border: 1px solid var(--int-border);
+      color: #475569;
+    }
+    .btn-waitlist:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    /* Bookmarklet & Embeds Showcase Section */
+    .tools-section {
+      max-width: 1300px;
+      margin: 0 auto 64px;
+      padding: 0 24px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .tools-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 840px) {
+      .tools-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .tool-box {
+      background: #ffffff;
+      border: 1px solid var(--int-border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 4px 14px -2px rgba(15, 23, 42, 0.04);
+    }
+    .tool-box h3 {
+      margin: 0 0 10px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .tool-box p {
+      color: #475569;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin: 0 0 18px;
+    }
+    .bookmarklet-pill {
+      display: inline-block;
+      background: #0070f3;
+      color: #ffffff !important;
+      padding: 10px 20px;
+      border-radius: 99px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-decoration: none;
+      cursor: grab;
+      border: 2px dashed #93c5fd;
+      box-shadow: 0 4px 12px rgba(0, 112, 243, 0.25);
+    }
+    .bookmarklet-pill:active {
+      cursor: grabbing;
+    }
+
+    /* Modal for Setup & Waitlist */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(11, 19, 43, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-card {
+      background: #ffffff;
+      border-radius: 16px;
+      max-width: 500px;
+      width: 100%;
+      padding: 28px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      box-sizing: border-box;
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: transparent;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: #94a3b8;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #334155;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .form-input, .form-textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--int-border);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+    .form-btn {
+      width: 100%;
+      background: var(--int-primary);
+      color: #ffffff;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .form-btn:hover {
+      background: var(--int-primary-hover);
+    }
+    .footer {
+      background: #ffffff;
+      border-top: 1px solid var(--int-border);
+      padding: 24px;
+      text-align: center;
+      color: var(--int-muted);
+      font-size: 0.88rem;
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Nav -->
+  <nav class="int-nav">
+    <div class="int-nav-inner">
+      <a href="/" class="nav-brand">
+        <span>🔗 HEA Link</span>
+        <span style="font-size:0.85rem;color:var(--int-muted);font-weight:600;">/ Integrations</span>
+      </a>
+      <div class="nav-links">
+        <a href="/developers" class="nav-link">Developer API</a>
+        <a href="/resources/utm-guide" class="nav-link">UTM Guide</a>
+        <a href="/help" class="nav-link">Help Center</a>
+        <a href="/app.html#integrations" class="nav-btn">Manage Active Integrations</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="hero-wrap">
+    <div class="int-hero">
+      <h1>Integrations &amp; Automation Hub</h1>
+      <p>Connect your shortlinks and QR codes to team chat, marketing automation, real-time webhooks, and business intelligence pipelines. Honest capabilities with zero simulated fluff.</p>
+      <div class="hero-stats">
+        <div class="hero-stat">⚡ Outbound HMAC-SHA256 Webhooks</div>
+        <div class="hero-stat">💬 Native Slack &amp; Discord Notifications</div>
+        <div class="hero-stat">📥 Streamed CSV &amp; JSON BI Exports</div>
+        <div class="hero-stat">🛡️ SSRF DNS Protection Built-in</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <button type="button" class="filter-tab active" onclick="filterCatalog('all', this)">All Integrations (13)</button>
+    <button type="button" class="filter-tab" onclick="filterCatalog('available', this)">Live &amp; Available (7)</button>
+    <button type="button" class="filter-tab" onclick="filterCatalog('developer', this)">Developer &amp; Webhooks (2)</button>
+    <button type="button" class="filter-tab" onclick="filterCatalog('productivity', this)">Team Chat &amp; Alerts (2)</button>
+    <button type="button" class="filter-tab" onclick="filterCatalog('marketing', this)">Marketing &amp; UTM (3)</button>
+    <button type="button" class="filter-tab" onclick="filterCatalog('coming_soon', this)">Coming Soon (6)</button>
+  </div>
+
+  <!-- Catalog Grid -->
+  <main class="catalog-wrap">
+    <div class="catalog-grid" id="catalogGrid">
+      <!-- 1. Webhooks (Available) -->
+      <div class="integration-card" data-status="available" data-cat="developer">
+        <div class="card-top">
+          <div class="card-icon-title">
+            <div class="card-icon">⚡</div>
+            <div>
+              <h3 class="card-title">Outbound Webhooks</h3>
+              <div class="card-category">Developer</div>
+            </div>
+          </div>
+          <span class="status-badge badge-available">● Live &amp; Available</span>
+        </div>
+        <p class="card-desc">Real-time HTTP POST event dispatch whenever a link is created or clicked. Includes HMAC-SHA256 signatures (<code>X-HEA-Signature</code>), retry backoff, and delivery logs.</p>
+        <div class="event-tags">
+          <span class="event-tag">link.created</span>
+          <span class="event-tag">link.clicked</span>
+          <span class="event-tag">qr.created</span>
+        </div>
+        <button type="button" class="card-action-btn btn-available" onclick="openSetupModal('webhooks')">Configure Webhook →</button>
+      </div>
+
+      <!-- 2. Slack (Available) -->
+      <div class="integration-card" data-status="available" data-cat="productivity">
+        <div class="card-top">
+          <div class="card-icon-title">
+            <div class="card-icon">💬</div>
+            <div>
+              <h3 class="card-title">Slack Notifications</h3>
+              <div class="card-category">Productivity</div>
+            </div>
+          </div>
+          <span class="status-badge badge-available">● Live &amp; Available</span>
+        </div>
+        <p class="card-desc">Post structured Slack Block Kit notifications to your team channels when new marketing shortlinks are generated or traffic milestones are achieved.</p>
+        <div class="event-tags">
+          <span class="event-tag">link.created</span>
+          <span class="event-tag">milestone.reached</span>
+        </div>
+        <button type="button" class="card-action-btn btn-available" onclick="openSetupModal('slack')">Connect Slack Channel →</button>
+      </div>
+
+      <!-- 3. Discord (Available) -->
+      <div class="integration-card" data-status="available" data-cat="productivity">
+        <div class="card-top">
+          <div class="card-icon-title">
+            <div class="card-icon">🎮</div>
+            <div>
+              <h3 class="card-title">Discord Webhooks</h3>
+              <div class="card-category">Community &amp; Chat</div>
+            </div>
+          </div>
+          <span class="status-badge badge-available">● Live &amp; Available</span>
+        </div>
+        <p class="card-desc">Send color-coded rich Discord embeds with shortlink previews, destination targets, and click counts directly into Discord server channels.</p>
+        <div class="event-tags">
+          <span class="event-tag">link.created</span>
+          <span class="event-tag">milestone.reached</span>
+        </div>
+        <button type="button" class="card-action-btn btn-available" onclick="openSetupModal('discord')">Connect Discord Webhook →</button>
+      </div>
+
+      <!-- 4. Google Analytics & UTM Engine (Available) -->
+      <div class="integration-card" data-status="available" data-cat="marketing">
+        <div class="card-top">
+          <div class="card-icon-title">
+            <div class="card-icon">📊</div>
+            <div>
+              <h3 class="card-title">Google Analytics &amp; UTM Engine</h3>
+              <div class="card-category">Analytics</div>
+            </div>
+          </div>
+          <span class="status-badge badge-available">● Built-in</span>
+        </div>
+        <p class="card-desc">Standardized campaign attribution. Preserve, normalize, and merge UTM parameters (source, medium, campaign, content, term) across shortlink redirects.</p>
+        <div class="event-tags">
+          <span class="event-tag">utm_source</span>
+          <span class="event-tag">utm_campaign</span>
+          <span class="event-tag">ga4-ready</span>
+        </div>
+        <a href="/resources/utm-guide" class="card-action-btn btn-available">Open UTM Campaign Guide ↗</a>
+      </div>
+
+      <!-- 5. Data Export (Available) -->
+      <div class="integration-card" data-status="available" data-cat="developer">
+        <div class="card-top">
+          <div class="card-icon-title">
+            <div class="card-icon">📥</div>
+            <div>
+              <h3 class="card-title">Streamed CSV &amp; JSON Export</h3>
+              <div class="card-category">Data Warehouse</div>
+            </div>
+          </div>
+          <span class="status-badge badge-available">● Live &amp; Available</span>
+        </div>
+        <p class="card-desc">Stream link records and click logs directly to CSV or JSON formats for import into Snowflake, Google BigQuery, Microsoft Excel, or Tableau.</p>
+        <div class="event-tags">
+          <span class="event-tag">GET /api/export/links.csv</span>
+          <span class="event-tag">GET /api/export/clicks.csv</span>
+        </div>
+        <a href="/developers#export" class="card-action-btn btn-available">View Export Endpoints ↗</a>
+      </div>
+
+      <!-- 6. Browser Quick Shortener (Available) -->
+      <div class="integration-card" data-status="available" data-cat="productivity">
+        <div class="card-top">
+          <div class="card-icon-title">
+            <div class="card-icon">🔖</div>
+            <div>
+              <h3 class="card-title">Browser Quick Shortener</h3>
+              <div class="card-category">Browser Utility</div>
+            </div>
+          </div>
+          <span class="status-badge badge-available">● Built-in</span>
+        </div>
+        <p class="card-desc">Drag our JavaScript bookmarklet to your browser's bookmarks bar to shorten any active tab URL in one click without leaving the page.</p>
+        <div class="event-tags">
+          <span class="event-tag">Chrome</span>
+          <span class="event-tag">Safari</span>
+          <span class="event-tag">Firefox</span>
+          <span class="event-tag">Edge</span>
+        </div>
+        <a href="#bookmarklet-box" class="card-action-btn btn-available">Get Bookmarklet ↓</a>
+      </div>
+
+      <!-- 7. Embed Snippets (Available) -->
+      <div class="integration-card" data-status="available" data-cat="marketing">
+        <div class="card-top">
+          <div class="card-icon-title">
+            <div class="card-icon">🧩</div>
+            <div>
+              <h3 class="card-title">Embed Snippets &amp; Bio Badges</h3>
+              <div class="card-category">Marketing</div>
+            </div>
+          </div>
+          <span class="status-badge badge-available">● Built-in</span>
+        </div>
+        <p class="card-desc">Embed responsive URL shortening input capsules, live telemetry badges, or interactive bio cards into Webflow, WordPress, or custom HTML sites.</p>
+        <div class="event-tags">
+          <span class="event-tag">&lt;iframe&gt;</span>
+          <span class="event-tag">HTML5 Widget</span>
+        </div>
+        <a href="#embeds-box" class="card-action-btn btn-available">Get Embed Code ↓</a>
+      </div>
+
+      <!-- COMING SOON SECTION (HONEST WAITLIST) -->
+      <!-- 8. Zapier -->
+      <div class="integration-card" data-status="coming_soon" data-cat="automation">
+        <div class="card-top">
+          <div class="card-icon-title">
+            <div class="card-icon">⚡</div>
+            <div>
+              <h3 class="card-title">Zapier</h3>
+              <div class="card-category">Automation</div>
+            </div>
+          </div>
+          <span class="status-badge badge-waitlist">⏳ Coming Soon</span>
+        </div>
+        <p class="card-desc">Trigger Zaps on new shortlink clicks, or automatically generate branded QR codes from Google Sheets, Airtable, or Typeform submissions.</p>
+        <button type="button" class="card-action-btn btn-waitlist" onclick="openWaitlistModal('zapier', 'Zapier')">Join Waitlist 🔔</button>
+      </div>
+
+      <!-- 9. Make.com -->
+      <div class="integration-card" data-status="coming_soon" data-cat="automation">
+        <div class="card-top">
+          <div class="card-icon-title">
+            <div class="card-icon">🟣</div>
+            <div>
+              <h3 class="card-title">Make (Integromat)</h3>
+              <div class="card-category">Automation</div>
+            </div>
+          </div>
+          <span class="status-badge badge-waitlist">⏳ Coming Soon</span>
+        </div>
+        <p class="card-desc">Build visual multi-step automation scenarios connecting HEA Link events to CRM systems, SQL databases, and internal enterprise tools.</p>
+        <button type="button" class="card-action-btn btn-waitlist" onclick="openWaitlistModal('make', 'Make (Integromat)')">Join Waitlist 🔔</button>
+      </div>
+
+      <!-- 10. HubSpot -->
+      <div class="integration-card" data-status="coming_soon" data-cat="marketing">
+        <div class="card-top">
+          <div class="card-icon-title">
+            <div class="card-icon">🧡</div>
+            <div>
+              <h3 class="card-title">HubSpot CRM</h3>
+              <div class="card-category">Marketing CRM</div>
+            </div>
+          </div>
+          <span class="status-badge badge-waitlist">⏳ Coming Soon</span>
+        </div>
+        <p class="card-desc">Synchronize visitor click attribution directly into HubSpot contact timelines, deals, and automated email nurturing sequences.</p>
+        <button type="button" class="card-action-btn btn-waitlist" onclick="openWaitlistModal('hubspot', 'HubSpot CRM')">Join Waitlist 🔔</button>
+      </div>
+
+      <!-- 11. Shopify -->
+      <div class="integration-card" data-status="coming_soon" data-cat="ecommerce">
+        <div class="card-top">
+          <div class="card-icon-title">
+            <div class="card-icon">🛍️</div>
+            <div>
+              <h3 class="card-title">Shopify Storefront</h3>
+              <div class="card-category">E-Commerce</div>
+            </div>
+          </div>
+          <span class="status-badge badge-waitlist">⏳ Coming Soon</span>
+        </div>
+        <p class="card-desc">Generate branded product links and packaging vector QR codes automatically on product creation or order fulfillment.</p>
+        <button type="button" class="card-action-btn btn-waitlist" onclick="openWaitlistModal('shopify', 'Shopify Storefront')">Join Waitlist 🔔</button>
+      </div>
+
+      <!-- 12. Notion -->
+      <div class="integration-card" data-status="coming_soon" data-cat="productivity">
+        <div class="card-top">
+          <div class="card-icon-title">
+            <div class="card-icon">📓</div>
+            <div>
+              <h3 class="card-title">Notion Sync</h3>
+              <div class="card-category">Productivity</div>
+            </div>
+          </div>
+          <span class="status-badge badge-waitlist">⏳ Coming Soon</span>
+        </div>
+        <p class="card-desc">Keep your marketing asset registry in Notion continuously synchronized in real-time with click totals and destination targets.</p>
+        <button type="button" class="card-action-btn btn-waitlist" onclick="openWaitlistModal('notion', 'Notion Sync')">Join Waitlist 🔔</button>
+      </div>
+
+      <!-- 13. WordPress -->
+      <div class="integration-card" data-status="coming_soon" data-cat="marketing">
+        <div class="card-top">
+          <div class="card-icon-title">
+            <div class="card-icon">🌐</div>
+            <div>
+              <h3 class="card-title">WordPress Plugin</h3>
+              <div class="card-category">CMS</div>
+            </div>
+          </div>
+          <span class="status-badge badge-waitlist">⏳ Coming Soon</span>
+        </div>
+        <p class="card-desc">Auto-shorten blog posts and WooCommerce product URLs directly inside the WordPress block editor on publish.</p>
+        <button type="button" class="card-action-btn btn-waitlist" onclick="openWaitlistModal('wordpress', 'WordPress')">Join Waitlist 🔔</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- In-Page Utility Tools: Bookmarklet & Embeds -->
+  <section class="tools-section">
+    <div class="tools-grid">
+      <!-- Bookmarklet -->
+      <div class="tool-box" id="bookmarklet-box">
+        <h3>🔖 Browser Quick Shortener Bookmarklet</h3>
+        <p>Drag the blue button below onto your browser's Bookmarks bar. When you are on any webpage you want to shorten, click it to open the HEA Link shortener instantly with the active URL pre-filled.</p>
+        <div style="margin:20px 0;text-align:center;">
+          <a class="bookmarklet-pill" href="javascript:(function(){window.open('https://hea.link/app.html#create?url='+encodeURIComponent(location.href),'_blank','width=600,height=700');})();" onclick="alert('Drag this button to your browser Bookmarks Bar (Ctrl+Shift+B / Cmd+Shift+B) to install!');return false;">
+            + Drag to Bookmarks: Shorten with HEA Link
+          </a>
+        </div>
+        <div style="font-size:0.8rem;color:#64748b;">
+          <b>Pro Tip:</b> Works in Google Chrome, Apple Safari, Mozilla Firefox, and Microsoft Edge without any extension installation or tracking permissions.
+        </div>
+      </div>
+
+      <!-- Embeds -->
+      <div class="tool-box" id="embeds-box">
+        <h3>🧩 Responsive Shortener Embed Widget</h3>
+        <p>Drop a branded HEA Link shortening widget or QR generation capsule into your website, landing page, or documentation:</p>
+        <pre style="background:#0f172a;color:#38bdf8;padding:14px;border-radius:10px;font-size:0.8rem;overflow-x:auto;">&lt;iframe 
+  src="https://hea.link/embed/shorten?theme=light" 
+  width="100%" 
+  height="160" 
+  frameborder="0" 
+  loading="lazy" 
+  title="HEA Link URL Shortener"&gt;
+&lt;/iframe&gt;</pre>
+        <button type="button" class="card-action-btn btn-available" onclick="navigator.clipboard.writeText('&lt;iframe src=&quot;https://hea.link/embed/shorten?theme=light&quot; width=&quot;100%&quot; height=&quot;160&quot; frameborder=&quot;0&quot; loading=&quot;lazy&quot; title=&quot;HEA Link URL Shortener&quot;&gt;&lt;/iframe&gt;');alert('Embed snippet copied to clipboard!');">Copy Embed Snippet</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Setup Modal (for Webhooks, Slack, Discord) -->
+  <div class="modal-overlay" id="setupModal" style="display:none;">
+    <div class="modal-card">
+      <button type="button" class="modal-close" onclick="closeSetupModal()">✕</button>
+      <h3 style="margin:0 0 8px;font-size:1.3rem;font-weight:700;" id="setupModalTitle">Configure Integration</h3>
+      <p style="color:#64748b;font-size:0.88rem;margin:0 0 20px;" id="setupModalDesc">Provide target destination URL.</p>
+
+      <form id="setupIntegrationForm" onsubmit="submitIntegrationForm(event)">
+        <input type="hidden" id="setupProvider" value="" />
+        <div class="form-group">
+          <label class="form-label" for="setupName">Integration Name</label>
+          <input type="text" id="setupName" class="form-input" placeholder="e.g. Production Team Alerts" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="setupUrl" id="setupUrlLabel">Target URL / Webhook Endpoint</label>
+          <input type="url" id="setupUrl" class="form-input" placeholder="https://..." required />
+        </div>
+        <div class="form-group" id="setupSecretGroup">
+          <label class="form-label" for="setupSecret">HMAC Signing Secret (Optional)</label>
+          <input type="text" id="setupSecret" class="form-input" placeholder="Enter custom secret string or leave blank" />
+          <span style="font-size:0.75rem;color:#64748b;">Used to compute SHA-256 header (X-HEA-Signature).</span>
+        </div>
+        <button type="submit" class="form-btn" id="setupSubmitBtn">Save &amp; Activate Integration</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Waitlist Modal (for Coming Soon) -->
+  <div class="modal-overlay" id="waitlistModal" style="display:none;">
+    <div class="modal-card">
+      <button type="button" class="modal-close" onclick="closeWaitlistModal()">✕</button>
+      <h3 style="margin:0 0 8px;font-size:1.3rem;font-weight:700;" id="waitlistModalTitle">Join Integration Waitlist</h3>
+      <p style="color:#64748b;font-size:0.88rem;margin:0 0 20px;">We will email you the moment this integration is ready for early access.</p>
+
+      <form id="waitlistForm" onsubmit="submitWaitlistForm(event)">
+        <input type="hidden" id="waitlistProvider" value="" />
+        <div class="form-group">
+          <label class="form-label" for="waitlistEmail">Your Email Address</label>
+          <input type="email" id="waitlistEmail" class="form-input" placeholder="you@company.com" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="waitlistUseCase">Primary Use Case (Optional)</label>
+          <textarea id="waitlistUseCase" class="form-textarea" rows="3" placeholder="Tell us what you plan to build with this integration..."></textarea>
+        </div>
+        <button type="submit" class="form-btn" id="waitlistSubmitBtn">Notify Me On Launch 🔔</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <div>&copy; 2026 HEA Link Inc. Honest integrations and real-time developer webhooks.</div>
+      <div style="display:flex;gap:16px;">
+        <a href="/" style="color:#64748b;text-decoration:none;">Home</a>
+        <a href="/developers" style="color:#64748b;text-decoration:none;">Developer API</a>
+        <a href="/resources/utm-guide" style="color:#64748b;text-decoration:none;">UTM Guide</a>
+        <a href="/help" style="color:#64748b;text-decoration:none;">Help Center</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function filterCatalog(filter, btn) {
+      document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const cards = document.querySelectorAll('.integration-card');
+      cards.forEach(card => {
+        const status = card.getAttribute('data-status');
+        const cat = card.getAttribute('data-cat');
+        if (filter === 'all') {
+          card.style.display = 'flex';
+        } else if (filter === 'available' || filter === 'coming_soon') {
+          card.style.display = status === filter ? 'flex' : 'none';
+        } else {
+          card.style.display = cat === filter ? 'flex' : 'none';
+        }
+      });
+    }
+
+    function openSetupModal(provider) {
+      document.getElementById('setupProvider').value = provider;
+      const titleEl = document.getElementById('setupModalTitle');
+      const descEl = document.getElementById('setupModalDesc');
+      const urlLabel = document.getElementById('setupUrlLabel');
+      const secretGroup = document.getElementById('setupSecretGroup');
+
+      if (provider === 'slack') {
+        titleEl.innerText = 'Connect Slack Incoming Webhook';
+        descEl.innerText = 'Create an Incoming Webhook in your Slack Workspace and paste the URL below.';
+        urlLabel.innerText = 'Slack Webhook URL';
+        secretGroup.style.display = 'none';
+      } else if (provider === 'discord') {
+        titleEl.innerText = 'Connect Discord Channel Webhook';
+        descEl.innerText = 'Create a Webhook in your Discord Channel Settings and paste the URL below.';
+        urlLabel.innerText = 'Discord Webhook URL';
+        secretGroup.style.display = 'none';
+      } else {
+        titleEl.innerText = 'Configure Outbound Webhook';
+        descEl.innerText = 'HEA Link will send real-time HTTP POST event notifications to this URL.';
+        urlLabel.innerText = 'Target Endpoint URL';
+        secretGroup.style.display = 'block';
+      }
+
+      document.getElementById('setupModal').style.display = 'flex';
+    }
+
+    function closeSetupModal() {
+      document.getElementById('setupModal').style.display = 'none';
+    }
+
+    async function submitIntegrationForm(e) {
+      e.preventDefault();
+      const provider = document.getElementById('setupProvider').value;
+      const name = document.getElementById('setupName').value;
+      const url = document.getElementById('setupUrl').value;
+      const secret = document.getElementById('setupSecret').value;
+      const submitBtn = document.getElementById('setupSubmitBtn');
+
+      const token = localStorage.getItem('token') || localStorage.getItem('hea_token');
+      if (!token) {
+        alert('Please log into your HEA Link account first to save integrations.');
+        window.location.href = '/#login';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'Saving...';
+
+      try {
+        const res = await fetch('/api/integrations', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify({
+            provider,
+            name,
+            config: { url, secret }
+          })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          alert('Integration activated successfully! You can manage it from your Dashboard.');
+          closeSetupModal();
+        } else {
+          alert('Error: ' + (data.error || 'Failed to save integration'));
+        }
+      } catch (err) {
+        alert('Network error: ' + err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = 'Save & Activate Integration';
+      }
+    }
+
+    function openWaitlistModal(provider, name) {
+      document.getElementById('waitlistProvider').value = provider;
+      document.getElementById('waitlistModalTitle').innerText = `Join ${name} Waitlist`;
+      document.getElementById('waitlistModal').style.display = 'flex';
+    }
+
+    function closeWaitlistModal() {
+      document.getElementById('waitlistModal').style.display = 'none';
+    }
+
+    async function submitWaitlistForm(e) {
+      e.preventDefault();
+      const provider = document.getElementById('waitlistProvider').value;
+      const email = document.getElementById('waitlistEmail').value;
+      const useCase = document.getElementById('waitlistUseCase').value;
+      const submitBtn = document.getElementById('waitlistSubmitBtn');
+
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'Submitting...';
+
+      try {
+        const res = await fetch('/api/integrations/waitlist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ provider, email, useCase })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          alert(data.message || 'You have been added to the waitlist!');
+          closeWaitlistModal();
+        } else {
+          alert('Error: ' + (data.error || 'Failed to join waitlist'));
+        }
+      } catch (err) {
+        alert('Network error: ' + err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = 'Notify Me On Launch 🔔';
+      }
+    }
+  </script>
+</body>
+</html>
