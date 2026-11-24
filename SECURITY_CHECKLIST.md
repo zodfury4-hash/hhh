@@ -6,13 +6,12 @@ This document details the critical security enhancements applied during **Phase 
 
 ## 🛡️ Applied Security Fixes
 
-### 1. Database & Firebase Realtime Database Security Rules
-- **Vulnerability**: Previously, `database.rules.json` allowed unauthenticated public reads and writes (`.read: true`, `.write: true`).
-- **Remediation**: Locked down rules to deny by default (`.read: false`, `.write: false`) and restricted access exclusively to authenticated users matching their unique User ID (`auth.uid == $uid`).
-- **File**: `database.rules.json`
+### 1. Single-Source MongoDB & Strict Availability (`dbCheck`)
+- **Architecture**: MongoDB (via Mongoose 9) is the sole source of truth for all authentication and persistent data. No legacy Firebase SDK or Realtime Database bridge remains in live code.
+- **Availability Guard**: `backend/middleware/dbCheck.js` rejects API requests with `HTTP 503` whenever MongoDB is disconnected outside `NODE_ENV=test`.
 
 ### 2. Elimination of Hardcoded VIP Admin Credentials & Client-Side Privilege Escalation
-- **Vulnerability**: Plaintext passwords and administrator emails (`furyzod02@gmail.com`, `healink@gmail.com`) were hardcoded in `js/auth/firebase-config.js` and `js/dashboard/app.js` (`vipPasses`), allowing arbitrary client-side privilege escalation without backend verification.
+- **Vulnerability**: Plaintext passwords and administrator emails were previously hardcoded client-side, allowing arbitrary privilege escalation without backend verification.
 - **Remediation**:
   - Completely purged `VIP_ADMIN_ACCOUNTS`, `vipPasses`, and hardcoded passwords from both client and backend code.
   - Implemented a formal `role: { type: String, enum: ['user', 'admin'], default: 'user' }` in `backend/models/User.js`.
@@ -118,9 +117,9 @@ To complete deployment to production, perform the following manual tasks:
    - Copy the Signing Secret (`whsec_...`) and place it into `STRIPE_WEBHOOK_SECRET` in `.env`.
 3. **SMTP Email Credentials**:
    - Provide active SMTP credentials in `.env` (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`) so users receive real 6-digit verification codes and password reset emails.
-4. **Firebase Console Rules (If RTDB is retained)**:
-   - Go to [Firebase Console](https://console.firebase.google.com/) -> Realtime Database -> Rules.
-   - Paste the contents of `database.rules.json` and click **Publish**.
+4. **Google & Apple OAuth Credentials**:
+   - Set `GOOGLE_CLIENT_ID` in `.env` for Google Identity Services ID token verification (`google-auth-library`).
+   - Optionally set `APPLE_CLIENT_ID` in `.env` for Sign in with Apple JWKS verification (`jose`).
 5. **Google Safe Browsing API Key (Optional)**:
    - Enable "Google Safe Browsing API" in Google Cloud Console and paste the API key into `GOOGLE_SAFE_BROWSING_KEY` in `.env`.
 

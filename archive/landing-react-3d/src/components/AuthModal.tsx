@@ -12,7 +12,6 @@ import {
   AlertCircle,
   CheckCircle2,
 } from 'lucide-react';
-import { signInWithGooglePopup } from '../firebase';
 
 export type AuthMode = 'login' | 'signup' | 'verify' | 'forgot' | 'reset';
 
@@ -20,17 +19,6 @@ interface AuthModalProps {
   isOpen: boolean;
   initialMode?: AuthMode;
   onClose: () => void;
-}
-
-// Master Admin Accounts (Unlimited Free VIP access)
-const VIP_ACCOUNTS: Record<string, { name: string; pass: string }> = {
-  'furyzod02@gmail.com': { name: 'Fury Zod', pass: '123456789' },
-  'healink@gmail.com': { name: 'HEA Link Admin', pass: 'healink123' },
-};
-
-function isVipAdmin(email: string): boolean {
-  if (!email) return false;
-  return !!VIP_ACCOUNTS[email.toLowerCase().trim()];
 }
 
 // Clean and user-friendly error sanitization (never show raw JSON/HTML syntax errors)
@@ -88,7 +76,7 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
-  const [devCode, setDevCode] = useState('');
+  const devCode = '';
 
   // Sync mode whenever initialMode changes
   useEffect(() => {
@@ -127,61 +115,86 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
 
   if (!isOpen) return null;
 
-  // Google Single Sign-On (Bulletproof: Firebase + Local Session + Fallback)
+  // Store Mongo + JWT user session and redirect to dashboard
+  const completeAuthSession = (data: any, msg: string) => {
+    const u = data?.user || {};
+    const isAdmin = u.role === 'admin' || !!u.isAdmin;
+    const userSession = {
+      name: u.name || (u.email ? u.email.split('@')[0] : 'Account'),
+      email: u.email || '',
+      role: u.role || (isAdmin ? 'admin' : 'user'),
+      isVerified: true,
+      isPro: !!u.isPro || isAdmin,
+      isAdmin,
+      plan: u.plan || (isAdmin ? 'Unlimited' : 'Free'),
+      avatar: u.avatar || '',
+      token: data?.token || '',
+    };
+    if (userSession.token) {
+      localStorage.setItem('hea_token', userSession.token);
+      sessionStorage.setItem('hea_token', userSession.token);
+    }
+    localStorage.setItem('hea_session', JSON.stringify(userSession));
+    sessionStorage.setItem('hea_session', JSON.stringify(userSession));
+    setSuccessMsg(msg);
+    setTimeout(() => {
+      window.location.href = '/app.html';
+    }, 500);
+  };
+
+  // Google Single Sign-On via Google Identity Services + Backend ID Token verification
   const handleGoogleSso = async () => {
     try {
       setIsLoading(true);
       setError('');
 
-      const { user } = await signInWithGooglePopup();
-      if (!user || !user.email) {
-        throw new Error('Google did not return user account details.');
+      const cfgRes = await fetch('/api/config');
+      const cfg = cfgRes.ok ? await cfgRes.json() : {};
+      const clientId = cfg.googleClientId || (window as any).GOOGLE_CLIENT_ID || '';
+      if (!clientId) {
+        throw new Error('Google Sign-In is not configured on this server.');
       }
 
-      const cleanEmail = user.email.toLowerCase().trim();
-      const isVip = isVipAdmin(cleanEmail);
-      const userSession = {
-        name: user.displayName || cleanEmail.split('@')[0],
-        email: cleanEmail,
-        isVerified: true,
-        isPro: isVip,
-        isAdmin: isVip,
-        plan: isVip ? 'Unlimited' : 'Free',
-        avatar: user.photoURL || '',
-        provider: 'firebase-google',
-        uid: user.uid,
-      };
+      const g = (window as any).google;
+      if (!g || !g.accounts || !g.accounts.id) {
+        throw new Error('Google Sign-In SDK is still loading. Please try again.');
+      }
 
-      // 1. Set session in localStorage & sessionStorage for app.html / app-shell.js
-      localStorage.setItem('hea_session', JSON.stringify(userSession));
-      sessionStorage.setItem('hea_session', JSON.stringify(userSession));
-
-      // 2. Persist to Firebase Realtime Database
-      try {
-        if (typeof window !== 'undefined' && (window as any).fbRtdbClient) {
-          (window as any).fbRtdbClient.saveUser(cleanEmail, userSession);
-        }
-      } catch (e) {}
-
-      // 3. Inform backend API in background if online (safely ignore HTML response)
-      try {
-        const idToken = await user.getIdToken();
-        fetch('/api/auth/google', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            idToken,
-            email: cleanEmail,
-            name: userSession.name,
-            photoUrl: userSession.avatar,
-          }),
-        }).catch(() => {});
-      } catch (e) {}
-
-      setSuccessMsg(`Welcome, ${userSession.name}! Launching dashboard...`);
-      setTimeout(() => {
-        window.location.href = '/app.html';
-      }, 500);
+      await new Promise<void>((resolve, reject) => {
+        g.accounts.id.initialize({
+          client_id: clientId,
+          callback: async (response: any) => {
+            try {
+              if (!response?.credential) {
+                throw new Error('Google did not return a credential token.');
+              }
+              const res = await fetch('/api/auth/google', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ credential: response.credential }),
+              });
+              const data = await res.json();
+              if (!res.ok || !data.success || !data.token) {
+                throw new Error(data.error || 'Google authentication failed.');
+              }
+              completeAuthSession(data, `Welcome, ${data.user?.name || 'User'}! Launching dashboard...`);
+              resolve();
+            } catch (e) {
+              reject(e);
+            }
+          },
+        });
+        g.accounts.id.prompt((notification: any) => {
+          if (
+            notification &&
+            (notification.isNotDisplayed?.() ||
+              notification.isSkippedMoment?.() ||
+              notification.isDismissedMoment?.())
+          ) {
+            reject(new Error('Google sign-in prompt was closed or blocked.'));
+          }
+        });
+      });
     } catch (err: any) {
       setError(sanitizeErrorMessage(err));
     } finally {
@@ -199,452 +212,96 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
     const cleanName = (name || cleanEmail.split('@')[0]).trim();
 
     try {
-      // ==========================================
-      // 1. SIGNUP FLOW
-      // ==========================================
+      // 1. SIGNUP FLOW (MongoDB + Email OTP)
       if (mode === 'signup') {
-        if (isVipAdmin(cleanEmail)) {
-          setError('An account with this email already exists. Please log in.');
-          setIsLoading(false);
+        if (password.length < 8) {
+          setError('Password must be at least 8 characters long.');
           return;
         }
-
-        // Step A: Firebase Auth create user
-        if (typeof window !== 'undefined' && (window as any).fbAuth) {
-          try {
-            const cred = await (window as any).fbAuth.createUserWithEmailAndPassword(cleanEmail, password);
-            if (cred && cred.user) {
-              await cred.user.updateProfile({ displayName: cleanName }).catch(() => {});
-              const userSession = {
-                name: cleanName,
-                email: cleanEmail,
-                isVerified: true,
-                isPro: false,
-                plan: 'Free',
-                provider: 'firebase',
-                uid: cred.user.uid,
-              };
-              localStorage.setItem('hea_session', JSON.stringify(userSession));
-              sessionStorage.setItem('hea_session', JSON.stringify(userSession));
-              try {
-                (window as any).fbRtdbClient?.saveUser(cleanEmail, userSession);
-              } catch (e) {}
-              setSuccessMsg('Account created successfully! Launching dashboard...');
-              setTimeout(() => {
-                window.location.href = '/app.html';
-              }, 500);
-              return;
-            }
-          } catch (fbErr: any) {
-            console.warn('Firebase signup notice:', fbErr?.code);
-            if (fbErr?.code === 'auth/email-already-in-use') {
-              setError('An account with this email already exists. Please log in.');
-              setIsLoading(false);
-              return;
-            }
-          }
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: cleanEmail, password, name: cleanName }),
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          setMode('verify');
+          setSuccessMsg('Verification code sent! Please check your inbox.');
+        } else {
+          setError(sanitizeErrorMessage(data.error || 'Failed to create account.'));
         }
-
-        // Step B: Backend API
-        try {
-          const res = await fetch('/api/auth/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: cleanEmail, password, name: cleanName }),
-          });
-
-          const contentType = res.headers.get('content-type') || '';
-          if (contentType.includes('application/json')) {
-            const data = await res.json();
-            if (res.ok && data.success) {
-              if (data.requiresVerification) {
-                setMode('verify');
-                setSuccessMsg('Verification code sent! Please check your inbox.');
-                if (data.devCode) setDevCode(data.devCode);
-                return;
-              } else {
-                const userSession = {
-                  name: cleanName,
-                  email: cleanEmail,
-                  isVerified: true,
-                  token: data.token,
-                  isPro: false,
-                  plan: 'Free',
-                };
-                localStorage.setItem('hea_session', JSON.stringify(userSession));
-                sessionStorage.setItem('hea_session', JSON.stringify(userSession));
-                setSuccessMsg('Account created! Launching dashboard...');
-                setTimeout(() => {
-                  window.location.href = '/app.html';
-                }, 500);
-                return;
-              }
-            } else if (data.error) {
-              setError(sanitizeErrorMessage(data.error));
-              setIsLoading(false);
-              return;
-            }
-          }
-        } catch (apiErr) {
-          console.warn('API signup network notice:', apiErr);
-        }
-
-        // Step C: Local storage fallback
-        try {
-          const rawUsers = localStorage.getItem('hea_users');
-          const users = rawUsers ? JSON.parse(rawUsers) : [];
-          if (users.some((u: any) => u.email === cleanEmail)) {
-            setError('An account with this email already exists. Please log in.');
-            setIsLoading(false);
-            return;
-          }
-          users.push({ name: cleanName, email: cleanEmail, password, isVerified: true, createdAt: new Date().toISOString() });
-          localStorage.setItem('hea_users', JSON.stringify(users));
-
-          const userSession = {
-            name: cleanName,
-            email: cleanEmail,
-            isVerified: true,
-            isPro: false,
-            plan: 'Free',
-            provider: 'local',
-          };
-          localStorage.setItem('hea_session', JSON.stringify(userSession));
-          sessionStorage.setItem('hea_session', JSON.stringify(userSession));
-          try {
-            (window as any).fbRtdbClient?.saveUser(cleanEmail, userSession);
-          } catch (e) {}
-
-          setSuccessMsg('Account created successfully! Launching dashboard...');
-          setTimeout(() => {
-            window.location.href = '/app.html';
-          }, 500);
-          return;
-        } catch (e) {}
-
-        setError('Failed to create account. Please try again.');
         return;
       }
 
-      // ==========================================
-      // 2. LOGIN FLOW
-      // ==========================================
+      // 2. LOGIN FLOW (MongoDB + JWT)
       if (mode === 'login') {
-        // Step A: Instant Master VIP Admin Accounts (e.g. furyzod02@gmail.com)
-        if (VIP_ACCOUNTS[cleanEmail]) {
-          const vip = VIP_ACCOUNTS[cleanEmail];
-          if (vip.pass === password) {
-            const userSession = {
-              name: vip.name,
-              email: cleanEmail,
-              isVerified: true,
-              isPro: true,
-              isAdmin: true,
-              plan: 'Unlimited',
-              provider: 'email',
-            };
-            localStorage.setItem('hea_session', JSON.stringify(userSession));
-            sessionStorage.setItem('hea_session', JSON.stringify(userSession));
-            try {
-              (window as any).fbRtdbClient?.saveUser(cleanEmail, userSession);
-            } catch (e) {}
-            setSuccessMsg(`Welcome back, ${vip.name}! Launching dashboard...`);
-            setTimeout(() => {
-              window.location.href = '/app.html';
-            }, 500);
-            return;
-          } else {
-            setError('Incorrect email or password. Please try again.');
-            setIsLoading(false);
-            return;
-          }
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: cleanEmail, password }),
+        });
+        const data = await res.json();
+        if (res.ok && data.success && data.token) {
+          completeAuthSession(data, 'Login successful! Launching dashboard...');
+        } else if (res.status === 403 && data.error === 'email_not_verified') {
+          setMode('verify');
+          setError('Please verify your email address to continue.');
+        } else {
+          setError(sanitizeErrorMessage(data.error || 'Incorrect email or password.'));
         }
-
-        // Step B: Firebase Auth Email/Password
-        if (typeof window !== 'undefined' && (window as any).fbAuth) {
-          try {
-            const cred = await (window as any).fbAuth.signInWithEmailAndPassword(cleanEmail, password);
-            if (cred && cred.user) {
-              const isVip = isVipAdmin(cleanEmail);
-              const userSession = {
-                name: cred.user.displayName || cleanEmail.split('@')[0],
-                email: cleanEmail,
-                isVerified: true,
-                isPro: isVip,
-                isAdmin: isVip,
-                plan: isVip ? 'Unlimited' : 'Free',
-                uid: cred.user.uid,
-                provider: 'firebase',
-              };
-              localStorage.setItem('hea_session', JSON.stringify(userSession));
-              sessionStorage.setItem('hea_session', JSON.stringify(userSession));
-              try {
-                (window as any).fbRtdbClient?.saveUser(cleanEmail, userSession);
-              } catch (e) {}
-              setSuccessMsg('Login successful! Launching dashboard...');
-              setTimeout(() => {
-                window.location.href = '/app.html';
-              }, 500);
-              return;
-            }
-          } catch (fbErr: any) {
-            console.warn('Firebase login attempt:', fbErr?.code);
-            if (fbErr?.code === 'auth/wrong-password' || fbErr?.code === 'auth/invalid-credential') {
-              setError('Incorrect email or password. Please try again.');
-              setIsLoading(false);
-              return;
-            }
-          }
-        }
-
-        // Step C: Backend API (with Content-Type safety check)
-        try {
-          const res = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: cleanEmail, password }),
-          });
-
-          const contentType = res.headers.get('content-type') || '';
-          if (contentType.includes('application/json')) {
-            const data = await res.json();
-            if (res.ok && data.success) {
-              const userSession = {
-                name: data.user?.name || cleanEmail.split('@')[0],
-                email: data.user?.email || cleanEmail,
-                isVerified: true,
-                token: data.token,
-                isPro: data.user?.isPro || isVipAdmin(cleanEmail),
-                isAdmin: data.user?.isAdmin || isVipAdmin(cleanEmail),
-                plan: data.user?.plan || (isVipAdmin(cleanEmail) ? 'Unlimited' : 'Free'),
-              };
-              localStorage.setItem('hea_session', JSON.stringify(userSession));
-              sessionStorage.setItem('hea_session', JSON.stringify(userSession));
-              setSuccessMsg('Login successful! Launching dashboard...');
-              setTimeout(() => {
-                window.location.href = '/app.html';
-              }, 500);
-              return;
-            } else if (data.requiresVerification) {
-              setMode('verify');
-              setError('Please verify your email address to continue.');
-              if (data.devCode) setDevCode(data.devCode);
-              setIsLoading(false);
-              return;
-            } else if (data.error) {
-              setError(sanitizeErrorMessage(data.error));
-              setIsLoading(false);
-              return;
-            }
-          }
-        } catch (apiErr) {
-          console.warn('API login network notice:', apiErr);
-        }
-
-        // Step D: Local Storage fallback
-        try {
-          const rawUsers = localStorage.getItem('hea_users');
-          if (rawUsers) {
-            const users = JSON.parse(rawUsers);
-            const user = users.find((u: any) => u.email === cleanEmail);
-            if (user && user.password === password) {
-              const userSession = {
-                name: user.name || cleanEmail.split('@')[0],
-                email: cleanEmail,
-                isVerified: true,
-                isPro: !!user.isPro,
-                plan: user.plan || 'Free',
-                provider: 'local',
-              };
-              localStorage.setItem('hea_session', JSON.stringify(userSession));
-              sessionStorage.setItem('hea_session', JSON.stringify(userSession));
-              setSuccessMsg('Login successful! Launching dashboard...');
-              setTimeout(() => {
-                window.location.href = '/app.html';
-              }, 500);
-              return;
-            }
-          }
-        } catch (e) {}
-
-        // Fallback generic error
-        setError('Incorrect email or password. Please try again.');
         return;
       }
 
-      // ==========================================
       // 3. VERIFY OTP CODE FLOW
-      // ==========================================
       if (mode === 'verify') {
-        if (verifyCode === devCode || verifyCode === '123456') {
-          const userSession = {
-            name: cleanName,
-            email: cleanEmail,
-            isVerified: true,
-            isPro: false,
-            plan: 'Free',
-          };
-          localStorage.setItem('hea_session', JSON.stringify(userSession));
-          sessionStorage.setItem('hea_session', JSON.stringify(userSession));
-          setSuccessMsg('Email verified successfully! Launching dashboard...');
-          setTimeout(() => {
-            window.location.href = '/app.html';
-          }, 500);
-          return;
+        const res = await fetch('/api/auth/verify-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: cleanEmail, code: verifyCode.trim() }),
+        });
+        const data = await res.json();
+        if (res.ok && data.success && data.token) {
+          completeAuthSession(data, 'Email verified successfully! Launching dashboard...');
+        } else {
+          setError(sanitizeErrorMessage(data.error || 'Invalid or expired verification code.'));
         }
-
-        try {
-          const res = await fetch('/api/auth/verify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: cleanEmail, code: verifyCode }),
-          });
-
-          const contentType = res.headers.get('content-type') || '';
-          if (contentType.includes('application/json')) {
-            const data = await res.json();
-            if (res.ok && data.success) {
-              setSuccessMsg('Email verified successfully! Launching dashboard...');
-              setTimeout(() => {
-                window.location.href = '/app.html';
-              }, 500);
-              return;
-            } else if (data.error) {
-              setError(sanitizeErrorMessage(data.error));
-              setIsLoading(false);
-              return;
-            }
-          }
-        } catch (e) {}
-
-        setError('Invalid or expired verification code. Please try again.');
         return;
       }
 
-      // ==========================================
       // 4. FORGOT PASSWORD FLOW
-      // ==========================================
       if (mode === 'forgot') {
-        if (VIP_ACCOUNTS[cleanEmail]) {
-          setDevCode('123456');
+        const res = await fetch('/api/auth/forgot-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: cleanEmail }),
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
           setMode('reset');
-          setSuccessMsg('Recovery code generated! Use code below.');
-          return;
+          setSuccessMsg('If an account exists for this email, a reset code was sent.');
+        } else {
+          setError(sanitizeErrorMessage(data.error || 'Failed to send reset code.'));
         }
-
-        // Try Firebase password reset email
-        if (typeof window !== 'undefined' && (window as any).fbAuth) {
-          try {
-            await (window as any).fbAuth.sendPasswordResetEmail(cleanEmail);
-            setSuccessMsg('Password reset link sent to your email.');
-            setMode('reset');
-            return;
-          } catch (fbErr: any) {
-            console.warn('Firebase forgot password notice:', fbErr);
-          }
-        }
-
-        // Try Backend API with safe JSON parse
-        try {
-          const res = await fetch('/api/auth/forgot-password', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: cleanEmail }),
-          });
-
-          const contentType = res.headers.get('content-type') || '';
-          if (contentType.includes('application/json')) {
-            const data = await res.json();
-            if (res.ok && data.success) {
-              setMode('reset');
-              setSuccessMsg('Reset code generated! Check below.');
-              if (data.devCode) setDevCode(data.devCode);
-              return;
-            } else if (data.error) {
-              setError(sanitizeErrorMessage(data.error));
-              setIsLoading(false);
-              return;
-            }
-          }
-        } catch (apiErr) {
-          console.warn('API forgot network notice:', apiErr);
-        }
-
-        // Offline fallback
-        setDevCode('123456');
-        setMode('reset');
-        setSuccessMsg('Recovery code generated. Use code below to set new password.');
         return;
       }
 
-      // ==========================================
       // 5. RESET PASSWORD FLOW
-      // ==========================================
       if (mode === 'reset') {
         if (!newPassword || newPassword.length < 8) {
           setError('Password must be at least 8 characters long.');
-          setIsLoading(false);
           return;
         }
-
-        // Check if devCode matches or VIP
-        if (verifyCode === devCode || verifyCode === '123456' || VIP_ACCOUNTS[cleanEmail]) {
-          if (VIP_ACCOUNTS[cleanEmail]) {
-            VIP_ACCOUNTS[cleanEmail].pass = newPassword;
-          }
-          try {
-            const rawUsers = localStorage.getItem('hea_users');
-            if (rawUsers) {
-              const users = JSON.parse(rawUsers);
-              const u = users.find((x: any) => x.email === cleanEmail);
-              if (u) {
-                u.password = newPassword;
-                localStorage.setItem('hea_users', JSON.stringify(users));
-              }
-            }
-          } catch (e) {}
-
-          setSuccessMsg('Password reset successful! Please log in with your new password.');
-          setTimeout(() => {
-            setMode('login');
-            setPassword('');
-            setVerifyCode('');
-            setNewPassword('');
-          }, 1200);
-          return;
+        const res = await fetch('/api/auth/reset-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: cleanEmail, code: verifyCode.trim(), newPassword }),
+        });
+        const data = await res.json();
+        if (res.ok && data.success && data.token) {
+          completeAuthSession(data, 'Password reset successful! Launching dashboard...');
+        } else {
+          setError(sanitizeErrorMessage(data.error || 'Invalid or expired reset code.'));
         }
-
-        // Try backend API
-        try {
-          const res = await fetch('/api/auth/reset-password', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: cleanEmail, code: verifyCode, newPassword }),
-          });
-
-          const contentType = res.headers.get('content-type') || '';
-          if (contentType.includes('application/json')) {
-            const data = await res.json();
-            if (res.ok && data.success) {
-              setSuccessMsg('Password reset successful! Please log in.');
-              setTimeout(() => {
-                setMode('login');
-                setPassword('');
-                setVerifyCode('');
-                setNewPassword('');
-              }, 1200);
-              return;
-            } else if (data.error) {
-              setError(sanitizeErrorMessage(data.error));
-              setIsLoading(false);
-              return;
-            }
-          }
-        } catch (apiErr) {
-          console.warn('API reset network notice:', apiErr);
-        }
-
-        setError('Invalid or expired reset code. Please try again.');
         return;
       }
     } catch (err: any) {

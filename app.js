@@ -1,111 +1,3 @@
-
-function showGoogleAccountPicker(onSelect, onCancel) {
-  let modal = document.getElementById('googleAccountPickerModal');
-  if (!modal) {
-    modal = document.createElement('div');
-    modal.id = 'googleAccountPickerModal';
-    modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(3,7,18,0.88);backdrop-filter:blur(10px);z-index:999999;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn 0.2s ease-out;';
-    document.body.appendChild(modal);
-  }
-
-  modal.innerHTML = `
-    <div style="background:#090f22;border:1px solid rgba(56,189,248,0.3);border-radius:18px;max-width:460px;width:100%;padding:28px 24px;box-shadow:0 25px 60px rgba(0,0,0,0.85);color:#fff;text-align:left;position:relative;">
-      <button id="closePickerBtn" type="button" style="position:absolute;top:16px;right:18px;background:none;border:none;color:#94a3b8;font-size:22px;cursor:pointer;">✕</button>
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-        <svg width="26" height="26" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 12s.7 2.3 1.9 4.7l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/></svg>
-        <div>
-          <h3 style="margin:0;font-size:18px;color:#fff;font-weight:700;">Sign in with Google</h3>
-          <p style="color:#94a3b8;font-size:12px;margin:2px 0 0;">Select your account for instant verified dashboard access:</p>
-        </div>
-      </div>
-      
-      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
-        <button type="button" class="sso-acc-btn" data-email="furyzod02@gmail.com" data-name="Fury Zod" style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(212,255,36,0.35);border-radius:12px;cursor:pointer;color:#fff;text-align:left;transition:all 0.2s;">
-          <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#D4FF24,#10b981);color:#060b18;font-weight:800;display:grid;place-items:center;font-size:13px;flex-shrink:0;">FZ</div>
-          <div style="flex:1;"><div style="font-weight:700;font-size:14px;color:#fff;display:flex;align-items:center;gap:6px;">Fury Zod <span style="font-size:10px;background:#D4FF24;color:#000;padding:1px 6px;border-radius:4px;font-weight:800;">VIP UNLIMITED</span></div><div style="font-size:12px;color:#94a3b8;">furyzod02@gmail.com</div></div>
-          <span style="color:#D4FF24;font-size:16px;">→</span>
-        </button>
-
-        <button type="button" class="sso-acc-btn" data-email="healink@gmail.com" data-name="HEA Link Admin" style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(0,112,243,0.4);border-radius:12px;cursor:pointer;color:#fff;text-align:left;transition:all 0.2s;">
-          <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#0070f3,#00c6ff);color:#fff;font-weight:800;display:grid;place-items:center;font-size:13px;flex-shrink:0;">HL</div>
-          <div style="flex:1;"><div style="font-weight:700;font-size:14px;color:#fff;display:flex;align-items:center;gap:6px;">HEA Link Admin <span style="font-size:10px;background:#0070f3;color:#fff;padding:1px 6px;border-radius:4px;font-weight:800;">VIP UNLIMITED</span></div><div style="font-size:12px;color:#94a3b8;">healink@gmail.com</div></div>
-          <span style="color:#0070f3;font-size:16px;">→</span>
-        </button>
-      </div>
-
-      <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:14px;margin-bottom:12px;">
-        <label style="display:block;font-size:12px;color:#94a3b8;margin-bottom:6px;">Or enter any other Google email:</label>
-        <div style="display:flex;gap:8px;">
-          <input id="customGoogleEmailInp" type="email" placeholder="name@gmail.com" style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 12px;color:#fff;font-size:13px;outline:none;">
-          <button id="customGoogleEmailSubmit" type="button" class="btn" style="padding:8px 16px;font-size:13px;white-space:nowrap;">Continue →</button>
-        </div>
-      </div>
-
-      <div style="text-align:center;padding-top:8px;">
-        <button id="browserGooglePopupBtn" type="button" style="background:none;border:none;color:#64748b;font-size:12px;cursor:pointer;text-decoration:underline;">🌐 Open browser Google OAuth popup</button>
-      </div>
-    </div>
-  `;
-
-  modal.hidden = false;
-
-  const closeModal = () => {
-    modal.hidden = true;
-    if (typeof onCancel === 'function') onCancel();
-  };
-
-  modal.querySelector('#closePickerBtn').onclick = closeModal;
-
-  modal.querySelectorAll('.sso-acc-btn').forEach(btn => {
-    btn.onclick = () => {
-      const em = btn.dataset.email;
-      const nm = btn.dataset.name;
-      modal.hidden = true;
-      if (typeof onSelect === 'function') onSelect(em, nm);
-    };
-  });
-
-  const customBtn = modal.querySelector('#customGoogleEmailSubmit');
-  const customInp = modal.querySelector('#customGoogleEmailInp');
-  if (customBtn && customInp) {
-    const doSubmit = () => {
-      const val = customInp.value.trim().toLowerCase();
-      if (!val || !val.includes('@')) {
-        toast('Please enter a valid Google email address.');
-        return;
-      }
-      const nm = val.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-      modal.hidden = true;
-      if (typeof onSelect === 'function') onSelect(val, nm);
-    };
-    customBtn.onclick = doSubmit;
-    customInp.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); doSubmit(); } };
-  }
-
-  const popupBtn = modal.querySelector('#browserGooglePopupBtn');
-  if (popupBtn) {
-    popupBtn.onclick = async () => {
-      modal.hidden = true;
-      if (window.fbAuth && typeof firebase !== 'undefined') {
-        try {
-          const provider = new firebase.auth.GoogleAuthProvider();
-          provider.setCustomParameters({ prompt: 'select_account' });
-          const result = await window.fbAuth.signInWithPopup(provider);
-          if (result && result.user) {
-            const fbUser = result.user;
-            if (typeof onSelect === 'function') {
-              onSelect(fbUser.email.toLowerCase().trim(), fbUser.displayName || fbUser.email.split('@')[0]);
-            }
-          }
-        } catch (e) {
-          toast('Browser popup closed or not permitted. Please pick an account from the list.');
-          modal.hidden = false;
-        }
-      }
-    };
-  }
-}
-
 'use strict';
 
 /* =========================================================
@@ -347,10 +239,10 @@ const saveLinks = () => {
         localStorage.setItem('hea_slug_' + slug.toLowerCase(), targetDest);
       }
       // Sanitize URL and realShort
-      if (!l.realShort || l.realShort === l.dest || l.realShort.includes('firebase.google.com') || l.realShort.length > 50) {
+      if (!l.realShort || l.realShort === l.dest || l.realShort.length > 50) {
         l.realShort = slug ? `${origin}/${slug}` : '';
       }
-      if (!l.url || l.url === l.dest || l.url.includes('firebase.google.com') || l.url.length > 50) {
+      if (!l.url || l.url === l.dest || l.url.length > 50) {
         l.url = slug ? `${origin}/${slug}` : '';
       }
     });
@@ -468,7 +360,7 @@ const visitUrl = l => {
 
   if (l.realShort && typeof l.realShort === 'string' && /^https?:\/\//i.test(l.realShort)) {
     const rs = l.realShort.trim();
-    if (rs !== l.dest && rs !== l.url && !rs.includes('firebase.google.com') && rs.length < 60) {
+    if (rs !== l.dest && rs !== l.url && rs.length < 60) {
       return rs;
     }
   }
@@ -556,7 +448,7 @@ function createLink({ url, slug, tag, expires, realShort }, editing) {
   }
 
   const origin = window.location.origin;
-  const cleanShort = (realShort && realShort !== dest && !realShort.includes('firebase.google.com') && realShort.length < 60)
+  const cleanShort = (realShort && realShort !== dest && realShort.length < 60)
     ? realShort
     : `${origin}/${slug}`;
 
@@ -3178,1653 +3070,539 @@ function showAuth(mode) {
 
 }
 
-// 0. Single Sign-On (SSO) Handlers: Google & Apple
-
-function setupSsoButtons() {
-
-  const ssoGoogle = $('#ssoGoogleBtn');
-
-  if (ssoGoogle) {
-
-    ssoGoogle.onclick = async () => {
-
-      const origHtml = ssoGoogle.innerHTML;
-
-      // 0. Priority: Official Firebase Google Auth with Popup and Mobile Redirect Fallback
-      if (window.fbAuth && typeof firebase !== 'undefined') {
-        try {
-          ssoGoogle.disabled = true;
-          ssoGoogle.innerHTML = `<span style="display:inline-block;animation:spin 0.8s linear infinite;">⏳</span> Signing in with Google...`;
-          const provider = new firebase.auth.GoogleAuthProvider();
-          provider.setCustomParameters({ prompt: 'select_account' });
-          const result = await window.fbAuth.signInWithPopup(provider);
-          if (result && result.user) {
-            const fbUser = result.user;
-            await handleGoogleLoginSuccess({
-              userInfo: {
-                name: fbUser.displayName || fbUser.email.split('@')[0],
-                email: fbUser.email.toLowerCase().trim(),
-                isVerified: true,
-                avatar: fbUser.photoURL || '',
-                provider: 'firebase-google',
-                uid: fbUser.uid
-              }
-            });
-            return;
-          }
-        } catch (fbErr) {
-          console.warn('Firebase Google Auth popup notice:', fbErr);
-          if (fbErr.code === 'auth/popup-blocked' || fbErr.code === 'auth/operation-not-supported-in-this-environment') {
-            console.log('Mobile popup blocked, falling back to signInWithRedirect');
-            try {
-              const provider = new firebase.auth.GoogleAuthProvider();
-              await window.fbAuth.signInWithRedirect(provider);
-              return;
-            } catch (redirErr) {
-              console.warn('Redirect error:', redirErr);
-            }
-          }
-          if (fbErr.code === 'auth/popup-closed-by-user') {
-            ssoGoogle.disabled = false;
-            ssoGoogle.innerHTML = origHtml;
-            toast('Google Sign-In popup was closed.');
-            return;
-          }
-        }
-      }
-
-      // Fallback: Account Chooser Picker
-      showGoogleAccountPicker(async (chosenEmail, chosenName) => {
-        ssoGoogle.disabled = true;
-        ssoGoogle.innerHTML = `<span style="display:inline-block;animation:spin 0.8s linear infinite;">⏳</span> Signing in...`;
-        await handleGoogleLoginSuccess({
-          userInfo: {
-            name: chosenName,
-            email: chosenEmail,
-            isVerified: true,
-            provider: 'google',
-            avatar: chosenName.split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase()
-          }
-        });
-      }, () => {
-        ssoGoogle.disabled = false;
-        ssoGoogle.innerHTML = origHtml;
-      });
-      return;
-
-      // 0. Priority: Official Firebase Google Auth with Popup
-
-      if (window.fbAuth && typeof firebase !== 'undefined') {
-
-        try {
-
-          const provider = new firebase.auth.GoogleAuthProvider();
-
-          provider.setCustomParameters({ prompt: 'select_account' });
-
-          const result = await window.fbAuth.signInWithPopup(provider);
-
-          if (result && result.user) {
-
-            const fbUser = result.user;
-
-            await handleGoogleLoginSuccess({
-
-              userInfo: {
-
-                name: fbUser.displayName || fbUser.email.split('@')[0],
-
-                email: fbUser.email.toLowerCase().trim(),
-
-                isVerified: true,
-
-                avatar: fbUser.photoURL || '',
-
-                provider: 'firebase-google',
-
-                uid: fbUser.uid
-
-              }
-
-            });
-
-            return;
-
-          }
-
-        } catch (fbErr) {
-
-          console.warn('Firebase Google Auth notice:', fbErr);
-
-          if (fbErr.code === 'auth/popup-closed-by-user') {
-
-            ssoGoogle.disabled = false;
-
-            ssoGoogle.innerHTML = origHtml;
-
-            toast('Google Sign-In popup was closed.');
-
-            return;
-
-          }
-
-        }
-
-      }
-
-      // 1. Get Google Client ID from backend or window
-
-      let clientId = window.GOOGLE_CLIENT_ID || '';
-
-      if (!clientId) {
-
-        try {
-
-          const cfgRes = await fetch('/api/config');
-
-          if (cfgRes.ok) {
-
-            const cfg = await cfgRes.json();
-
-            clientId = cfg.googleClientId;
-
-          }
-
-        } catch (e) {}
-
-      }
-
-      // Helper to complete login once Google user payload is obtained
-
-      async function handleGoogleLoginSuccess(authPayload) {
-
-        try {
-
-          let backendUser = null;
-
-          try {
-
-            const apiRes = await fetch('/api/auth/google', {
-
-              method: 'POST',
-
-              headers: { 'Content-Type': 'application/json' },
-
-              body: JSON.stringify(authPayload)
-
-            });
-
-            if (apiRes.ok) {
-
-              const data = await apiRes.json();
-
-              backendUser = data.user;
-
-              if (data.token) {
-
-                store.set('hea_token', data.token);
-
-                try { localStorage.setItem('hea_token', data.token); sessionStorage.setItem('hea_token', data.token); } catch(e){}
-
-              }
-
-            }
-
-          } catch (e) {}
-
-          const finalUser = backendUser || authPayload.userInfo || {
-
-            name: 'Google User',
-
-            email: 'user@gmail.com',
-
-            isVerified: true,
-
-            provider: 'google'
-
-          };
-
-          finalUser.isVerified = true;
-
-          // Special Master Admin Accounts: Unlimited access to everything
-
-          if (finalUser.email && isVipAdmin(finalUser.email)) {
-
-            const vNames = {
-              'furyzod02@gmail.com': 'Fury Zod',
-              'healink@gmail.com': 'HEA Link Admin'
-            };
-
-            finalUser.name = vNames[finalUser.email.toLowerCase().trim()] || finalUser.name;
-
-            finalUser.isPro = true;
-
-            finalUser.isAdmin = true;
-
-            finalUser.plan = 'Unlimited';
-
-            finalUser.city = 'Global Admin';
-
-            finalUser.isp = 'High-Speed Enterprise';
-
-          } else {
-
-            if (!finalUser.plan) finalUser.plan = finalUser.isPro ? 'Pro' : 'Free';
-
-          }
-
-          if (!finalUser.avatar) {
-
-            finalUser.avatar = (finalUser.name || 'User').split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase();
-
-          }
-
-          session = finalUser;
-
-          store.set('hea_session', finalUser);
-
-          sessionStore.set('hea_session', finalUser);
-
-          try {
-
-            localStorage.setItem('hea_session', JSON.stringify(finalUser));
-
-            sessionStorage.setItem('hea_session', JSON.stringify(finalUser));
-
-          } catch (e) {}
-
-          // Persist authenticated Google user to Firebase Realtime Database
-          try {
-
-            if (window.fbRtdbClient && typeof window.fbRtdbClient.saveUser === 'function') {
-
-              window.fbRtdbClient.saveUser(finalUser.email, finalUser);
-
-            }
-
-          } catch (e) {}
-
-          if (window.appShell && typeof window.appShell.setAppUser === 'function') {
-            window.appShell.setAppUser(finalUser);
-          }
-
-          renderNavRight();
-
-          // Force transition into App Dashboard mode
-          document.body.classList.add('app-mode');
-          const authSec = $('section[data-page="auth"]');
-          if (authSec) authSec.hidden = true;
-
-          const as = $('#appShell');
-          if (as) {
-            as.hidden = false;
-            as.removeAttribute('hidden');
-          }
-
-          show('app');
-
-          if (window.appShell && typeof window.appShell.navigate === 'function') {
-            window.appShell.navigate('home');
-          }
-
-          location.hash = '#dashboard';
-
-          if (typeof route === 'function') {
-            route();
-          }
-
-          toast(`✅ Successfully signed in with Google as ${finalUser.name}!`);
-
-        } finally {
-
-          ssoGoogle.disabled = false;
-
-          ssoGoogle.innerHTML = origHtml;
-
-        }
-
-      }
-
-      // 2. If Google Identity Services SDK is loaded and client ID exists
-
-      if (window.google && window.google.accounts && clientId) {
-
-        try {
-
-          // Initialize Google Token Client for custom button click (reliable popup with account picker)
-
-          const tokenClient = window.google.accounts.oauth2.initTokenClient({
-
-            client_id: clientId,
-
-            scope: 'email profile openid',
-
-            callback: async (tokenResponse) => {
-
-              if (tokenResponse.error) {
-
-                console.warn('Google Auth Error:', tokenResponse.error);
-
-                ssoGoogle.disabled = false;
-
-                ssoGoogle.innerHTML = origHtml;
-
-                if (tokenResponse.error === 'popup_closed_by_user') {
-
-                  toast('Google Sign-In window was closed.');
-
-                } else {
-
-                  toast('Google Sign-In: ' + (tokenResponse.error_description || tokenResponse.error));
-
-                  // If origin not yet authorized in Google Console, offer 1-click fallback
-
-                  const fallbackG = prompt('Google Cloud Console origin authorization required for ' + window.location.origin + '.\n\nEnter your Google email to sign in directly:', 'zodfury4@gmail.com');
-
-                  if (fallbackG && fallbackG.includes('@')) {
-
-                    const cleanG = fallbackG.trim().toLowerCase();
-
-                    const gName = cleanG.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-
-                    await handleGoogleLoginSuccess({
-
-                      userInfo: {
-
-                        name: gName,
-
-                        email: cleanG,
-
-                        isVerified: true,
-
-                        provider: 'google',
-
-                        avatar: gName.split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase()
-
-                      }
-
-                    });
-
-                  }
-
-                }
-
-                return;
-
-              }
-
-              if (tokenResponse.access_token) {
-
-                try {
-
-                  const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-
-                    headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
-
-                  });
-
-                  const googleUser = await userInfoRes.json();
-
-                  await handleGoogleLoginSuccess({
-
-                    accessToken: tokenResponse.access_token,
-
-                    userInfo: {
-
-                      name: googleUser.name,
-
-                      email: googleUser.email,
-
-                      picture: googleUser.picture,
-
-                      provider: 'google'
-
-                    }
-
-                  });
-
-                } catch (e) {
-
-                  await handleGoogleLoginSuccess({ accessToken: tokenResponse.access_token });
-
-                }
-
-              } else {
-
-                ssoGoogle.disabled = false;
-
-                ssoGoogle.innerHTML = origHtml;
-
-              }
-
-            }
-
-          });
-
-          // Trigger real Google OAuth popup with account selection
-
-          tokenClient.requestAccessToken({ prompt: 'select_account' });
-
-          return;
-
-        } catch (sdkErr) {
-
-          console.warn('Google SDK prompt error:', sdkErr);
-
-        }
-
-      }
-
-      // In-App Sleek Google Account Picker Fallback (Zero Stuck Screens, 1-Click VIP Switch)
-      showGoogleAccountPicker(async (chosenEmail, chosenName) => {
-        await handleGoogleLoginSuccess({
-          userInfo: {
-            name: chosenName,
-            email: chosenEmail,
-            isVerified: true,
-            provider: 'google',
-            avatar: chosenName.split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase()
-          }
-        });
-      }, () => {
-        ssoGoogle.disabled = false;
-        ssoGoogle.innerHTML = origHtml;
-      });
-
-    };
-
-  }
-
-  const ssoApple = $('#ssoAppleBtn');
-
-  if (ssoApple) {
-
-    ssoApple.onclick = () => {
-
-      const origHtml = ssoApple.innerHTML;
-
-      ssoApple.disabled = true;
-
-      ssoApple.innerHTML = `
-
-        <span style="display:inline-block;animation:spin 0.8s linear infinite;">⏳</span>
-
-        Connecting with Apple ID...
-
-      `;
-
-      setTimeout(() => {
-
-        const aUser = {
-
-          name: 'John',
-
-          email: 'john.apple@icloud.com',
-
-          isVerified: true,
-
-          provider: 'apple',
-
-          avatar: 'JD',
-
-          country: 'United States',
-
-          city: 'New York',
-
-          isp: 'Global Internet'
-
-        };
-
-        session = aUser;
-
-        sessionStore.set('hea_session', aUser);
-
-        if (window.appShell && typeof window.appShell.setAppUser === 'function') {
-
-          window.appShell.setAppUser(aUser);
-
-        }
-
-        renderNavRight();
-
-        document.body.classList.add('app-mode');
-
-        const as = $('#appShell');
-
-        if (as) as.hidden = false;
-
-        location.hash = '#dashboard';
-
-        if (window.appShell && typeof window.appShell.navigate === 'function') {
-
-          window.appShell.navigate('dashboard');
-
-        }
-
-        toast('✅ Successfully signed in with Apple ID!');
-
-        ssoApple.disabled = false;
-
-        ssoApple.innerHTML = origHtml;
-
-      }, 350);
-
-    };
-
-  }
-
-}
-
-// 1. Submit Auth (Register or Login)
-
-$('#authForm').onsubmit = async e => {
-
-  e.preventDefault();
-
-  const email = $('#aEmail').value.trim().toLowerCase();
-
-  const pass = $('#aPass').value;
-
-  const errBox = $('#authErr');
-
-  errBox.textContent = '';
-
-  if (pass.length < 6) {
-
-    errBox.textContent = 'Password must be at least 6 characters.';
-
-    return;
-
-  }
-
-  const btn = $('#authBtn');
-
-  const origBtnText = btn.textContent;
-
-  btn.disabled = true;
-
-  btn.textContent = 'Processing...';
-
+// 0. Single Sign-On (SSO) Handlers: Google Identity Services & Apple Sign-In
+let __heaAuthConfigCache = null;
+
+async function fetchAuthConfig() {
+  if (__heaAuthConfigCache) return __heaAuthConfigCache;
   try {
-
-    if (authMode === 'signup') {
-
-      const name = $('#aName').value.trim() || email.split('@')[0];
-
-      // Firebase Auth Signup & Verification Email
-
-      if (window.fbAuth && typeof firebase !== 'undefined') {
-
-        try {
-
-          const cred = await window.fbAuth.createUserWithEmailAndPassword(email, pass);
-
-          if (cred && cred.user) {
-
-            if (name) {
-
-              await cred.user.updateProfile({ displayName: name });
-
-            }
-
-            try {
-
-              await cred.user.sendEmailVerification();
-
-              toast(`📧 Firebase verification email dispatched to ${email}! Please check your inbox.`);
-
-            } catch (ve) {
-
-              console.warn('Firebase sendEmailVerification error:', ve.message);
-
-            }
-
-            const isVip = isVipAdmin(email);
-
-            const userSession = {
-
-              name: name || cred.user.displayName || email.split('@')[0],
-
-              email: email,
-
-              isVerified: isVip,
-
-              isPro: isVip,
-
-              isAdmin: isVip,
-
-              plan: isVip ? 'Unlimited' : 'Free',
-
-              uid: cred.user.uid
-
-            };
-
-            store.set('hea_session', userSession);
-
-            sessionStore.set('hea_session', userSession);
-
-            localStorage.setItem('hea_session', JSON.stringify(userSession));
-
-            sessionStorage.setItem('hea_session', JSON.stringify(userSession));
-
-            // Persist registered user to Firebase Realtime Database
-            try {
-
-              if (window.fbRtdbClient && typeof window.fbRtdbClient.saveUser === 'function') {
-
-                window.fbRtdbClient.saveUser(userSession.email, userSession);
-
-              }
-
-            } catch (e) {}
-
-            if (window.appShell && typeof window.appShell.setAppUser === 'function') {
-
-              window.appShell.setAppUser(userSession);
-
-            }
-
-            fetch('/api/auth/register', {
-
-              method: 'POST',
-
-              headers: { 'Content-Type': 'application/json' },
-
-              body: JSON.stringify({ name, email, password: pass })
-
-            }).catch(() => {});
-
-            if (isVip) {
-
-              document.body.classList.add('app-mode');
-
-              const as = $('#appShell');
-
-              if (as) as.hidden = false;
-
-              location.hash = '#dashboard';
-
-              if (window.appShell && typeof window.appShell.navigate === 'function') {
-
-                window.appShell.navigate('home');
-
-              }
-
-            } else {
-
-              pendingVerificationEmail = email;
-
-              showAuth('verify');
-
-            }
-
-            btn.disabled = false;
-
-            btn.textContent = origBtnText;
-
-            return;
-
-          }
-
-        } catch (fbErr) {
-
-          console.warn('Firebase signup error:', fbErr);
-
-          if (fbErr.code === 'auth/email-already-in-use') {
-
-            errBox.textContent = 'An account with this email already exists in Firebase. Please log in.';
-
-            btn.disabled = false;
-
-            btn.textContent = origBtnText;
-
-            return;
-
-          } else if (fbErr.code === 'auth/weak-password') {
-
-            errBox.textContent = 'Password must be at least 6 characters.';
-
-            btn.disabled = false;
-
-            btn.textContent = origBtnText;
-
-            return;
-
-          }
-
-        }
-
-      }
-
-      // Try real backend API
-
-      let backendRes = null;
-
-      try {
-
-        const res = await fetch('/api/auth/register', {
-
-          method: 'POST',
-
-          headers: { 'Content-Type': 'application/json' },
-
-          body: JSON.stringify({ name, email, password: pass })
-
-        });
-
-        backendRes = { ok: res.ok, status: res.status, data: await res.json() };
-
-      } catch (netErr) {}
-
-      if (backendRes && backendRes.ok) {
-
-        pendingVerificationEmail = email;
-
-        showAuth('verify');
-
-        const devAlert = $('#verifyDevAlert');
-
-        const devText = $('#verifyDevText');
-
-        const d = backendRes.data;
-
-        if (d.emailSent) {
-
-          if (devAlert) devAlert.hidden = true;
-
-          toast('✅ Verification code sent to ' + email + '! Check your Gmail inbox.');
-
-        } else {
-          if (devAlert) devAlert.hidden = true;
-          toast('✅ Verification code dispatched! Please check your email inbox.');
-        }
-
-        return;
-
-      } else if (backendRes && !backendRes.ok) {
-
-        errBox.textContent = backendRes.data.error || 'Failed to create account.';
-
-        return;
-
-      }
-
-      // Offline / Static fallback
-
-      const users = store.get('hea_users', []);
-
-      const h = await hashPassword(pass);
-
-      const existing = users.find(u => u.email === email);
-
-      if (existing && existing.isVerified) {
-
-        errBox.textContent = 'An account with this email already exists. Please log in.';
-
-        return;
-
-      }
-
-      const clientCode = Math.floor(100000 + Math.random() * 900000).toString();
-
-      if (existing) {
-
-        existing.h = h;
-
-        existing.name = name;
-
-        existing.code = clientCode;
-
-      } else {
-
-        users.push({ email, name, h, code: clientCode, isVerified: false });
-
-      }
-
-      store.set('hea_users', users);
-
-      pendingVerificationEmail = email;
-
-      showAuth('verify');
-
-      const devAlertFallback = $('#verifyDevAlert');
-
-      const devTextFallback = $('#verifyDevText');
-
-      if (devAlertFallback && devTextFallback) {
-
-        devAlertFallback.hidden = false;
-
-        devTextFallback.innerHTML = `<span>⚠️ Static / Offline mode. Test verification code: <b style="color:#ffffff;font-size:15px;letter-spacing:3px;margin:0 4px;">${clientCode}</b></span> <button type="button" class="btn sm" id="devAutofillFallbackBtn" style="margin-left:auto;padding:3px 10px;font-size:12px;background:#38bdf8;color:#060b18;font-weight:700;">Auto-fill</button>`;
-
-        const abF = $('#devAutofillFallbackBtn');
-
-        if (abF) {
-
-          abF.onclick = () => {
-
-            const ci = $('#verifyCodeInput');
-
-            if (ci) { ci.value = clientCode; ci.focus(); }
-
-          };
-
-        }
-
-      }
-
-      toast('Verification code generated for ' + email);
-
-      return;
-
+    const res = await fetch('/api/config');
+    if (res.ok) {
+      const cfg = await res.json();
+      __heaAuthConfigCache = cfg;
+      if (cfg.googleClientId) window.GOOGLE_CLIENT_ID = cfg.googleClientId;
+      if (cfg.appleClientId) window.APPLE_CLIENT_ID = cfg.appleClientId;
+      return cfg;
     }
-
-    // Login mode
-
-    if (authMode === 'login') {
-
-      // Priority: Official Firebase Email/Password Sign-In
-
-      if (window.fbAuth && typeof firebase !== 'undefined') {
-
-        try {
-
-          const cred = await window.fbAuth.signInWithEmailAndPassword(email, pass);
-
-          if (cred && cred.user) {
-
-            const isVip = isVipAdmin(email);
-
-            const userSession = {
-
-              name: cred.user.displayName || email.split('@')[0],
-
-              email: email,
-
-              isVerified: cred.user.emailVerified || isVip,
-
-              isPro: isVip,
-
-              isAdmin: isVip,
-
-              plan: isVip ? 'Unlimited' : 'Free',
-
-              uid: cred.user.uid
-
-            };
-
-            store.set('hea_session', userSession);
-
-            sessionStore.set('hea_session', userSession);
-
-            localStorage.setItem('hea_session', JSON.stringify(userSession));
-
-            sessionStorage.setItem('hea_session', JSON.stringify(userSession));
-
-            if (window.appShell && typeof window.appShell.setAppUser === 'function') {
-
-              window.appShell.setAppUser(userSession);
-
-            }
-
-            renderNavRight();
-
-            $('#authForm').reset();
-
-            document.body.classList.add('app-mode');
-
-            const as = $('#appShell');
-
-            if (as) as.hidden = false;
-
-            location.hash = '#dashboard';
-
-            if (window.appShell && typeof window.appShell.navigate === 'function') {
-
-              window.appShell.navigate('home');
-
-            }
-
-            toast(`✅ Logged in successfully via Firebase as ${userSession.name}!`);
-
-            btn.disabled = false;
-
-            btn.textContent = origBtnText;
-
-            return;
-
-          }
-
-        } catch (fbLoginErr) {
-
-          console.warn('Firebase login attempt code:', fbLoginErr.code);
-
-          if (fbLoginErr.code === 'auth/wrong-password' || fbLoginErr.code === 'auth/invalid-credential') {
-
-            errBox.textContent = 'Invalid email or password.';
-
-            btn.disabled = false;
-
-            btn.textContent = origBtnText;
-
-            return;
-
-          }
-
-        }
-
-      }
-
-      let backendRes = null;
-
-      try {
-
-        const res = await fetch('/api/auth/login', {
-
-          method: 'POST',
-
-          headers: { 'Content-Type': 'application/json' },
-
-          body: JSON.stringify({ email, password: pass })
-
-        });
-
-        backendRes = { ok: res.ok, status: res.status, data: await res.json() };
-
-      } catch (netErr) {}
-
-      if (backendRes) {
-
-        if (backendRes.status === 403 && backendRes.data.error === 'email_not_verified') {
-
-          pendingVerificationEmail = email;
-
-          showAuth('verify');
-
-          const devAlert = $('#verifyDevAlert');
-
-          const devText = $('#verifyDevText');
-
-          if (backendRes.data.devCode) {
-
-            if (devAlert && devText) {
-
-              devAlert.hidden = false;
-
-              devText.textContent = `Verification Code: ${backendRes.data.devCode}`;
-
-            }
-
-          } else if (devAlert) {
-
-            devAlert.hidden = true;
-
-          }
-
-          toast('Your email is not verified yet. Verification code resent.');
-
-          return;
-
-        }
-
-        if (backendRes.ok && backendRes.data.success) {
-
-          session = {
-
-            name: backendRes.data.user.name,
-
-            email: backendRes.data.user.email,
-
-            isVerified: true,
-
-            token: backendRes.data.token,
-
-            city: backendRes.data.user.city || 'New York',
-
-            isp: backendRes.data.user.isp || 'Global Internet'
-
-          };
-
-          sessionStore.set('hea_session', session);
-
-          if (window.appShell && typeof window.appShell.setAppUser === 'function') {
-
-            window.appShell.setAppUser(session);
-
-          }
-
-          renderNavRight();
-
-          $('#authForm').reset();
-
-          document.body.classList.add('app-mode');
-
-          const as = $('#appShell');
-
-          if (as) as.hidden = false;
-
-          location.hash = '#dashboard';
-
-          if (window.appShell && typeof window.appShell.navigate === 'function') {
-
-            window.appShell.navigate('dashboard');
-
-          }
-
-          toast(`Welcome back, ${session.name}!`);
-
-          return;
-
-        } else {
-
-          errBox.textContent = backendRes.data.error || 'Invalid email or password.';
-
-          return;
-
-        }
-
-      }
-
-      // Offline / Static fallback
-
-      const users = store.get('hea_users', []);
-
-      const h = await hashPassword(pass);
-
-      const user = users.find(u => u.email === email && u.h === h);
-
-      if (!user) {
-
-        errBox.textContent = 'Invalid email or password.';
-
-        return;
-
-      }
-
-      if (!user.isVerified) {
-
-        pendingVerificationEmail = email;
-
-        showAuth('verify');
-
-        if (devAlert) {
-
-          devAlert.hidden = true;
-
-        }
-
-        toast('Please verify your email address to continue.');
-
-        return;
-
-      }
-
-      session = {
-
-        name: user.name || 'John',
-
-        email: user.email,
-
-        isVerified: true,
-
-        country: 'United States',
-
-        city: 'New York',
-
-        isp: 'Global Internet'
-
-      };
-
-      store.set('hea_session', session);
-
-      // Persist logged-in user to Firebase Realtime Database
-      try {
-
-        if (window.fbRtdbClient && typeof window.fbRtdbClient.saveUser === 'function') {
-
-          window.fbRtdbClient.saveUser(session.email, session);
-
-        }
-
-      } catch (e) {}
-
-      if (window.appShell && typeof window.appShell.setAppUser === 'function') {
-
-        window.appShell.setAppUser(session);
-
-      }
-
-      renderNavRight();
-
-      $('#authForm').reset();
-
-      document.body.classList.add('app-mode');
-
-      const as = $('#appShell');
-
-      if (as) as.hidden = false;
-
-      location.hash = '#dashboard';
-
-      if (window.appShell && typeof window.appShell.navigate === 'function') {
-
-        window.appShell.navigate('home');
-
-      }
-
-      toast(`Welcome back, ${session.name}!`);
-
-    }
-
-  } finally {
-
-    btn.disabled = false;
-
-    btn.textContent = origBtnText;
-
-  }
-
-};
-
-// 2. Submit Verification Code (6-digit OTP)
-
-const verifyForm = $('#verifyForm');
-const verifySubmitBtn = $('#verifySubmitBtn');
-
-async function handleVerificationCheck() {
-  const subBtn = $('#verifySubmitBtn');
-  if (subBtn) {
-    subBtn.disabled = true;
-    subBtn.innerHTML = `<span style="display:inline-block;animation:spin 0.8s linear infinite;">⏳</span> Checking verification...`;
-  }
-
-  try {
-    // 1. If Firebase user is signed in, reload to check emailVerified
-    if (window.fbAuth && window.fbAuth.currentUser) {
-      try {
-        await window.fbAuth.currentUser.reload();
-      } catch (e) {}
-    }
-
-    // 2. Prepare user session
-    const isVip = isVipAdmin(pendingVerificationEmail);
-    const vName = pendingVerificationName || pendingVerificationEmail.split('@')[0];
-    const verifiedUser = {
-      name: vName,
-      email: pendingVerificationEmail,
-      isVerified: true,
-      isPro: isVip,
-      isAdmin: isVip,
-      plan: isVip ? 'Unlimited' : 'Free',
-      avatar: vName.split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase()
-    };
-
-    session = verifiedUser;
-    store.set('hea_session', verifiedUser);
-    sessionStore.set('hea_session', verifiedUser);
-    try {
-      localStorage.setItem('hea_session', JSON.stringify(verifiedUser));
-      sessionStorage.setItem('hea_session', JSON.stringify(verifiedUser));
-    } catch (e) {}
-
-    // Persist verified user to Firebase Realtime Database
-    try {
-      if (window.fbRtdbClient && typeof window.fbRtdbClient.saveUser === 'function') {
-        window.fbRtdbClient.saveUser(verifiedUser.email, verifiedUser);
-      }
-    } catch (e) {}
-
-    if (window.appShell && typeof window.appShell.setAppUser === 'function') {
-      window.appShell.setAppUser(verifiedUser);
-    }
-
-    renderNavRight();
-    document.body.classList.add('app-mode');
-
-    const authSec = $('section[data-page="auth"]');
-    if (authSec) authSec.hidden = true;
-
-    const as = $('#appShell');
-    if (as) {
-      as.hidden = false;
-      as.removeAttribute('hidden');
-    }
-
-    show('app');
-
-    if (window.appShell && typeof window.appShell.navigate === 'function') {
-      window.appShell.navigate('home');
-    }
-
-    location.hash = '#dashboard';
-    if (typeof route === 'function') route();
-
-    toast(`✅ Email verified successfully! Welcome to HEA Link, ${vName}.`);
-  } catch (err) {
-    toast('Error checking verification. Please click the link sent to your email.');
-  } finally {
-    if (subBtn) {
-      subBtn.disabled = false;
-      subBtn.textContent = "I've Clicked the Link — Open Dashboard →";
-    }
-  }
-}
-
-if (verifySubmitBtn) {
-  verifySubmitBtn.onclick = handleVerificationCheck;
-}
-
-if (verifyForm) {
-  verifyForm.onsubmit = async e => {
-    e.preventDefault();
-    await handleVerificationCheck();
+  } catch (_e) {}
+  return {
+    googleClientId: window.GOOGLE_CLIENT_ID || '',
+    appleClientId: window.APPLE_CLIENT_ID || '',
+    appleConfigured: Boolean(window.APPLE_CLIENT_ID)
   };
 }
 
-// Resend verification link
+function loadAppleSignInSdk() {
+  return new Promise((resolve, reject) => {
+    if (window.AppleID && window.AppleID.auth) return resolve(window.AppleID);
+    const existing = document.querySelector('script[data-hea-apple-sdk="1"]');
+    if (existing) {
+      existing.addEventListener('load', () => resolve(window.AppleID));
+      existing.addEventListener('error', () => reject(new Error('Failed to load Apple Sign-In SDK')));
+      return;
+    }
+    const s = document.createElement('script');
+    s.src = 'https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js';
+    s.async = true;
+    s.defer = true;
+    s.dataset.heaAppleSdk = '1';
+    s.onload = () => resolve(window.AppleID);
+    s.onerror = () => reject(new Error('Failed to load Apple Sign-In SDK'));
+    document.head.appendChild(s);
+  });
+}
+
+function completeAuthSession(data, toastMessage) {
+  const u = (data && data.user) || {};
+  const isAdmin = u.role === 'admin' || !!u.isAdmin;
+  const userSession = {
+    name: u.name || (u.email ? u.email.split('@')[0] : 'Account'),
+    email: u.email || '',
+    role: u.role || (isAdmin ? 'admin' : 'user'),
+    isAdmin,
+    isPro: !!u.isPro || isAdmin,
+    plan: u.plan || (isAdmin ? 'Unlimited' : 'Free'),
+    isVerified: true,
+    token: (data && data.token) || '',
+    avatar: u.avatar || (u.name ? u.name.split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase() : ''),
+    city: u.city || 'New York',
+    isp: u.isp || 'Global Internet'
+  };
+
+  session = userSession;
+  store.set('hea_session', userSession);
+  sessionStore.set('hea_session', userSession);
+  try {
+    if (userSession.token) {
+      store.set('hea_token', userSession.token);
+      localStorage.setItem('hea_token', userSession.token);
+      sessionStorage.setItem('hea_token', userSession.token);
+    }
+    localStorage.setItem('hea_session', JSON.stringify(userSession));
+    sessionStorage.setItem('hea_session', JSON.stringify(userSession));
+  } catch (_e) {}
+
+  if (window.appShell && typeof window.appShell.setAppUser === 'function') {
+    window.appShell.setAppUser(userSession);
+  }
+  renderNavRight();
+
+  document.body.classList.add('app-mode');
+  const authSec = $('section[data-page="auth"]');
+  if (authSec) authSec.hidden = true;
+
+  const as = $('#appShell');
+  if (as) {
+    as.hidden = false;
+    as.removeAttribute('hidden');
+  }
+
+  show('app');
+  if (window.appShell && typeof window.appShell.navigate === 'function') {
+    window.appShell.navigate('home');
+  }
+  location.hash = '#dashboard';
+  if (typeof route === 'function') route();
+
+  if (toastMessage) toast(toastMessage);
+}
+
+function setupSsoButtons() {
+  const ssoGoogle = $('#ssoGoogleBtn');
+  const ssoApple = $('#ssoAppleBtn');
+
+  // Inspect server auth config to configure Apple visibility cleanly
+  fetchAuthConfig().then((cfg) => {
+    if (ssoApple && !cfg.appleConfigured) {
+      ssoApple.hidden = true;
+      ssoApple.style.display = 'none';
+    }
+  }).catch(() => {});
+
+  if (ssoGoogle) {
+    ssoGoogle.onclick = async () => {
+      const origHtml = ssoGoogle.innerHTML;
+      const errBox = $('#authErr');
+      if (errBox) errBox.textContent = '';
+
+      try {
+        const cfg = await fetchAuthConfig();
+        const clientId = cfg.googleClientId || window.GOOGLE_CLIENT_ID || '';
+        if (!clientId) {
+          const msg = 'Google Sign-In is not configured on this server.';
+          if (errBox) errBox.textContent = msg;
+          toast(msg);
+          return;
+        }
+
+        if (!window.google || !window.google.accounts || !window.google.accounts.id) {
+          const msg = 'Google Sign-In SDK is still loading. Please try again in a moment.';
+          if (errBox) errBox.textContent = msg;
+          toast(msg);
+          return;
+        }
+
+        ssoGoogle.disabled = true;
+        ssoGoogle.innerHTML = '<span style="display:inline-block;animation:spin 0.8s linear infinite;">⏳</span> Signing in with Google...';
+
+        window.google.accounts.id.initialize({
+          client_id: clientId,
+          callback: async (response) => {
+            try {
+              if (!response || !response.credential) {
+                throw new Error('Google Sign-In did not return a credential token.');
+              }
+              const apiRes = await fetch('/api/auth/google', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ credential: response.credential })
+              });
+              const data = await apiRes.json();
+              if (!apiRes.ok || !data.success || !data.token) {
+                throw new Error(data.error || 'Google authentication failed.');
+              }
+              completeAuthSession(data, `✅ Signed in with Google as ${data.user?.name || 'User'}!`);
+            } catch (err) {
+              if (errBox) errBox.textContent = err.message || 'Google Sign-In failed.';
+              toast(err.message || 'Google Sign-In failed.');
+            } finally {
+              ssoGoogle.disabled = false;
+              ssoGoogle.innerHTML = origHtml;
+            }
+          }
+        });
+
+        window.google.accounts.id.prompt((notification) => {
+          if (
+            notification &&
+            ((typeof notification.isNotDisplayed === 'function' && notification.isNotDisplayed()) ||
+              (typeof notification.isSkippedMoment === 'function' && notification.isSkippedMoment()) ||
+              (typeof notification.isDismissedMoment === 'function' && notification.isDismissedMoment()))
+          ) {
+            ssoGoogle.disabled = false;
+            ssoGoogle.innerHTML = origHtml;
+            const msg = 'Google prompt was dismissed or blocked by browser settings.';
+            if (errBox) errBox.textContent = msg;
+          }
+        });
+      } catch (err) {
+        ssoGoogle.disabled = false;
+        ssoGoogle.innerHTML = origHtml;
+        if (errBox) errBox.textContent = err.message || 'Google Sign-In failed.';
+      }
+    };
+  }
+
+  if (ssoApple) {
+    ssoApple.onclick = async () => {
+      const origHtml = ssoApple.innerHTML;
+      const errBox = $('#authErr');
+      if (errBox) errBox.textContent = '';
+
+      try {
+        const cfg = await fetchAuthConfig();
+        if (!cfg.appleConfigured || !cfg.appleClientId) {
+          const msg = 'Apple Sign-In is not configured on this server.';
+          if (errBox) errBox.textContent = msg;
+          toast(msg);
+          return;
+        }
+
+        ssoApple.disabled = true;
+        ssoApple.innerHTML = '<span style="display:inline-block;animation:spin 0.8s linear infinite;">⏳</span> Connecting with Apple ID...';
+
+        const AppleID = await loadAppleSignInSdk();
+        if (!AppleID || !AppleID.auth) {
+          throw new Error('Apple Sign-In SDK failed to initialize.');
+        }
+
+        AppleID.auth.init({
+          clientId: cfg.appleClientId,
+          scope: 'name email',
+          redirectURI: window.location.origin,
+          usePopup: true
+        });
+
+        const appleResp = await AppleID.auth.signIn();
+        const identityToken = appleResp && appleResp.authorization && appleResp.authorization.id_token;
+        if (!identityToken) {
+          throw new Error('Apple Sign-In did not return an identity token.');
+        }
+
+        const apiRes = await fetch('/api/auth/apple', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            identityToken,
+            user: appleResp.user || undefined
+          })
+        });
+        const data = await apiRes.json();
+        if (!apiRes.ok || !data.success || !data.token) {
+          throw new Error(data.error || 'Apple Sign-In failed.');
+        }
+
+        completeAuthSession(data, `✅ Signed in with Apple ID as ${data.user?.name || 'User'}!`);
+      } catch (err) {
+        const msg = err && err.error === 'popup_closed_by_user'
+          ? 'Apple Sign-In popup was closed.'
+          : (err && err.message) || 'Apple Sign-In failed.';
+        if (errBox) errBox.textContent = msg;
+        toast(msg);
+      } finally {
+        ssoApple.disabled = false;
+        ssoApple.innerHTML = origHtml;
+      }
+    };
+  }
+}
+
+// 1. Submit Auth (Register or Login via MongoDB + JWT API)
+$('#authForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const email = $('#aEmail').value.trim().toLowerCase();
+  const pass = $('#aPass').value;
+  const errBox = $('#authErr');
+  errBox.textContent = '';
+
+  if (pass.length < 8) {
+    errBox.textContent = 'Password must be at least 8 characters.';
+    return;
+  }
+
+  const btn = $('#authBtn');
+  const origBtnText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
+
+  try {
+    if (authMode === 'signup') {
+      const name = $('#aName').value.trim() || email.split('@')[0];
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password: pass })
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        pendingVerificationEmail = email;
+        pendingVerificationName = name;
+        showAuth('verify');
+        const devAlert = $('#verifyDevAlert');
+        if (devAlert) devAlert.hidden = true;
+        toast('✅ Verification code sent to ' + email + '! Please enter the 6-digit OTP.');
+      } else {
+        errBox.textContent = data.error || 'Failed to create account.';
+      }
+      return;
+    }
+
+    if (authMode === 'login') {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password: pass })
+      });
+      const data = await res.json();
+
+      if (res.status === 403 && data.error === 'email_not_verified') {
+        pendingVerificationEmail = email;
+        showAuth('verify');
+        const devAlert = $('#verifyDevAlert');
+        if (devAlert) devAlert.hidden = true;
+        toast('Your email is not verified yet. Verification code resent.');
+        return;
+      }
+
+      if (res.ok && data.success && data.token) {
+        $('#authForm').reset();
+        completeAuthSession(data, `Welcome back, ${data.user?.name || 'User'}!`);
+      } else {
+        errBox.textContent = data.error || 'Invalid email or password.';
+      }
+    }
+  } catch (err) {
+    errBox.textContent = err.message || 'Unable to reach authentication server.';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = origBtnText;
+  }
+};
+
+// 2. Submit Verification Code (6-digit OTP via /api/auth/verify-email)
+const verifyForm = $('#verifyForm');
+const verifySubmitBtn = $('#verifySubmitBtn');
+
+async function handleOtpVerification() {
+  const errBox = $('#verifyErr');
+  if (errBox) errBox.textContent = '';
+
+  const codeInput = $('#verifyCodeInput');
+  const code = codeInput ? codeInput.value.trim() : '';
+  if (!/^[0-9]{6}$/.test(code)) {
+    if (errBox) errBox.textContent = 'Please enter the 6-digit numeric verification code.';
+    return;
+  }
+
+  const subBtn = $('#verifySubmitBtn');
+  const origText = subBtn ? subBtn.textContent : '';
+  if (subBtn) {
+    subBtn.disabled = true;
+    subBtn.innerHTML = '<span style="display:inline-block;animation:spin 0.8s linear infinite;">⏳</span> Verifying code...';
+  }
+
+  try {
+    const res = await fetch('/api/auth/verify-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: pendingVerificationEmail, code })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success || !data.token) {
+      if (errBox) errBox.textContent = data.error || 'Invalid or expired verification code.';
+      return;
+    }
+
+    if (codeInput) codeInput.value = '';
+    completeAuthSession(data, `✅ Email verified successfully! Welcome to HEA Link, ${data.user?.name || ''}.`);
+  } catch (_err) {
+    if (errBox) errBox.textContent = 'Verification failed. Please check your connection and try again.';
+  } finally {
+    if (subBtn) {
+      subBtn.disabled = false;
+      subBtn.textContent = origText || 'Verify & Open Dashboard →';
+    }
+  }
+}
+
+if (verifyForm) {
+  verifyForm.onsubmit = async (e) => {
+    e.preventDefault();
+    await handleOtpVerification();
+  };
+} else if (verifySubmitBtn) {
+  verifySubmitBtn.onclick = handleOtpVerification;
+}
+
+// 3. Resend verification code
 const verifyResendBtn = $('#verifyResendBtn');
 if (verifyResendBtn) {
   verifyResendBtn.onclick = async () => {
     if (!pendingVerificationEmail) return;
     verifyResendBtn.disabled = true;
-    verifyResendBtn.textContent = 'Resending verification link...';
+    verifyResendBtn.textContent = 'Resending code...';
 
     try {
-      // 1. Firebase sendEmailVerification
-      if (window.fbAuth && window.fbAuth.currentUser) {
-        try {
-          await window.fbAuth.currentUser.sendEmailVerification();
-        } catch (fe) {
-          console.warn('Firebase resend error:', fe.message);
-        }
+      const res = await fetch('/api/auth/resend-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: pendingVerificationEmail })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast(data.error || 'Could not resend verification code.');
+        verifyResendBtn.disabled = false;
+        verifyResendBtn.textContent = 'Resend verification code';
+        return;
       }
-      // 2. Backend resend
-      try {
-        await fetch('/api/auth/resend-code', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: pendingVerificationEmail })
-        });
-      } catch (be) {}
 
-      toast(`🔗 Verification link has been resent to ${pendingVerificationEmail}! Please check your email inbox.`);
-
+      toast(`✉️ Verification code resent to ${pendingVerificationEmail}!`);
       let countdown = 30;
       const interval = setInterval(() => {
         countdown--;
         if (countdown > 0) {
-          verifyResendBtn.textContent = `Resend link in ${countdown}s`;
+          verifyResendBtn.textContent = `Resend code in ${countdown}s`;
         } else {
           clearInterval(interval);
           verifyResendBtn.disabled = false;
-          verifyResendBtn.textContent = 'Resend verification link';
+          verifyResendBtn.textContent = 'Resend verification code';
         }
       }, 1000);
-    } catch (e) {
+    } catch (_e) {
       verifyResendBtn.disabled = false;
-      verifyResendBtn.textContent = 'Resend verification link';
+      verifyResendBtn.textContent = 'Resend verification code';
     }
   };
 }
+
 // 4. Back from Verification to Login
-
 const verifyBackBtn = $('#verifyBackBtn');
-
 if (verifyBackBtn) {
-
-  verifyBackBtn.onclick = e => {
-
+  verifyBackBtn.onclick = (e) => {
     e.preventDefault();
-
     location.hash = '#login';
-
     showAuth('login');
-
   };
-
 }
 
 // 5. FORGOT PASSWORD & RESET ENGINE
-
 let pendingForgotEmail = '';
 
-let pendingForgotCode = '';
-
 const authForgotBtn = $('#authForgotBtn');
-
 if (authForgotBtn) {
-
   authForgotBtn.onclick = () => {
-
     showAuth('forgot');
-
   };
-
 }
 
 const forgotBackBtn = $('#forgotBackBtn');
-
 if (forgotBackBtn) {
-
   forgotBackBtn.onclick = () => {
-
     showAuth('login');
-
   };
-
 }
 
 // Step 1: Send Reset Code
-
 const forgotStep1Form = $('#forgotStep1Form');
-
 if (forgotStep1Form) {
-
-  forgotStep1Form.onsubmit = async e => {
-
+  forgotStep1Form.onsubmit = async (e) => {
     e.preventDefault();
-
     const email = ($('#forgotEmailInput').value || '').trim().toLowerCase();
-
     const errBox = $('#forgotStep1Err');
-
     errBox.textContent = '';
 
     if (!email) {
-
       errBox.textContent = 'Please enter your account email.';
-
       return;
-
     }
 
     const btn = $('#forgotSendBtn');
-
     btn.disabled = true;
-
     btn.textContent = 'Sending 6-Digit Code...';
 
     try {
-
       pendingForgotEmail = email;
-
-      // Firebase Password Reset Email
-
-      if (window.fbAuth && typeof firebase !== 'undefined') {
-
-        try {
-
-          await window.fbAuth.sendPasswordResetEmail(email);
-
-          toast(`📧 Official password reset email dispatched via Firebase to ${email}!`);
-
-        } catch (fbResetErr) {
-
-          console.warn('Firebase sendPasswordResetEmail notice:', fbResetErr.message);
-
-        }
-
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        errBox.textContent = data.error || 'Failed to dispatch reset code.';
+        return;
       }
-
-      let backendRes = null;
-
-      try {
-
-        const res = await fetch('/api/auth/forgot-password', {
-
-          method: 'POST',
-
-          headers: { 'Content-Type': 'application/json' },
-
-          body: JSON.stringify({ email })
-
-        });
-
-        backendRes = { ok: res.ok, status: res.status, data: await res.json() };
-
-      } catch (netErr) {}
-
-      let devCode = '';
-
-      if (backendRes && backendRes.ok && backendRes.data.success) {
-
-        devCode = backendRes.data.devCode || '';
-
-      } else if (!backendRes) {
-
-        // Resilient fallback code for offline/client-only demo mode
-
-        devCode = Math.floor(100000 + Math.random() * 900000).toString();
-
-      }
-
-      pendingForgotCode = devCode;
-
-      // Switch to Step 2
 
       $('#forgotStep1Form').hidden = true;
-
       $('#forgotStep2Form').hidden = false;
-
       $('#forgotTargetEmailDisplay').textContent = email;
 
       const devAlert = $('#forgotDevAlert');
-
-      const devText = $('#forgotDevText');
-
-      if (devAlert && devText) {
-
-        if (backendRes && backendRes.data && backendRes.data.emailSent) {
-
-          devAlert.hidden = true;
-
-          toast('✅ Reset code sent to ' + email + '! Check your Gmail inbox.');
-
-        } else {
-          devAlert.hidden = true;
-          toast('✅ Password reset code dispatched! Please check your email inbox.');
-        }
-
-      } else {
-
-        toast('Reset code sent! Check your email.');
-
-      }
-
+      if (devAlert) devAlert.hidden = true;
+      toast('✅ Password reset code dispatched! Please check your email inbox.');
     } catch (err) {
-
       errBox.textContent = err.message || 'Failed to dispatch reset code.';
-
     } finally {
-
       btn.disabled = false;
-
       btn.textContent = 'Send 6-Digit Reset Code →';
-
     }
-
   };
-
 }
 
 // Step 2: Verify Code & Set New Password
-
 const forgotStep2Form = $('#forgotStep2Form');
-
 if (forgotStep2Form) {
-
-  forgotStep2Form.onsubmit = async e => {
-
+  forgotStep2Form.onsubmit = async (e) => {
     e.preventDefault();
-
     const code = ($('#forgotCodeInput').value || '').trim();
-
     const newPass = ($('#forgotNewPassInput').value || '').trim();
-
     const errBox = $('#forgotStep2Err');
-
     errBox.textContent = '';
 
     if (code.length !== 6) {
-
       errBox.textContent = 'Please enter the complete 6-digit reset code.';
-
       return;
-
     }
-
     if (newPass.length < 8) {
-
       errBox.textContent = 'Password must be at least 8 characters long.';
-
       return;
-
     }
 
     const btn = $('#forgotSubmitBtn');
-
     btn.disabled = true;
-
     btn.textContent = 'Resetting Password...';
 
     try {
-
-      let backendRes = null;
-
-      try {
-
-        const res = await fetch('/api/auth/reset-password', {
-
-          method: 'POST',
-
-          headers: { 'Content-Type': 'application/json' },
-
-          body: JSON.stringify({ email: pendingForgotEmail, code, newPassword: newPass })
-
-        });
-
-        backendRes = { ok: res.ok, status: res.status, data: await res.json() };
-
-      } catch (netErr) {}
-
-      let success = false;
-
-      if (backendRes && backendRes.ok && backendRes.data.success) {
-
-        success = true;
-
-        if (backendRes.data.user) {
-
-          session = backendRes.data.user;
-
-          store.set('hea_session', session);
-
-        }
-
-      } else if (code === pendingForgotCode || code === '123456') {
-
-        success = true;
-
-        // Update client-side users database
-
-        const users = store.get('hea_users', []);
-
-        const user = users.find(u => u.email === pendingForgotEmail);
-
-        const h = await hashPassword(newPass);
-
-        if (user) {
-
-          user.h = h;
-
-          user.isVerified = true;
-
-        } else {
-
-          users.push({
-
-            id: 'u_' + Date.now(),
-
-            name: pendingForgotEmail.split('@')[0],
-
-            email: pendingForgotEmail,
-
-            h,
-
-            isVerified: true
-
-          });
-
-        }
-
-        store.set('hea_users', users);
-
-        session = {
-
-          name: (user && user.name) || 'John',
-
-          email: pendingForgotEmail,
-
-          isVerified: true,
-
-          country: 'United States',
-
-          city: 'New York',
-
-          isp: 'Global Internet'
-
-        };
-
-        store.set('hea_session', session);
-
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: pendingForgotEmail, code, newPassword: newPass })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success || !data.token) {
+        errBox.textContent = data.error || 'Invalid or expired verification code.';
+        return;
       }
 
-      if (success) {
-
-        if (window.appShell && typeof window.appShell.setAppUser === 'function') {
-
-          window.appShell.setAppUser(session);
-
-        }
-
-        renderNavRight();
-
-        document.body.classList.add('app-mode');
-
-        const as = $('#appShell');
-
-        if (as) as.hidden = false;
-
-        location.hash = '#dashboard';
-
-        if (window.appShell && typeof window.appShell.navigate === 'function') {
-
-          window.appShell.navigate('home');
-
-        }
-
-        toast('🎉 Password has been reset successfully! Welcome back.');
-
-      } else {
-
-        errBox.textContent = (backendRes && backendRes.data && backendRes.data.error) || 'Invalid verification code. Please check your email.';
-
-      }
-
+      completeAuthSession(data, '🎉 Password has been reset successfully! Welcome back.');
     } catch (err) {
-
       errBox.textContent = err.message || 'Failed to update password.';
-
     } finally {
-
       btn.disabled = false;
-
       btn.textContent = 'Reset Password & Log In →';
-
     }
-
   };
-
 }
 
 /* =========================================================
@@ -7235,53 +6013,6 @@ initFramerMotionFx();
 route();
 
 // Headings are maintained solid and visible without competing entrance tweens
-
-// Seed VIP Accounts silently in Firebase
-
-async function seedFirebaseDefaultAccounts() {
-
-  if (!window.fbAuth || typeof firebase === 'undefined') return;
-
-  const vips = [
-    { email: 'furyzod02@gmail.com', pass: '123456789', name: 'Fury Zod' },
-    { email: 'healink@gmail.com', pass: 'healink123', name: 'HEA Link Admin' }
-  ];
-
-  for (const v of vips) {
-
-    try {
-
-      let secApp = firebase.apps.find(a => a.name === 'vipSeeder');
-
-      if (!secApp) {
-
-        secApp = firebase.initializeApp(window.FIREBASE_CONFIG, 'vipSeeder');
-
-      }
-
-      const secAuth = secApp.auth();
-
-      try {
-
-        const cred = await secAuth.createUserWithEmailAndPassword(v.email, v.pass);
-
-        if (cred.user) {
-
-          await cred.user.updateProfile({ displayName: v.name });
-
-        }
-
-      } catch (err) {}
-
-      await secAuth.signOut();
-
-    } catch (e) {}
-
-  }
-
-}
-
-setTimeout(seedFirebaseDefaultAccounts, 1000);
 
   // Mobile keyboard accommodation: ensure focused inputs remain centered
   if (typeof document !== 'undefined') {

@@ -13,7 +13,7 @@ A full-stack, enterprise-grade URL shortener, vector QR code generator, and link
 * 🔗 **Fast Redirection (HTTP 302):** Indexed MongoDB lookups with asynchronous click tracking (`setImmediate`) that never blocks user redirection.
 * 🛡️ **Hardened Enterprise Security:** Strict SSRF blocking (private IPs, loopback, AWS metadata), dangerous protocol filtering (`javascript:`, `data:`), rate limiting across auth and creation routes, Helmet CSP, and zero client credential leakage.
 * 🤖 **HEA Assist AI:** In-chat link copilot, automated UTM campaign tags, and intelligent slug generator.
-* 🔑 **Resilient Authentication:** Secure bcrypt hashing, role-based access control (`user` / `admin`), 7-day expiring JWTs with `/api/auth/refresh`, single-use expiring OTP email verification, and Google Sign-In (GIS).
+* 🔑 **Resilient Authentication:** Secure bcrypt hashing, role-based access control (`user` / `admin`), 7-day expiring JWTs with `/api/auth/refresh`, single-use expiring OTP email verification, Google Identity Services (ID token verified), and Sign in with Apple (JWKS verified).
 * ▦ **Vector QR Studio:** Real-time canvas QR rendering with neon palettes and high-resolution PNG/SVG export.
 * 📱 **Mobile Link-in-Bio Studio:** Live smartphone frame preview, theme selection, and sanitized server-side rendered profile pages.
 * 💳 **Stripe PRO Billing:** Secure Stripe Checkout with mandatory webhook signature verification (`STRIPE_WEBHOOK_SECRET`) and idempotent payment processing (`ProcessedPayment` model).
@@ -46,7 +46,6 @@ hhh/
 ├── terms.html                  # Terms of Service & acceptable use policy
 ├── report-abuse.html           # Interactive public abuse reporting portal
 ├── robots.txt & sitemap.xml    # SEO basics & search crawler definitions
-├── database.rules.json         # Locked Firebase RTDB security rules (closed by default)
 ├── eslint.config.js            # ESLint v10 flat configuration
 └── package.json                # Project scripts and dependencies
 ```

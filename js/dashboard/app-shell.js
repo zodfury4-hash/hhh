@@ -351,12 +351,12 @@
 
             const shortCandidate = origin + '/' + l.slug;
 
-            if (!l.realShort || l.realShort === l.dest || l.realShort.includes('da.gd') || l.realShort.includes('firebase.google.com') || l.realShort.length > 60) {
+            if (!l.realShort || l.realShort === l.dest || l.realShort.includes('da.gd') || l.realShort.length > 60) {
               l.realShort = shortCandidate;
               dirty = true;
             }
 
-            if (!l.url || l.url === l.dest || l.url.includes('firebase.google.com') || l.url.length > 60) {
+            if (!l.url || l.url === l.dest || l.url.length > 60) {
               l.url = shortCandidate;
               dirty = true;
             }
@@ -396,12 +396,21 @@
     return [];
   }
 
-  async function syncLinksFromServer() {
+  function getAuthToken() {
     try {
       const s = JSON.parse(localStorage.getItem('hea_session') || '{}');
-      if (!s || !s.token) return;
+      return s.token || localStorage.getItem('hea_token') || sessionStorage.getItem('hea_token') || '';
+    } catch (_e) {
+      return '';
+    }
+  }
+
+  async function syncLinksFromServer() {
+    try {
+      const token = getAuthToken();
+      if (!token) return;
       const res = await fetch('/api/links', {
-        headers: { Authorization: 'Bearer ' + s.token }
+        headers: { Authorization: 'Bearer ' + token }
       });
       if (!res.ok) return;
       const data = await res.json();
@@ -414,6 +423,42 @@
             } catch (_e) {}
           }
         });
+      }
+    } catch (_err) {}
+  }
+
+  async function syncQrsFromServer() {
+    try {
+      const token = getAuthToken();
+      if (!token) return;
+      const res = await fetch('/api/qrs', {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data && Array.isArray(data.qrs)) {
+        localStorage.setItem('hea_qrs', JSON.stringify(data.qrs));
+      }
+    } catch (_err) {}
+  }
+
+  async function syncPagesFromServer() {
+    try {
+      const token = getAuthToken();
+      if (!token) return;
+      const res = await fetch('/api/bios', {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data && Array.isArray(data.bios)) {
+        const origin = window.location.origin;
+        const formatted = data.bios.map(b => ({
+          ...b,
+          id: b._id || b.id || b.slug,
+          url: b.url || `${origin}/m/${b.slug}`
+        }));
+        localStorage.setItem('hea_bios', JSON.stringify(formatted));
       }
     } catch (_err) {}
   }
@@ -468,32 +513,59 @@
 
   }
 
-  function deletePage(slug) {
-
+  async function deletePage(slug) {
     if (!slug) return;
-
     if (!confirm('Are you sure you want to delete this Bio Page?')) return;
-
     try {
-
+      const token = getAuthToken();
+      if (token) {
+        await fetch('/api/bios/' + encodeURIComponent(slug), {
+          method: 'DELETE',
+          headers: { Authorization: 'Bearer ' + token }
+        }).catch(() => {});
+      }
       let bios = getStoredPages();
-
       bios = bios.filter(p => p && p.slug !== slug);
-
       localStorage.setItem('hea_bios', JSON.stringify(bios));
-
       toast('Page deleted successfully');
-
       const pane = document.getElementById('appMainPane');
-
       if (pane) renderPages(pane, 'list');
-
     } catch (e) {
-
       console.error(e);
-
     }
+  }
 
+  async function deleteQr(id, slug) {
+    if (!id && !slug) return;
+    if (!confirm('Are you sure you want to delete this QR Code?')) return;
+    try {
+      const token = getAuthToken();
+      if (token && id) {
+        await fetch('/api/qrs/' + encodeURIComponent(id), {
+          method: 'DELETE',
+          headers: { Authorization: 'Bearer ' + token }
+        }).catch(() => {});
+      }
+      if (token && slug) {
+        await fetch('/api/links/' + encodeURIComponent(slug), {
+          method: 'DELETE',
+          headers: { Authorization: 'Bearer ' + token }
+        }).catch(() => {});
+      }
+      let links = getStoredLinks();
+      links = links.filter(l => l.id !== id && l._id !== id && l.slug !== slug);
+      localStorage.setItem('hea_links', JSON.stringify(links));
+      try {
+        let qrs = JSON.parse(localStorage.getItem('hea_qrs') || '[]');
+        qrs = qrs.filter(q => q.id !== id && q._id !== id);
+        localStorage.setItem('hea_qrs', JSON.stringify(qrs));
+      } catch (_e) {}
+      toast('QR Code deleted successfully');
+      const pane = document.getElementById('appMainPane');
+      if (pane) renderQr(pane);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   function renderProLockScreen(container, featureName, featureDescription) {
@@ -837,29 +909,21 @@
           break;
 
         case 'qr':
-
           renderQr(pane);
-
+          syncLinksFromServer().then(() => syncQrsFromServer()).then(() => {
+            if (currentView === 'qr') renderQr(pane);
+          }).catch(() => {});
           break;
 
         case 'qr-detail':
-
           renderQrDetail(pane, param || activeQrId);
-
           break;
 
         case 'pages':
-
-          if (!window.isUserPro || !window.isUserPro()) {
-
-            renderProLockScreen(pane, 'Link-in-Bio Pages', 'Free plan does not include custom landing pages or link-in-bio builders. Upgrade to HEA Link Pro to unlock all 12 mobile templates, custom branding, and social showcases!');
-
-          } else {
-
-            renderPages(pane);
-
-          }
-
+          renderPages(pane);
+          syncPagesFromServer().then(() => {
+            if (currentView === 'pages') renderPages(pane);
+          }).catch(() => {});
           break;
 
         case 'analytics':
@@ -2270,7 +2334,7 @@
       } catch (e) {}
 
       const origin = window.location.origin;
-      const cleanUrl = (realShort && realShort !== dest && !realShort.includes('firebase.google.com') && realShort.length < 60)
+      const cleanUrl = (realShort && realShort !== dest && realShort.length < 60)
         ? realShort
         : (slug ? `https://${domain || 'healink.store'}/${slug}` : `${origin}/${slug}`);
 
@@ -2356,13 +2420,6 @@
         }).catch(() => {});
       } catch (e) {}
 
-      try {
-        if (window.fbRtdbClient && typeof window.fbRtdbClient.saveLink === 'function') {
-          const uEmail = (appUser && appUser.email) || 'guest';
-          window.fbRtdbClient.saveLink(uEmail, newL);
-        }
-      } catch (e) {}
-
       if (typeof window.recordFreeCreation === 'function') window.recordFreeCreation();
       window.appShell.toast(`Created link: ${cleanUrl}`);
       navigator.clipboard.writeText(cleanUrl).catch(() => {});
@@ -2386,7 +2443,7 @@
     } catch (e) {}
 
     const origin = window.location.origin;
-    const cleanUrl = (realShort && realShort !== dest && !realShort.includes('firebase.google.com') && realShort.length < 60)
+    let cleanUrl = (realShort && realShort !== dest && realShort.length < 60)
       ? realShort
       : (slug ? `https://${domain || 'healink.store'}/${slug}` : `${origin}/${slug}`);
     if (cleanUrl === dest) cleanUrl = `https://${domain || 'healink.store'}/${slug}`;
@@ -2410,13 +2467,6 @@
     links.unshift(newL);
     localStorage.setItem('hea_links', JSON.stringify(links));
 
-    try {
-      if (window.fbRtdbClient && typeof window.fbRtdbClient.saveLink === 'function') {
-        const uEmail = (appUser && appUser.email) || 'guest';
-        window.fbRtdbClient.saveLink(uEmail, newL);
-      }
-    } catch (e) {}
-
     if (typeof window.recordFreeCreation === 'function') window.recordFreeCreation();
 
     try {
@@ -2428,11 +2478,20 @@
     } catch (e) {}
 
     try {
-      fetch('/api/shorten-online', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: dest, slug })
-      }).catch(() => {});
+      const token = getAuthToken();
+      if (token) {
+        await fetch('/api/links', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+          body: JSON.stringify({ dest, slug, title: newL.title, tag: newL.tag, utm: newL.utm, realShort: cleanUrl })
+        });
+      } else {
+        await fetch('/api/shorten-online', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: dest, slug })
+        });
+      }
     } catch (e) {}
 
     try {
@@ -2543,7 +2602,7 @@
           </div>
         ` : links.map(l => {
 
-          const shortUrl = (l.realShort && l.realShort !== l.dest && !l.realShort.includes('firebase.google.com') && l.realShort.length < 60)
+          const shortUrl = (l.realShort && l.realShort !== l.dest && l.realShort.length < 60)
             ? l.realShort
             : `${origin}/${l.slug || 'lnk'}`;
           const shortDisplay = shortUrl.replace(/^https?:\/\//, '');
@@ -2870,14 +2929,43 @@
 
           localStorage.setItem('hea_links', JSON.stringify(links));
 
-          // Persist to Firebase Realtime Database
+          // Persist to MongoDB via REST API
           try {
-            if (window.fbRtdbClient) {
-              const uEmail = (appUser && appUser.email) || 'guest';
-              window.fbRtdbClient.saveLink(uEmail, newQ);
-              window.fbRtdbClient.saveQr(uEmail, newQ);
+            const token = getAuthToken();
+            if (token) {
+              const [qrRes] = await Promise.all([
+                fetch('/api/qrs', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+                  body: JSON.stringify({
+                    title,
+                    dest,
+                    color: (appUser && appUser.selectedQrColor) || '#0070f3'
+                  })
+                }),
+                fetch('/api/links', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+                  body: JSON.stringify({
+                    dest,
+                    slug,
+                    title,
+                    tag: 'QR Campaign',
+                    qr: true,
+                    realShort: cleanUrl
+                  })
+                })
+              ]);
+              if (qrRes && qrRes.ok) {
+                const qrData = await qrRes.json();
+                if (qrData && qrData.qr && (qrData.qr._id || qrData.qr.id)) {
+                  newQ.qrId = qrData.qr._id || qrData.qr.id;
+                  newQ.id = newQ.qrId;
+                  localStorage.setItem('hea_links', JSON.stringify(links));
+                }
+              }
             }
-          } catch (e) {}
+          } catch (_e) {}
 
           if (typeof window.recordFreeCreation === 'function') window.recordFreeCreation();
 
@@ -2963,7 +3051,7 @@
           ${(() => {
             const origin = window.location.origin;
             return links.map((item, idx) => {
-              const shortUrl = (item.realShort && item.realShort !== item.dest && !item.realShort.includes('firebase.google.com') && item.realShort.length < 60)
+              const shortUrl = (item.realShort && item.realShort !== item.dest && item.realShort.length < 60)
                 ? item.realShort
                 : `${origin}/${item.slug || 'lnk'}`;
               const shortDisplay = shortUrl.replace(/^https?:\/\//, '');
@@ -2991,7 +3079,7 @@
                   <button class="topbar-icon-btn" title="Edit & Customize" onclick="window.appShell.navigate('qr-detail', '${item.id}')">✏️</button>
                   <button class="topbar-icon-btn" title="Download" onclick="window.appShell.downloadQrPNG('${item.slug}')">📥</button>
                   <button class="topbar-icon-btn" title="Stats" onclick="window.appShell.navigate('analytics')">📊</button>
-                  <button class="topbar-icon-btn" title="More">···</button>
+                  <button class="topbar-icon-btn" style="color:#ef4444;" title="Delete QR" onclick="window.appShell.deleteQr('${item.qrId || item.id || ''}', '${item.slug || ''}')">🗑️</button>
                 </div>
               </div>
               `;
@@ -3141,8 +3229,8 @@
           <div style="margin-bottom:16px;">
             <div style="font-size:12px;font-weight:700;color:#94a3b8;margin-bottom:4px;">Short link</div>
             <div style="display:flex;align-items:center;gap:10px;">
-              <span style="color:#0070f3;font-size:14px;font-weight:700;">${((item.realShort && item.realShort !== item.dest && !item.realShort.includes('firebase.google.com') && item.realShort.length < 60) ? item.realShort : (origin + '/' + (item.slug || 'lnk'))).replace(/^https?:\/\//, '')}</span>
-              <button class="sso-btn" style="width:auto;padding:2px 8px;font-size:11px;" onclick="window.appShell.copy('${((item.realShort && item.realShort !== item.dest && !item.realShort.includes('firebase.google.com') && item.realShort.length < 60) ? item.realShort : (origin + '/' + (item.slug || 'lnk')))}')">📋 Copy</button>
+              <span style="color:#0070f3;font-size:14px;font-weight:700;">${((item.realShort && item.realShort !== item.dest && item.realShort.length < 60) ? item.realShort : (origin + '/' + (item.slug || 'lnk'))).replace(/^https?:\/\//, '')}</span>
+              <button class="sso-btn" style="width:auto;padding:2px 8px;font-size:11px;" onclick="window.appShell.copy('${((item.realShort && item.realShort !== item.dest && item.realShort.length < 60) ? item.realShort : (origin + '/' + (item.slug || 'lnk')))}')">📋 Copy</button>
             </div>
           </div>
 
@@ -5015,7 +5103,12 @@
 
             templateId: selectedTemplate.id,
 
-            url: `https://${domain}/m/${slug}`,
+            links: [
+              ...(btn1Url ? [{ label: btn1Text || 'Link 1', url: btn1Url }] : []),
+              ...(btn2Url ? [{ label: btn2Text || 'Link 2', url: btn2Url }] : [])
+            ],
+
+            url: `${(domain && domain !== 'healink.store' && domain !== window.location.hostname) ? 'https://' + domain : window.location.origin}/m/${slug}`,
 
             color: qrColor,
 
@@ -5031,35 +5124,34 @@
 
           localStorage.setItem('hea_bios', JSON.stringify(pages));
 
-          // Persist to Firebase Realtime Database
+          // Persist Bio Page to MongoDB via REST API
           try {
-            if (window.fbRtdbClient && typeof window.fbRtdbClient.saveBio === 'function') {
-              const uEmail = (appUser && appUser.email) || 'guest';
-              window.fbRtdbClient.saveBio(uEmail, newPage);
+            const token = getAuthToken();
+            if (token) {
+              const bioRes = await fetch('/api/bios', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+                body: JSON.stringify({
+                  slug,
+                  title: newPage.title,
+                  tagline: newPage.tagline,
+                  avatar: newPage.avatar || '',
+                  theme: newPage.theme || 'cyber-dark',
+                  links: newPage.links || []
+                })
+              });
+              if (!bioRes.ok) {
+                const bioErr = await bioRes.json().catch(() => ({}));
+                if (bioRes.status === 403 && bioErr.code === 'PLAN_LIMIT_REACHED') {
+                  pages.shift();
+                  localStorage.setItem('hea_bios', JSON.stringify(pages));
+                  window.appShell.toast(bioErr.error || 'Bio page limit reached for current plan.');
+                  if (typeof window.openCheckoutModal === 'function') window.openCheckoutModal('pro');
+                  return;
+                }
+              }
             }
-          } catch (e) {}
-
-          // Realtime Database Sync under Logged-in User Email
-
-          try {
-
-            const session = JSON.parse(localStorage.getItem('hea_session') || '{}');
-
-            const userEmail = session.email || (window.appUser && window.appUser.email) || 'guest@healink.store';
-
-            const emailKey = encodeURIComponent(userEmail.replace(/[.#$[\]]/g, '_'));
-
-            fetch(`https://healinks-4ea4d-default-rtdb.firebaseio.com/users/${emailKey}/bios/${slug}.json`, {
-
-              method: 'PUT',
-
-              headers: { 'Content-Type': 'application/json' },
-
-              body: JSON.stringify(newPage)
-
-            }).catch(e => console.log('Firebase RTDB sync:', e));
-
-          } catch (e) {}
+          } catch (_e) {}
 
           window.appShell.toast(`Page created successfully: ${newPage.url}`);
 
@@ -5490,8 +5582,6 @@
         });
       } catch (_esErr) {}
     }
-
-    `;
 
     const exportBtn = $('#btnExportCSV');
 
@@ -6244,17 +6334,10 @@
         }
 
         loadUserDomains();
-
-          };
-
-        }
-
       }
-
     }
 
     renderView();
-
   }
 
   // ---------------- 10. INTEGRATIONS SCREEN (Screenshots 12.02.42 AM, 1) ---------------- //
@@ -7130,14 +7213,6 @@
     links = links.filter(l => l.id !== id && l.slug !== slug);
 
     localStorage.setItem('hea_links', JSON.stringify(links));
-
-    // Persist delete to Firebase Realtime Database
-    try {
-      if (window.fbRtdbClient && typeof window.fbRtdbClient.deleteLink === 'function') {
-        const uEmail = (appUser && appUser.email) || 'guest';
-        window.fbRtdbClient.deleteLink(uEmail, slug);
-      }
-    } catch (e) {}
 
     // Call backend API
 
@@ -8586,6 +8661,8 @@ Here are recommended optimizations for your links and campaigns:<br>
     updateDisplayName,
 
     deleteLink,
+
+    deleteQr,
 
     deletePage,
 

@@ -14,8 +14,6 @@ hhh/
 ├── r.html, r/index.html        # Direct short-link resolvers
 ├── CNAME, .nojekyll            # GitHub Pages deployment configuration
 ├── vercel.json                 # Vercel serverless functions & rewrite rules
-├── firebase.json, .firebaserc  # Firebase Realtime Database configuration
-├── database.rules.json         # Firebase Realtime Database security rules
 ├── favicon.svg, logo.png       # Brand vector icons and graphics
 ├── server.js                   # Root entrypoint wrapper (delegates to backend/server.js)
 ├── run_server.bat              # 1-click Windows server launch script
@@ -42,9 +40,6 @@ hhh/
 │   ├── shared/                 # Shared utilities and vendor libraries
 │   │   ├── qrcode.js           # Canvas QR code rendering engine
 │   │   └── motion.config.js    # Central motion timing and observer configuration
-│   ├── auth/                   # Client-side authentication logic
-│   │   ├── firebase-config.js  # Firebase client credentials
-│   │   └── firebase-service.js # Client-side RTDB helper service
 │   ├── landing/
 │   │   └── landing-clean.js    # Marketing landing page event handlers
 │   ├── dashboard/              # Core application logic
@@ -75,10 +70,8 @@ hhh/
 │   ├── middleware/
 │   │   └── auth.js             # JWT verification (authMiddleware, optionalAuth)
 │   ├── utils/
-│   │   ├── helpers.js          # Rate-limiting, secure OTP generator, VIP accounts
-│   │   ├── mailer.js           # Nodemailer SMTP email dispatcher
-│   │   └── memStore.js         # In-memory hybrid store when MongoDB is offline
-│   ├── firebase-service.js     # Backend Firebase Realtime Database bridge
+│   │   ├── helpers.js          # Rate-limiting, secure OTP generator
+│   │   └── mailer.js           # Nodemailer SMTP email dispatcher
 │   └── .env.example            # Safe environment template
 │
 ├── archive/                    # Archived legacy assets (excluded from production)
