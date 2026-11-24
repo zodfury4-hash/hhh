@@ -1,6 +1,8 @@
 const { spawnSync } = require('child_process');
 const path = require('path');
 
+process.env.NODE_ENV = 'test';
+
 console.log('🧪 ========================================');
 console.log('🧪 HEA LINK FULL AUTOMATED TEST RUNNER');
 console.log('🧪 ========================================\n');

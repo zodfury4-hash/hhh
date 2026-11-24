@@ -1,17 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
 
 const BioPage = require('../models/BioPage');
-const firebaseRtdb = require('../firebase-service');
 const memStore = require('../utils/memStore');
+const { isDbConnected, isMemStoreAllowed, createDbUnavailableError } = require('../middleware/dbCheck');
 const { authMiddleware } = require('../middleware/auth');
 const { validate, bioPageSchema } = require('../middleware/validation');
 const { getEntitlements, assertWithinLimit } = require('../config/plans');
-
-function isDbConnected() {
-  return mongoose.connection.readyState === 1;
-}
 
 function escapeHtml(str) {
   if (str === null || str === undefined) return '';
@@ -46,15 +41,10 @@ router.get('/api/bios', authMiddleware, async (req, res) => {
     if (isDbConnected()) {
       const query = isAdmin ? {} : { ownerEmail: email };
       list = await BioPage.find(query).sort({ createdAt: -1 });
-    } else {
+    } else if (isMemStoreAllowed()) {
       list = isAdmin ? memStore.bios : memStore.bios.filter((b) => b.ownerEmail === email);
-    }
-
-    if (list.length === 0) {
-      try {
-        const fbBios = await firebaseRtdb.getUserBios(email);
-        if (fbBios && fbBios.length > 0) list = fbBios;
-      } catch (fbErr) {}
+    } else {
+      throw createDbUnavailableError();
     }
 
     res.json({ bios: list });
@@ -104,7 +94,7 @@ router.post('/api/bios', authMiddleware, validate(bioPageSchema), async (req, re
         });
         await page.save();
       }
-    } else {
+    } else if (isMemStoreAllowed()) {
       page = memStore.bios.find((b) => b.slug === cleanSlug);
       if (page) {
         if (!isAdmin && page.ownerEmail !== email) {
@@ -137,21 +127,19 @@ router.post('/api/bios', authMiddleware, validate(bioPageSchema), async (req, re
         };
         memStore.bios.unshift(page);
       }
+    } else {
+      throw createDbUnavailableError();
     }
-
-    try {
-      await firebaseRtdb.saveBio(email, {
-        slug: cleanSlug,
-        title: title || (page && page.title) || 'My Bio Page',
-        tagline: tagline || (page && page.tagline) || '',
-        avatar: avatar || (page && page.avatar) || '',
-        theme: theme || (page && page.theme) || 'cyber-dark',
-        links: links || (page && page.links) || []
-      });
-    } catch (fbErr) {}
 
     res.json({ success: true, page });
   } catch (err) {
+    if (err.code === 11000) {
+      return res.status(409).json({
+        ok: false,
+        error: 'This bio page slug is already taken.',
+        code: 'DUPLICATE_KEY_ERROR'
+      });
+    }
     if (err.name === 'PlanError') {
       return res.status(err.statusCode || 403).json({
         ok: false,
@@ -160,7 +148,7 @@ router.post('/api/bios', authMiddleware, validate(bioPageSchema), async (req, re
         meta: err.meta
       });
     }
-    res.status(500).json({ error: err.message });
+    res.status(err.statusCode || 500).json({ error: err.message });
   }
 });
 
@@ -180,7 +168,7 @@ router.delete('/api/bios/:slug', authMiddleware, async (req, res) => {
       }
 
       await BioPage.deleteOne({ slug });
-    } else {
+    } else if (isMemStoreAllowed()) {
       const page = memStore.bios.find((b) => b.slug === slug);
       if (!page) return res.status(404).json({ error: 'Bio page not found' });
 
@@ -189,11 +177,13 @@ router.delete('/api/bios/:slug', authMiddleware, async (req, res) => {
       }
 
       memStore.bios = memStore.bios.filter((b) => b.slug !== slug);
+    } else {
+      throw createDbUnavailableError();
     }
 
     res.json({ success: true, message: 'Bio page deleted successfully' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(err.statusCode || 500).json({ error: err.message });
   }
 });
 
@@ -212,15 +202,11 @@ router.get(['/m/:slug', '/bio/:slug'], async (req, res) => {
           } catch (e) {}
         });
       }
-    } else {
+    } else if (isMemStoreAllowed()) {
       bio = memStore.bios.find((b) => b.slug === slug);
       if (bio) bio.views = (bio.views || 0) + 1;
-    }
-
-    if (!bio) {
-      try {
-        bio = await firebaseRtdb.getBioBySlug(slug);
-      } catch (fbErr) {}
+    } else {
+      return res.status(503).send('Service Unavailable');
     }
 
     if (!bio) {

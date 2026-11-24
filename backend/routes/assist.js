@@ -1,10 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
 
 const Link = require('../models/Link');
-const firebaseRtdb = require('../firebase-service');
 const memStore = require('../utils/memStore');
+const { isDbConnected, isMemStoreAllowed, createDbUnavailableError } = require('../middleware/dbCheck');
 const AssistConversation = require('../models/AssistConversation');
 const { authMiddleware, optionalAuth } = require('../middleware/auth');
 const { assistLimiter } = require('../middleware/rateLimiter');
@@ -15,10 +14,6 @@ const {
   confirmAction,
   cancelAction
 } = require('../services/assistService');
-
-function isDbConnected() {
-  return mongoose.connection.readyState === 1;
-}
 
 async function getRealWorkingShortUrl(destUrl) {
   if (!destUrl) return null;
@@ -253,24 +248,12 @@ router.post('/api/ai/ask', assistLimiter, optionalAuth, async (req, res) => {
       };
 
       if (isDbConnected()) {
-        try {
-          await Link.create(linkPayload);
-        } catch (_dbErr) {}
-      } else {
+        await Link.create(linkPayload);
+      } else if (isMemStoreAllowed()) {
         if (!Array.isArray(memStore.links)) memStore.links = [];
         memStore.links.push(linkPayload);
-      }
-
-      if (firebaseRtdb) {
-        try {
-          await firebaseRtdb.ref(`links/${fallbackSlug}`).set({
-            slug: fallbackSlug,
-            dest,
-            realShort: realShort || '',
-            ownerEmail,
-            createdAt: new Date().toISOString()
-          });
-        } catch (_fbErr) {}
+      } else {
+        throw createDbUnavailableError();
       }
     }
 

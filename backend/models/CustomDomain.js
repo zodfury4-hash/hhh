@@ -68,7 +68,7 @@ customDomainSchema.index(
   { unique: true, partialFilterExpression: { status: 'active' } }
 );
 
-// Compound index for user lookups
-customDomainSchema.index({ ownerEmail: 1, domain: 1 });
+// Compound unique index for user + domain lookups
+customDomainSchema.index({ ownerEmail: 1, domain: 1 }, { unique: true });
 
 module.exports = mongoose.model('CustomDomain', customDomainSchema);

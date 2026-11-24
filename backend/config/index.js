@@ -55,9 +55,8 @@ const config = {
     clientId: process.env.GOOGLE_CLIENT_ID || '',
     safeBrowsingKey: process.env.GOOGLE_SAFE_BROWSING_KEY || ''
   },
-  firebase: {
-    enableRtdb: process.env.ENABLE_FIREBASE_RTDB === 'true',
-    databaseUrl: process.env.FIREBASE_DATABASE_URL || 'https://healinks-4ea4d-default-rtdb.firebaseio.com'
+  apple: {
+    clientId: process.env.APPLE_CLIENT_ID || ''
   },
   clickRetentionDays: parseInt(process.env.CLICK_RETENTION_DAYS || '400', 10),
   trustProxy: process.env.TRUST_PROXY || '1',

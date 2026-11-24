@@ -1,13 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
 const User = require('../models/User');
-const firebaseRtdb = require('../firebase-service');
 const memStore = require('../utils/memStore');
+const { isDbConnected, isMemStoreAllowed, createDbUnavailableError } = require('../middleware/dbCheck');
 const { authMiddleware, JWT_SECRET } = require('../middleware/auth');
 const { generateSecureOTP, checkOtpRateLimit, recordOtpFailure, clearOtpRateLimit } = require('../utils/helpers');
 const { sendVerificationEmail, sendPasswordResetEmail } = require('../utils/mailer');
@@ -20,10 +19,6 @@ const {
   forgotPasswordSchema,
   resetPasswordSchema
 } = require('../middleware/validation');
-
-function isDbConnected() {
-  return mongoose.connection.readyState === 1;
-}
 
 function generateAuthToken(user) {
   const isAdmin = user.role === 'admin';
@@ -73,8 +68,10 @@ router.post('/api/auth/register', authLimiter, validate(registerSchema), async (
     let existingUser = null;
     if (isDbConnected()) {
       existingUser = await User.findOne({ email: cleanEmail });
-    } else {
+    } else if (isMemStoreAllowed()) {
       existingUser = memStore.users.find((u) => u.email === cleanEmail);
+    } else {
+      throw createDbUnavailableError();
     }
 
     if (existingUser) {
@@ -144,20 +141,6 @@ router.post('/api/auth/register', authLimiter, validate(registerSchema), async (
       memStore.users.push(newUser);
     }
 
-    try {
-      await firebaseRtdb.saveUser(cleanEmail, {
-        name: displayName,
-        email: cleanEmail,
-        isVerified: false,
-        verificationCode,
-        verificationCodeExpires: verificationCodeExpires.toISOString(),
-        role: 'user',
-        plan: 'Free'
-      });
-    } catch (fbErr) {
-      console.warn('[Firebase RTDB register warn]', fbErr.message);
-    }
-
     if (process.env.NODE_ENV === 'development') {
       console.log(`\n🔑 [DEV ONLY] Registration OTP for ${cleanEmail}: [ ${verificationCode} ] (Valid: 10 mins)\n`);
     }
@@ -173,6 +156,7 @@ router.post('/api/auth/register', authLimiter, validate(registerSchema), async (
       email: cleanEmail
     });
   } catch (err) {
+    if (err.statusCode === 503) return res.status(503).json({ ok: false, error: err.message, code: err.code });
     console.error('Registration error:', err);
     return res.status(500).json({ error: 'Internal server error: ' + err.message });
   }
@@ -193,8 +177,10 @@ router.post('/api/auth/verify-email', authLimiter, validate(verifyEmailSchema), 
     let user = null;
     if (isDbConnected()) {
       user = await User.findOne({ email: cleanEmail });
-    } else {
+    } else if (isMemStoreAllowed()) {
       user = memStore.users.find((u) => u.email === cleanEmail);
+    } else {
+      throw createDbUnavailableError();
     }
 
     if (!user) {
@@ -231,14 +217,6 @@ router.post('/api/auth/verify-email', authLimiter, validate(verifyEmailSchema), 
       await user.save();
     }
 
-    try {
-      await firebaseRtdb.saveUser(cleanEmail, {
-        isVerified: true,
-        verificationCode: null,
-        verificationCodeExpires: null
-      });
-    } catch (fbErr) {}
-
     const token = generateAuthToken(user);
 
     return res.json({
@@ -262,8 +240,10 @@ router.post('/api/auth/resend-code', authLimiter, validate(forgotPasswordSchema)
     let user = null;
     if (isDbConnected()) {
       user = await User.findOne({ email: cleanEmail });
-    } else {
+    } else if (isMemStoreAllowed()) {
       user = memStore.users.find((u) => u.email === cleanEmail);
+    } else {
+      throw createDbUnavailableError();
     }
 
     if (!user) {
@@ -299,7 +279,7 @@ router.post('/api/auth/resend-code', authLimiter, validate(forgotPasswordSchema)
       email: cleanEmail
     });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return res.status(err.statusCode || 500).json({ error: err.message });
   }
 });
 
@@ -312,8 +292,10 @@ router.post('/api/auth/forgot-password', authLimiter, validate(forgotPasswordSch
     let user = null;
     if (isDbConnected()) {
       user = await User.findOne({ email: cleanEmail });
-    } else {
+    } else if (isMemStoreAllowed()) {
       user = memStore.users.find((u) => u.email === cleanEmail);
+    } else {
+      throw createDbUnavailableError();
     }
 
     if (!user) {
@@ -370,8 +352,10 @@ router.post('/api/auth/reset-password', authLimiter, validate(resetPasswordSchem
     let user = null;
     if (isDbConnected()) {
       user = await User.findOne({ email: cleanEmail });
-    } else {
+    } else if (isMemStoreAllowed()) {
       user = memStore.users.find((u) => u.email === cleanEmail);
+    } else {
+      throw createDbUnavailableError();
     }
 
     if (!user) {
@@ -431,11 +415,13 @@ router.post('/api/auth/login', authLimiter, validate(loginSchema), async (req, r
     let user = null;
     if (isDbConnected()) {
       user = await User.findOne({ email: cleanEmail });
-    } else {
+    } else if (isMemStoreAllowed()) {
       user = memStore.users.find((u) => u.email === cleanEmail);
+    } else {
+      throw createDbUnavailableError();
     }
 
-    if (!user) {
+    if (!user || !user.password) {
       return res.status(400).json({ error: 'Invalid email or password' });
     }
 
@@ -567,6 +553,10 @@ router.post('/api/auth/change-password', authMiddleware, async (req, res) => {
 
     if (!user) return res.status(404).json({ error: 'User not found' });
 
+    if (!user.password) {
+      return res.status(400).json({ error: 'This account uses social sign-in. Use Forgot Password to set a password first.' });
+    }
+
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) return res.status(400).json({ error: 'Current password is incorrect' });
 
@@ -683,16 +673,6 @@ router.post('/api/auth/google', authLimiter, async (req, res) => {
         memStore.users.push(user);
       }
     }
-
-    try {
-      await firebaseRtdb.saveUser(cleanEmail, {
-        name: displayName,
-        email: cleanEmail,
-        isVerified: true,
-        avatar: avatar || user.avatar || '',
-        provider: 'google'
-      });
-    } catch (fbErr) {}
 
     const token = generateAuthToken(user);
 

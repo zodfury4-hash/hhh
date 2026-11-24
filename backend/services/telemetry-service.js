@@ -6,11 +6,7 @@ const { UAParser } = require('ua-parser-js');
 const Click = require('../models/Click');
 const Link = require('../models/Link');
 const memStore = require('../utils/memStore');
-const mongoose = require('mongoose');
-
-function isDbConnected() {
-  return mongoose.connection.readyState === 1;
-}
+const { isDbConnected, isMemStoreAllowed } = require('../middleware/dbCheck');
 
 // Global Event Emitter for Real-Time SSE Click Stream
 const analyticsEmitter = new EventEmitter();
@@ -230,8 +226,8 @@ async function recordClick({ link, slug, req, isQr = false, skipCounterIncrement
 
       // Broadcast to real-time subscribers
       analyticsEmitter.emit('click', clickDoc.toObject());
-    } else {
-      // In-memory fallback
+    } else if (isMemStoreAllowed()) {
+      // In-memory test fallback
       if (!Array.isArray(memStore.clicks)) memStore.clicks = [];
       memStore.clicks.push(clickData);
 

@@ -1,17 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
 
 const QRCode = require('../models/QRCode');
-const firebaseRtdb = require('../firebase-service');
 const memStore = require('../utils/memStore');
+const { isDbConnected, isMemStoreAllowed, createDbUnavailableError } = require('../middleware/dbCheck');
 const { authMiddleware } = require('../middleware/auth');
 const { validate, createQrSchema } = require('../middleware/validation');
 const { getEntitlements, assertWithinLimit } = require('../config/plans');
-
-function isDbConnected() {
-  return mongoose.connection.readyState === 1;
-}
 
 /* =========================================================
    QR CODES CRUD (STRICT AUTH & OWNERSHIP)
@@ -27,15 +22,10 @@ router.get('/api/qrs', authMiddleware, async (req, res) => {
     if (isDbConnected()) {
       const query = isAdmin ? {} : { ownerEmail: email };
       list = await QRCode.find(query).sort({ createdAt: -1 });
-    } else {
+    } else if (isMemStoreAllowed()) {
       list = isAdmin ? memStore.qrs : memStore.qrs.filter((q) => q.ownerEmail === email);
-    }
-
-    if (list.length === 0) {
-      try {
-        const fbQrs = await firebaseRtdb.getUserQrs(email);
-        if (fbQrs && fbQrs.length > 0) list = fbQrs;
-      } catch (fbErr) {}
+    } else {
+      throw createDbUnavailableError();
     }
 
     res.json({ qrs: list });
@@ -56,8 +46,10 @@ router.post('/api/qrs', authMiddleware, validate(createQrSchema), async (req, re
       let currentUsage = 0;
       if (isDbConnected()) {
         currentUsage = await QRCode.countDocuments({ ownerEmail: email.toLowerCase() });
-      } else {
+      } else if (isMemStoreAllowed()) {
         currentUsage = memStore.qrs.filter((q) => q.ownerEmail === email.toLowerCase()).length;
+      } else {
+        throw createDbUnavailableError();
       }
       assertWithinLimit(entitlements, 'qrCodes', currentUsage);
     }
@@ -72,7 +64,7 @@ router.post('/api/qrs', authMiddleware, validate(createQrSchema), async (req, re
         scans: 0
       });
       await qr.save();
-    } else {
+    } else if (isMemStoreAllowed()) {
       qr = {
         id: 'qr_' + Date.now(),
         ownerEmail: email,
@@ -83,17 +75,9 @@ router.post('/api/qrs', authMiddleware, validate(createQrSchema), async (req, re
         createdAt: new Date()
       };
       memStore.qrs.unshift(qr);
+    } else {
+      throw createDbUnavailableError();
     }
-
-    try {
-      await firebaseRtdb.saveQr(email, {
-        id: qr._id || qr.id,
-        title: qr.title,
-        dest: qr.dest,
-        color: qr.color,
-        scans: 0
-      });
-    } catch (fbErr) {}
 
     res.json({ success: true, qr });
   } catch (err) {
@@ -127,7 +111,7 @@ router.delete('/api/qrs/:id', authMiddleware, async (req, res) => {
       }
 
       await QRCode.deleteOne({ _id: id });
-    } else {
+    } else if (isMemStoreAllowed()) {
       const qr = memStore.qrs.find((q) => q.id === id);
       if (!qr) return res.status(404).json({ error: 'QR Code not found' });
 
@@ -138,11 +122,9 @@ router.delete('/api/qrs/:id', authMiddleware, async (req, res) => {
       }
 
       memStore.qrs = memStore.qrs.filter((q) => q.id !== id);
+    } else {
+      throw createDbUnavailableError();
     }
-
-    try {
-      await firebaseRtdb.deleteQr(email, id);
-    } catch (fbErr) {}
 
     res.json({ success: true, message: 'QR Code deleted successfully' });
   } catch (err) {

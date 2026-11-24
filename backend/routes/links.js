@@ -1,13 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const Link = require('../models/Link');
 const BioPage = require('../models/BioPage');
 const CustomDomain = require('../models/CustomDomain');
-const firebaseRtdb = require('../firebase-service');
 const memStore = require('../utils/memStore');
+const { isDbConnected, isMemStoreAllowed, createDbUnavailableError } = require('../middleware/dbCheck');
 const config = require('../config');
 const { authMiddleware, optionalAuth } = require('../middleware/auth');
 const { linkCreateLimiter, bulkShortenLimiter, passwordAttemptLimiter } = require('../middleware/rateLimiter');
@@ -26,10 +25,6 @@ const { renderPasswordChallengeHtml, renderExpiredLinkHtml } = require('../utils
 const { generateCryptoSlug } = require('../utils/slugGenerator');
 const { getEntitlements, assertWithinLimit } = require('../config/plans');
 const { createNotification } = require('../services/notificationService');
-
-function isDbConnected() {
-  return mongoose.connection.readyState === 1;
-}
 
 // Working short URL helper (TinyURL fallback)
 async function getRealWorkingShortUrl(destUrl) {
@@ -91,13 +86,16 @@ router.post('/api/shorten-online', linkCreateLimiter, async (req, res) => {
             slug: finalSlug,
             title: 'Quick Shortlink',
             tag: 'General',
-            qr: true,
-            clicks: []
+            qr: true
           });
           await l.save();
         }
-      } catch (e) {}
-    } else {
+      } catch (e) {
+        if (e.code === 11000 && requestedSlug) {
+          return res.status(409).json({ error: 'Back-half is already taken', code: 'SLUG_COLLISION' });
+        }
+      }
+    } else if (isMemStoreAllowed()) {
       const clash = memStore.links.find((l) => l.slug.toLowerCase() === finalSlug);
       if (!clash) {
         memStore.links.unshift({
@@ -108,10 +106,11 @@ router.post('/api/shorten-online', linkCreateLimiter, async (req, res) => {
           title: 'Quick Shortlink',
           tag: 'General',
           qr: true,
-          clicks: [],
           createdAt: new Date()
         });
       }
+    } else {
+      throw createDbUnavailableError();
     }
 
     return res.json({
@@ -160,7 +159,7 @@ router.post('/api/shorten', linkCreateLimiter, optionalAuth, async (req, res) =>
     if (isDbConnected()) {
       const clash = await Link.findOne({ slug: finalSlug });
       if (clash) {
-        return res.status(400).json({ error: 'Back-half is already taken' });
+        return res.status(409).json({ error: 'Back-half is already taken', code: 'SLUG_COLLISION' });
       }
 
       link = new Link({
@@ -170,11 +169,14 @@ router.post('/api/shorten', linkCreateLimiter, optionalAuth, async (req, res) =>
         title: 'Untitled Link',
         tag: tag || 'General',
         qr: true,
-        scans: 0,
-        clicks: []
+        scans: 0
       });
       await link.save();
-    } else {
+    } else if (isMemStoreAllowed()) {
+      const clash = memStore.links.find((l) => l.slug.toLowerCase() === finalSlug);
+      if (clash) {
+        return res.status(409).json({ error: 'Back-half is already taken', code: 'SLUG_COLLISION' });
+      }
       link = {
         id: 'lnk_' + Date.now(),
         ownerEmail,
@@ -184,21 +186,12 @@ router.post('/api/shorten', linkCreateLimiter, optionalAuth, async (req, res) =>
         tag: tag || 'General',
         qr: true,
         scans: 0,
-        clicks: [],
         createdAt: new Date()
       };
       memStore.links.unshift(link);
+    } else {
+      throw createDbUnavailableError();
     }
-
-    try {
-      await firebaseRtdb.saveLink(ownerEmail, {
-        slug: finalSlug,
-        dest,
-        title: req.body.title || 'Untitled Link',
-        tag: tag || 'General',
-        qr: true
-      });
-    } catch (fbErr) {}
 
     res.json({
       success: true,
@@ -219,9 +212,9 @@ router.post('/api/shorten', linkCreateLimiter, optionalAuth, async (req, res) =>
       });
     }
     if (err.code === 11000) {
-      return res.status(400).json({ error: 'This custom back-half is already taken', code: 'SLUG_COLLISION' });
+      return res.status(409).json({ error: 'This custom back-half is already taken', code: 'SLUG_COLLISION' });
     }
-    res.status(500).json({ error: err.message });
+    res.status(err.statusCode || 500).json({ error: err.message });
   }
 });
 
@@ -239,22 +232,11 @@ router.get('/api/links', authMiddleware, async (req, res) => {
     if (isDbConnected()) {
       const query = isAdmin ? {} : { ownerEmail: email };
       list = await Link.find(query).sort({ createdAt: -1 });
-    } else {
+    } else if (isMemStoreAllowed()) {
       list = isAdmin ? memStore.links : memStore.links.filter((l) => l.ownerEmail === email);
+    } else {
+      throw createDbUnavailableError();
     }
-
-    try {
-      const fbLinks = await firebaseRtdb.getUserLinks(email);
-      if (Array.isArray(fbLinks) && fbLinks.length > 0) {
-        const existingSlugs = new Set(list.map((l) => l.slug));
-        for (const fl of fbLinks) {
-          if (!existingSlugs.has(fl.slug)) {
-            list.push(fl);
-            existingSlugs.add(fl.slug);
-          }
-        }
-      }
-    } catch (fbErr) {}
 
     const host = req.get('host') || 'healink.store';
     const formatted = list.map((l) => ({
@@ -289,9 +271,9 @@ router.get('/api/links', authMiddleware, async (req, res) => {
       });
     }
     if (err.code === 11000) {
-      return res.status(400).json({ error: 'This custom back-half is already taken', code: 'SLUG_COLLISION' });
+      return res.status(409).json({ error: 'This custom back-half is already taken', code: 'SLUG_COLLISION' });
     }
-    res.status(500).json({ error: err.message });
+    res.status(err.statusCode || 500).json({ error: err.message });
   }
 });
 
@@ -307,8 +289,10 @@ router.post('/api/links', authMiddleware, linkCreateLimiter, validate(createLink
       let count = 0;
       if (isDbConnected()) {
         count = await Link.countDocuments({ ownerEmail: email.toLowerCase() });
-      } else {
+      } else if (isMemStoreAllowed()) {
         count = memStore.links.filter((l) => l.ownerEmail === email.toLowerCase()).length;
+      } else {
+        throw createDbUnavailableError();
       }
       assertWithinLimit(entitlements, 'links', count);
     }
@@ -342,7 +326,7 @@ router.post('/api/links', authMiddleware, linkCreateLimiter, validate(createLink
     if (isDbConnected()) {
       const clash = await Link.findOne({ slug: finalSlug });
       if (clash) {
-        return res.status(400).json({ error: 'This custom back-half is already taken' });
+        return res.status(409).json({ error: 'This custom back-half is already taken', code: 'SLUG_COLLISION' });
       }
 
       newLink = new Link({
@@ -357,11 +341,14 @@ router.post('/api/links', authMiddleware, linkCreateLimiter, validate(createLink
         expiresAt: parsedExpires,
         maxClicks: parsedMaxClicks,
         utm: utm || null,
-        scans: 0,
-        clicks: []
+        scans: 0
       });
       await newLink.save();
-    } else {
+    } else if (isMemStoreAllowed()) {
+      const clash = memStore.links.find((l) => l.slug.toLowerCase() === finalSlug);
+      if (clash) {
+        return res.status(409).json({ error: 'This custom back-half is already taken', code: 'SLUG_COLLISION' });
+      }
       newLink = {
         id: 'lnk_' + Date.now(),
         ownerEmail: email,
@@ -376,26 +363,12 @@ router.post('/api/links', authMiddleware, linkCreateLimiter, validate(createLink
         maxClicks: parsedMaxClicks,
         utm: utm || null,
         scans: 0,
-        clicks: [],
         createdAt: new Date()
       };
       memStore.links.unshift(newLink);
+    } else {
+      throw createDbUnavailableError();
     }
-
-    try {
-      await firebaseRtdb.saveLink(email, {
-        slug: finalSlug,
-        dest,
-        title: title || 'Untitled Link',
-        tag: tag || 'General',
-        qr: qr !== false,
-        hasPassword: !!passwordHash,
-        expiresAt: parsedExpires ? parsedExpires.toISOString() : null,
-        maxClicks: parsedMaxClicks,
-        scans: 0,
-        clicks: []
-      });
-    } catch (_fbErr) {}
 
     let realShort = req.body.realShort;
     if (!realShort) {
@@ -442,9 +415,9 @@ router.post('/api/links', authMiddleware, linkCreateLimiter, validate(createLink
       });
     }
     if (err.code === 11000) {
-      return res.status(400).json({ error: 'This custom back-half is already taken', code: 'SLUG_COLLISION' });
+      return res.status(409).json({ error: 'This custom back-half is already taken', code: 'SLUG_COLLISION' });
     }
-    res.status(500).json({ error: err.message });
+    res.status(err.statusCode || 500).json({ error: err.message });
   }
 });
 
@@ -473,12 +446,11 @@ router.post('/api/links/bulk', authMiddleware, bulkShortenLimiter, validate(bulk
           dest: u,
           slug,
           title: 'Bulk Link ' + slug,
-          tag: 'Bulk',
-          clicks: []
+          tag: 'Bulk'
         });
         await item.save();
         createdLinks.push({ slug, dest: u, url: cleanUrl, realShort: cleanUrl });
-      } else {
+      } else if (isMemStoreAllowed()) {
         const item = {
           id: 'lnk_' + Date.now() + generateCryptoSlug(4).toLowerCase(),
           ownerEmail: email,
@@ -486,22 +458,13 @@ router.post('/api/links/bulk', authMiddleware, bulkShortenLimiter, validate(bulk
           slug,
           title: 'Bulk Link ' + slug,
           tag: 'Bulk',
-          clicks: [],
           createdAt: new Date()
         };
         memStore.links.unshift(item);
         createdLinks.push({ slug, dest: u, url: cleanUrl, realShort: cleanUrl });
+      } else {
+        throw createDbUnavailableError();
       }
-
-      try {
-        await firebaseRtdb.saveLink(email, {
-          slug,
-          dest: u,
-          title: 'Bulk Link ' + slug,
-          tag: 'Bulk',
-          clicks: []
-        });
-      } catch (fbErr) {}
     }
 
     res.json({ success: true, links: createdLinks });
@@ -515,9 +478,9 @@ router.post('/api/links/bulk', authMiddleware, bulkShortenLimiter, validate(bulk
       });
     }
     if (err.code === 11000) {
-      return res.status(400).json({ error: 'This custom back-half is already taken', code: 'SLUG_COLLISION' });
+      return res.status(409).json({ error: 'This custom back-half is already taken', code: 'SLUG_COLLISION' });
     }
-    res.status(500).json({ error: err.message });
+    res.status(err.statusCode || 500).json({ error: err.message });
   }
 });
 
@@ -587,25 +550,13 @@ router.put('/api/links/:slug', authMiddleware, validate(updateLinkSchema), async
 
       await link.save();
 
-      try {
-        await firebaseRtdb.saveLink(link.ownerEmail, {
-          slug,
-          dest: link.dest,
-          title: link.title,
-          tag: link.tag,
-          hasPassword: !!link.passwordHash,
-          expiresAt: link.expiresAt ? link.expiresAt.toISOString() : null,
-          maxClicks: link.maxClicks
-        });
-      } catch (_e) {}
-
       const sanitized = link._doc ? { ...link._doc } : { ...link };
       delete sanitized.password;
       delete sanitized.passwordHash;
       sanitized.hasPassword = !!link.passwordHash;
 
       return res.json({ success: true, link: sanitized });
-    } else {
+    } else if (isMemStoreAllowed()) {
       const link = memStore.links.find((l) => l.slug === slug);
       if (!link) return res.status(404).json({ error: 'Link not found' });
 
@@ -632,6 +583,8 @@ router.put('/api/links/:slug', authMiddleware, validate(updateLinkSchema), async
       sanitized.hasPassword = !!link.passwordHash;
 
       return res.json({ success: true, link: sanitized });
+    } else {
+      throw createDbUnavailableError();
     }
   } catch (err) {
     if (err.name === 'PlanError') {
@@ -643,9 +596,9 @@ router.put('/api/links/:slug', authMiddleware, validate(updateLinkSchema), async
       });
     }
     if (err.code === 11000) {
-      return res.status(400).json({ error: 'This custom back-half is already taken', code: 'SLUG_COLLISION' });
+      return res.status(409).json({ error: 'This custom back-half is already taken', code: 'SLUG_COLLISION' });
     }
-    res.status(500).json({ error: err.message });
+    res.status(err.statusCode || 500).json({ error: err.message });
   }
 });
 
@@ -668,10 +621,7 @@ router.delete('/api/links/:slug', authMiddleware, async (req, res) => {
       }
 
       await Link.deleteOne({ slug });
-      try {
-        await firebaseRtdb.deleteLink(link.ownerEmail, slug);
-      } catch (fbErr) {}
-    } else {
+    } else if (isMemStoreAllowed()) {
       const link = memStore.links.find((l) => l.slug === slug);
       if (!link) return res.status(404).json({ error: 'Link not found' });
 
@@ -682,6 +632,8 @@ router.delete('/api/links/:slug', authMiddleware, async (req, res) => {
       }
 
       memStore.links = memStore.links.filter((l) => l.slug !== slug);
+    } else {
+      throw createDbUnavailableError();
     }
 
     res.json({ success: true, message: 'Link deleted successfully' });
@@ -695,9 +647,9 @@ router.delete('/api/links/:slug', authMiddleware, async (req, res) => {
       });
     }
     if (err.code === 11000) {
-      return res.status(400).json({ error: 'This custom back-half is already taken', code: 'SLUG_COLLISION' });
+      return res.status(409).json({ error: 'This custom back-half is already taken', code: 'SLUG_COLLISION' });
     }
-    res.status(500).json({ error: err.message });
+    res.status(err.statusCode || 500).json({ error: err.message });
   }
 });
 
@@ -719,8 +671,10 @@ const handleRedirect = async (req, res, next) => {
       let customDomain = null;
       if (isDbConnected()) {
         customDomain = await CustomDomain.findOne({ domain: reqHost, status: 'active' });
-      } else {
+      } else if (isMemStoreAllowed()) {
         customDomain = memStore.domains.find((d) => d.domain === reqHost && d.status === 'active');
+      } else {
+        return res.status(503).send('Database service temporarily unavailable');
       }
       if (!customDomain) {
         return res.status(404).send(`
@@ -749,16 +703,12 @@ const handleRedirect = async (req, res, next) => {
 
     if (isDbConnected()) {
       link = await Link.findOne(query);
-    } else {
+    } else if (isMemStoreAllowed()) {
       link = memStore.links.find(
         (l) => l.slug.toLowerCase() === slug && (!domainOwnerEmail || l.ownerEmail.toLowerCase() === domainOwnerEmail)
       );
-    }
-
-    if (!link && !domainOwnerEmail) {
-      try {
-        link = await firebaseRtdb.getLinkBySlug(slug);
-      } catch (_fbErr) {}
+    } else {
+      return res.status(503).send('Database service temporarily unavailable');
     }
 
     if (link && link.dest) {
@@ -807,12 +757,6 @@ const handleRedirect = async (req, res, next) => {
       setImmediate(async () => {
         try {
           await recordClick({ link, slug, req, isQr, skipCounterIncrement });
-          firebaseRtdb.recordClick(slug, {
-            ip: req.ip,
-            referer: req.headers.referer || req.headers.referrer || '',
-            userAgent: req.headers['user-agent'] || '',
-            device: req.headers['user-agent']?.includes('Mobi') ? 'Mobile' : 'Desktop'
-          });
           const clicksNow = (link.humanClicks || link.totalClicks || 0) + 1;
           if ([10, 50, 100, 500, 1000, 5000, 10000].includes(clicksNow)) {
             const email = link.ownerEmail || link.userEmail || link.email;
@@ -872,14 +816,10 @@ const handleRedirect = async (req, res, next) => {
     let bio = null;
     if (isDbConnected()) {
       bio = await BioPage.findOne({ slug });
-    } else {
+    } else if (isMemStoreAllowed()) {
       bio = memStore.bios.find((b) => b.slug.toLowerCase() === slug);
-    }
-
-    if (!bio) {
-      try {
-        bio = await firebaseRtdb.getBioBySlug(slug);
-      } catch (_fbErr) {}
+    } else {
+      return res.status(503).send('Database service temporarily unavailable');
     }
 
     if (bio) {
@@ -918,8 +858,10 @@ const handlePasswordVerification = async (req, res, next) => {
     let link = null;
     if (isDbConnected()) {
       link = await Link.findOne({ slug });
-    } else {
+    } else if (isMemStoreAllowed()) {
       link = memStore.links.find((l) => l.slug.toLowerCase() === slug);
+    } else {
+      return res.status(503).send('Database service temporarily unavailable');
     }
 
     if (!link) return next();
@@ -979,9 +921,9 @@ const handlePasswordVerification = async (req, res, next) => {
       });
     }
     if (err.code === 11000) {
-      return res.status(400).json({ error: 'This custom back-half is already taken', code: 'SLUG_COLLISION' });
+      return res.status(409).json({ error: 'This custom back-half is already taken', code: 'SLUG_COLLISION' });
     }
-    res.status(500).json({ error: err.message });
+    res.status(err.statusCode || 500).json({ error: err.message });
   }
 };
 

@@ -35,6 +35,7 @@ app.use(
           'https://js.stripe.com',
           'https://apis.google.com',
           'https://accounts.google.com',
+          'https://appleid.cdn-apple.com',
           'https://www.gstatic.com'
         ],
         styleSrc: [
@@ -42,7 +43,8 @@ app.use(
           "'unsafe-inline'",
           'https://fonts.googleapis.com',
           'https://cdnjs.cloudflare.com',
-          'https://cdn.jsdelivr.net'
+          'https://cdn.jsdelivr.net',
+          'https://accounts.google.com'
         ],
         fontSrc: [
           "'self'",
@@ -60,9 +62,16 @@ app.use(
           'https://safebrowsing.googleapis.com',
           'https://identitytoolkit.googleapis.com',
           'https://securetoken.googleapis.com',
-          'https://*.firebaseio.com'
+          'https://accounts.google.com',
+          'https://appleid.apple.com'
         ],
-        frameSrc: ["'self'", 'https://js.stripe.com', 'https://hooks.stripe.com', 'https://accounts.google.com'],
+        frameSrc: [
+          "'self'",
+          'https://js.stripe.com',
+          'https://hooks.stripe.com',
+          'https://accounts.google.com',
+          'https://appleid.apple.com'
+        ],
         objectSrc: ["'none'"],
         upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null
       }
@@ -138,10 +147,10 @@ mongoose
   .catch((err) => {
     _isDbConnected = false;
     logger.warn(`⚠️ [MongoDB] Connection failed (${err.message}).`);
-    if (process.env.NODE_ENV === 'production') {
-      logger.error('CRITICAL: MongoDB is unavailable in production. Incoming API queries will return 503.');
+    if (process.env.NODE_ENV !== 'test') {
+      logger.error('CRITICAL: MongoDB is unavailable. Incoming API queries will return 503.');
     } else {
-      logger.info('💡 Running in resilient hybrid mode for local development/test.');
+      logger.info('💡 Test environment without active MongoDB URI yet.');
     }
   });
 
@@ -185,7 +194,10 @@ async function seedAdminUser() {
   }
 }
 
-// 6. Abuse Reporting API Endpoint
+// 6. Require Database for API Routes (503 when MongoDB is disconnected in non-test or DISABLE_MEMSTORE)
+app.use('/api', requireDatabase);
+
+// 7. Abuse Reporting API Endpoint
 app.post('/api/abuse/report', abuseReportLimiter, validate(abuseReportSchema), async (req, res) => {
   try {
     const { slug, url, reason, details, reporterEmail } = req.body;
@@ -217,10 +229,11 @@ app.post('/api/abuse/report', abuseReportLimiter, validate(abuseReportSchema), a
   }
 });
 
-// 7. System Health Endpoint
+// 8. System Health Endpoint
 app.get('/health', (req, res) => {
   const dbState = mongoose.connection.readyState;
-  const isHealthy = dbState === 1 || process.env.NODE_ENV !== 'production';
+  const allowMemTest = process.env.NODE_ENV === 'test' && process.env.DISABLE_MEMSTORE !== 'true';
+  const isHealthy = dbState === 1 || allowMemTest;
   const statusCode = isHealthy ? 200 : 503;
 
   res.status(statusCode).json({
@@ -232,9 +245,6 @@ app.get('/health', (req, res) => {
     environment: process.env.NODE_ENV || 'development'
   });
 });
-
-// 8. Require Database in Production for API Routes
-app.use('/api', requireDatabase);
 
 // ---------------- MOUNT MODULAR API ROUTERS ---------------- //
 app.use('/', require('./routes/auth'));

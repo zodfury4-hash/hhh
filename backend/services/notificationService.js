@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
 const Notification = require('../models/Notification');
 const memStore = require('../utils/memStore');
+const { isDbConnected, isMemStoreAllowed } = require('../middleware/dbCheck');
 
 /**
  * Creates a notification for a user, with automatic deduplication.
@@ -19,12 +19,15 @@ async function createNotification({ ownerEmail, userId, workspaceId, type, title
   if (!ownerEmail) return null;
   const email = String(ownerEmail).trim().toLowerCase();
 
-  const isDbConnected = mongoose.connection.readyState === 1;
+  const dbConnected = isDbConnected();
+  if (!dbConnected && !isMemStoreAllowed()) {
+    return null;
+  }
 
   // Deduplication check: if notification with same ownerEmail, type, and refId was created in last 1 hour, skip
   if (refId) {
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-    if (isDbConnected) {
+    if (dbConnected) {
       const existing = await Notification.findOne({
         ownerEmail: email,
         type,
@@ -56,7 +59,7 @@ async function createNotification({ ownerEmail, userId, workspaceId, type, title
     createdAt: new Date()
   };
 
-  if (isDbConnected) {
+  if (dbConnected) {
     const doc = await Notification.create(notifData);
     return doc.toObject();
   }

@@ -1,8 +1,23 @@
 const mongoose = require('mongoose');
 
+function isDbConnected() {
+  return mongoose.connection.readyState === 1;
+}
+
+function isMemStoreAllowed() {
+  return process.env.NODE_ENV === 'test' && process.env.DISABLE_MEMSTORE !== 'true';
+}
+
+function createDbUnavailableError() {
+  const err = new Error('Database service is currently unavailable. Please try again shortly.');
+  err.statusCode = 503;
+  err.status = 503;
+  err.code = 'DATABASE_UNAVAILABLE';
+  return err;
+}
+
 function requireDatabase(req, res, next) {
-  const isConnected = mongoose.connection.readyState === 1;
-  if (!isConnected && process.env.NODE_ENV === 'production') {
+  if (!isDbConnected() && !isMemStoreAllowed()) {
     return res.status(503).json({
       ok: false,
       error: 'Database service is currently unavailable. Please try again shortly.',
@@ -13,5 +28,8 @@ function requireDatabase(req, res, next) {
 }
 
 module.exports = {
-  requireDatabase
+  requireDatabase,
+  isDbConnected,
+  isMemStoreAllowed,
+  createDbUnavailableError
 };

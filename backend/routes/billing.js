@@ -1,17 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
 
 const User = require('../models/User');
 const ProcessedPayment = require('../models/ProcessedPayment');
-const firebaseRtdb = require('../firebase-service');
+const { isDbConnected } = require('../middleware/dbCheck');
 const { optionalAuth } = require('../middleware/auth');
 const { PLANS } = require('../config/plans');
 const { createNotification } = require('../services/notificationService');
-
-function isDbConnected() {
-  return mongoose.connection.readyState === 1;
-}
 
 /* =========================================================
    STRIPE PAYMENT GATEWAY & SECURE PRO CHECKOUT ENGINE
@@ -188,15 +183,6 @@ router.get('/api/stripe/verify-session/:sessionId', async (req, res) => {
       }
     }
 
-    // Sync to Firebase RTDB if active
-    try {
-      await firebaseRtdb.saveUserProfile(cleanEmail, {
-        isPro: true,
-        plan: plan,
-        subscriptionDate: new Date().toISOString()
-      });
-    } catch (fbErr) {}
-
     return res.json({
       ok: true,
       verified: true,
@@ -266,8 +252,6 @@ router.post('/api/stripe/webhook', async (req, res) => {
             }
           );
         }
-
-        await firebaseRtdb.saveUserProfile(cleanEmail, { isPro: true, plan: plan });
 
         try {
           createNotification({

@@ -16,7 +16,23 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true
+    default: null
+  },
+  googleId: {
+    type: String,
+    default: undefined
+  },
+  appleId: {
+    type: String,
+    default: undefined
+  },
+  authProviders: {
+    type: [String],
+    default: []
+  },
+  avatar: {
+    type: String,
+    default: ''
   },
   isVerified: {
     type: Boolean,
@@ -94,6 +110,8 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.index({ email: 1 }, { unique: true });
+userSchema.index({ googleId: 1 }, { unique: true, sparse: true });
+userSchema.index({ appleId: 1 }, { unique: true, sparse: true });
 userSchema.index({ role: 1 });
 
 module.exports = mongoose.model('User', userSchema);

@@ -39,7 +39,14 @@ const RESERVED_SLUGS = new Set([
   'help',
   'contact',
   'support',
-  'status'
+  'status',
+  'developers',
+  'integrations',
+  'faq',
+  'utm-guide',
+  'resources',
+  'ai',
+  'solutions'
 ]);
 
 // Known abusive or phishing domains
