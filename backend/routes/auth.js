@@ -2,10 +2,10 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const crypto = require('crypto');
 
 const User = require('../models/User');
 const memStore = require('../utils/memStore');
+const socialAuth = require('../services/socialAuth');
 const { isDbConnected, isMemStoreAllowed, createDbUnavailableError } = require('../middleware/dbCheck');
 const { authMiddleware, JWT_SECRET } = require('../middleware/auth');
 const { generateSecureOTP, checkOtpRateLimit, recordOtpFailure, clearOtpRateLimit } = require('../utils/helpers');
@@ -575,103 +575,95 @@ router.post('/api/auth/change-password', authMiddleware, async (req, res) => {
 router.get('/api/config', (req, res) => {
   res.json({
     googleClientId: process.env.GOOGLE_CLIENT_ID || '',
+    appleClientId: process.env.APPLE_CLIENT_ID || '',
+    appleConfigured: Boolean(process.env.APPLE_CLIENT_ID),
     isDbConnected: isDbConnected(),
     configured: true
   });
 });
 
-// 12. Google Sign-In Authentication Endpoint
+// 12. Google Sign-In Authentication Endpoint (Strict ID Token Verification Only)
 router.post('/api/auth/google', authLimiter, async (req, res) => {
   try {
-    const { credential, accessToken, userInfo } = req.body;
-
-    let email = '';
-    let name = '';
-    let avatar = '';
-
-    // Verify credential via Google's official tokeninfo API if ID token provided
-    if (credential) {
-      try {
-        const verifyRes = await fetch(
-          `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`
-        );
-        if (verifyRes.ok) {
-          const payload = await verifyRes.json();
-          email = payload.email;
-          name = payload.name;
-          avatar = payload.picture;
-        }
-      } catch (e) {
-        console.warn('Google tokeninfo fetch error:', e.message);
-      }
+    const idToken = (req.body && (req.body.credential || req.body.idToken)) || '';
+    if (!idToken || typeof idToken !== 'string') {
+      return res.status(400).json({
+        error: 'Google ID token (credential) is required.',
+        code: 'MISSING_CREDENTIAL'
+      });
     }
 
-    // If access token provided, fetch userinfo from Google directly
-    if (!email && accessToken) {
-      try {
-        const infoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-          headers: { Authorization: `Bearer ${accessToken}` }
-        });
-        if (infoRes.ok) {
-          const payload = await infoRes.json();
-          email = payload.email;
-          name = payload.name;
-          avatar = payload.picture;
-        }
-      } catch (e) {
-        console.warn('Google userinfo fetch error:', e.message);
-      }
-    }
-
-    // Direct verified client payload fallback
-    if (!email && userInfo && userInfo.email) {
-      email = userInfo.email;
-      name = userInfo.name || email.split('@')[0];
-      avatar = userInfo.picture || '';
-    }
-
-    if (!email) {
-      return res.status(400).json({ error: 'Failed to verify Google account credentials.' });
-    }
-
-    const cleanEmail = email.toLowerCase().trim();
-    const displayName = name || cleanEmail.split('@')[0];
+    const verified = await socialAuth.verifyGoogleIdToken(idToken);
+    const cleanEmail = verified.email;
+    const displayName = verified.name || cleanEmail.split('@')[0];
 
     let user = null;
     if (isDbConnected()) {
-      user = await User.findOne({ email: cleanEmail });
-      if (!user) {
-        const randPass = crypto.randomBytes(24).toString('hex');
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(randPass, salt);
+      user = await User.findOne({
+        $or: [{ googleId: verified.sub }, { email: cleanEmail }]
+      });
 
+      if (!user) {
         user = new User({
           name: displayName,
           email: cleanEmail,
-          password: hashedPassword,
+          password: null,
+          googleId: verified.sub,
+          authProviders: ['google'],
+          avatar: verified.avatar || '',
           isVerified: true,
           role: 'user',
           plan: 'Free'
         });
         await user.save();
-      } else if (!user.isVerified) {
-        user.isVerified = true;
-        await user.save();
+      } else {
+        let changed = false;
+        if (!user.googleId) {
+          user.googleId = verified.sub;
+          changed = true;
+        }
+        if (!Array.isArray(user.authProviders)) {
+          user.authProviders = [];
+        }
+        if (!user.authProviders.includes('google')) {
+          user.authProviders.push('google');
+          changed = true;
+        }
+        if (!user.isVerified) {
+          user.isVerified = true;
+          changed = true;
+        }
+        if (!user.avatar && verified.avatar) {
+          user.avatar = verified.avatar;
+          changed = true;
+        }
+        if (changed) await user.save();
       }
-    } else {
-      user = memStore.users.find((u) => u.email === cleanEmail);
+    } else if (isMemStoreAllowed()) {
+      user = memStore.users.find((u) => u.googleId === verified.sub || u.email === cleanEmail);
       if (!user) {
         user = {
           id: 'u_' + Date.now(),
           name: displayName,
           email: cleanEmail,
+          password: null,
+          googleId: verified.sub,
+          authProviders: ['google'],
           isVerified: true,
           role: 'user',
           plan: 'Free',
-          avatar
+          avatar: verified.avatar || ''
         };
         memStore.users.push(user);
+      } else {
+        if (!user.googleId) user.googleId = verified.sub;
+        if (!Array.isArray(user.authProviders)) user.authProviders = [];
+        if (!user.authProviders.includes('google')) user.authProviders.push('google');
+        user.isVerified = true;
+        if (!user.avatar && verified.avatar) user.avatar = verified.avatar;
       }
+    } else {
+      throw createDbUnavailableError();
     }
 
     const token = generateAuthToken(user);
@@ -683,8 +675,146 @@ router.post('/api/auth/google', authLimiter, async (req, res) => {
       user: formatUserResponse(user)
     });
   } catch (err) {
-    console.error('Google Auth Route Error:', err);
-    return res.status(500).json({ error: 'Google authentication error: ' + err.message });
+    const status = err.statusCode || 500;
+    if (status >= 500) {
+      console.error('Google Auth Route Error:', err);
+    }
+    return res.status(status).json({
+      error: err.message || 'Google authentication failed.',
+      code: err.code || 'GOOGLE_AUTH_ERROR'
+    });
+  }
+});
+
+// 13. Apple Sign-In Authentication Endpoint (JWKS Verification)
+router.post('/api/auth/apple', authLimiter, async (req, res) => {
+  try {
+    const clientId = process.env.APPLE_CLIENT_ID || '';
+    if (!clientId) {
+      return res.status(503).json({
+        error: 'Apple Sign-In is not configured on this server.',
+        code: 'APPLE_NOT_CONFIGURED'
+      });
+    }
+
+    const { identityToken, user: appleUser } = req.body || {};
+    if (!identityToken || typeof identityToken !== 'string') {
+      return res.status(400).json({
+        error: 'Apple identityToken is required.',
+        code: 'MISSING_CREDENTIAL'
+      });
+    }
+
+    const verified = await socialAuth.verifyAppleIdentityToken(identityToken);
+    const appleNameObj = appleUser && appleUser.name ? appleUser.name : null;
+    const suppliedName = appleNameObj
+      ? [appleNameObj.firstName, appleNameObj.lastName].filter(Boolean).join(' ').trim()
+      : '';
+
+    let user = null;
+    if (isDbConnected()) {
+      user = await User.findOne({ appleId: verified.sub });
+      if (!user && verified.email) {
+        user = await User.findOne({ email: verified.email });
+      }
+
+      if (!user) {
+        if (!verified.email) {
+          return res.status(400).json({
+            error: 'Apple identity token did not provide an email for new account creation.',
+            code: 'APPLE_EMAIL_REQUIRED'
+          });
+        }
+        const cleanEmail = verified.email;
+        const displayName = suppliedName || cleanEmail.split('@')[0];
+        user = new User({
+          name: displayName,
+          email: cleanEmail,
+          password: null,
+          appleId: verified.sub,
+          authProviders: ['apple'],
+          isVerified: true,
+          role: 'user',
+          plan: 'Free'
+        });
+        await user.save();
+      } else {
+        let changed = false;
+        if (!user.appleId) {
+          user.appleId = verified.sub;
+          changed = true;
+        }
+        if (!Array.isArray(user.authProviders)) {
+          user.authProviders = [];
+        }
+        if (!user.authProviders.includes('apple')) {
+          user.authProviders.push('apple');
+          changed = true;
+        }
+        if (!user.isVerified) {
+          user.isVerified = true;
+          changed = true;
+        }
+        if (suppliedName && (!user.name || user.name === 'John')) {
+          user.name = suppliedName;
+          changed = true;
+        }
+        if (changed) await user.save();
+      }
+    } else if (isMemStoreAllowed()) {
+      user = memStore.users.find((u) => u.appleId === verified.sub);
+      if (!user && verified.email) {
+        user = memStore.users.find((u) => u.email === verified.email);
+      }
+      if (!user) {
+        if (!verified.email) {
+          return res.status(400).json({
+            error: 'Apple identity token did not provide an email for new account creation.',
+            code: 'APPLE_EMAIL_REQUIRED'
+          });
+        }
+        const cleanEmail = verified.email;
+        const displayName = suppliedName || cleanEmail.split('@')[0];
+        user = {
+          id: 'u_' + Date.now(),
+          name: displayName,
+          email: cleanEmail,
+          password: null,
+          appleId: verified.sub,
+          authProviders: ['apple'],
+          isVerified: true,
+          role: 'user',
+          plan: 'Free',
+          avatar: ''
+        };
+        memStore.users.push(user);
+      } else {
+        if (!user.appleId) user.appleId = verified.sub;
+        if (!Array.isArray(user.authProviders)) user.authProviders = [];
+        if (!user.authProviders.includes('apple')) user.authProviders.push('apple');
+        user.isVerified = true;
+      }
+    } else {
+      throw createDbUnavailableError();
+    }
+
+    const token = generateAuthToken(user);
+
+    return res.json({
+      success: true,
+      message: 'Successfully logged in with Apple!',
+      token,
+      user: formatUserResponse(user)
+    });
+  } catch (err) {
+    const status = err.statusCode || 500;
+    if (status >= 500) {
+      console.error('Apple Auth Route Error:', err);
+    }
+    return res.status(status).json({
+      error: err.message || 'Apple authentication failed.',
+      code: err.code || 'APPLE_AUTH_ERROR'
+    });
   }
 });
 
