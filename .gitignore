@@ -16,6 +16,7 @@ logs/
 archive/
 backup/
 scratch/
+test-artifacts/
 
 # Python Cache & Tooling
 __pycache__/
