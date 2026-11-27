@@ -76,13 +76,32 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
-  const devCode = '';
+  const [appleConfig, setAppleConfig] = useState<{ configured: boolean; clientId: string }>({
+    configured: false,
+    clientId: '',
+  });
 
-  // Sync mode whenever initialMode changes
+  // Sync mode whenever initialMode changes & fetch server auth config
   useEffect(() => {
     setMode(initialMode);
     setError('');
     setSuccessMsg('');
+    if (!isOpen) return;
+    let cancelled = false;
+    fetch('/api/config')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((cfg) => {
+        if (!cancelled && cfg) {
+          setAppleConfig({
+            configured: Boolean(cfg.appleConfigured && cfg.appleClientId),
+            clientId: cfg.appleClientId || '',
+          });
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
   }, [initialMode, isOpen]);
 
   // Handle ESC key to close modal & lock background scroll
@@ -138,8 +157,76 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
     sessionStorage.setItem('hea_session', JSON.stringify(userSession));
     setSuccessMsg(msg);
     setTimeout(() => {
-      window.location.href = '/app.html';
-    }, 500);
+      window.location.href = '/app.html#dashboard';
+    }, 300);
+  };
+
+  const parseJsonSafe = async (res: Response): Promise<Record<string, any> | null> => {
+    try {
+      return await res.json();
+    } catch {
+      return null;
+    }
+  };
+
+  const handleAppleSso = async () => {
+    try {
+      setIsLoading(true);
+      setError('');
+      if (!appleConfig.configured || !appleConfig.clientId) {
+        throw new Error('Apple Sign-In is not configured on this server.');
+      }
+
+      const appleSdk: any = await new Promise((resolve, reject) => {
+        const w = window as any;
+        if (w.AppleID && w.AppleID.auth) return resolve(w.AppleID);
+        const existing = document.getElementById('apple-signin-sdk');
+        if (existing) {
+          existing.addEventListener('load', () => resolve(w.AppleID));
+          existing.addEventListener('error', () => reject(new Error('Failed to load Apple Sign-In SDK.')));
+          return;
+        }
+        const s = document.createElement('script');
+        s.id = 'apple-signin-sdk';
+        s.src = 'https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js';
+        s.async = true;
+        s.onload = () => resolve(w.AppleID);
+        s.onerror = () => reject(new Error('Failed to load Apple Sign-In SDK.'));
+        document.head.appendChild(s);
+      });
+
+      appleSdk.auth.init({
+        clientId: appleConfig.clientId,
+        scope: 'name email',
+        redirectURI: window.location.origin,
+        usePopup: true,
+      });
+
+      const appleResp = await appleSdk.auth.signIn();
+      const identityToken = appleResp?.authorization?.id_token;
+      if (!identityToken) {
+        throw new Error('Apple Sign-In did not return an identity token.');
+      }
+
+      const res = await fetch('/api/auth/apple', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identityToken, user: appleResp.user || undefined }),
+      });
+      const data = await parseJsonSafe(res);
+      if (!res.ok || !data?.success || !data?.token) {
+        throw new Error(data?.error || 'Apple Sign-In failed.');
+      }
+      completeAuthSession(data, `Welcome, ${data.user?.name || 'User'}! Launching dashboard...`);
+    } catch (err: any) {
+      if (err?.error === 'popup_closed_by_user') {
+        setError('Apple sign-in was cancelled.');
+      } else {
+        setError(sanitizeErrorMessage(err));
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Google Single Sign-On via Google Identity Services + Backend ID Token verification
@@ -223,12 +310,16 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: cleanEmail, password, name: cleanName }),
         });
-        const data = await res.json();
+        const data = await parseJsonSafe(res);
+        if (!data) {
+          setError('Unable to reach server. Please check your internet connection.');
+          return;
+        }
         if (res.ok && data.success) {
           setMode('verify');
           setSuccessMsg('Verification code sent! Please check your inbox.');
         } else {
-          setError(sanitizeErrorMessage(data.error || 'Failed to create account.'));
+          setError(data.error || 'Failed to create account.');
         }
         return;
       }
@@ -240,14 +331,18 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: cleanEmail, password }),
         });
-        const data = await res.json();
+        const data = await parseJsonSafe(res);
+        if (!data) {
+          setError('Unable to reach server. Please check your internet connection.');
+          return;
+        }
         if (res.ok && data.success && data.token) {
           completeAuthSession(data, 'Login successful! Launching dashboard...');
         } else if (res.status === 403 && data.error === 'email_not_verified') {
           setMode('verify');
           setError('Please verify your email address to continue.');
         } else {
-          setError(sanitizeErrorMessage(data.error || 'Incorrect email or password.'));
+          setError(data.error || 'Invalid email or password.');
         }
         return;
       }
@@ -259,11 +354,15 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: cleanEmail, code: verifyCode.trim() }),
         });
-        const data = await res.json();
+        const data = await parseJsonSafe(res);
+        if (!data) {
+          setError('Unable to reach server. Please check your internet connection.');
+          return;
+        }
         if (res.ok && data.success && data.token) {
           completeAuthSession(data, 'Email verified successfully! Launching dashboard...');
         } else {
-          setError(sanitizeErrorMessage(data.error || 'Invalid or expired verification code.'));
+          setError(data.error || 'Invalid or expired verification code.');
         }
         return;
       }
@@ -275,12 +374,16 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: cleanEmail }),
         });
-        const data = await res.json();
+        const data = await parseJsonSafe(res);
+        if (!data) {
+          setError('Unable to reach server. Please check your internet connection.');
+          return;
+        }
         if (res.ok && data.success) {
           setMode('reset');
           setSuccessMsg('If an account exists for this email, a reset code was sent.');
         } else {
-          setError(sanitizeErrorMessage(data.error || 'Failed to send reset code.'));
+          setError(data.error || 'Failed to send reset code.');
         }
         return;
       }
@@ -296,11 +399,15 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: cleanEmail, code: verifyCode.trim(), newPassword }),
         });
-        const data = await res.json();
+        const data = await parseJsonSafe(res);
+        if (!data) {
+          setError('Unable to reach server. Please check your internet connection.');
+          return;
+        }
         if (res.ok && data.success && data.token) {
           completeAuthSession(data, 'Password reset successful! Launching dashboard...');
         } else {
-          setError(sanitizeErrorMessage(data.error || 'Invalid or expired reset code.'));
+          setError(data.error || 'Invalid or expired reset code.');
         }
         return;
       }
@@ -308,12 +415,6 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
       setError(sanitizeErrorMessage(err));
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const autoFillCode = () => {
-    if (devCode) {
-      setVerifyCode(devCode);
     }
   };
 
@@ -443,6 +544,16 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
                   <span>Continue with Google</span>
                 </button>
 
+                {appleConfig.configured && (
+                  <button
+                    type="button"
+                    onClick={handleAppleSso}
+                    className="w-full mt-2 py-2 px-3 rounded-xl border border-white/90 bg-white/70 hover:bg-white text-slate-700 font-semibold text-xs flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
+                  >
+                    <span>Continue with Apple</span>
+                  </button>
+                )}
+
                 <div className="relative my-2">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-slate-200/70" />
@@ -451,25 +562,6 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
                     <span className="bg-white/80 px-2 text-slate-400 font-bold backdrop-blur-sm rounded">Or email</span>
                   </div>
                 </div>
-              </div>
-            )}
-
-            {/* Dev Test Code Banner (When SMTP is not configured) */}
-            {(mode === 'verify' || mode === 'reset') && devCode && (
-              <div className="p-2.5 bg-blue-50/80 backdrop-blur-sm border border-blue-200 rounded-xl text-xs text-blue-900 space-y-1">
-                <div className="flex items-center justify-between font-bold">
-                  <span>⚡ Test Verification Code:</span>
-                  <span className="font-mono text-sm tracking-widest text-[#0070f3] bg-white px-2 py-0.5 rounded border border-blue-200">
-                    {devCode}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={autoFillCode}
-                  className="w-full py-1 text-center bg-[#0070f3] text-white rounded font-semibold text-[11px] hover:bg-blue-600 transition-colors cursor-pointer"
-                >
-                  Auto-fill Code
-                </button>
               </div>
             )}
 

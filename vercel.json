@@ -17,7 +17,11 @@
     },
     {
       "src": "/dashboard(\\.html)?",
-      "dest": "/#dashboard"
+      "dest": "/app.html#dashboard"
+    },
+    {
+      "src": "/app(\\.html)?",
+      "dest": "/app.html#dashboard"
     },
     {
       "src": "/login(\\.html)?",

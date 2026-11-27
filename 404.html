@@ -53,11 +53,16 @@
       if (slug === 'bio-pages') slug = 'pages';
       if (slug === 'ai') slug = 'assist';
 
-      // If route is a SPA top-level view, forward to index.html with hash
+      // If route is a SPA top-level view, forward to index.html or app.html with hash
+      const dashRoutes = [
+        'dashboard', 'analytics', 'pages', 'domains', 'settings', 'create-link', 'links', 'qr'
+      ];
+      if (slug && dashRoutes.includes(slug.toLowerCase())) {
+        window.location.replace('/app.html#' + slug);
+        return;
+      }
       const spaRoutes = [
-        'dashboard', 'pricing', 'login', 'signup', 'faq', 'solutions',
-        'resources', 'assist', 'analytics', 'pages', 'domains',
-        'integrations', 'settings', 'utm', 'create-link', 'links', 'qr'
+        'pricing', 'login', 'signup', 'faq', 'solutions', 'resources', 'assist', 'integrations', 'utm'
       ];
       if (slug && spaRoutes.includes(slug.toLowerCase())) {
         window.location.replace('/#' + slug);

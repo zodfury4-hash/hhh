@@ -8,6 +8,7 @@
     "server": "node server.js",
     "dev": "node server.js",
     "build:html": "node tools/build_html.js",
+    "build:landing": "node tools/build_landing.js",
     "watch:html": "node tools/build_html.js --watch",
     "lint": "eslint backend tests",
     "format": "prettier --write backend tests",

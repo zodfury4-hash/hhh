@@ -85,7 +85,8 @@ The server will start at [http://localhost:3000](http://localhost:3000).
 | `npm test` | Runs the automated security & E2E test suites (46 tests) |
 | `npm run lint` | Runs ESLint across backend and test directories |
 | `npm run format` | Runs Prettier to format codebase |
-| `npm run build:html` | Compiles `/partials` into static `index.html` and `app.html` |
+| `npm run build:html` | Compiles `/partials` into static `app.html` dashboard & help pages |
+| `npm run build:landing` | Builds `frontend-landing/` (`npm run build`) and syncs `index.html` & `assets/` |
 
 ---
 

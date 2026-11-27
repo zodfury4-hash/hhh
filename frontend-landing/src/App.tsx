@@ -19,6 +19,7 @@ import { Footer } from './components/Footer';
 import { MasterScene } from './canvas/Scene';
 import { CustomCursor } from './components/CustomCursor';
 import { AuthModal } from './components/AuthModal';
+import { getVerifiedSession } from './lib/auth';
 import { useLenis } from './hooks/useLenis';
 import { useReducedMotion } from './hooks/useReducedMotion';
 
@@ -42,16 +43,22 @@ export function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Listen to hash changes for #login and #signup to pop up auth modal
+  // Listen to hash changes for #login and #signup to pop up auth modal (or redirect if already signed in)
   useEffect(() => {
     const handleHash = () => {
       const h = window.location.hash.toLowerCase();
-      if (h === '#login') {
-        setAuthModal({ isOpen: true, mode: 'login' });
-      } else if (h === '#signup') {
-        setAuthModal({ isOpen: true, mode: 'signup' });
-      } else if (h === '#forgot' || h === '#forgot-password') {
-        setAuthModal({ isOpen: true, mode: 'forgot' });
+      if (h === '#login' || h === '#signup' || h === '#forgot' || h === '#forgot-password') {
+        if (getVerifiedSession()) {
+          window.location.replace('/app.html#dashboard');
+          return;
+        }
+        if (h === '#login') {
+          setAuthModal({ isOpen: true, mode: 'login' });
+        } else if (h === '#signup') {
+          setAuthModal({ isOpen: true, mode: 'signup' });
+        } else {
+          setAuthModal({ isOpen: true, mode: 'forgot' });
+        }
       }
     };
     handleHash();
@@ -111,7 +118,15 @@ export function App() {
       <MasterScene mousePosition={mousePos} />
 
       {/* 4. Sticky Glass Navbar with Full Mega Menus */}
-      <Navbar onOpenAuth={(mode) => setAuthModal({ isOpen: true, mode })} />
+      <Navbar
+        onOpenAuth={(mode) => {
+          if (getVerifiedSession()) {
+            window.location.href = '/app.html#dashboard';
+            return;
+          }
+          setAuthModal({ isOpen: true, mode });
+        }}
+      />
 
       {/* 5. Complete Rich Landing UI */}
       <main className="relative z-10">

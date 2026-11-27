@@ -44,16 +44,51 @@ const sessionStore = {
   }
 };
 
+function clearStoredSession() {
+  try {
+    sessionStorage.removeItem('hea_session');
+    localStorage.removeItem('hea_session');
+    sessionStorage.removeItem('hea_token');
+    localStorage.removeItem('hea_token');
+  } catch (_e) {}
+}
+
+function isJwtExpired(token) {
+  try {
+    if (!token || typeof token !== 'string') return true;
+    const parts = token.split('.');
+    if (parts.length !== 3) return true;
+    let b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    while (b64.length % 4) b64 += '=';
+    const payload = JSON.parse(atob(b64));
+    if (!payload || (payload.exp && Date.now() >= payload.exp * 1000)) return true;
+    return false;
+  } catch (_e) {
+    return true;
+  }
+}
+
 function getVerifiedSession() {
   try {
     const raw = sessionStorage.getItem('hea_session') || localStorage.getItem('hea_session');
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    if (!parsed || !parsed.isVerified || !parsed.email || parsed.email === 'john@example.com') {
+    const token =
+      (parsed && parsed.token) || sessionStorage.getItem('hea_token') || localStorage.getItem('hea_token') || '';
+    if (
+      !parsed ||
+      !parsed.isVerified ||
+      !parsed.email ||
+      parsed.email === 'john@example.com' ||
+      !token ||
+      isJwtExpired(token)
+    ) {
+      clearStoredSession();
       return null;
     }
     return parsed;
   } catch (_e) {
+    clearStoredSession();
     return null;
   }
 }
@@ -496,21 +531,14 @@ function route() {
     return;
   }
 
-  if (rawHash === 'home') {
-    window.location.replace('/');
-    return;
-  }
-  if (rawHash === 'login') {
-    window.location.replace('/#login');
-    return;
-  }
-  if (rawHash === 'signup') {
-    window.location.replace('/#signup');
-    return;
-  }
-
   if (!session) {
-    window.location.replace(rawHash ? '/#login' : '/');
+    if (rawHash === '' || rawHash === 'home') {
+      window.location.replace('/');
+    } else if (rawHash === 'signup') {
+      window.location.replace('/#signup');
+    } else {
+      window.location.replace('/#login');
+    }
     return;
   }
 
@@ -518,7 +546,7 @@ function route() {
   const as = $('#appShell');
   if (as) as.hidden = false;
 
-  if (!rawHash || rawHash === 'app') {
+  if (!rawHash || rawHash === 'home' || rawHash === 'app' || rawHash === 'login' || rawHash === 'signup') {
     location.hash = '#dashboard';
     return;
   }

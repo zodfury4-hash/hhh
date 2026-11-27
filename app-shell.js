@@ -112,29 +112,72 @@
     return null;
   }
 
-  function isUserAuthenticated() {
-
+  function clearStoredSession() {
     try {
+      sessionStorage.removeItem('hea_session');
+      localStorage.removeItem('hea_session');
+      sessionStorage.removeItem('hea_token');
+      localStorage.removeItem('hea_token');
+    } catch (_e) {}
+  }
 
+  function isJwtExpired(token) {
+    try {
+      if (!token || typeof token !== 'string') return true;
+      const parts = token.split('.');
+      if (parts.length !== 3) return true;
+      let b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      while (b64.length % 4) b64 += '=';
+      const payload = JSON.parse(atob(b64));
+      if (!payload || (payload.exp && Date.now() >= payload.exp * 1000)) return true;
+      return false;
+    } catch (_e) {
+      return true;
+    }
+  }
+
+  function getJwtPayload(token) {
+    try {
+      if (!token || typeof token !== 'string') return null;
+      const parts = token.split('.');
+      if (parts.length !== 3) return null;
+      let b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      while (b64.length % 4) b64 += '=';
+      return JSON.parse(atob(b64));
+    } catch (_e) {
+      return null;
+    }
+  }
+
+  function handleUnauthorizedSession() {
+    clearStoredSession();
+    window.location.replace('/#login');
+  }
+
+  function isUserAuthenticated() {
+    try {
       const raw = sessionStorage.getItem('hea_session') || localStorage.getItem('hea_session');
-
-      if (!raw) {
-        return false;
-      }
-
+      if (!raw) return false;
       const parsed = JSON.parse(raw);
-      if (!parsed || !parsed.isVerified || !parsed.email || parsed.email === 'john@example.com') {
+      const token =
+        (parsed && parsed.token) || sessionStorage.getItem('hea_token') || localStorage.getItem('hea_token') || '';
+      if (
+        !parsed ||
+        !parsed.isVerified ||
+        !parsed.email ||
+        parsed.email === 'john@example.com' ||
+        !token ||
+        isJwtExpired(token)
+      ) {
+        clearStoredSession();
         return false;
       }
       setAppUser(parsed);
       return true;
-
-    } catch (e) {
-
+    } catch (_e) {
+      clearStoredSession();
       return false;
-
     }
-
   }
 
   function setAppUser(u) {
@@ -362,6 +405,45 @@
     }
   }
 
+  async function refreshAuthTokenIfNeeded() {
+    try {
+      const token = getAuthToken();
+      if (!token || isJwtExpired(token)) {
+        handleUnauthorizedSession();
+        return false;
+      }
+      const payload = getJwtPayload(token);
+      const msLeft = payload && payload.exp ? payload.exp * 1000 - Date.now() : 0;
+      if (msLeft > 24 * 60 * 60 * 1000) {
+        return true;
+      }
+      const res = await fetch('/api/auth/refresh', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      if (res.status === 401 || res.status === 404) {
+        handleUnauthorizedSession();
+        return false;
+      }
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.token) {
+          const raw = sessionStorage.getItem('hea_session') || localStorage.getItem('hea_session');
+          const cur = raw ? JSON.parse(raw) : {};
+          const updated = { ...cur, ...(data.user || {}), isVerified: true, token: data.token };
+          localStorage.setItem('hea_session', JSON.stringify(updated));
+          sessionStorage.setItem('hea_session', JSON.stringify(updated));
+          localStorage.setItem('hea_token', data.token);
+          sessionStorage.setItem('hea_token', data.token);
+          setAppUser(updated);
+        }
+      }
+      return true;
+    } catch (_err) {
+      return true;
+    }
+  }
+
   async function syncLinksFromServer() {
     try {
       const token = getAuthToken();
@@ -372,6 +454,10 @@
       const res = await fetch('/api/links', {
         headers: { Authorization: 'Bearer ' + token }
       });
+      if (res.status === 401) {
+        handleUnauthorizedSession();
+        return cachedLinks;
+      }
       if (!res.ok) return cachedLinks;
       const data = await res.json();
       if (data && Array.isArray(data.links)) {
@@ -392,6 +478,10 @@
       const res = await fetch('/api/qrs', {
         headers: { Authorization: 'Bearer ' + token }
       });
+      if (res.status === 401) {
+        handleUnauthorizedSession();
+        return;
+      }
       if (!res.ok) return;
       const data = await res.json();
       if (data && Array.isArray(data.qrs)) {
@@ -407,6 +497,10 @@
       const res = await fetch('/api/bios', {
         headers: { Authorization: 'Bearer ' + token }
       });
+      if (res.status === 401) {
+        handleUnauthorizedSession();
+        return;
+      }
       if (!res.ok) return;
       const data = await res.json();
       if (data && Array.isArray(data.bios)) {
@@ -860,14 +954,14 @@
         case 'links':
           renderLinks(pane);
           syncLinksFromServer().then(() => {
-            if (currentView === 'links') renderLinks(pane);
+            if (activeTab === 'links') renderLinks(pane);
           }).catch(() => {});
           break;
 
         case 'qr':
           renderQr(pane);
           syncLinksFromServer().then(() => syncQrsFromServer()).then(() => {
-            if (currentView === 'qr') renderQr(pane);
+            if (activeTab === 'qr') renderQr(pane);
           }).catch(() => {});
           break;
 
@@ -878,7 +972,7 @@
         case 'pages':
           renderPages(pane);
           syncPagesFromServer().then(() => {
-            if (currentView === 'pages') renderPages(pane);
+            if (activeTab === 'pages') renderPages(pane);
           }).catch(() => {});
           break;
 
@@ -2399,7 +2493,7 @@
       if (typeof window.recordFreeCreation === 'function') window.recordFreeCreation();
       window.appShell.toast(`Link shortened: ${cleanUrl}`);
       navigator.clipboard.writeText(cleanUrl).catch(() => {});
-      if (currentView !== 'home' && window.location.hash !== '#dashboard' && window.location.hash !== '') {
+      if (activeTab !== 'home' && window.location.hash !== '#dashboard' && window.location.hash !== '') {
         navigate('links');
       }
       return newL;
@@ -6775,7 +6869,7 @@
 
           <!-- 11. Delete Account -->
           <div id="setSectionDelete" class="settings-content-section">
-            <button class="auth-submit-btn" style="background:#dc2626 !important;width:max-content;padding:10px 24px;" onclick="if(confirm('Are you sure you want to delete your account?')){ localStorage.clear(); location.hash='#login'; location.reload(); }">
+            <button class="auth-submit-btn" style="background:#dc2626 !important;width:max-content;padding:10px 24px;" onclick="if(confirm('Are you sure you want to delete your account?')){ localStorage.clear(); sessionStorage.clear(); window.location.href='/'; }">
               Delete account
             </button>
           </div>
@@ -8337,25 +8431,10 @@ Here are recommended optimizations for your links and campaigns:<br>
     if (logoutBtn) {
 
       logoutBtn.onclick = () => {
-
-        try {
-
-          sessionStorage.removeItem('hea_session');
-
-          localStorage.removeItem('hea_session');
-
-          sessionStorage.removeItem('hea_token');
-
-          localStorage.removeItem('hea_token');
-
-        } catch (e) {}
-
+        clearStoredSession();
         if (typeof session !== 'undefined') session = null;
-
         toast('Logged out successfully');
-
-        window.location.href = '/#login';
-
+        window.location.href = '/';
       };
 
     }
@@ -8366,27 +8445,20 @@ Here are recommended optimizations for your links and campaigns:<br>
 
       const raw = (location.hash.slice(1) || '').split('?')[0].toLowerCase();
 
-      if (raw === 'home') {
-        window.location.replace('/');
-        return;
-      }
-      if (raw === 'login') {
-        window.location.replace('/#login');
-        return;
-      }
-      if (raw === 'signup') {
-        window.location.replace('/#signup');
-        return;
-      }
-
       if (!isUserAuthenticated()) {
-        window.location.replace(raw ? '/#login' : '/');
+        if (raw === '' || raw === 'home') {
+          window.location.replace('/');
+        } else if (raw === 'signup') {
+          window.location.replace('/#signup');
+        } else {
+          window.location.replace('/#login');
+        }
         return;
       }
 
       const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'assist', 'notifications', 'app'];
 
-      if (!raw || raw === 'app') {
+      if (!raw || raw === 'home' || raw === 'app' || raw === 'login' || raw === 'signup') {
         location.hash = '#dashboard';
         return;
       }
@@ -8409,24 +8481,18 @@ Here are recommended optimizations for your links and campaigns:<br>
 
     window.addEventListener('hashchange', syncRouteFromHash);
 
-    // Initial render: ONLY show dashboard if user is verified; otherwise redirect to '/' or '/#login'
+    // Initial render: ONLY show dashboard if user is verified; otherwise redirect cleanly
 
     const initialRaw = (location.hash.slice(1) || '').split('?')[0].toLowerCase();
-    if (initialRaw === 'home') {
-      window.location.replace('/');
-      return;
-    }
-    if (initialRaw === 'login') {
-      window.location.replace('/#login');
-      return;
-    }
-    if (initialRaw === 'signup') {
-      window.location.replace('/#signup');
-      return;
-    }
 
     if (!isUserAuthenticated()) {
-      window.location.replace(initialRaw ? '/#login' : '/');
+      if (initialRaw === '' || initialRaw === 'home') {
+        window.location.replace('/');
+      } else if (initialRaw === 'signup') {
+        window.location.replace('/#signup');
+      } else {
+        window.location.replace('/#login');
+      }
       return;
     }
 
@@ -8435,8 +8501,10 @@ Here are recommended optimizations for your links and campaigns:<br>
     const as = $('#appShell');
     if (as) as.hidden = false;
     setAppUser(appUser);
-    syncLinksFromServer().catch(() => {});
-    if (!initialRaw || initialRaw === 'app') {
+    refreshAuthTokenIfNeeded().then((ok) => {
+      if (ok) syncLinksFromServer().catch(() => {});
+    });
+    if (!initialRaw || initialRaw === 'home' || initialRaw === 'app' || initialRaw === 'login' || initialRaw === 'signup') {
       location.hash = '#dashboard';
       navigate('home');
     } else if (appViews.includes(initialRaw)) {

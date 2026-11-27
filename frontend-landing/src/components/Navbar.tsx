@@ -1,12 +1,21 @@
 import { useState, useEffect } from 'react';
 import { ChevronDown, ArrowRight, Menu, X, Link2, QrCode, Smartphone, BarChart3, Globe, Sparkles, Cpu, Bot, Shield, Tag, Users, HelpCircle, Layers } from 'lucide-react';
 import { MagneticButton } from './MagneticButton';
+import { getVerifiedSession } from '../lib/auth';
 
 interface NavbarProps {
   onOpenAuth?: (mode: 'login' | 'signup') => void;
 }
 
 export function Navbar({ onOpenAuth }: NavbarProps) {
+  const handleAuthAction = (mode: 'login' | 'signup') => {
+    if (getVerifiedSession()) {
+      window.location.href = '/app.html#dashboard';
+      return;
+    }
+    if (onOpenAuth) onOpenAuth(mode);
+    else window.location.hash = `#${mode}`;
+  };
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -369,19 +378,13 @@ export function Navbar({ onOpenAuth }: NavbarProps) {
         <div className="hidden lg:flex items-center gap-4">
           <button
             type="button"
-            onClick={() => {
-              if (onOpenAuth) onOpenAuth('login');
-              else window.location.hash = '#login';
-            }}
+            onClick={() => handleAuthAction('login')}
             className="text-[15px] font-medium text-slate-700 hover:text-[#0070f3] transition-colors px-2 py-1.5 cursor-pointer"
           >
             Log in
           </button>
           <MagneticButton
-            onClick={() => {
-              if (onOpenAuth) onOpenAuth('signup');
-              else window.location.hash = '#signup';
-            }}
+            onClick={() => handleAuthAction('signup')}
             className="px-5 py-2.5 bg-[#0070f3] hover:bg-[#0060d4] text-white text-[14px] font-semibold rounded-full shadow-sm transition-all"
           >
             <span className="flex items-center gap-1.5">
@@ -437,8 +440,7 @@ export function Navbar({ onOpenAuth }: NavbarProps) {
               type="button"
               onClick={() => {
                 setMobileMenuOpen(false);
-                if (onOpenAuth) onOpenAuth('login');
-                else window.location.hash = '#login';
+                handleAuthAction('login');
               }}
               className="w-full text-center py-2.5 font-semibold text-[#0b132b] bg-slate-100/80 rounded-xl"
             >
@@ -448,8 +450,7 @@ export function Navbar({ onOpenAuth }: NavbarProps) {
               type="button"
               onClick={() => {
                 setMobileMenuOpen(false);
-                if (onOpenAuth) onOpenAuth('signup');
-                else window.location.hash = '#signup';
+                handleAuthAction('signup');
               }}
               className="w-full text-center py-2.5 font-semibold text-white bg-[#0070f3] rounded-xl shadow-btn-glow"
             >
