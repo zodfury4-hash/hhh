@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+# Pre-commit check: lint staged/project JS cleanly before committing
+npm run lint

@@ -251,9 +251,12 @@ app.get('/signup', (req, res) => res.redirect('/#signup'));
 app.get('/dashboard', (req, res) => res.redirect('/app.html#dashboard'));
 app.get('/app', (req, res) => res.redirect('/app.html#dashboard'));
 
+const publicDir = path.join(projectRoot, 'public');
+
 // Serve React landing page for root
 app.get(['/', '/index.html'], (req, res) => {
-  return res.sendFile(path.join(projectRoot, 'index.html'));
+  res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+  return res.sendFile(path.join(publicDir, 'index.html'));
 });
 
 // Serve dashboard SPA for /app and /dashboard paths
@@ -261,6 +264,7 @@ app.get(['/app.html', '/app', '/dashboard'], (req, res) => {
   if (req.path === '/dashboard' || req.path === '/app') {
     return res.redirect('/app.html#dashboard');
   }
+  res.setHeader('Cache-Control', 'no-cache, must-revalidate');
   return res.sendFile(path.join(projectRoot, 'app.html'));
 });
 
@@ -279,9 +283,9 @@ const PUBLIC_PAGE_ROUTES = [
   [['/ai/assist', '/ai'], 'pages/ai-assist.html'],
   [['/ai/mcp'], 'pages/ai-mcp.html'],
   [['/resources/utm-guide', '/utm-guide'], 'pages/resources-utm-guide.html'],
-  [['/privacy'], 'privacy.html'],
-  [['/terms'], 'terms.html'],
-  [['/report-abuse'], 'report-abuse.html']
+  [['/privacy'], 'public/privacy.html'],
+  [['/terms'], 'public/terms.html'],
+  [['/report-abuse'], 'public/report-abuse.html']
 ];
 
 const { sendHtmlWithNonce } = require('./utils/cspNonce');
@@ -290,18 +294,30 @@ for (const [paths, relFile] of PUBLIC_PAGE_ROUTES) {
   app.get(paths, (req, res) => sendHtmlWithNonce(res, path.join(projectRoot, relFile)));
 }
 
-// Serve static project files with intelligent caching
-app.use(express.static(projectRoot, {
-  dotfiles: 'ignore',
-  maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0,
-  setHeaders: (res, filePath) => {
-    if (filePath.endsWith('.html')) {
-      res.setHeader('Cache-Control', 'no-cache, must-revalidate');
-    } else if (filePath.match(/\.(js|css|webp|png|jpg|svg|woff2)$/)) {
-      res.setHeader('Cache-Control', 'public, max-age=86400');
+// Serve static assets from /public (with immutable caching for hashed bundles) and dashboard client dirs
+const staticCacheOpts = (dir) =>
+  express.static(dir, {
+    dotfiles: 'ignore',
+    maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0,
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.html')) {
+        res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+      } else if (/[-.][0-9a-f]{6,}\.(js|css)$/i.test(filePath) || /[\\/](assets|dashboard)[\\/]/.test(filePath)) {
+        res.setHeader(
+          'Cache-Control',
+          process.env.NODE_ENV === 'production' ? 'public, max-age=31536000, immutable' : 'public, max-age=3600'
+        );
+      } else if (filePath.match(/\.(js|css|webp|png|jpg|svg|woff2)$/)) {
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+      }
     }
-  }
-}));
+  });
+
+app.use(staticCacheOpts(publicDir));
+app.use('/css', staticCacheOpts(path.join(projectRoot, 'css')));
+app.use('/js', staticCacheOpts(path.join(projectRoot, 'js')));
+app.use('/locales', staticCacheOpts(path.join(projectRoot, 'locales')));
+app.use('/content', staticCacheOpts(path.join(projectRoot, 'content')));
 
 // Real SPA fallback ONLY for dashboard sub-paths; all other unmatched routes fall through to 404
 app.use((req, res, next) => {

@@ -283,12 +283,12 @@ async function run() {
 
     // 10. Grep Assertion: No Fake Keys or Faked 200 Mock Responses
     try {
-      const appJs = fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8');
-      const dashboardJs = fs.readFileSync(path.join(__dirname, '..', 'js', 'dashboard', 'app.js'), 'utf8');
-      assert.ok(!appJs.includes('hea_live_sk_89f2a9'), 'app.js must not contain fake key');
-      assert.ok(!dashboardJs.includes('hea_live_sk_89f2a9'), 'js/dashboard/app.js must not contain fake key');
-      assert.ok(!appJs.includes('HTTP/1.1 200 OK (Latency: 28ms)'), 'app.js must not contain fake mock response');
-      assert.ok(!dashboardJs.includes('HTTP/1.1 200 OK (Latency: 28ms)'), 'dashboard must not contain fake mock response');
+      const linksMod = fs.readFileSync(path.join(__dirname, '..', 'dashboard', 'src', 'modules', 'links.js'), 'utf8');
+      const settingsMod = fs.readFileSync(path.join(__dirname, '..', 'dashboard', 'src', 'modules', 'settings.js'), 'utf8');
+      assert.ok(!linksMod.includes('hea_live_sk_89f2a9'), 'links module must not contain fake key');
+      assert.ok(!settingsMod.includes('hea_live_sk_89f2a9'), 'settings module must not contain fake key');
+      assert.ok(!linksMod.includes('HTTP/1.1 200 OK (Latency: 28ms)'), 'links module must not contain fake mock response');
+      assert.ok(!settingsMod.includes('HTTP/1.1 200 OK (Latency: 28ms)'), 'settings module must not contain fake mock response');
       pass('Hardcoded fake keys (hea_live_sk_89f2a9) and simulated fake responses completely eliminated');
     } catch (err) {
       fail('Fake key elimination check failed', err);

@@ -23,10 +23,12 @@ async function migrateWorkspaces(options = {}) {
   console.log(`\n🚀 Starting Workspaces & Multi-User Ownership Migration ${isDryRun ? '(DRY-RUN MODE)' : ''}...`);
 
   let isDb = mongoose.connection.readyState === 1;
+  let ownConnection = false;
   if (mongoose.connection.readyState === 0) {
     try {
       await mongoose.connect(config.mongoUri, { serverSelectionTimeoutMS: 1500 });
       isDb = mongoose.connection.readyState === 1;
+      ownConnection = isDb;
     } catch (_err) {
       isDb = false;
     }

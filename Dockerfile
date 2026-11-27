@@ -7,7 +7,7 @@ COPY frontend-landing/package*.json ./frontend-landing/
 
 RUN npm ci && npm --prefix frontend-landing ci
 COPY . .
-RUN npm run build:landing && npm prune --omit=dev
+RUN npm run build:landing && npm run build:dashboard && npm prune --omit=dev
 
 FROM node:22-alpine AS runner
 WORKDIR /app
@@ -20,25 +20,10 @@ COPY --from=builder --chown=healink:healink /app/node_modules ./node_modules
 COPY --from=builder --chown=healink:healink /app/package*.json ./
 COPY --from=builder --chown=healink:healink /app/server.js ./
 COPY --from=builder --chown=healink:healink /app/backend ./backend
-COPY --from=builder --chown=healink:healink /app/assets ./assets
-COPY --from=builder --chown=healink:healink /app/index.html ./
+COPY --from=builder --chown=healink:healink /app/public ./public
 COPY --from=builder --chown=healink:healink /app/app.html ./
-COPY --from=builder --chown=healink:healink /app/404.html ./
-COPY --from=builder --chown=healink:healink /app/privacy.html ./
-COPY --from=builder --chown=healink:healink /app/terms.html ./
-COPY --from=builder --chown=healink:healink /app/report-abuse.html ./
-COPY --from=builder --chown=healink:healink /app/r.html ./
-COPY --from=builder --chown=healink:healink /app/favicon.svg ./
-COPY --from=builder --chown=healink:healink /app/logo.png ./
-COPY --from=builder --chown=healink:healink /app/icons.svg ./
-COPY --from=builder --chown=healink:healink /app/robots.txt ./
-COPY --from=builder --chown=healink:healink /app/sitemap.xml ./
-COPY --from=builder --chown=healink:healink /app/qrcode.js ./
 COPY --from=builder --chown=healink:healink /app/css ./css
 COPY --from=builder --chown=healink:healink /app/js ./js
-COPY --from=builder --chown=healink:healink /app/app.js ./
-COPY --from=builder --chown=healink:healink /app/app-shell.js ./
-COPY --from=builder --chown=healink:healink /app/images ./images
 COPY --from=builder --chown=healink:healink /app/locales ./locales
 COPY --from=builder --chown=healink:healink /app/pages ./pages
 COPY --from=builder --chown=healink:healink /app/content ./content

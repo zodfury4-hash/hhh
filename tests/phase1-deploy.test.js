@@ -21,7 +21,7 @@ async function runPhase1Tests() {
   assert(fs.existsSync(path.join(root, 'render.yaml')), 'render.yaml must exist');
   assert(fs.existsSync(path.join(root, 'Dockerfile')), 'Dockerfile must exist');
   assert(fs.existsSync(path.join(root, 'docs', 'DEPLOY.md')), 'docs/DEPLOY.md must exist');
-  const errHtml = fs.readFileSync(path.join(root, '404.html'), 'utf8');
+  const errHtml = fs.readFileSync(path.join(root, 'public', '404.html'), 'utf8');
   assert(!errHtml.includes('hea_slug_'), '404.html must not contain GitHub Pages localStorage redirect hack');
   console.log('  ✅ PASS: Deploy artifacts & 404.html verified');
 

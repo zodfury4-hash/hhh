@@ -57,15 +57,16 @@ router.get('/help/:category/:slug', (req, res) => {
     return sendHtmlWithNonce(res, articlePath);
   }
 
-  // If not found, redirect to Help Hub
-  return res.status(404).sendFile(path.join(projectRoot, 'pages', 'help-home.html'));
+  // If not found, render Help Hub with 404 status
+  res.status(404);
+  return sendHtmlWithNonce(res, path.join(projectRoot, 'pages', 'help-home.html'));
 });
 
 /**
  * GET /faq -> Standalone FAQ Page
  */
 router.get('/faq', (req, res) => {
-  return res.sendFile(path.join(projectRoot, 'pages', 'faq.html'));
+  return sendHtmlWithNonce(res, path.join(projectRoot, 'pages', 'faq.html'));
 });
 
 /**

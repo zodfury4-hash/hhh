@@ -67,7 +67,7 @@ function notFoundHandler(req, res) {
       code: 'NOT_FOUND'
     });
   }
-  const notFoundPage = path.join(__dirname, '../../404.html');
+  const notFoundPage = path.join(__dirname, '../../public/404.html');
   if (fs.existsSync(notFoundPage)) {
     return res.status(404).sendFile(notFoundPage);
   }

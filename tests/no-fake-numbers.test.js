@@ -18,8 +18,12 @@ const BANNED_PATTERNS = [
 
 const TARGET_FILES = [
   'app.html',
-  'js/dashboard/app-shell.js',
-  'app-shell.js',
+  'dashboard/src/modules/state.js',
+  'dashboard/src/modules/home.js',
+  'dashboard/src/modules/links.js',
+  'dashboard/src/modules/qr.js',
+  'dashboard/src/modules/bio.js',
+  'dashboard/src/modules/analytics.js',
   'partials/dashboard/kpi-cards.html',
   'partials/dashboard/hero-shorten-grid.html',
   'partials/dashboard/analytics-grid.html',

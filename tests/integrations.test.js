@@ -355,12 +355,12 @@ async function run() {
 
     // 10. Grep Assertion: No Inflated "100+ Integrations" Claims
     try {
-      const appJs = fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8');
-      const dashboardJs = fs.readFileSync(path.join(__dirname, '..', 'js', 'dashboard', 'app.js'), 'utf8');
-      assert.ok(!appJs.includes('100+ integrations'), 'app.js must not contain 100+ integrations claim');
-      assert.ok(!dashboardJs.includes('100+ integrations'), 'js/dashboard/app.js must not contain 100+ integrations claim');
-      assert.ok(!appJs.includes('Plug into 100+ platforms'), 'app.js must not contain 100+ platforms claim');
-      assert.ok(!dashboardJs.includes('Plug into 100+ platforms'), 'dashboard must not contain 100+ platforms claim');
+      const integrationsMod = fs.readFileSync(path.join(__dirname, '..', 'dashboard', 'src', 'modules', 'integrations.js'), 'utf8');
+      const homeMod = fs.readFileSync(path.join(__dirname, '..', 'dashboard', 'src', 'modules', 'home.js'), 'utf8');
+      assert.ok(!integrationsMod.includes('100+ integrations'), 'integrations module must not contain 100+ integrations claim');
+      assert.ok(!homeMod.includes('100+ integrations'), 'home module must not contain 100+ integrations claim');
+      assert.ok(!integrationsMod.includes('Plug into 100+ platforms'), 'integrations module must not contain 100+ platforms claim');
+      assert.ok(!homeMod.includes('Plug into 100+ platforms'), 'home module must not contain 100+ platforms claim');
       pass('All inflated 100+ platform marketing claims verified removed from codebase');
     } catch (err) {
       fail('Marketing claim verification failed', err);
