@@ -16,15 +16,27 @@ function createDbUnavailableError() {
   return err;
 }
 
-function requireDatabase(req, res, next) {
-  if (!isDbConnected() && !isMemStoreAllowed()) {
-    return res.status(503).json({
-      ok: false,
-      error: 'Database service is currently unavailable. Please try again shortly.',
-      code: 'DATABASE_UNAVAILABLE'
-    });
+async function requireDatabase(req, res, next) {
+  if (isDbConnected() || isMemStoreAllowed()) {
+    return next();
   }
-  next();
+
+  // On serverless cold starts (e.g. Vercel), connection may still be handshaking (readyState === 2)
+  if (mongoose.connection.readyState === 2 && process.env.NODE_ENV !== 'test') {
+    try {
+      await Promise.race([
+        mongoose.connection.asPromise(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('DB handshake timeout')), 4500))
+      ]);
+      if (isDbConnected()) return next();
+    } catch (_e) {}
+  }
+
+  return res.status(503).json({
+    ok: false,
+    error: 'Database service is currently unavailable. Please try again shortly.',
+    code: 'DATABASE_UNAVAILABLE'
+  });
 }
 
 module.exports = {

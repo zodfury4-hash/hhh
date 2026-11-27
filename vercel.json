@@ -1,0 +1,19 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "framework": null,
+  "installCommand": "npm ci && npm --prefix frontend-landing ci",
+  "buildCommand": "npm run build:landing && npm run build:dashboard",
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 30,
+      "includeFiles": "{backend/**,public/**,pages/**,partials/**,css/**,js/**,locales/**,content/**,app.html}"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/api/index.js"
+    }
+  ]
+}

@@ -17,7 +17,14 @@ async function runPhase1Tests() {
   const root = path.join(__dirname, '..');
   assert(!fs.existsSync(path.join(root, 'CNAME')), 'CNAME must be removed');
   assert(!fs.existsSync(path.join(root, '.nojekyll')), '.nojekyll must be removed');
-  assert(!fs.existsSync(path.join(root, 'vercel.json')), 'Outdated vercel.json must be removed');
+  assert(fs.existsSync(path.join(root, 'vercel.json')), 'vercel.json must exist for Vercel Express deployment');
+  assert(fs.existsSync(path.join(root, 'api', 'index.js')), 'api/index.js serverless entrypoint must exist');
+  const vercelCfg = JSON.parse(fs.readFileSync(path.join(root, 'vercel.json'), 'utf8'));
+  assert(
+    Array.isArray(vercelCfg.rewrites) &&
+      vercelCfg.rewrites.some((r) => r.destination === '/api/index.js'),
+    'vercel.json must rewrite routes cleanly through /api/index.js (Express)'
+  );
   assert(fs.existsSync(path.join(root, 'render.yaml')), 'render.yaml must exist');
   assert(fs.existsSync(path.join(root, 'Dockerfile')), 'Dockerfile must exist');
   assert(fs.existsSync(path.join(root, 'docs', 'DEPLOY.md')), 'docs/DEPLOY.md must exist');

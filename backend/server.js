@@ -252,8 +252,10 @@ app.get('/ready', (req, res) => {
   });
 });
 
-// Start non-blocking scheduled cleanup loop in non-test modes
-startScheduledCleanup();
+// Start non-blocking scheduled cleanup loop in non-test, non-serverless modes
+if (!process.env.VERCEL) {
+  startScheduledCleanup();
+}
 
 // ---------------- MOUNT MODULAR API ROUTERS ---------------- //
 app.use('/', require('./routes/auth'));

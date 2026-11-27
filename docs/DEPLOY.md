@@ -28,6 +28,11 @@ docker build -t healink:latest .
 docker run -d -p 3000:3000 --env-file .env.production healink:latest
 ```
 
+### Option C: Vercel (`vercel.json` + `api/index.js`)
+1. Import the GitHub repository in Vercel (or run `npx vercel login && npx vercel --prod` from the project root).
+2. `vercel.json` automatically configures `installCommand`, `buildCommand`, `includeFiles`, and Express rewrites through `api/index.js` so all `/api/*` endpoints, `/pricing`, `/app.html`, and shortlinks work without `405` errors.
+3. In Vercel **Project → Settings → Environment Variables**, add all required variables (`MONGODB_URI`, `JWT_SECRET`, `INTERNAL_ROUTER_SECRET`, `CORS_ORIGIN`, `PRIMARY_HOSTS`, and `SMTP_*` or `EMAIL_PROVIDER` + `EMAIL_API_KEY`) for **Production** and **Preview**, then trigger a redeploy.
+
 ## 3. Required Production Environment Variables
 | Variable | Requirement in `NODE_ENV=production` |
 | :--- | :--- |
