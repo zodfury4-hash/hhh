@@ -34,7 +34,7 @@ function validateEnv(opts = {}) {
   const routerSecret = rawEnv.INTERNAL_ROUTER_SECRET || '';
   const corsOrigin = rawEnv.CORS_ORIGIN || '';
 
-  if (prod) {
+  if (prod && (rawEnv.ALLOW_IN_MEMORY_FALLBACK !== 'true' && process.env.ALLOW_IN_MEMORY_FALLBACK !== 'true')) {
     if (!mongoUri || /localhost|127\.0\.0\.1/i.test(mongoUri)) {
       throw new Error('FATAL: Production MONGODB_URI must be configured and cannot point to localhost/127.0.0.1.');
     }

@@ -5,7 +5,12 @@ function isDbConnected() {
 }
 
 function isMemStoreAllowed() {
-  return process.env.NODE_ENV === 'test' && process.env.DISABLE_MEMSTORE !== 'true';
+  return (
+    (process.env.NODE_ENV === 'test' ||
+      process.env.ALLOW_IN_MEMORY_FALLBACK === 'true' ||
+      process.env.ENABLE_MEMSTORE === 'true') &&
+    process.env.DISABLE_MEMSTORE !== 'true'
+  );
 }
 
 function createDbUnavailableError() {

@@ -324,8 +324,12 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
           return;
         }
         if (res.ok && data.success) {
-          setMode('verify');
-          setSuccessMsg('Verification code sent! Please check your inbox.');
+          if (data.token) {
+            completeAuthSession(data, 'Account created! Launching dashboard...');
+          } else {
+            setMode('verify');
+            setSuccessMsg('Verification code sent! Please check your inbox.');
+          }
         } else {
           setError(data.error || 'Failed to create account.');
         }
