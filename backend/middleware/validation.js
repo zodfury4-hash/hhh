@@ -46,7 +46,14 @@ const RESERVED_SLUGS = new Set([
   'utm-guide',
   'resources',
   'ai',
-  'solutions'
+  'solutions',
+  'qr-code',
+  'bio-pages',
+  'analytics',
+  'help-contact',
+  'report-abuse',
+  'ready',
+  'openapi.json'
 ]);
 
 // Known abusive or phishing domains

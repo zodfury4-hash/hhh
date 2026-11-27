@@ -276,43 +276,42 @@ app.get('/signup', (req, res) => res.redirect('/#signup'));
 app.get('/dashboard', (req, res) => res.redirect('/app.html#dashboard'));
 app.get('/app', (req, res) => res.redirect('/app.html#dashboard'));
 
-// Serve 3D interactive scrollytelling landing page for root
+// Serve React landing page for root
 app.get(['/', '/index.html'], (req, res) => {
   return res.sendFile(path.join(projectRoot, 'index.html'));
 });
 
-// Serve compiled dashboard for app.html
-app.get('/app.html', (req, res) => {
+// Serve dashboard SPA for /app and /dashboard paths
+app.get(['/app.html', '/app', '/dashboard'], (req, res) => {
+  if (req.path === '/dashboard' || req.path === '/app') {
+    return res.redirect('/app.html#dashboard');
+  }
   return res.sendFile(path.join(projectRoot, 'app.html'));
 });
 
-// Dedicated AI Feature Pages
-app.get(['/ai/slug-generator', '/ai/slugs'], (req, res) => {
-  return res.sendFile(path.join(projectRoot, 'pages', 'ai-slug-generator.html'));
-});
+// Explicit clean URL route table for all public marketing, docs, AI, and legal pages
+const PUBLIC_PAGE_ROUTES = [
+  [['/pricing'], 'pages/pricing.html'],
+  [['/solutions'], 'pages/solutions.html'],
+  [['/qr-code'], 'pages/qr-code.html'],
+  [['/bio-pages'], 'pages/bio-pages.html'],
+  [['/analytics'], 'pages/analytics.html'],
+  [['/integrations'], 'pages/integrations.html'],
+  [['/developers'], 'pages/developers.html'],
+  [['/faq'], 'pages/faq.html'],
+  [['/help-contact'], 'pages/help-contact.html'],
+  [['/ai/slug-generator', '/ai/slugs'], 'pages/ai-slug-generator.html'],
+  [['/ai/assist', '/ai'], 'pages/ai-assist.html'],
+  [['/ai/mcp'], 'pages/ai-mcp.html'],
+  [['/resources/utm-guide', '/utm-guide'], 'pages/resources-utm-guide.html'],
+  [['/privacy'], 'privacy.html'],
+  [['/terms'], 'terms.html'],
+  [['/report-abuse'], 'report-abuse.html']
+];
 
-app.get(['/ai/assist', '/ai'], (req, res) => {
-  return res.sendFile(path.join(projectRoot, 'pages', 'ai-assist.html'));
-});
-
-app.get(['/ai/mcp'], (req, res) => {
-  return res.sendFile(path.join(projectRoot, 'pages', 'ai-mcp.html'));
-});
-
-// Dedicated Developer API Docs Page
-app.get('/developers', (req, res) => {
-  return res.sendFile(path.join(projectRoot, 'pages', 'developers.html'));
-});
-
-// Dedicated Integrations Hub Page
-app.get('/integrations', (req, res) => {
-  return res.sendFile(path.join(projectRoot, 'pages', 'integrations.html'));
-});
-
-// Dedicated UTM Campaign Tracking Guide & Interactive Builder
-app.get(['/resources/utm-guide', '/utm-guide'], (req, res) => {
-  return res.sendFile(path.join(projectRoot, 'pages', 'resources-utm-guide.html'));
-});
+for (const [paths, relFile] of PUBLIC_PAGE_ROUTES) {
+  app.get(paths, (req, res) => res.sendFile(path.join(projectRoot, relFile)));
+}
 
 // Serve static project files with intelligent caching
 app.use(express.static(projectRoot, {
@@ -327,18 +326,15 @@ app.use(express.static(projectRoot, {
   }
 }));
 
-// Client-side fallback to index.html for unmatched web routes (or app.html if starts with app/dashboard)
+// Real SPA fallback ONLY for dashboard sub-paths; all other unmatched routes fall through to 404
 app.use((req, res, next) => {
-  if (req.path.startsWith('/api/')) {
-    return next();
-  }
-  if (req.path.startsWith('/app') || req.path.startsWith('/dashboard')) {
+  if (req.path.startsWith('/app/') || req.path.startsWith('/dashboard/')) {
     return res.sendFile(path.join(projectRoot, 'app.html'));
   }
-  return res.sendFile(path.join(projectRoot, 'index.html'));
+  return next();
 });
 
-// 404 handler for unmatched API routes
+// 404 handler for unmatched routes (API JSON or branded 404 HTML)
 app.use(notFoundHandler);
 
 // Centralized error handler

@@ -1,0 +1,10 @@
+node_modules
+frontend-landing/node_modules
+test-artifacts
+.git
+.env
+*.log
+npm-debug.log*
+.vscode
+.idea
+archive

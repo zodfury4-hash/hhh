@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
 const User = require('../models/User');
+const config = require('../config');
 const memStore = require('../utils/memStore');
 const socialAuth = require('../services/socialAuth');
 const { isDbConnected, isMemStoreAllowed, createDbUnavailableError } = require('../middleware/dbCheck');
@@ -574,10 +575,11 @@ router.post('/api/auth/change-password', authMiddleware, async (req, res) => {
 // 11. Public Configuration Endpoint
 router.get('/api/config', (req, res) => {
   res.json({
-    googleClientId: process.env.GOOGLE_CLIENT_ID || '',
-    appleClientId: process.env.APPLE_CLIENT_ID || '',
-    appleConfigured: Boolean(process.env.APPLE_CLIENT_ID),
+    googleClientId: config.features.googleAuth ? config.google.clientId : '',
+    appleClientId: config.features.appleAuth ? config.apple.clientId : '',
+    appleConfigured: config.features.appleAuth,
     isDbConnected: isDbConnected(),
+    features: config.features,
     configured: true
   });
 });
