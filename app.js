@@ -50,6 +50,11 @@ function clearStoredSession() {
     localStorage.removeItem('hea_session');
     sessionStorage.removeItem('hea_token');
     localStorage.removeItem('hea_token');
+    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
+    localStorage.removeItem('hea_qrs');
+    localStorage.removeItem('hea_bios');
+    localStorage.removeItem('hea_custom_domain');
   } catch (_e) {}
 }
 

@@ -69,6 +69,9 @@
 
   };
 
+  let cachedLinks = [];
+  let cachedBios = [];
+
   function generateShortSlug(len = 6) {
 
     const chars = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
@@ -118,7 +121,19 @@
       localStorage.removeItem('hea_session');
       sessionStorage.removeItem('hea_token');
       localStorage.removeItem('hea_token');
+      localStorage.removeItem('token');
+      sessionStorage.removeItem('token');
+      localStorage.removeItem('hea_qrs');
+      localStorage.removeItem('hea_bios');
+      localStorage.removeItem('hea_custom_domain');
     } catch (_e) {}
+    cachedLinks = [];
+    cachedBios = [];
+    appUser.name = '';
+    appUser.email = '';
+    appUser.isPro = false;
+    appUser.isAdmin = false;
+    appUser.plan = 'Free';
   }
 
   function isJwtExpired(token) {
@@ -184,9 +199,21 @@
 
     if (!u) return;
 
+    const prevEmail = (appUser.email || '').toLowerCase().trim();
+    const nextEmail = (u.email || '').toLowerCase().trim();
+    if (nextEmail && prevEmail && prevEmail !== nextEmail) {
+      cachedLinks = [];
+      cachedBios = [];
+      try {
+        localStorage.removeItem('hea_qrs');
+        localStorage.removeItem('hea_bios');
+        localStorage.removeItem('hea_custom_domain');
+      } catch (_e) {}
+    }
+
     if (u.name) appUser.name = u.name;
 
-    if (u.email) appUser.email = u.email;
+    if (u.email) appUser.email = u.email.toLowerCase().trim();
 
     if (u.city) appUser.city = u.city;
 
@@ -204,7 +231,17 @@
 
       appUser.isPro = true;
 
+      appUser.isAdmin = !!u.isAdmin;
+
       appUser.plan = u.plan || 'Core PRO';
+
+    } else {
+
+      appUser.isPro = false;
+
+      appUser.isAdmin = !!u.isAdmin;
+
+      appUser.plan = u.plan || 'Free';
 
     }
 
@@ -353,8 +390,6 @@
     return s || fallback;
   }
 
-  let cachedLinks = [];
-
   function normalizeLinkItem(l) {
     if (!l || typeof l !== 'object') return null;
     const origin = window.location.origin;
@@ -473,6 +508,7 @@
 
   async function syncQrsFromServer() {
     try {
+      localStorage.removeItem('hea_qrs');
       const token = getAuthToken();
       if (!token) return;
       const res = await fetch('/api/qrs', {
@@ -483,17 +519,18 @@
         return;
       }
       if (!res.ok) return;
-      const data = await res.json();
-      if (data && Array.isArray(data.qrs)) {
-        localStorage.setItem('hea_qrs', JSON.stringify(data.qrs));
-      }
+      await res.json();
     } catch (_err) {}
   }
 
   async function syncPagesFromServer() {
     try {
+      localStorage.removeItem('hea_bios');
       const token = getAuthToken();
-      if (!token) return;
+      if (!token) {
+        cachedBios = [];
+        return;
+      }
       const res = await fetch('/api/bios', {
         headers: { Authorization: 'Bearer ' + token }
       });
@@ -505,64 +542,25 @@
       const data = await res.json();
       if (data && Array.isArray(data.bios)) {
         const origin = window.location.origin;
-        const formatted = data.bios.map(b => ({
+        cachedBios = data.bios.map(b => ({
           ...b,
           id: b._id || b.id || b.slug,
           url: b.url || `${origin}/m/${b.slug}`
         }));
-        localStorage.setItem('hea_bios', JSON.stringify(formatted));
       }
     } catch (_err) {}
   }
 
   function getStoredPages() {
-
-    try {
-
-      const s = localStorage.getItem('hea_bios');
-
-      if (s) {
-
-        let p = JSON.parse(s);
-
-        if (Array.isArray(p)) {
-
-          const originalLen = p.length;
-
-          // Filter out dummy/sample pages and clean data
-
-          p = p.filter(page => page &&
-
-            page.slug !== 'hgrgferf' &&
-
-            page.slug !== 'john' &&
-
-            page.slug !== 'sample' &&
-
-            !(page.slug && page.slug.toLowerCase().includes('hgrgferf')) &&
-
-            !(page.url && page.url.includes('hgrgferf')) &&
-
-            !(page.title && page.title.toLowerCase() === 'john' && (page.views || 0) === 0)
-
-          );
-
-          if (p.length !== originalLen) {
-
-            try { localStorage.setItem('hea_bios', JSON.stringify(p)); } catch (e) {}
-
-          }
-
-          return p;
-
-        }
-
-      }
-
-    } catch (e) {}
-
-    return [];
-
+    if (!Array.isArray(cachedBios)) return [];
+    return cachedBios.filter(page => page &&
+      page.slug !== 'hgrgferf' &&
+      page.slug !== 'john' &&
+      page.slug !== 'sample' &&
+      !(page.slug && page.slug.toLowerCase().includes('hgrgferf')) &&
+      !(page.url && page.url.includes('hgrgferf')) &&
+      !(page.title && page.title.toLowerCase() === 'john' && (page.views || 0) === 0)
+    );
   }
 
   async function deletePage(slug) {
@@ -570,20 +568,30 @@
     if (!confirm('Are you sure you want to delete this Bio Page?')) return;
     try {
       const token = getAuthToken();
-      if (token) {
-        await fetch('/api/bios/' + encodeURIComponent(slug), {
-          method: 'DELETE',
-          headers: { Authorization: 'Bearer ' + token }
-        }).catch(() => {});
+      if (!token) {
+        handleUnauthorizedSession();
+        return;
       }
-      let bios = getStoredPages();
-      bios = bios.filter(p => p && p.slug !== slug);
-      localStorage.setItem('hea_bios', JSON.stringify(bios));
+      const res = await fetch('/api/bios/' + encodeURIComponent(slug), {
+        method: 'DELETE',
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      if (res.status === 401) {
+        handleUnauthorizedSession();
+        return;
+      }
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        toast(errData.error || 'Failed to delete bio page');
+        return;
+      }
+      cachedBios = cachedBios.filter(p => p && p.slug !== slug);
       toast('Page deleted successfully');
       const pane = document.getElementById('appMainPane');
       if (pane) renderPages(pane, 'list');
     } catch (e) {
       console.error(e);
+      toast('Unable to delete bio page');
     }
   }
 
@@ -605,11 +613,6 @@
         }).catch(() => {});
       }
       cachedLinks = cachedLinks.filter(l => l.id !== id && l._id !== id && l.slug !== slug);
-      try {
-        let qrs = JSON.parse(localStorage.getItem('hea_qrs') || '[]');
-        qrs = qrs.filter(q => q.id !== id && q._id !== id);
-        localStorage.setItem('hea_qrs', JSON.stringify(qrs));
-      } catch (_e) {}
       toast('QR Code deleted successfully');
       const pane = document.getElementById('appMainPane');
       if (pane) renderQr(pane);
@@ -5093,46 +5096,53 @@
 
           };
 
-          pages.unshift(newPage);
-
-          localStorage.setItem('hea_bios', JSON.stringify(pages));
-
-          // Persist Bio Page to MongoDB via REST API
+          // Persist Bio Page to MongoDB via REST API before updating local list
+          const token = getAuthToken();
+          if (!token) {
+            window.appShell.toast('Please log in to publish a Bio Page');
+            return;
+          }
           try {
-            const token = getAuthToken();
-            if (token) {
-              const bioRes = await fetch('/api/bios', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-                body: JSON.stringify({
-                  slug,
-                  title: newPage.title,
-                  tagline: newPage.tagline,
-                  avatar: newPage.avatar || '',
-                  theme: newPage.theme || 'cyber-dark',
-                  links: newPage.links || []
-                })
-              });
-              if (!bioRes.ok) {
-                const bioErr = await bioRes.json().catch(() => ({}));
-                if (bioRes.status === 403 && bioErr.code === 'PLAN_LIMIT_REACHED') {
-                  pages.shift();
-                  localStorage.setItem('hea_bios', JSON.stringify(pages));
-                  window.appShell.toast(bioErr.error || 'Bio page limit reached for current plan.');
-                  if (typeof window.openCheckoutModal === 'function') window.openCheckoutModal('pro');
-                  return;
-                }
-              }
+            const bioRes = await fetch('/api/bios', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+              body: JSON.stringify({
+                slug,
+                title: newPage.title,
+                tagline: newPage.tagline,
+                avatar: newPage.avatar || '',
+                theme: newPage.theme || 'cyber-dark',
+                links: newPage.links || []
+              })
+            });
+            if (bioRes.status === 401) {
+              handleUnauthorizedSession();
+              return;
             }
-          } catch (_e) {}
-
-          window.appShell.toast(`Page created successfully: ${newPage.url}`);
-
-          window.appShell.copy(newPage.url);
-
-          mode = 'list';
-
-          renderView();
+            const bioData = await bioRes.json().catch(() => ({}));
+            if (!bioRes.ok) {
+              if (bioRes.status === 403 && bioData.code === 'PLAN_LIMIT_REACHED') {
+                window.appShell.toast(bioData.error || 'Bio page limit reached for current plan.');
+                if (typeof window.openCheckoutModal === 'function') window.openCheckoutModal('pro');
+                return;
+              }
+              window.appShell.toast(bioData.error || 'Failed to publish bio page');
+              return;
+            }
+            const savedBio = bioData && bioData.bio ? {
+              ...newPage,
+              ...bioData.bio,
+              id: bioData.bio._id || bioData.bio.id || newPage.slug,
+              url: `${(domain && domain !== 'healink.store' && domain !== window.location.hostname) ? 'https://' + domain : window.location.origin}/m/${bioData.bio.slug || slug}`
+            } : newPage;
+            cachedBios.unshift(savedBio);
+            window.appShell.toast(`Page created successfully: ${savedBio.url}`);
+            window.appShell.copy(savedBio.url);
+            mode = 'list';
+            renderView();
+          } catch (err) {
+            window.appShell.toast(err.message || 'Unable to reach server to publish bio page');
+          }
 
         };
 
@@ -6082,9 +6092,7 @@
 
                   if (appUser.isPro) {
 
-                    localStorage.setItem('hea_custom_domain', dName);
-
-                    window.appShell.toast(`Domain ${dName} connected to your workspace!`);
+                    window.appShell.toast(`Domain ${dName} selected. Connect it via CNAME below.`);
 
                     domainTab = 'search';
 
@@ -6115,8 +6123,6 @@
       } else {
 
         // Search & Manual CNAME connection tab
-
-        const savedDomain = localStorage.getItem('hea_custom_domain') || '';
 
         content.innerHTML = `
           <!-- Add Domain Card -->
@@ -6890,28 +6896,27 @@
         if (newP.length < 6) { toast('Password must be at least 6 characters'); return; }
 
         try {
-          const s = JSON.parse(localStorage.getItem('hea_session'));
-          if (s && s.token) {
-            const res = await fetch('/api/auth/change-password', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.token },
-              body: JSON.stringify({ currentPassword: curP, newPassword: newP })
-            });
-            const d = await res.json();
-            if (res.ok) {
-              toast('Password updated in MongoDB database! Please log in again.');
-              setTimeout(() => {
-                localStorage.removeItem('hea_session');
-                location.hash = '#login';
-              }, 1200);
-            } else {
-              toast(d.error || 'Failed to change password');
-            }
+          const token = getAuthToken();
+          if (!token) {
+            handleUnauthorizedSession();
+            return;
+          }
+          const res = await fetch('/api/auth/change-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body: JSON.stringify({ currentPassword: curP, newPassword: newP })
+          });
+          const d = await res.json().catch(() => ({}));
+          if (res.ok) {
+            toast('Password updated! Please log in again.');
+            setTimeout(() => {
+              handleUnauthorizedSession();
+            }, 1200);
           } else {
-            toast('Password changed successfully');
+            toast(d.error || 'Failed to change password');
           }
         } catch (e) {
-          toast('Password updated');
+          toast('Unable to reach server to update password');
         }
       };
     }
@@ -7139,41 +7144,51 @@
 
     if (n) {
 
-      appUser.name = n;
-
-      localStorage.setItem('hea_session', JSON.stringify(appUser));
-
-      const sName = $('#sidebarUserName');
-
-      if (sName) sName.textContent = n;
-
-      const topAv = $('#topbarAvatar');
-
-      if (topAv) topAv.textContent = n.split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase() || 'HA';
-
-      // Call backend API
+      const token = getAuthToken();
+      if (!token) {
+        handleUnauthorizedSession();
+        return;
+      }
 
       try {
 
-        const s = JSON.parse(localStorage.getItem('hea_session'));
+        const res = await fetch('/api/auth/update-profile', {
 
-        if (s && s.token) {
+          method: 'POST',
 
-          await fetch('/api/auth/update-profile', {
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
 
-            method: 'POST',
+          body: JSON.stringify({ name: n })
 
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.token },
+        });
 
-            body: JSON.stringify({ name: n })
-
-          });
-
+        if (!res.ok) {
+          const d = await res.json().catch(() => ({}));
+          toast(d.error || 'Failed to update display name');
+          return;
         }
 
-      } catch (e) {}
+        appUser.name = n;
 
-      toast('Display name updated in MongoDB: ' + n);
+        const raw = sessionStorage.getItem('hea_session') || localStorage.getItem('hea_session');
+        const cur = raw ? JSON.parse(raw) : {};
+        const updatedSession = { ...cur, name: n, email: appUser.email, isVerified: true, token };
+        localStorage.setItem('hea_session', JSON.stringify(updatedSession));
+        sessionStorage.setItem('hea_session', JSON.stringify(updatedSession));
+
+        const sName = $('#sidebarUserName');
+
+        if (sName) sName.textContent = n;
+
+        const topAv = $('#topbarAvatar');
+
+        if (topAv) topAv.textContent = n.split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase() || 'HA';
+
+        toast('Display name updated: ' + n);
+
+      } catch (e) {
+        toast('Unable to reach server to update display name');
+      }
 
     }
 
@@ -7814,7 +7829,7 @@
         try {
           const isUrl = /^https?:\/\//i.test(val);
           const targetUrl = isUrl ? val : `https://example.com/${encodeURIComponent(val.toLowerCase().replace(/\s+/g, '-'))}`;
-          const token = localStorage.getItem('token') || localStorage.getItem('hea_token');
+          const token = getAuthToken();
           const resp = await fetch('/api/ai/slugs', {
             method: 'POST',
             headers: {
@@ -8045,7 +8060,7 @@ Here are recommended optimizations for your links and campaigns:<br>
       input.value = '';
 
       try {
-        const token = localStorage.getItem('token') || localStorage.getItem('hea_token') || sessionStorage.getItem('token');
+        const token = getAuthToken();
         const resp = await fetch('/api/assist/chat', {
           method: 'POST',
           headers: {
