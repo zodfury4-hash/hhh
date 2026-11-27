@@ -116,6 +116,7 @@ const clickSchema = new mongoose.Schema(
 );
 
 // High-performance compound indexes for aggregations
+clickSchema.index({ linkId: 1, timestamp: -1 });
 clickSchema.index({ ownerEmail: 1, timestamp: -1 });
 clickSchema.index({ slug: 1, timestamp: -1 });
 clickSchema.index({ ownerEmail: 1, isBot: 1, timestamp: -1 });

@@ -42,11 +42,19 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  verificationCodeHash: {
+    type: String,
+    default: null
+  },
   verificationCodeExpires: {
     type: Date,
     default: null
   },
   resetPasswordCode: {
+    type: String,
+    default: null
+  },
+  resetPasswordCodeHash: {
     type: String,
     default: null
   },

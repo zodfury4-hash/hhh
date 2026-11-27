@@ -102,4 +102,14 @@ if (suite19.status !== 0) {
   process.exit(suite19.status || 1);
 }
 
-console.log('\n🎉 ALL TESTS PASSED SUCCESSFULLY ACROSS ALL NINETEEN TEST SUITES!');
+const suite20 = spawnSync(process.execPath, [path.join(__dirname, 'phase1-deploy.test.js')], { stdio: 'inherit' });
+if (suite20.status !== 0) {
+  process.exit(suite20.status || 1);
+}
+
+const suite21 = spawnSync(process.execPath, [path.join(__dirname, 'phase2-auth-db.test.js')], { stdio: 'inherit' });
+if (suite21.status !== 0) {
+  process.exit(suite21.status || 1);
+}
+
+console.log('\n🎉 ALL TESTS PASSED SUCCESSFULLY ACROSS ALL 21 TEST SUITES!');

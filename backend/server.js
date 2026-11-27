@@ -6,9 +6,9 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 
-const User = require('./models/User');
 const AbuseReport = require('./models/AbuseReport');
 const logger = require('./utils/logger');
+const { verifyMailTransport } = require('./utils/mailer');
 const { abuseReportLimiter } = require('./middleware/rateLimiter');
 const { validate, abuseReportSchema } = require('./middleware/validation');
 const { requireDatabase } = require('./middleware/dbCheck');
@@ -62,8 +62,6 @@ app.use(
           'https://tinyurl.com',
           'https://is.gd',
           'https://safebrowsing.googleapis.com',
-          'https://identitytoolkit.googleapis.com',
-          'https://securetoken.googleapis.com',
           'https://accounts.google.com',
           'https://appleid.apple.com'
         ],
@@ -134,17 +132,27 @@ app.use((req, res, next) => {
   next();
 });
 
-// 5. Database Connection & Admin Seeding
+// 5. Database Connection & Mail Transport Verification (No admin seeding in boot path)
 let _isDbConnected = false;
+mongoose.connection.on('disconnected', () => {
+  _isDbConnected = false;
+  logger.warn('⚠️ [MongoDB] Connection lost; awaiting automatic reconnect.');
+});
+mongoose.connection.on('reconnected', () => {
+  _isDbConnected = true;
+  logger.info('✅ [MongoDB] Reconnected cleanly.');
+});
+
 mongoose
   .connect(MONGODB_URI, {
-    serverSelectionTimeoutMS: 4000
+    serverSelectionTimeoutMS: 5000,
+    maxPoolSize: 20,
+    retryWrites: true
   })
-  .then(async () => {
+  .then(() => {
     _isDbConnected = true;
     const sanitizedUri = (MONGODB_URI || '').replace(/:([^@]+)@/, ':****@');
     logger.info(`✅ [MongoDB] Connected successfully to: ${sanitizedUri}`);
-    await seedAdminUser();
   })
   .catch((err) => {
     _isDbConnected = false;
@@ -156,44 +164,14 @@ mongoose
     }
   });
 
-async function seedAdminUser() {
-  if (mongoose.connection.readyState !== 1) return;
-  const adminEmail = config.admin.email;
-  const adminPassword = config.admin.password;
-  const adminName = config.admin.name;
-
-  if (!adminEmail || !adminPassword) {
-    return;
-  }
-
-  try {
-    const bcrypt = require('bcryptjs');
-    const cleanEmail = adminEmail.toLowerCase().trim();
-    const existing = await User.findOne({ email: cleanEmail });
-
-    if (!existing) {
-      const hash = await bcrypt.hash(adminPassword, 10);
-      await User.create({
-        email: cleanEmail,
-        name: adminName,
-        password: hash,
-        role: 'admin',
-        isVerified: true,
-        isPro: true,
-        plan: 'Unlimited'
-      });
-      logger.info(`👑 [Admin Initialized] Seeded admin user: ${cleanEmail}`);
-    } else if (existing.role !== 'admin') {
-      existing.role = 'admin';
-      existing.isVerified = true;
-      existing.isPro = true;
-      existing.plan = 'Unlimited';
-      await existing.save();
-      logger.info(`👑 [Admin Updated] Promoted account to admin: ${cleanEmail}`);
+if (process.env.NODE_ENV !== 'test') {
+  verifyMailTransport().then((status) => {
+    if (!status.ok) {
+      logger.warn({ mailStatus: status }, '[Email Service] Transport verification failed or unconfigured at boot.');
+    } else {
+      logger.info({ provider: status.provider }, '✅ [Email Service] Transport verified cleanly at boot.');
     }
-  } catch (err) {
-    logger.warn(`[Admin Seed Warning] ${err.message}`);
-  }
+  });
 }
 
 // 6. Require Database for API Routes (503 when MongoDB is disconnected in non-test or DISABLE_MEMSTORE)

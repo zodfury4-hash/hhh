@@ -169,10 +169,12 @@ async function runNotificationsTests() {
 }
 
 if (require.main === module) {
-  runNotificationsTests().catch(err => {
-    console.error('❌ Notifications test failed:', err);
-    process.exit(1);
-  });
+  runNotificationsTests()
+    .then(() => process.exit(0))
+    .catch(err => {
+      console.error('❌ Notifications test failed:', err);
+      process.exit(1);
+    });
 }
 
 module.exports = runNotificationsTests;

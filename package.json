@@ -12,6 +12,7 @@
     "watch:html": "node tools/build_html.js --watch",
     "lint": "eslint backend tests",
     "format": "prettier --write backend tests",
+    "seed:admin": "node scripts/seed-admin.js",
     "test": "node tests/index.js",
     "test:migration": "node tests/migration-mongo.test.js",
     "test:e2e": "node tests/browser-e2e.test.js"

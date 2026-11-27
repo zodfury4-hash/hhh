@@ -8472,7 +8472,14 @@ Here are recommended optimizations for your links and campaigns:<br>
 
     if (logoutBtn) {
 
-      logoutBtn.onclick = () => {
+      logoutBtn.onclick = async () => {
+        const token = getAuthToken();
+        try {
+          await fetch('/api/auth/logout', {
+            method: 'POST',
+            headers: token ? { Authorization: 'Bearer ' + token } : {}
+          });
+        } catch (_e) {}
         clearStoredSession();
         if (typeof session !== 'undefined') session = null;
         toast('Logged out successfully');

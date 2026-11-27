@@ -8,10 +8,10 @@ const config = require('../config');
 const memStore = require('../utils/memStore');
 const socialAuth = require('../services/socialAuth');
 const { isDbConnected, isMemStoreAllowed, createDbUnavailableError } = require('../middleware/dbCheck');
-const { authMiddleware, JWT_SECRET } = require('../middleware/auth');
-const { generateSecureOTP, checkOtpRateLimit, recordOtpFailure, clearOtpRateLimit } = require('../utils/helpers');
-const { sendVerificationEmail, sendPasswordResetEmail } = require('../utils/mailer');
-const { authLimiter } = require('../middleware/rateLimiter');
+const { authMiddleware, optionalAuth, setAuthCookies, clearAuthCookies, JWT_SECRET } = require('../middleware/auth');
+const { generateSecureOTP, hashOtp, verifyOtpHash, checkOtpRateLimit, recordOtpFailure, clearOtpRateLimit } = require('../utils/helpers');
+const { sendVerificationEmail, sendPasswordResetEmail, isEmailServiceConfigured } = require('../utils/mailer');
+const { authLimiter, otpLimiter } = require('../middleware/rateLimiter');
 const {
   validate,
   registerSchema,
@@ -31,7 +31,8 @@ function generateAuthToken(user) {
       role: user.role || 'user',
       isAdmin,
       isPro: !!user.isPro || isAdmin,
-      plan: user.plan || (isAdmin ? 'Unlimited' : 'Free')
+      plan: user.plan || (isAdmin ? 'Unlimited' : 'Free'),
+      tokenVersion: user.tokenVersion || 0
     },
     JWT_SECRET,
     { expiresIn: '7d' }
@@ -80,11 +81,21 @@ router.post('/api/auth/register', authLimiter, validate(registerSchema), async (
         return res.status(400).json({ error: 'An account with this email address already exists. Please log in.' });
       }
 
+      if (process.env.NODE_ENV === 'production' && !isEmailServiceConfigured()) {
+        return res.status(503).json({
+          ok: false,
+          code: 'EMAIL_SERVICE_UNAVAILABLE',
+          error: 'Email verification service is temporarily unavailable. Please try again later.'
+        });
+      }
+
       // Unverified existing account: refresh verification code
       const verificationCode = generateSecureOTP();
+      const verificationCodeHash = hashOtp(cleanEmail, verificationCode);
       const verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-      existingUser.verificationCode = verificationCode;
+      existingUser.verificationCode = process.env.NODE_ENV === 'test' ? verificationCode : null;
+      existingUser.verificationCodeHash = verificationCodeHash;
       existingUser.verificationCodeExpires = verificationCodeExpires;
       existingUser.name = displayName;
 
@@ -92,13 +103,13 @@ router.post('/api/auth/register', authLimiter, validate(registerSchema), async (
         await existingUser.save();
       }
 
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`\n🔑 [DEV ONLY] Registration OTP for ${cleanEmail}: [ ${verificationCode} ] (Valid: 10 mins)\n`);
-      }
-
       const mailRes = await sendVerificationEmail(cleanEmail, displayName, verificationCode);
       if (!mailRes.success && process.env.NODE_ENV === 'production') {
-        return res.status(502).json({ error: 'Failed to dispatch verification email. Please verify SMTP settings.' });
+        return res.status(503).json({
+          ok: false,
+          code: mailRes.code || 'EMAIL_SERVICE_UNAVAILABLE',
+          error: 'Email verification service is temporarily unavailable. Please try again later.'
+        });
       }
 
       return res.json({
@@ -108,10 +119,19 @@ router.post('/api/auth/register', authLimiter, validate(registerSchema), async (
       });
     }
 
+    if (process.env.NODE_ENV === 'production' && !isEmailServiceConfigured()) {
+      return res.status(503).json({
+        ok: false,
+        code: 'EMAIL_SERVICE_UNAVAILABLE',
+        error: 'Email verification service is temporarily unavailable. Please try again later.'
+      });
+    }
+
     // Hash password securely
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
     const verificationCode = generateSecureOTP();
+    const verificationCodeHash = hashOtp(cleanEmail, verificationCode);
     const verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     let newUser = null;
@@ -121,7 +141,8 @@ router.post('/api/auth/register', authLimiter, validate(registerSchema), async (
         email: cleanEmail,
         password: hashedPassword,
         isVerified: false,
-        verificationCode,
+        verificationCode: null,
+        verificationCodeHash,
         verificationCodeExpires,
         role: 'user',
         plan: 'Free'
@@ -134,21 +155,23 @@ router.post('/api/auth/register', authLimiter, validate(registerSchema), async (
         email: cleanEmail,
         password: hashedPassword,
         isVerified: false,
-        verificationCode,
+        verificationCode: process.env.NODE_ENV === 'test' ? verificationCode : null,
+        verificationCodeHash,
         verificationCodeExpires,
+        tokenVersion: 0,
         role: 'user',
         plan: 'Free'
       };
       memStore.users.push(newUser);
     }
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`\n🔑 [DEV ONLY] Registration OTP for ${cleanEmail}: [ ${verificationCode} ] (Valid: 10 mins)\n`);
-    }
-
     const mailRes = await sendVerificationEmail(cleanEmail, displayName, verificationCode);
     if (!mailRes.success && process.env.NODE_ENV === 'production') {
-      return res.status(502).json({ error: 'Failed to send verification email. Please contact support or try again.' });
+      return res.status(503).json({
+        ok: false,
+        code: mailRes.code || 'EMAIL_SERVICE_UNAVAILABLE',
+        error: 'Email verification service is temporarily unavailable. Please try again later.'
+      });
     }
 
     return res.json({
@@ -164,13 +187,13 @@ router.post('/api/auth/register', authLimiter, validate(registerSchema), async (
 });
 
 // 2. Verify Email via 6-digit OTP code
-router.post('/api/auth/verify-email', authLimiter, validate(verifyEmailSchema), async (req, res) => {
+router.post('/api/auth/verify-email', authLimiter, otpLimiter, validate(verifyEmailSchema), async (req, res) => {
   try {
     const { email, code } = req.body;
     const cleanEmail = email.toLowerCase().trim();
     const cleanCode = code.toString().trim();
 
-    const lockError = checkOtpRateLimit(cleanEmail);
+    const lockError = checkOtpRateLimit(cleanEmail, req.ip);
     if (lockError) {
       return res.status(429).json({ error: lockError });
     }
@@ -189,8 +212,9 @@ router.post('/api/auth/verify-email', authLimiter, validate(verifyEmailSchema), 
     }
 
     if (user.isVerified) {
-      clearOtpRateLimit(cleanEmail);
+      clearOtpRateLimit(cleanEmail, req.ip);
       const token = generateAuthToken(user);
+      setAuthCookies(res, token);
       return res.json({
         success: true,
         message: 'Email is already verified!',
@@ -199,8 +223,10 @@ router.post('/api/auth/verify-email', authLimiter, validate(verifyEmailSchema), 
       });
     }
 
-    if (!user.verificationCode || user.verificationCode !== cleanCode) {
-      recordOtpFailure(cleanEmail);
+    const hashMatches = verifyOtpHash(cleanEmail, cleanCode, user.verificationCodeHash);
+    const legacyTestMatch = process.env.NODE_ENV === 'test' && user.verificationCode && user.verificationCode === cleanCode;
+    if (!hashMatches && !legacyTestMatch) {
+      recordOtpFailure(cleanEmail, req.ip);
       return res.status(400).json({ error: 'Invalid verification code. Please check your email and try again.' });
     }
 
@@ -209,9 +235,10 @@ router.post('/api/auth/verify-email', authLimiter, validate(verifyEmailSchema), 
     }
 
     // Success - clear lockout counter & invalidate OTP (single-use)
-    clearOtpRateLimit(cleanEmail);
+    clearOtpRateLimit(cleanEmail, req.ip);
     user.isVerified = true;
     user.verificationCode = null;
+    user.verificationCodeHash = null;
     user.verificationCodeExpires = null;
 
     if (isDbConnected()) {
@@ -219,6 +246,7 @@ router.post('/api/auth/verify-email', authLimiter, validate(verifyEmailSchema), 
     }
 
     const token = generateAuthToken(user);
+    setAuthCookies(res, token);
 
     return res.json({
       success: true,
@@ -233,10 +261,18 @@ router.post('/api/auth/verify-email', authLimiter, validate(verifyEmailSchema), 
 });
 
 // 3. Resend Verification Code
-router.post('/api/auth/resend-code', authLimiter, validate(forgotPasswordSchema), async (req, res) => {
+router.post('/api/auth/resend-code', authLimiter, otpLimiter, validate(forgotPasswordSchema), async (req, res) => {
   try {
     const { email } = req.body;
     const cleanEmail = email.toLowerCase().trim();
+
+    if (process.env.NODE_ENV === 'production' && !isEmailServiceConfigured()) {
+      return res.status(503).json({
+        ok: false,
+        code: 'EMAIL_SERVICE_UNAVAILABLE',
+        error: 'Email verification service is temporarily unavailable. Please try again later.'
+      });
+    }
 
     let user = null;
     if (isDbConnected()) {
@@ -256,22 +292,22 @@ router.post('/api/auth/resend-code', authLimiter, validate(forgotPasswordSchema)
     }
 
     const verificationCode = generateSecureOTP();
+    const verificationCodeHash = hashOtp(cleanEmail, verificationCode);
     const verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    user.verificationCode = verificationCode;
+    user.verificationCode = process.env.NODE_ENV === 'test' ? verificationCode : null;
+    user.verificationCodeHash = verificationCodeHash;
     user.verificationCodeExpires = verificationCodeExpires;
 
     if (isDbConnected()) await user.save();
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log(
-        `\n🔑 [DEV ONLY] Resent Verification OTP for ${cleanEmail}: [ ${verificationCode} ] (Valid: 10 mins)\n`
-      );
-    }
-
     const mailRes = await sendVerificationEmail(cleanEmail, user.name, verificationCode);
     if (!mailRes.success && process.env.NODE_ENV === 'production') {
-      return res.status(502).json({ error: 'Failed to send email. Please check your SMTP configuration.' });
+      return res.status(503).json({
+        ok: false,
+        code: mailRes.code || 'EMAIL_SERVICE_UNAVAILABLE',
+        error: 'Email verification service is temporarily unavailable. Please try again later.'
+      });
     }
 
     return res.json({
@@ -285,10 +321,18 @@ router.post('/api/auth/resend-code', authLimiter, validate(forgotPasswordSchema)
 });
 
 // 4. Forgot Password - Request 6-digit Reset Code
-router.post('/api/auth/forgot-password', authLimiter, validate(forgotPasswordSchema), async (req, res) => {
+router.post('/api/auth/forgot-password', authLimiter, otpLimiter, validate(forgotPasswordSchema), async (req, res) => {
   try {
     const { email } = req.body;
     const cleanEmail = email.toLowerCase().trim();
+
+    if (process.env.NODE_ENV === 'production' && !isEmailServiceConfigured()) {
+      return res.status(503).json({
+        ok: false,
+        code: 'EMAIL_SERVICE_UNAVAILABLE',
+        error: 'Email verification service is temporarily unavailable. Please try again later.'
+      });
+    }
 
     let user = null;
     if (isDbConnected()) {
@@ -300,7 +344,6 @@ router.post('/api/auth/forgot-password', authLimiter, validate(forgotPasswordSch
     }
 
     if (!user) {
-      // Avoid account enumeration: return success even if user not found
       return res.json({
         success: true,
         message: 'If an account exists for this email, a reset code has been dispatched.',
@@ -309,22 +352,24 @@ router.post('/api/auth/forgot-password', authLimiter, validate(forgotPasswordSch
     }
 
     const resetCode = generateSecureOTP();
+    const resetCodeHash = hashOtp(cleanEmail, resetCode);
     const resetExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    user.resetPasswordCode = resetCode;
+    user.resetPasswordCode = process.env.NODE_ENV === 'test' ? resetCode : null;
+    user.resetPasswordCodeHash = resetCodeHash;
     user.resetPasswordExpires = resetExpires;
 
     if (isDbConnected()) {
       await user.save();
     }
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`\n🔑 [DEV ONLY] Password Reset OTP for ${cleanEmail}: [ ${resetCode} ] (Valid: 10 mins)\n`);
-    }
-
     const mailRes = await sendPasswordResetEmail(cleanEmail, user.name, resetCode);
     if (!mailRes.success && process.env.NODE_ENV === 'production') {
-      return res.status(502).json({ error: 'Failed to send password reset email. Please contact support.' });
+      return res.status(503).json({
+        ok: false,
+        code: mailRes.code || 'EMAIL_SERVICE_UNAVAILABLE',
+        error: 'Email verification service is temporarily unavailable. Please try again later.'
+      });
     }
 
     return res.json({
@@ -339,13 +384,13 @@ router.post('/api/auth/forgot-password', authLimiter, validate(forgotPasswordSch
 });
 
 // 5. Reset Password - Verify Code and Set New Password
-router.post('/api/auth/reset-password', authLimiter, validate(resetPasswordSchema), async (req, res) => {
+router.post('/api/auth/reset-password', authLimiter, otpLimiter, validate(resetPasswordSchema), async (req, res) => {
   try {
     const { email, code, newPassword } = req.body;
     const cleanEmail = email.toLowerCase().trim();
     const cleanCode = code.toString().trim();
 
-    const lockError = checkOtpRateLimit(cleanEmail);
+    const lockError = checkOtpRateLimit(cleanEmail, req.ip);
     if (lockError) {
       return res.status(429).json({ error: lockError });
     }
@@ -363,11 +408,17 @@ router.post('/api/auth/reset-password', authLimiter, validate(resetPasswordSchem
       return res.status(404).json({ error: 'No account found with this email' });
     }
 
-    const validCode = user.resetPasswordCode || user.verificationCode;
+    const hashMatches =
+      verifyOtpHash(cleanEmail, cleanCode, user.resetPasswordCodeHash) ||
+      verifyOtpHash(cleanEmail, cleanCode, user.verificationCodeHash);
+    const legacyTestMatch =
+      process.env.NODE_ENV === 'test' &&
+      ((user.resetPasswordCode && user.resetPasswordCode === cleanCode) ||
+        (user.verificationCode && user.verificationCode === cleanCode));
     const expiry = user.resetPasswordExpires || user.verificationCodeExpires;
 
-    if (!validCode || validCode !== cleanCode) {
-      recordOtpFailure(cleanEmail);
+    if (!hashMatches && !legacyTestMatch) {
+      recordOtpFailure(cleanEmail, req.ip);
       return res
         .status(400)
         .json({ error: 'Invalid verification code. Please check your email or request a new code.' });
@@ -377,23 +428,27 @@ router.post('/api/auth/reset-password', authLimiter, validate(resetPasswordSchem
       return res.status(400).json({ error: 'This reset code has expired. Please request a new one.' });
     }
 
-    // Success - clear lockout counter & invalidate single-use code
-    clearOtpRateLimit(cleanEmail);
+    // Success - clear lockout counter, invalidate code, and bump tokenVersion
+    clearOtpRateLimit(cleanEmail, req.ip);
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
 
     user.password = hashedPassword;
     user.resetPasswordCode = null;
+    user.resetPasswordCodeHash = null;
     user.resetPasswordExpires = null;
     user.verificationCode = null;
+    user.verificationCodeHash = null;
     user.verificationCodeExpires = null;
     user.isVerified = true;
+    user.tokenVersion = (user.tokenVersion || 0) + 1;
 
     if (isDbConnected()) {
       await user.save();
     }
 
     const token = generateAuthToken(user);
+    setAuthCookies(res, token);
 
     return res.json({
       success: true,
@@ -437,13 +492,11 @@ router.post('/api/auth/login', authLimiter, validate(loginSchema), async (req, r
 
       if (!codeToUse || isExpired) {
         codeToUse = generateSecureOTP();
-        user.verificationCode = codeToUse;
+        user.verificationCode = process.env.NODE_ENV === 'test' ? codeToUse : null;
+        user.verificationCodeHash = hashOtp(cleanEmail, codeToUse);
         user.verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
         if (isDbConnected()) await user.save();
         await sendVerificationEmail(cleanEmail, user.name, codeToUse);
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`\n🔑 [DEV ONLY] Verification OTP for ${cleanEmail}: [ ${codeToUse} ]\n`);
-        }
       }
 
       return res.status(403).json({
@@ -454,6 +507,7 @@ router.post('/api/auth/login', authLimiter, validate(loginSchema), async (req, r
     }
 
     const token = generateAuthToken(user);
+    setAuthCookies(res, token);
 
     return res.json({
       success: true,
@@ -464,6 +518,26 @@ router.post('/api/auth/login', authLimiter, validate(loginSchema), async (req, r
   } catch (err) {
     console.error('Login error:', err);
     return res.status(500).json({ error: 'Internal server error: ' + err.message });
+  }
+});
+
+// 6b. Log Out (invalidate server-side tokenVersion & clear HttpOnly cookies)
+router.post('/api/auth/logout', optionalAuth, async (req, res) => {
+  try {
+    if (req.user && req.user.email) {
+      const cleanEmail = req.user.email.toLowerCase().trim();
+      if (isDbConnected()) {
+        await User.updateOne({ email: cleanEmail }, { $inc: { tokenVersion: 1 } });
+      } else if (isMemStoreAllowed()) {
+        const u = memStore.users.find((x) => x.email === cleanEmail);
+        if (u) u.tokenVersion = (u.tokenVersion || 0) + 1;
+      }
+    }
+    clearAuthCookies(res);
+    return res.json({ ok: true, success: true, message: 'Logged out cleanly' });
+  } catch (err) {
+    clearAuthCookies(res);
+    return res.status(500).json({ error: 'Logout failed: ' + err.message });
   }
 });
 
@@ -483,6 +557,7 @@ router.post('/api/auth/refresh', authMiddleware, async (req, res) => {
     }
 
     const token = generateAuthToken(user);
+    setAuthCookies(res, token);
     return res.json({
       success: true,
       token,
@@ -563,10 +638,12 @@ router.post('/api/auth/change-password', authMiddleware, async (req, res) => {
 
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(newPassword, salt);
+    user.tokenVersion = (user.tokenVersion || 0) + 1;
 
     if (isDbConnected()) await user.save();
+    clearAuthCookies(res);
 
-    res.json({ success: true, message: 'Password changed successfully' });
+    res.json({ success: true, message: 'Password changed successfully. Please log in again.' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -669,6 +746,7 @@ router.post('/api/auth/google', authLimiter, async (req, res) => {
     }
 
     const token = generateAuthToken(user);
+    setAuthCookies(res, token);
 
     return res.json({
       success: true,
@@ -801,6 +879,7 @@ router.post('/api/auth/apple', authLimiter, async (req, res) => {
     }
 
     const token = generateAuthToken(user);
+    setAuthCookies(res, token);
 
     return res.json({
       success: true,

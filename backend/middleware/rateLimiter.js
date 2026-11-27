@@ -9,6 +9,20 @@ const authLimiter = rateLimit({
   message: { error: 'Too many authentication attempts. Please try again after 15 minutes.', code: 'RATE_LIMITED' }
 });
 
+// OTP-specific rate limit per IP + email: 10 attempts per 15 minutes
+const otpLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: false,
+  keyGenerator: (req) => {
+    const e = ((req.body && req.body.email) || '').toString().toLowerCase().trim();
+    return `${req.ip || 'unknown'}:${e}`;
+  },
+  message: { error: 'Too many verification code requests. Please wait 15 minutes.', code: 'OTP_RATE_LIMITED' }
+});
+
 // Link creation rate limit: 40 requests per minute
 const linkCreateLimiter = rateLimit({
   windowMs: 60 * 1000,
@@ -81,6 +95,7 @@ const apiLimiter = rateLimit({
 
 module.exports = {
   authLimiter,
+  otpLimiter,
   linkCreateLimiter,
   bulkShortenLimiter,
   assistLimiter,

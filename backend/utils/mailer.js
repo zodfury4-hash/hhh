@@ -1,343 +1,261 @@
 const nodemailer = require('nodemailer');
 
-const isSmtpReady = !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
-// Nodemailer Transporter Setup
+const emailProvider = (process.env.EMAIL_PROVIDER || '').toLowerCase().trim();
+const emailApiKey = (process.env.EMAIL_API_KEY || '').trim();
+const isHttpApiReady = Boolean((emailProvider === 'resend' || emailProvider === 'brevo') && emailApiKey);
+const isSmtpReady = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
 
 let mailTransporter = null;
 
 if (isSmtpReady) {
   const cleanPass = (process.env.SMTP_PASS || '').replace(/\s+/g, '');
-
   if ((process.env.SMTP_HOST || '').includes('gmail')) {
     mailTransporter = nodemailer.createTransport({
       service: 'gmail',
-
       auth: {
         user: process.env.SMTP_USER,
-
         pass: cleanPass
       }
     });
   } else {
     mailTransporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
-
-      port: parseInt(process.env.SMTP_PORT || '587'),
-
+      port: parseInt(process.env.SMTP_PORT || '587', 10),
       secure: process.env.SMTP_SECURE === 'true' || process.env.SMTP_PORT === '465',
-
       auth: {
         user: process.env.SMTP_USER,
-
         pass: cleanPass
       }
     });
   }
-
-  console.log('📧 [Email Service] Real SMTP Configured:', process.env.SMTP_HOST, 'Account:', process.env.SMTP_USER);
+  console.log('📧 [Email Service] SMTP configured:', process.env.SMTP_HOST, 'Account:', process.env.SMTP_USER);
+} else if (isHttpApiReady) {
+  console.log(`📧 [Email Service] HTTP email provider configured: ${emailProvider}`);
 } else {
-  console.log(
-    'ℹ️ [Email Service] Real SMTP not yet configured in .env (SMTP_USER or SMTP_PASS missing). Real emails cannot be dispatched.'
-  );
+  console.log('ℹ️ [Email Service] Email transport not configured (SMTP_USER/SMTP_PASS or EMAIL_PROVIDER/EMAIL_API_KEY missing).');
 }
 
-// Helper: Send Verification Email
+function isEmailServiceConfigured() {
+  return Boolean(mailTransporter || isHttpApiReady);
+}
+
+async function verifyMailTransport() {
+  if (isHttpApiReady) {
+    return { ok: true, provider: emailProvider };
+  }
+  if (!mailTransporter) {
+    return { ok: false, code: 'MAIL_NOT_CONFIGURED', reason: 'No SMTP or HTTP email provider configured' };
+  }
+  try {
+    await mailTransporter.verify();
+    return { ok: true, provider: 'smtp' };
+  } catch (err) {
+    return { ok: false, code: 'MAIL_VERIFY_FAILED', error: err.message };
+  }
+}
+
+async function sendViaHttpApi({ from, to, subject, html, text }) {
+  if (emailProvider === 'resend') {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${emailApiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ from, to: [to], subject, html, text })
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(body.message || `Resend API error (${res.status})`);
+    }
+    return { messageId: body.id || 'resend-ok' };
+  }
+
+  if (emailProvider === 'brevo') {
+    const emailMatch = from.match(/<([^>]+)>/);
+    const senderEmail = emailMatch ? emailMatch[1] : from;
+    const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'api-key': emailApiKey,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        sender: { email: senderEmail, name: 'HEA Link' },
+        to: [{ email: to }],
+        subject,
+        htmlContent: html,
+        textContent: text
+      })
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(body.message || `Brevo API error (${res.status})`);
+    }
+    return { messageId: body.messageId || 'brevo-ok' };
+  }
+
+  throw new Error(`Unsupported EMAIL_PROVIDER: ${emailProvider}`);
+}
+
+async function dispatchEmail({ from, to, subject, html, text }) {
+  if (!isEmailServiceConfigured()) {
+    return {
+      success: false,
+      simulated: true,
+      code: 'MAIL_NOT_CONFIGURED',
+      reason: 'Email transport credentials missing in environment'
+    };
+  }
+
+  let lastErr = null;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const info = isHttpApiReady
+        ? await sendViaHttpApi({ from, to, subject, html, text })
+        : await mailTransporter.sendMail({ from, to, subject, html, text });
+      return { success: true, messageId: info.messageId };
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+
+  return {
+    success: false,
+    simulated: false,
+    code: 'MAIL_DELIVERY_FAILED',
+    error: lastErr ? lastErr.message : 'Unknown mail error'
+  };
+}
+
+function escapeHtml(val) {
+  return String(val || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
 
 async function sendVerificationEmail(email, name, code) {
-  console.log(`\n======================================================`);
-
-  console.log(`📧 [EMAIL VERIFICATION] Target: ${email}`);
-
-  console.log(`🔑 Verification Code: [ ${code} ]`);
-
-  console.log(`⏱️  Valid for 15 minutes`);
-
-  console.log(`======================================================\n`);
-
-  if (!mailTransporter) {
-    return { success: false, simulated: true, code, reason: 'SMTP credentials missing in .env' };
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`\n======================================================`);
+    console.log(`📧 [EMAIL VERIFICATION] Target: ${email}`);
+    console.log(`🔑 Verification Code: [ ${code} ]`);
+    console.log(`⏱️  Valid for 10 minutes`);
+    console.log(`======================================================\n`);
   }
 
+  const from = process.env.EMAIL_FROM || `"HEA Link" <${process.env.SMTP_USER || 'noreply@healink.store'}>`;
   const html = `
-
     <!DOCTYPE html>
-
     <html>
-
-    <head>
-
-      <meta charset="utf-8">
-
-      <style>
-
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #060b18; color: #f8fafc; margin: 0; padding: 40px 20px; }
-
-        .box { max-width: 520px; margin: 0 auto; background: #090f22; border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 16px; padding: 36px 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
-
-        .logo { font-size: 24px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; margin-bottom: 24px; text-align: center; }
-
-        .logo span { color: #D4FF24; }
-
-        h1 { font-size: 22px; font-weight: 700; color: #ffffff; margin-top: 0; text-align: center; }
-
-        p { color: #94a3b8; font-size: 15px; line-height: 1.6; }
-
-        .code-box { background: rgba(56, 189, 248, 0.08); border: 2px dashed #38bdf8; border-radius: 12px; padding: 18px; text-align: center; margin: 28px 0; }
-
-        .code { font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #38bdf8; font-family: monospace; }
-
-        .meta { font-size: 12px; color: #64748b; text-align: center; margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px; }
-
-      </style>
-
-    </head>
-
-    <body>
-
-      <div class="box">
-
-        <div class="logo">HEA <span>Link</span></div>
-
-        <h1>Verify your email address</h1>
-
-        <p>Hi ${name || 'there'},</p>
-
-        <p>Thank you for signing up for HEA Link. Please use the verification code below to verify your email and activate your account dashboard:</p>
-
-        <div class="code-box">
-
-          <div class="code">${code}</div>
-
+    <head><meta charset="utf-8"></head>
+    <body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#060b18;color:#f8fafc;margin:0;padding:40px 20px;">
+      <div style="max-width:520px;margin:0 auto;background:#090f22;border:1px solid rgba(56,189,248,0.2);border-radius:16px;padding:36px 30px;">
+        <div style="font-size:24px;font-weight:800;color:#fff;margin-bottom:24px;text-align:center;">HEA <span style="color:#D4FF24;">Link</span></div>
+        <h1 style="font-size:22px;font-weight:700;color:#fff;margin-top:0;text-align:center;">Verify your email address</h1>
+        <p style="color:#94a3b8;font-size:15px;line-height:1.6;">Hi ${escapeHtml(name || 'there')},</p>
+        <p style="color:#94a3b8;font-size:15px;line-height:1.6;">Use this 6-digit verification code to verify your email and activate your HEA Link account:</p>
+        <div style="background:rgba(56,189,248,0.08);border:2px dashed #38bdf8;border-radius:12px;padding:18px;text-align:center;margin:28px 0;">
+          <div style="font-size:36px;font-weight:800;letter-spacing:8px;color:#38bdf8;font-family:monospace;">${escapeHtml(code)}</div>
         </div>
-
-        <p style="text-align: center; font-size: 13px;">This code will expire in <b>15 minutes</b>. If you did not create this account, you can safely ignore this email.</p>
-
-        <div class="meta">
-
-          © 2026 HEA Link Inc. All rights reserved.<br>
-
-          Next-generation URL shortener, QR code studio, and bio pages.
-
-        </div>
-
+        <p style="text-align:center;font-size:13px;color:#94a3b8;">This code expires in <b>10 minutes</b>.</p>
       </div>
-
     </body>
+    </html>`;
 
-    </html>
+  const result = await dispatchEmail({
+    from,
+    to: email,
+    subject: `${code} is your HEA Link verification code`,
+    html,
+    text: `Your HEA Link verification code is: ${code} (expires in 10 minutes).`
+  });
 
-  `;
-
-  try {
-    const fromAddr = process.env.EMAIL_FROM || `"HEA Link" <${process.env.SMTP_USER || 'noreply@healink.store'}>`;
-
-    const info = await mailTransporter.sendMail({
-      from: fromAddr,
-
-      to: email,
-
-      subject: `${code} is your HEA Link verification code`,
-
-      html
-    });
-
-    console.log(`✅ [Email Service] Real email dispatched to ${email}! MessageId: ${info.messageId}`);
-
-    return { success: true, messageId: info.messageId };
-  } catch (err) {
-    console.error('❌ Failed to send verification email via SMTP:', err.message);
-
-    return { success: false, error: err.message, simulated: true, code };
+  if (!result.success && result.code !== 'MAIL_NOT_CONFIGURED') {
+    console.error('❌ Failed to send verification email:', result.error);
   }
+  return result;
 }
 
 async function sendPasswordResetEmail(email, name, code) {
-  console.log(`\n======================================================`);
-
-  console.log(`🔑 [PASSWORD RESET] Target: ${email}`);
-
-  console.log(`🔑 Reset Code: [ ${code} ]`);
-
-  console.log(`⏱️  Valid for 15 minutes`);
-
-  console.log(`======================================================\n`);
-
-  if (!mailTransporter) {
-    return { success: false, simulated: true, code, reason: 'SMTP credentials missing in .env' };
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`\n======================================================`);
+    console.log(`🔑 [PASSWORD RESET] Target: ${email}`);
+    console.log(`🔑 Reset Code: [ ${code} ]`);
+    console.log(`⏱️  Valid for 10 minutes`);
+    console.log(`======================================================\n`);
   }
 
+  const from = process.env.EMAIL_FROM || `"HEA Link Security" <${process.env.SMTP_USER || 'noreply@healink.store'}>`;
   const html = `
-
     <!DOCTYPE html>
-
     <html>
-
-    <head>
-
-      <meta charset="utf-8">
-
-      <style>
-
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #060b18; color: #f8fafc; margin: 0; padding: 40px 20px; }
-
-        .box { max-width: 520px; margin: 0 auto; background: #090f22; border: 1px solid rgba(212, 255, 36, 0.3); border-radius: 16px; padding: 36px 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
-
-        .logo { font-size: 24px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; margin-bottom: 24px; text-align: center; }
-
-        .logo span { color: #D4FF24; }
-
-        h1 { font-size: 22px; font-weight: 700; color: #ffffff; margin-top: 0; text-align: center; }
-
-        p { color: #94a3b8; font-size: 15px; line-height: 1.6; }
-
-        .code-box { background: rgba(212, 255, 36, 0.08); border: 2px dashed #D4FF24; border-radius: 12px; padding: 18px; text-align: center; margin: 28px 0; }
-
-        .code { font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #D4FF24; font-family: monospace; }
-
-        .meta { font-size: 12px; color: #64748b; text-align: center; margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px; }
-
-      </style>
-
-    </head>
-
-    <body>
-
-      <div class="box">
-
-        <div class="logo">HEA <span>Link</span></div>
-
-        <h1>Reset your password</h1>
-
-        <p>Hi ${name || 'there'},</p>
-
-        <p>We received a request to reset the password for your HEA Link account. Use this 6-digit verification code to choose a new password:</p>
-
-        <div class="code-box">
-
-          <div class="code">${code}</div>
-
+    <head><meta charset="utf-8"></head>
+    <body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#060b18;color:#f8fafc;margin:0;padding:40px 20px;">
+      <div style="max-width:520px;margin:0 auto;background:#090f22;border:1px solid rgba(212,255,36,0.3);border-radius:16px;padding:36px 30px;">
+        <div style="font-size:24px;font-weight:800;color:#fff;margin-bottom:24px;text-align:center;">HEA <span style="color:#D4FF24;">Link</span></div>
+        <h1 style="font-size:22px;font-weight:700;color:#fff;margin-top:0;text-align:center;">Reset your password</h1>
+        <p style="color:#94a3b8;font-size:15px;line-height:1.6;">Hi ${escapeHtml(name || 'there')},</p>
+        <p style="color:#94a3b8;font-size:15px;line-height:1.6;">Use this 6-digit verification code to choose a new password:</p>
+        <div style="background:rgba(212,255,36,0.08);border:2px dashed #D4FF24;border-radius:12px;padding:18px;text-align:center;margin:28px 0;">
+          <div style="font-size:36px;font-weight:800;letter-spacing:8px;color:#D4FF24;font-family:monospace;">${escapeHtml(code)}</div>
         </div>
-
-        <p>This code will expire in 15 minutes. If you did not make this request, your account is safe and you can ignore this message.</p>
-
-        <div class="meta">
-
-          HEA Link Security System · Global
-
-        </div>
-
+        <p style="text-align:center;font-size:13px;color:#94a3b8;">This code expires in <b>10 minutes</b>.</p>
       </div>
-
     </body>
+    </html>`;
 
-    </html>
+  const result = await dispatchEmail({
+    from,
+    to: email,
+    subject: `${code} is your HEA Link password reset code`,
+    html,
+    text: `Your HEA Link password reset code is: ${code} (expires in 10 minutes).`
+  });
 
-  `;
-
-  try {
-    const fromAddr =
-      process.env.EMAIL_FROM || `"HEA Link Security" <${process.env.SMTP_USER || 'noreply@healink.store'}>`;
-
-    const info = await mailTransporter.sendMail({
-      from: fromAddr,
-
-      to: email,
-
-      subject: `${code} is your HEA Link password reset code`,
-
-      html
-    });
-
-    console.log(`✅ [Email Service] Real reset email dispatched to ${email}! MessageId: ${info.messageId}`);
-
-    return { success: true, messageId: info.messageId };
-  } catch (err) {
-    console.error('❌ Failed to send reset email via SMTP:', err.message);
-
-    return { success: false, error: err.message, simulated: true, code };
+  if (!result.success && result.code !== 'MAIL_NOT_CONFIGURED') {
+    console.error('❌ Failed to send reset email:', result.error);
   }
+  return result;
 }
 
 async function sendSupportTicketConfirmation(email, name, ticketId, subject) {
-  console.log(`\n======================================================`);
-  console.log(`📧 [SUPPORT TICKET] Target: ${email}`);
-  console.log(`🎫 Ticket ID: [ ${ticketId} ]`);
-  console.log(`📋 Subject: [ ${subject} ]`);
-  console.log(`⏱️  Estimated Response: 24 business hours`);
-  console.log(`======================================================\n`);
-
-  if (!mailTransporter) {
-    return { success: false, simulated: true, ticketId, reason: 'SMTP credentials missing in .env' };
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`📧 [SUPPORT TICKET] Target: ${email} | Ticket: ${ticketId} | Subject: ${subject}`);
   }
-
-  const html = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #060b18; color: #f8fafc; margin: 0; padding: 40px 20px; }
-        .box { max-width: 520px; margin: 0 auto; background: #090f22; border: 1px solid rgba(0, 112, 243, 0.3); border-radius: 16px; padding: 36px 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
-        .logo { font-size: 24px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; margin-bottom: 24px; text-align: center; }
-        .logo span { color: #0070f3; }
-        h1 { font-size: 20px; font-weight: 700; color: #ffffff; margin-top: 0; }
-        p { color: #94a3b8; font-size: 14px; line-height: 1.6; }
-        .ticket-badge { background: rgba(0, 112, 243, 0.1); border: 1px solid #0070f3; color: #38bdf8; font-family: monospace; font-size: 16px; font-weight: 700; padding: 8px 16px; border-radius: 8px; display: inline-block; margin: 12px 0; }
-        .meta { font-size: 12px; color: #64748b; margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px; text-align: center; }
-      </style>
-    </head>
-    <body>
-      <div class="box">
-        <div class="logo">HEA <span>Link</span> Support</div>
-        <h1>We received your support request</h1>
-        <p>Hi ${name || 'there'},</p>
-        <p>Thank you for reaching out to the HEA Link engineering &amp; support team. Your support ticket has been received and logged:</p>
-        <div class="ticket-badge">${ticketId}</div>
-        <p><strong>Subject:</strong> ${subject}</p>
-        <p>Our team investigates all technical, API, and billing inquiries within 24 business hours.</p>
-        <div class="meta">
-          HEA Link Support Desk · Reference: ${ticketId}
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
-
-  try {
-    const fromAddr = process.env.EMAIL_FROM || `"HEA Link Support" <${process.env.SMTP_USER || 'support@healink.store'}>`;
-    const info = await mailTransporter.sendMail({
-      from: fromAddr,
-      to: email,
-      subject: `[${ticketId}] Support Request Received: ${subject}`,
-      html
-    });
-    console.log(`✅ [Email Service] Support ticket confirmation sent to ${email}! MessageId: ${info.messageId}`);
-    return { success: true, messageId: info.messageId, ticketId };
-  } catch (err) {
-    console.error('❌ Failed to send support confirmation email:', err.message);
-    return { success: false, error: err.message, simulated: true, ticketId };
-  }
+  const from = process.env.EMAIL_FROM || `"HEA Link Support" <${process.env.SMTP_USER || 'support@healink.store'}>`;
+  const html = `<p>Hi ${escapeHtml(name || 'there')},</p><p>Support ticket <strong>${escapeHtml(ticketId)}</strong> received for: ${escapeHtml(subject)}.</p>`;
+  const result = await dispatchEmail({
+    from,
+    to: email,
+    subject: `[${ticketId}] Support Request Received: ${subject}`,
+    html,
+    text: `Support ticket ${ticketId} received for: ${subject}`
+  });
+  return { ...result, ticketId };
 }
 
 async function sendWorkspaceInviteEmail(email, workspaceName, role, acceptUrl) {
-  if (!mailTransporter) {
-    console.log(`✉️ [DEV EMAIL - WORKSPACE INVITE] To: ${email} | Workspace: ${workspaceName} | Role: ${role} | URL: ${acceptUrl}`);
-    return true;
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`✉️ [WORKSPACE INVITE] To: ${email} | Workspace: ${workspaceName} | Role: ${role}`);
   }
-  return mailTransporter.sendMail({
-    from: process.env.SMTP_FROM || process.env.SMTP_USER || 'no-reply@healink.store',
+  const from = process.env.EMAIL_FROM || process.env.SMTP_USER || 'noreply@healink.store';
+  const result = await dispatchEmail({
+    from,
     to: email,
     subject: `Invitation to collaborate in ${workspaceName} on HEA Link`,
-    text: `You have been invited to join the ${workspaceName} workspace as a ${role.toUpperCase()}.\n\nAccept your invite here: ${acceptUrl}\n\nThis link expires in 7 days.`,
-    html: `<p>You have been invited to join the <strong>${workspaceName}</strong> workspace as a <strong>${role.toUpperCase()}</strong>.</p><p><a href="${acceptUrl}">Accept Invitation</a></p>`
+    text: `You have been invited to join ${workspaceName} as ${role}. Accept: ${acceptUrl}`,
+    html: `<p>You have been invited to join <strong>${escapeHtml(workspaceName)}</strong> as <strong>${escapeHtml(role.toUpperCase())}</strong>.</p><p><a href="${escapeHtml(acceptUrl)}">Accept Invitation</a></p>`
   });
+  return result.success || result.simulated;
 }
-
-// In-Memory Fallback Store (active if MongoDB is momentarily unreachable)
 
 module.exports = {
   mailTransporter,
-  sendMail: (opts) => (mailTransporter ? mailTransporter.sendMail(opts) : Promise.resolve(true)),
+  isEmailServiceConfigured,
+  verifyMailTransport,
+  dispatchEmail,
+  sendMail: (opts) => dispatchEmail(opts),
   sendVerificationEmail,
   sendPasswordResetEmail,
   sendSupportTicketConfirmation,
