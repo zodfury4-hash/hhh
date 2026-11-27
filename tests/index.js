@@ -122,4 +122,9 @@ if (suite23.status !== 0) {
   process.exit(suite23.status || 1);
 }
 
-console.log('\n🎉 ALL TESTS PASSED SUCCESSFULLY ACROSS ALL 23 TEST SUITES!');
+const suite24 = spawnSync(process.execPath, [path.join(__dirname, 'phase7-observability.test.js')], { stdio: 'inherit' });
+if (suite24.status !== 0) {
+  process.exit(suite24.status || 1);
+}
+
+console.log('\n🎉 ALL TESTS PASSED SUCCESSFULLY ACROSS ALL 24 TEST SUITES!');

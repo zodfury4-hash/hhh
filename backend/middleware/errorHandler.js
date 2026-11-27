@@ -1,12 +1,14 @@
 const path = require('path');
 const fs = require('fs');
 const logger = require('../utils/logger');
+const { reportException } = require('../utils/telemetryReporter');
 
 function errorHandler(err, req, res, _next) {
   const isProd = process.env.NODE_ENV === 'production';
   const statusCode = err.status || err.statusCode || 500;
 
   logger.error({
+    reqId: req.id,
     msg: err.message || 'Unhandled Application Error',
     path: req.originalUrl || req.path,
     method: req.method,
@@ -14,6 +16,15 @@ function errorHandler(err, req, res, _next) {
     status: statusCode,
     stack: isProd ? undefined : err.stack
   });
+
+  if (statusCode >= 500) {
+    reportException(err, {
+      reqId: req.id,
+      path: req.originalUrl || req.path,
+      method: req.method,
+      statusCode
+    }).catch(() => {});
+  }
 
   // Handle Mongoose Duplicate Key Error
   if (err.code === 11000) {

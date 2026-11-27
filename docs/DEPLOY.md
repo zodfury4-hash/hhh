@@ -71,3 +71,16 @@ docker run -d -p 3000:3000 --env-file .env.production healink:latest
    ```
 2. Verify `/health` returns `200`, `/` and `/pricing` return `200`, unknown paths return `404`, and `POST /api/auth/login` with empty body returns `400` (not `405`).
 3. **Rollback:** In Render → **Deploys**, select the previous known-good deploy and click **Rollback to this deploy** (or redeploy the prior container image tag). If schema/index changes occurred, restore the latest automated MongoDB Atlas snapshot before rolling back application traffic.
+
+## 7. Observability, Backups & Maintenance Operations
+- **Liveness vs Readiness:**
+  - `GET /health` reports process health, uptime, and database state (`200` when healthy, `503` when DB degraded).
+  - `GET /ready` verifies DB readiness, JWT configuration validity, and mail transport status (`200` ready, `503` not ready).
+- **Uptime Monitoring:** Point UptimeRobot / BetterStack HTTP monitor at `https://www.healink.store/ready` (60s interval) with alerts on non-200 responses.
+- **Error Tracking & Request Correlation:**
+  - Every HTTP request carries `X-Request-Id` and emits redacted structured Pino JSON logs.
+  - Set `SENTRY_DSN` in production to forward unhandled `5xx` errors automatically.
+- **Database Backups & TTL Retention:**
+  - Enable MongoDB Atlas Cloud Backups / continuous snapshots (or M0 daily export via `mongodump`).
+  - `clicks` collection includes an automatic TTL index (`expires`) and `{ linkId: 1, timestamp: -1 }` query index.
+  - Built-in background cleanup (`backend/utils/cleanup.js`) prunes expired guest links and stale OTP tokens periodically without blocking requests.

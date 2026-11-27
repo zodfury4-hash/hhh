@@ -9,7 +9,9 @@ const helmet = require('helmet');
 
 const AbuseReport = require('./models/AbuseReport');
 const logger = require('./utils/logger');
+const requestLogger = require('./middleware/requestLogger');
 const { verifyMailTransport } = require('./utils/mailer');
+const { startScheduledCleanup } = require('./utils/cleanup');
 const { abuseReportLimiter } = require('./middleware/rateLimiter');
 const { validate, abuseReportSchema } = require('./middleware/validation');
 const { requireDatabase } = require('./middleware/dbCheck');
@@ -20,6 +22,9 @@ app.set('trust proxy', config.trustProxy);
 const PORT = config.port;
 const MONGODB_URI = config.mongoUri;
 const projectRoot = path.join(__dirname, '..');
+
+// Correlation Request ID + structured Pino HTTP request logging
+app.use(requestLogger);
 
 // Per-request cryptographic CSP nonce
 app.use((req, res, next) => {
@@ -209,7 +214,7 @@ app.post('/api/abuse/report', abuseReportLimiter, validate(abuseReportSchema), a
   }
 });
 
-// 8. System Health Endpoint
+// 8. System Liveness (/health) & Readiness (/ready) Endpoints
 app.get('/health', (req, res) => {
   const dbState = mongoose.connection.readyState;
   const allowMemTest = process.env.NODE_ENV === 'test' && process.env.DISABLE_MEMSTORE !== 'true';
@@ -219,12 +224,36 @@ app.get('/health', (req, res) => {
   res.status(statusCode).json({
     ok: isHealthy,
     status: isHealthy ? 'healthy' : 'degraded',
+    reqId: req.id,
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     database: dbState === 1 ? 'connected' : dbState === 2 ? 'connecting' : 'disconnected',
     environment: process.env.NODE_ENV || 'development'
   });
 });
+
+app.get('/ready', (req, res) => {
+  const dbState = mongoose.connection.readyState;
+  const allowMemTest = process.env.NODE_ENV === 'test' && process.env.DISABLE_MEMSTORE !== 'true';
+  const dbReady = dbState === 1 || allowMemTest;
+  const jwtReady = typeof config.jwtSecret === 'string' && config.jwtSecret.length >= 32;
+  const ready = dbReady && jwtReady;
+
+  return res.status(ready ? 200 : 503).json({
+    ok: ready,
+    ready,
+    reqId: req.id,
+    checks: {
+      database: dbState === 1 ? 'up' : allowMemTest ? 'memstore-test' : 'down',
+      config: jwtReady ? 'valid' : 'invalid',
+      mailTransport: config.features.emailOtp ? 'configured' : 'disabled'
+    },
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Start non-blocking scheduled cleanup loop in non-test modes
+startScheduledCleanup();
 
 // ---------------- MOUNT MODULAR API ROUTERS ---------------- //
 app.use('/', require('./routes/auth'));
