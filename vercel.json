@@ -2,8 +2,8 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
   "framework": null,
-  "installCommand": "npm ci && npm --prefix frontend-landing ci",
-  "buildCommand": "npm run build:landing && npm run build:dashboard",
+  "installCommand": "npm ci --omit=dev",
+  "buildCommand": "node tools/build_pages.js",
   "functions": {
     "api/index.js": {
       "maxDuration": 30,
