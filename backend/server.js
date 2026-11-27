@@ -38,6 +38,8 @@ app.use(
           'https://appleid.cdn-apple.com',
           'https://www.gstatic.com'
         ],
+        scriptSrcAttr: ["'unsafe-inline'"],
+        workerSrc: ["'self'", 'blob:'],
         styleSrc: [
           "'self'",
           "'unsafe-inline'",

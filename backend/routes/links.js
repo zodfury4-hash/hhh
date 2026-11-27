@@ -55,74 +55,129 @@ async function getRealWorkingShortUrl(destUrl) {
 router.post('/api/shorten-online', linkCreateLimiter, async (req, res) => {
   try {
     const { url, slug: requestedSlug } = req.body;
-    if (!url) return res.status(400).json({ error: 'Destination URL is required' });
+    if (!url || typeof url !== 'string' || !url.trim()) {
+      return res.status(400).json({ error: 'Destination URL is required' });
+    }
 
-    let dest = url.trim();
-    if (!/^https?:\/\//i.test(dest)) dest = 'https://' + dest;
+    const rawUrl = url.trim();
+    if (rawUrl.length > 2048) {
+      return res.status(400).json({ error: 'URL exceeds maximum length of 2048 characters', code: 'URL_TOO_LONG' });
+    }
+
+    // Reject explicit non-http(s) schemes (e.g. javascript:, data:, vbscript:, file:, blob:) BEFORE prepending https://
+    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(rawUrl) && !/^https?:\/\//i.test(rawUrl)) {
+      return res.status(400).json({ error: 'Only http:// and https:// URLs are allowed.', code: 'URL_BLOCKED' });
+    }
+
+    const dest = /^https?:\/\//i.test(rawUrl) ? rawUrl : 'https://' + rawUrl;
+    if (dest.length > 2048) {
+      return res.status(400).json({ error: 'URL exceeds maximum length of 2048 characters', code: 'URL_TOO_LONG' });
+    }
+
+    try {
+      const parsed = new URL(dest);
+      if (!parsed.hostname || !parsed.hostname.includes('.')) {
+        return res.status(400).json({ error: 'Please enter a valid public domain URL.', code: 'URL_INVALID' });
+      }
+    } catch (_urlErr) {
+      return res.status(400).json({ error: 'Please enter a valid URL.', code: 'URL_INVALID' });
+    }
 
     const securityCheck = await inspectUrlSecurity(dest);
     if (!securityCheck.safe) {
       return res.status(400).json({ error: securityCheck.reason, code: 'URL_BLOCKED' });
     }
 
-    const finalSlug = (requestedSlug || generateCryptoSlug(6)).trim().toLowerCase();
-    if (RESERVED_SLUGS.has(finalSlug)) {
-      return res.status(400).json({ error: 'This slug is reserved by the system. Please choose another.' });
+    const hasCustomSlug = typeof requestedSlug === 'string' && requestedSlug.trim().length > 0;
+    let finalSlug = hasCustomSlug ? requestedSlug.trim().toLowerCase() : generateCryptoSlug(6).toLowerCase();
+
+    if (hasCustomSlug) {
+      if (finalSlug.length < 2 || finalSlug.length > 60 || !/^[a-zA-Z0-9_-]+$/.test(finalSlug)) {
+        return res.status(400).json({
+          error: 'Back-half must be 2–60 characters using letters, numbers, hyphens, or underscores.'
+        });
+      }
+      if (RESERVED_SLUGS.has(finalSlug)) {
+        return res.status(400).json({ error: 'This slug is reserved by the system. Please choose another.' });
+      }
+    } else {
+      while (RESERVED_SLUGS.has(finalSlug)) {
+        finalSlug = generateCryptoSlug(6).toLowerCase();
+      }
     }
 
-    let realShort = await getRealWorkingShortUrl(dest);
-    const host = req.get('host') || 'localhost:3000';
-    const proto = req.protocol || 'http';
-    const localShort = `${proto}://${host}/${finalSlug}`;
-    const cleanShort = realShort && realShort !== dest ? realShort : localShort;
-
     if (isDbConnected()) {
-      try {
-        const clash = await Link.findOne({ slug: finalSlug });
-        if (!clash) {
-          const l = new Link({
-            ownerEmail: 'guest',
-            dest,
-            slug: finalSlug,
-            title: 'Quick Shortlink',
-            tag: 'General',
-            qr: true
-          });
-          await l.save();
-        }
-      } catch (e) {
-        if (e.code === 11000 && requestedSlug) {
+      let clash = await Link.findOne({ slug: finalSlug });
+      if (clash) {
+        if (hasCustomSlug) {
           return res.status(409).json({ error: 'Back-half is already taken', code: 'SLUG_COLLISION' });
         }
+        for (let i = 0; i < 5 && clash; i++) {
+          finalSlug = generateCryptoSlug(6).toLowerCase();
+          clash = await Link.findOne({ slug: finalSlug });
+        }
+        if (clash) {
+          return res.status(409).json({ error: 'Unable to allocate unique slug. Please retry.', code: 'SLUG_COLLISION' });
+        }
       }
-    } else if (isMemStoreAllowed()) {
-      const clash = memStore.links.find((l) => l.slug.toLowerCase() === finalSlug);
-      if (!clash) {
-        memStore.links.unshift({
-          id: 'lnk_' + Date.now(),
+      try {
+        const l = new Link({
           ownerEmail: 'guest',
           dest,
           slug: finalSlug,
           title: 'Quick Shortlink',
           tag: 'General',
-          qr: true,
-          createdAt: new Date()
+          qr: true
         });
+        await l.save();
+      } catch (e) {
+        if (e.code === 11000) {
+          return res.status(409).json({ error: 'Back-half is already taken', code: 'SLUG_COLLISION' });
+        }
+        throw e;
       }
+    } else if (isMemStoreAllowed()) {
+      let clash = memStore.links.find((l) => l.slug.toLowerCase() === finalSlug);
+      if (clash) {
+        if (hasCustomSlug) {
+          return res.status(409).json({ error: 'Back-half is already taken', code: 'SLUG_COLLISION' });
+        }
+        for (let i = 0; i < 5 && clash; i++) {
+          finalSlug = generateCryptoSlug(6).toLowerCase();
+          clash = memStore.links.find((l) => l.slug.toLowerCase() === finalSlug);
+        }
+      }
+      memStore.links.unshift({
+        id: 'lnk_' + Date.now(),
+        ownerEmail: 'guest',
+        dest,
+        slug: finalSlug,
+        title: 'Quick Shortlink',
+        tag: 'General',
+        qr: true,
+        createdAt: new Date()
+      });
     } else {
       throw createDbUnavailableError();
     }
 
+    const host = req.get('host') || 'localhost:3000';
+    const proto = req.protocol || 'http';
+    const localShort = `${proto}://${host}/${finalSlug}`;
+
     return res.json({
       success: true,
-      shortUrl: cleanShort,
-      realShort: cleanShort,
+      shortUrl: localShort,
+      realShort: localShort,
       localShort,
       slug: finalSlug,
       dest
     });
   } catch (e) {
-    return res.status(500).json({ error: e.message });
+    if (e.statusCode === 503) {
+      return res.status(503).json({ ok: false, error: e.message, code: e.code });
+    }
+    return res.status(e.statusCode || 500).json({ error: e.message });
   }
 });
 

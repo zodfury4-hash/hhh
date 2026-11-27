@@ -45,6 +45,7 @@ export function ShortenBox() {
   // Tab 3 (Bulk Shorten) State
   const [bulkText, setBulkText] = useState('');
   const [bulkLoading, setBulkLoading] = useState(false);
+  const [bulkError, setBulkError] = useState('');
   const [bulkResults, setBulkResults] = useState<{ original: string; short: string }[]>([]);
 
   // Count detected lines in bulk textarea
@@ -101,23 +102,36 @@ export function ShortenBox() {
     if (bulkLines.length === 0) return;
 
     setBulkLoading(true);
+    setBulkError('');
+    setBulkResults([]);
     const results: { original: string; short: string }[] = [];
+    const errors: string[] = [];
 
     for (const line of bulkLines.slice(0, 15)) {
       try {
         const res = await shortenUrl(line);
-        if (res.success) {
+        if (res.success && res.shortUrl) {
           results.push({ original: line, short: res.shortUrl });
+        } else if (res.error) {
+          errors.push(res.error);
         }
       } catch {
-        // ignore individual fails
+        errors.push('Unable to reach the server.');
       }
     }
 
     setBulkResults(results);
     setBulkLoading(false);
 
-    if (!isReduced) {
+    if (errors.length > 0) {
+      setBulkError(
+        results.length === 0
+          ? errors[0]
+          : `${results.length} shortened, ${errors.length} failed (${errors[0]})`
+      );
+    }
+
+    if (results.length > 0 && !isReduced) {
       confetti({
         particleCount: 45,
         spread: 70,
@@ -149,6 +163,7 @@ export function ShortenBox() {
               onClick={() => {
                 setActiveTab(tab.id);
                 setErrorMessage('');
+                setBulkError('');
               }}
               className={`relative flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-colors whitespace-nowrap ${
                 isActive ? 'text-[#0070f3]' : 'text-slate-600 hover:text-slate-900'
@@ -356,6 +371,12 @@ export function ShortenBox() {
                   <>Bulk shorten links →</>
                 )}
               </button>
+
+              {bulkError && (
+                <p id="heroBulkErr" className="text-xs sm:text-sm text-red-500 font-medium px-2">
+                  {bulkError}
+                </p>
+              )}
             </form>
 
             {/* Bulk Results List */}

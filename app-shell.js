@@ -93,7 +93,7 @@
 
     try {
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 2500);
+      const timer = setTimeout(() => controller.abort(), 8000);
       const res = await fetch('/api/shorten-online', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -103,26 +103,13 @@
       clearTimeout(timer);
       if (res.ok) {
         const data = await res.json();
-        if (data.shortUrl && /^https?:\/\//i.test(data.shortUrl) && data.shortUrl !== norm && !data.shortUrl.includes('da.gd')) {
+        if (data.shortUrl && /^https?:\/\//i.test(data.shortUrl) && data.shortUrl !== norm) {
           return data.shortUrl;
         }
       }
-    } catch (e) {}
+    } catch (_e) {}
 
-    try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 2000);
-      const res = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(norm)}`, {
-        signal: controller.signal
-      });
-      clearTimeout(timer);
-      if (res.ok) {
-        const text = (await res.text()).trim();
-        if (/^https?:\/\//i.test(text) && !text.includes('error')) return text;
-      }
-    } catch (e) {}
-
-    return `${window.location.origin}/${s}`;
+    return null;
   }
 
   function isUserAuthenticated() {
@@ -132,22 +119,19 @@
       const raw = sessionStorage.getItem('hea_session') || localStorage.getItem('hea_session');
 
       if (!raw) {
-        // Active verified demo user for immediate access
-        const demoUser = { name: 'Fury', email: 'fury@healink.store', isVerified: true, isPro: true, avatar: 'FZ' };
-        try { localStorage.setItem('hea_session', JSON.stringify(demoUser)); } catch (e) {}
-        appUser.name = 'Fury';
-        appUser.isPro = true;
-        return true;
+        return false;
       }
 
       const parsed = JSON.parse(raw);
-      if (parsed) setAppUser(parsed);
-
-      return !!(parsed && parsed.isVerified);
+      if (!parsed || !parsed.isVerified || !parsed.email || parsed.email === 'john@example.com') {
+        return false;
+      }
+      setAppUser(parsed);
+      return true;
 
     } catch (e) {
 
-      return true;
+      return false;
 
     }
 
@@ -326,80 +310,53 @@
     return s || fallback;
   }
 
+  let cachedLinks = [];
+
+  function normalizeLinkItem(l) {
+    if (!l || typeof l !== 'object') return null;
+    const origin = window.location.origin;
+    const item = { ...l };
+    item.id = item._id || item.id || ('lnk_' + Date.now());
+    item.title = cleanSafeStr(item.title, 'Untitled Link');
+    item.slug = cleanSafeStr(item.slug, generateShortSlug(6));
+    item.dest = cleanSafeStr(item.dest, '');
+    item.url = cleanSafeStr(item.url, '');
+    item.realShort = cleanSafeStr(item.realShort, '');
+    item.tag = cleanSafeStr(item.tag, 'Website');
+
+    if (!item.dest && item.url) item.dest = item.url;
+    const shortCandidate = origin + '/' + item.slug;
+    if (!item.realShort || item.realShort === item.dest || item.realShort.includes('da.gd') || item.realShort.length > 60) {
+      item.realShort = shortCandidate;
+    }
+    if (!item.url || item.url === item.dest || item.url.length > 60) {
+      item.url = shortCandidate;
+    }
+
+    if (Array.isArray(item.clicks)) {
+      item.clicks = item.clicks.length;
+    } else if (item.clicks && typeof item.clicks === 'object') {
+      item.clicks = Object.keys(item.clicks).length;
+    } else if (typeof item.clicks !== 'number') {
+      const num = parseInt(item.clicks, 10);
+      item.clicks = isNaN(num) ? 0 : num;
+    }
+
+    if (typeof item.scans !== 'number') {
+      const num = parseInt(item.scans, 10);
+      item.scans = isNaN(num) ? 0 : num;
+    }
+    return item;
+  }
+
   function getStoredLinks() {
-    try {
-      const raw = localStorage.getItem('hea_links');
-      if (raw) {
-        let p = JSON.parse(raw);
-        if (Array.isArray(p)) {
-          let dirty = false;
-          const origin = window.location.origin;
-
-          p = p.filter(l => l && l.id !== 'lnk_1' && l.id !== 'lnk_2' && !(l.dest && l.dest.includes('claude.ai')) && !(l.dest && l.dest.includes('summer-drop-2026')));
-
-          p.forEach(l => {
-            if (!l) return;
-            l.title = cleanSafeStr(l.title, 'Untitled Link');
-            l.slug = cleanSafeStr(l.slug, generateShortSlug(6));
-            l.dest = cleanSafeStr(l.dest, '');
-            l.url = cleanSafeStr(l.url, '');
-            l.realShort = cleanSafeStr(l.realShort, '');
-            l.tag = cleanSafeStr(l.tag, 'Website');
-
-            if (!l.dest && l.url) l.dest = l.url;
-            if (!l.url && l.dest) l.url = origin + '/' + l.slug;
-
-            const shortCandidate = origin + '/' + l.slug;
-
-            if (!l.realShort || l.realShort === l.dest || l.realShort.includes('da.gd') || l.realShort.length > 60) {
-              l.realShort = shortCandidate;
-              dirty = true;
-            }
-
-            if (!l.url || l.url === l.dest || l.url.length > 60) {
-              l.url = shortCandidate;
-              dirty = true;
-            }
-
-            if (l.slug && l.dest) {
-              try {
-                localStorage.setItem('hea_slug_' + l.slug.toLowerCase(), l.dest);
-              } catch (e) {}
-            }
-
-            if (Array.isArray(l.clicks)) {
-              l.clicks = l.clicks.length;
-              dirty = true;
-            } else if (l.clicks && typeof l.clicks === 'object') {
-              l.clicks = Object.keys(l.clicks).length;
-              dirty = true;
-            } else if (typeof l.clicks !== 'number') {
-              const num = parseInt(l.clicks, 10);
-              l.clicks = isNaN(num) ? 0 : num;
-              dirty = true;
-            }
-
-            if (typeof l.scans !== 'number') {
-              const num = parseInt(l.scans, 10);
-              l.scans = isNaN(num) ? 0 : num;
-              dirty = true;
-            }
-          });
-
-          if (dirty) {
-            try { localStorage.setItem('hea_links', JSON.stringify(p)); } catch (e) {}
-          }
-          return p;
-        }
-      }
-    } catch (e) {}
-    return [];
+    return cachedLinks;
   }
 
   function getAuthToken() {
     try {
-      const s = JSON.parse(localStorage.getItem('hea_session') || '{}');
-      return s.token || localStorage.getItem('hea_token') || sessionStorage.getItem('hea_token') || '';
+      const s = JSON.parse(sessionStorage.getItem('hea_session') || localStorage.getItem('hea_session') || '{}');
+      return s.token || sessionStorage.getItem('hea_token') || localStorage.getItem('hea_token') || '';
     } catch (_e) {
       return '';
     }
@@ -408,23 +365,24 @@
   async function syncLinksFromServer() {
     try {
       const token = getAuthToken();
-      if (!token) return;
+      if (!token) {
+        cachedLinks = [];
+        return cachedLinks;
+      }
       const res = await fetch('/api/links', {
         headers: { Authorization: 'Bearer ' + token }
       });
-      if (!res.ok) return;
+      if (!res.ok) return cachedLinks;
       const data = await res.json();
       if (data && Array.isArray(data.links)) {
-        localStorage.setItem('hea_links', JSON.stringify(data.links));
-        data.links.forEach(l => {
-          if (l.slug && l.dest) {
-            try {
-              localStorage.setItem('hea_slug_' + l.slug.toLowerCase(), l.dest);
-            } catch (_e) {}
-          }
-        });
+        cachedLinks = data.links
+          .map(normalizeLinkItem)
+          .filter(Boolean);
       }
-    } catch (_err) {}
+      return cachedLinks;
+    } catch (_err) {
+      return cachedLinks;
+    }
   }
 
   async function syncQrsFromServer() {
@@ -552,9 +510,7 @@
           headers: { Authorization: 'Bearer ' + token }
         }).catch(() => {});
       }
-      let links = getStoredLinks();
-      links = links.filter(l => l.id !== id && l._id !== id && l.slug !== slug);
-      localStorage.setItem('hea_links', JSON.stringify(links));
+      cachedLinks = cachedLinks.filter(l => l.id !== id && l._id !== id && l.slug !== slug);
       try {
         let qrs = JSON.parse(localStorage.getItem('hea_qrs') || '[]');
         qrs = qrs.filter(q => q.id !== id && q._id !== id);
@@ -2328,97 +2284,66 @@
         btn.textContent = 'Creating link...';
       }
 
-      let realShort = '';
-      try {
-        realShort = await fetchOnlineShortUrl(dest, slug);
-      } catch (e) {}
-
       const origin = window.location.origin;
-      const cleanUrl = (realShort && realShort !== dest && realShort.length < 60)
-        ? realShort
-        : (slug ? `https://${domain || 'healink.store'}/${slug}` : `${origin}/${slug}`);
-
-      const links = getStoredLinks();
-      const newL = {
-        id: 'lnk_' + Date.now(),
-        title: title,
-        dest: dest,
-        slug: slug,
-        url: cleanUrl,
-        realShort: cleanUrl,
-        tag: tag,
-        createdAt: 'Just now',
-        clicks: 0,
-        scans: 0,
-        qr: hasQR,
-        hasPassword: !!password,
-        expiresAt: expiresAt || null,
-        maxClicks: maxClicks ? parseInt(maxClicks, 10) : null,
-        utm: (utmCampaign || utmSource || utmMedium) ? { campaign: utmCampaign, source: utmSource, medium: utmMedium } : null
-      };
-
-      try {
-        const s = JSON.parse(localStorage.getItem('hea_session') || '{}');
-        if (s && s.token) {
-          const payload = {
-            dest,
-            slug,
-            title: newL.title,
-            tag: newL.tag,
-            qr: hasQR,
-            realShort: cleanUrl
-          };
-          if (password) payload.password = password;
-          if (expiresAt) payload.expiresAt = expiresAt;
-          if (maxClicks) payload.maxClicks = parseInt(maxClicks, 10);
-          if (newL.utm) payload.utm = newL.utm;
-
-          const res = await fetch('/api/links', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + s.token
-            },
-            body: JSON.stringify(payload)
-          });
-          const data = await res.json();
-          if (!res.ok) {
-            if (btn) {
-              btn.disabled = false;
-              btn.textContent = 'Create your link';
-            }
-            window.appShell.toast(data.error || 'Failed to create link');
-            return;
-          }
-          if (data.link) {
-            newL.hasPassword = !!data.link.hasPassword;
-            newL.expiresAt = data.link.expiresAt;
-            newL.maxClicks = data.link.maxClicks;
-            newL.utm = data.link.utm;
-          }
+      const token = getAuthToken();
+      if (!token) {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Create your link';
         }
-      } catch (err) {
-        console.warn('[Sync API Error]', err.message);
+        window.appShell.toast('Please log in to create links');
+        return;
       }
 
-      links.unshift(newL);
-      localStorage.setItem('hea_links', JSON.stringify(links));
-
+      let createdLink = null;
       try {
-        localStorage.setItem('hea_slug_' + slug.toLowerCase(), dest);
-        const mapRaw = localStorage.getItem('hea_slug_map') || '{}';
-        const map = JSON.parse(mapRaw);
-        map[slug.toLowerCase()] = dest;
-        localStorage.setItem('hea_slug_map', JSON.stringify(map));
-      } catch (e) {}
+        const payload = {
+          dest,
+          slug,
+          title,
+          tag,
+          qr: hasQR
+        };
+        if (password) payload.password = password;
+        if (expiresAt) payload.expiresAt = expiresAt;
+        if (maxClicks) payload.maxClicks = parseInt(maxClicks, 10);
+        if (utmCampaign || utmSource || utmMedium) {
+          payload.utm = { campaign: utmCampaign, source: utmSource, medium: utmMedium };
+        }
 
-      try {
-        fetch('/api/shorten-online', {
+        const res = await fetch('/api/links', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url: dest, slug })
-        }).catch(() => {});
-      } catch (e) {}
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Create your link';
+          }
+          window.appShell.toast(data.error || 'Failed to create link');
+          return;
+        }
+        if (data.link) {
+          createdLink = normalizeLinkItem(data.link);
+        }
+      } catch (err) {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Create your link';
+        }
+        window.appShell.toast(err.message || 'Unable to reach server');
+        return;
+      }
+
+      if (createdLink) {
+        cachedLinks.unshift(createdLink);
+      }
+      const cleanUrl = (createdLink && createdLink.url) || `${origin}/${slug}`;
 
       if (typeof window.recordFreeCreation === 'function') window.recordFreeCreation();
       window.appShell.toast(`Created link: ${cleanUrl}`);
@@ -2433,94 +2358,55 @@
     if (!checkLimit.allowed) {
       window.appShell.toast(checkLimit.message);
       if (typeof window.openCheckoutModal === 'function') window.openCheckoutModal('pro');
-      return;
+      return null;
     }
 
     const slug = customSlug || generateShortSlug(6);
-    let realShort = '';
-    try {
-      realShort = await fetchOnlineShortUrl(dest, slug);
-    } catch (e) {}
-
     const origin = window.location.origin;
-    let cleanUrl = (realShort && realShort !== dest && realShort.length < 60)
-      ? realShort
-      : (slug ? `https://${domain || 'healink.store'}/${slug}` : `${origin}/${slug}`);
-    if (cleanUrl === dest) cleanUrl = `https://${domain || 'healink.store'}/${slug}`;
+    const token = getAuthToken();
+    if (!token) {
+      window.appShell.toast('Please log in to create links');
+      return null;
+    }
 
-    const links = getStoredLinks();
-    const newL = {
-      id: 'lnk_' + Date.now(),
-      title: options.title || ('Untitled ' + new Date().toISOString().slice(0, 10)),
-      dest: dest,
-      slug: slug,
-      url: cleanUrl,
-      realShort: cleanUrl,
-      tag: options.tag || 'Website',
-      utm: options.utm || null,
-      createdAt: 'Just now',
-      clicks: 0,
-      scans: 0,
+    const title = options.title || ('Untitled ' + new Date().toISOString().slice(0, 10));
+    const tag = options.tag || 'Website';
+    const payload = {
+      dest,
+      slug,
+      title,
+      tag,
       qr: true
     };
-
-    links.unshift(newL);
-    localStorage.setItem('hea_links', JSON.stringify(links));
-
-    if (typeof window.recordFreeCreation === 'function') window.recordFreeCreation();
+    if (options.utm) payload.utm = options.utm;
 
     try {
-      localStorage.setItem('hea_slug_' + slug.toLowerCase(), dest);
-      const mapRaw = localStorage.getItem('hea_slug_map') || '{}';
-      const map = JSON.parse(mapRaw);
-      map[slug.toLowerCase()] = dest;
-      localStorage.setItem('hea_slug_map', JSON.stringify(map));
-    } catch (e) {}
-
-    try {
-      const token = getAuthToken();
-      if (token) {
-        await fetch('/api/links', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-          body: JSON.stringify({ dest, slug, title: newL.title, tag: newL.tag, utm: newL.utm, realShort: cleanUrl })
-        });
-      } else {
-        await fetch('/api/shorten-online', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url: dest, slug })
-        });
+      const res = await fetch('/api/links', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok || !data.link) {
+        window.appShell.toast(data.error || 'Failed to create link');
+        return null;
       }
-    } catch (e) {}
 
-    try {
-      const s = JSON.parse(localStorage.getItem('hea_session'));
-      if (s && s.token) {
-        const payload = {
-          dest,
-          slug,
-          title: newL.title,
-          tag: newL.tag,
-          qr: true,
-          realShort: cleanUrl
-        };
-        if (options.utm) payload.utm = options.utm;
-        fetch('/api/links', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.token },
-          body: JSON.stringify(payload)
-        }).catch(() => {});
+      const newL = normalizeLinkItem(data.link);
+      const cleanUrl = (newL && newL.url) || `${origin}/${newL.slug}`;
+      cachedLinks.unshift(newL);
+
+      if (typeof window.recordFreeCreation === 'function') window.recordFreeCreation();
+      window.appShell.toast(`Link shortened: ${cleanUrl}`);
+      navigator.clipboard.writeText(cleanUrl).catch(() => {});
+      if (currentView !== 'home' && window.location.hash !== '#dashboard' && window.location.hash !== '') {
+        navigate('links');
       }
-    } catch (e) {}
-
-    window.appShell.toast(`Link shortened: ${cleanUrl}`);
-    navigator.clipboard.writeText(cleanUrl).catch(() => {});
-    if (currentView !== 'home' && window.location.hash !== '#dashboard' && window.location.hash !== '') {
-      navigate('links');
+      return newL;
+    } catch (err) {
+      window.appShell.toast(err.message || 'Unable to reach server');
+      return null;
     }
-    return newL;
-    return newL.id;
   }
 
   // ---------------- 3. LINKS DIRECTORY SCREEN ---------------- //
@@ -2892,80 +2778,73 @@
           if (!dest) { alert('Please enter destination URL'); return; }
 
           const slug = generateShortSlug(6);
+          const cleanUrl = `${origin}/${slug}`;
+          const token = getAuthToken();
+          if (!token) {
+            window.appShell.toast('Please log in to create QR codes');
+            return;
+          }
 
-          const realShort = await fetchOnlineShortUrl(dest);
-
-          const cleanUrl = realShort || (slug ? `https://healink.store/${slug}` : (origin + '/' + slug));
-
-          const links = getStoredLinks();
-
-          const newQ = {
-
+          let newQ = {
             id: 'lnk_' + Date.now(),
-
             title: title,
-
             dest: dest,
-
             slug: slug,
-
             url: cleanUrl,
-
             realShort: cleanUrl,
-
             tag: 'QR Campaign',
-
             createdAt: 'Just now',
-
             clicks: 0,
-
             scans: 0,
-
             qr: true
-
           };
 
-          links.unshift(newQ);
-
-          localStorage.setItem('hea_links', JSON.stringify(links));
-
-          // Persist to MongoDB via REST API
           try {
-            const token = getAuthToken();
-            if (token) {
-              const [qrRes] = await Promise.all([
-                fetch('/api/qrs', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-                  body: JSON.stringify({
-                    title,
-                    dest,
-                    color: (appUser && appUser.selectedQrColor) || '#0070f3'
-                  })
-                }),
-                fetch('/api/links', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-                  body: JSON.stringify({
-                    dest,
-                    slug,
-                    title,
-                    tag: 'QR Campaign',
-                    qr: true,
-                    realShort: cleanUrl
-                  })
+            const [qrRes, linkRes] = await Promise.all([
+              fetch('/api/qrs', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+                body: JSON.stringify({
+                  title,
+                  dest,
+                  color: (appUser && appUser.selectedQrColor) || '#0070f3'
                 })
-              ]);
-              if (qrRes && qrRes.ok) {
-                const qrData = await qrRes.json();
-                if (qrData && qrData.qr && (qrData.qr._id || qrData.qr.id)) {
-                  newQ.qrId = qrData.qr._id || qrData.qr.id;
-                  newQ.id = newQ.qrId;
-                  localStorage.setItem('hea_links', JSON.stringify(links));
-                }
+              }),
+              fetch('/api/links', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+                body: JSON.stringify({
+                  dest,
+                  slug,
+                  title,
+                  tag: 'QR Campaign',
+                  qr: true,
+                  realShort: cleanUrl
+                })
+              })
+            ]);
+            if (!linkRes.ok) {
+              const linkErr = await linkRes.json().catch(() => ({}));
+              window.appShell.toast(linkErr.error || 'Failed to create QR code');
+              return;
+            }
+            const linkData = await linkRes.json();
+            if (linkData && linkData.link) {
+              newQ = normalizeLinkItem(linkData.link);
+            }
+            if (qrRes && qrRes.ok) {
+              const qrData = await qrRes.json();
+              if (qrData && qrData.qr && (qrData.qr._id || qrData.qr.id)) {
+                newQ.qrId = qrData.qr._id || qrData.qr.id;
+                newQ.id = newQ.qrId;
               }
             }
-          } catch (_e) {}
+          } catch (err) {
+            window.appShell.toast(err.message || 'Unable to reach server');
+            return;
+          }
+
+          cachedLinks.unshift(newQ);
 
           if (typeof window.recordFreeCreation === 'function') window.recordFreeCreation();
 
@@ -7208,25 +7087,21 @@
 
   async function deleteLink(id, slug) {
 
-    let links = getStoredLinks();
-
-    links = links.filter(l => l.id !== id && l.slug !== slug);
-
-    localStorage.setItem('hea_links', JSON.stringify(links));
+    cachedLinks = cachedLinks.filter(l => l.id !== id && l._id !== id && l.slug !== slug);
 
     // Call backend API
 
     try {
 
-      const s = JSON.parse(localStorage.getItem('hea_session'));
+      const token = getAuthToken();
 
-      if (s && s.token && slug) {
+      if (token && slug) {
 
-        await fetch('/api/links/' + slug, {
+        await fetch('/api/links/' + encodeURIComponent(slug), {
 
           method: 'DELETE',
 
-          headers: { 'Authorization': 'Bearer ' + s.token }
+          headers: { 'Authorization': 'Bearer ' + token }
 
         });
 
@@ -8469,97 +8344,54 @@ Here are recommended optimizations for your links and campaigns:<br>
 
           localStorage.removeItem('hea_session');
 
+          sessionStorage.removeItem('hea_token');
+
+          localStorage.removeItem('hea_token');
+
         } catch (e) {}
 
         if (typeof session !== 'undefined') session = null;
 
-        document.body.classList.remove('app-mode');
-
-        const as = $('#appShell');
-
-        if (as) as.hidden = true;
-
-        if (typeof renderNavRight === 'function') renderNavRight();
-
-        location.hash = '#login';
-
         toast('Logged out successfully');
+
+        window.location.href = '/#login';
 
       };
 
     }
 
-    // SSO buttons are handled by app.js setupSsoButtons() with real Google Identity Services!
-
-    const ssoA = $('#ssoAppleBtn');
-
-    if (ssoA) ssoA.onclick = () => {
-
-      const aUser = {
-
-        name: 'Apple User',
-
-        email: 'user.apple@icloud.com',
-
-        isVerified: true,
-
-        provider: 'apple',
-
-        avatar: 'AU',
-
-        country: 'United States',
-
-        city: 'New York',
-
-        isp: 'Global Internet'
-
-      };
-
-      localStorage.setItem('hea_session', JSON.stringify(aUser));
-
-      if (typeof session !== 'undefined') session = aUser;
-
-      setAppUser(aUser);
-
-      document.body.classList.add('app-mode');
-
-      const as = $('#appShell');
-
-      if (as) as.hidden = false;
-
-      location.hash = '#dashboard';
-
-      navigate('home');
-
-      if (typeof renderNavRight === 'function') renderNavRight();
-
-      toast('✅ Successfully signed in with Apple ID!');
-
-    };
-
     // Route sync on hashchange
 
     const syncRouteFromHash = () => {
 
-      const raw = (location.hash.slice(1) || '').split('?')[0];
+      const raw = (location.hash.slice(1) || '').split('?')[0].toLowerCase();
+
+      if (raw === 'home') {
+        window.location.replace('/');
+        return;
+      }
+      if (raw === 'login') {
+        window.location.replace('/#login');
+        return;
+      }
+      if (raw === 'signup') {
+        window.location.replace('/#signup');
+        return;
+      }
+
+      if (!isUserAuthenticated()) {
+        window.location.replace(raw ? '/#login' : '/');
+        return;
+      }
 
       const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'assist', 'notifications', 'app'];
 
+      if (!raw || raw === 'app') {
+        location.hash = '#dashboard';
+        return;
+      }
+
       if (appViews.includes(raw)) {
-
-        if (!isUserAuthenticated()) {
-
-          document.body.classList.remove('app-mode');
-
-          const as = $('#appShell');
-
-          if (as) as.hidden = true;
-
-          location.hash = '#login';
-
-          return;
-
-        }
 
         document.body.classList.add('app-mode');
 
@@ -8577,21 +8409,42 @@ Here are recommended optimizations for your links and campaigns:<br>
 
     window.addEventListener('hashchange', syncRouteFromHash);
 
-    // Initial render: ONLY show dashboard if user is verified AND currently on an app view
+    // Initial render: ONLY show dashboard if user is verified; otherwise redirect to '/' or '/#login'
 
-    const initialRaw = (location.hash.slice(1) || '').split('?')[0];
+    const initialRaw = (location.hash.slice(1) || '').split('?')[0].toLowerCase();
+    if (initialRaw === 'home') {
+      window.location.replace('/');
+      return;
+    }
+    if (initialRaw === 'login') {
+      window.location.replace('/#login');
+      return;
+    }
+    if (initialRaw === 'signup') {
+      window.location.replace('/#signup');
+      return;
+    }
+
+    if (!isUserAuthenticated()) {
+      window.location.replace(initialRaw ? '/#login' : '/');
+      return;
+    }
+
     const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'assist', 'notifications', 'app'];
-    if (appViews.includes(initialRaw) && isUserAuthenticated()) {
-      document.body.classList.add('app-mode');
-      const as = $('#appShell');
-      if (as) as.hidden = false;
-      setAppUser(appUser);
-      const tab = (initialRaw === 'dashboard' || initialRaw === 'app') ? 'home' : initialRaw;
+    document.body.classList.add('app-mode');
+    const as = $('#appShell');
+    if (as) as.hidden = false;
+    setAppUser(appUser);
+    syncLinksFromServer().catch(() => {});
+    if (!initialRaw || initialRaw === 'app') {
+      location.hash = '#dashboard';
+      navigate('home');
+    } else if (appViews.includes(initialRaw)) {
+      const tab = initialRaw === 'dashboard' ? 'home' : initialRaw;
       navigate(tab);
     } else {
-      document.body.classList.remove('app-mode');
-      const as = $('#appShell');
-      if (as) as.hidden = true;
+      location.hash = '#dashboard';
+      navigate('home');
     }
 
   }
