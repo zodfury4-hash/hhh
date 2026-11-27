@@ -117,4 +117,9 @@ if (suite22.status !== 0) {
   process.exit(suite22.status || 1);
 }
 
-console.log('\n🎉 ALL TESTS PASSED SUCCESSFULLY ACROSS ALL 22 TEST SUITES!');
+const suite23 = spawnSync(process.execPath, [path.join(__dirname, 'phase5-ux-seo.test.js')], { stdio: 'inherit' });
+if (suite23.status !== 0) {
+  process.exit(suite23.status || 1);
+}
+
+console.log('\n🎉 ALL TESTS PASSED SUCCESSFULLY ACROSS ALL 23 TEST SUITES!');

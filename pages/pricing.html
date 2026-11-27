@@ -1,12 +1,286 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Redirecting to HEA Link…</title>
-  <meta http-equiv="refresh" content="0; url=index.html#pricing">
-  <script>location.replace('index.html#pricing');</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Pricing &amp; Plans | HEA Link — Short Links, QR Codes &amp; Bio Pages</title>
+  <meta name="description" content="Compare HEA Link Free, Pro, and Enterprise plans. Start free with branded short links, vector QR codes, bio pages, and upgrade anytime." />
+  <link rel="canonical" href="https://www.healink.store/pricing" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Pricing &amp; Plans | HEA Link" />
+  <meta property="og:description" content="Simple, transparent pricing for creators, marketing teams, and enterprises." />
+  <meta property="og:url" content="https://www.healink.store/pricing" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "HEA Link Pricing",
+      "url": "https://www.healink.store/pricing",
+      "description": "Free, Pro, and Enterprise pricing tiers for HEA Link URL shortener, QR code studio, and analytics platform."
+    }
+  </script>
+  <style>
+    body {
+      background: linear-gradient(180deg, #eef6ff 0%, #f8fafc 45%, #ffffff 100%);
+      color: #0b132b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .p-nav {
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 14px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+    .p-nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .p-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: #0070f3;
+      min-height: 44px;
+    }
+    .p-links {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+    .p-links a {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: #334155;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+    }
+    .p-links a:hover { color: #0070f3; }
+    .p-cta {
+      background: #0070f3;
+      color: #ffffff !important;
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+    main {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 48px 20px 72px;
+      flex: 1;
+    }
+    .hero-head { text-align: center; max-width: 680px; margin: 0 auto 36px; }
+    .eyebrow {
+      display: inline-block;
+      background: #dbeafe;
+      color: #0369a1;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+    }
+    h1 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; line-height: 1.15; margin-bottom: 14px; color: #0b132b; }
+    .sub { color: #475569; font-size: 1.05rem; margin-bottom: 24px; }
+    .toggle-row { display: inline-flex; align-items: center; gap: 12px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 999px; padding: 6px 14px; }
+    .toggle-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 16px;
+      min-height: 44px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      background: transparent;
+      color: #475569;
+    }
+    .toggle-btn[aria-pressed="true"] {
+      background: #0070f3;
+      color: #ffffff;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 24px;
+      align-items: stretch;
+    }
+    @media (max-width: 960px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 32px 28px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+    }
+    .card.popular {
+      border: 2px solid #0070f3;
+      box-shadow: 0 20px 45px rgba(0, 112, 243, 0.14);
+      position: relative;
+    }
+    .badge-pop {
+      align-self: flex-start;
+      background: #0070f3;
+      color: #ffffff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+    .tier { font-size: 1.25rem; font-weight: 800; color: #0b132b; margin-bottom: 8px; }
+    .price { font-size: 2.4rem; font-weight: 800; color: #0b132b; line-height: 1.1; }
+    .period { color: #475569; font-size: 0.88rem; margin-bottom: 14px; }
+    .desc { color: #475569; font-size: 0.94rem; margin-bottom: 20px; }
+    .feat-list { list-style: none; padding: 0; margin: 0 0 28px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+    .feat-list li { display: flex; align-items: flex-start; gap: 8px; font-size: 0.92rem; color: #1e293b; }
+    .check { color: #0284c7; font-weight: 800; }
+    .btn-plan {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+    .btn-primary { background: #0070f3; color: #ffffff; }
+    .btn-secondary { background: #eff6ff; color: #0056b3; border: 1px solid #bfdbfe; }
+  </style>
 </head>
-<body style="font-family:sans-serif;text-align:center;padding:50px">
-  <p>Redirecting to <a href="index.html#pricing">Pricing</a>…</p>
+<body>
+  <header class="p-nav">
+    <div class="p-nav-inner">
+      <a class="p-brand" href="/">HEA Link</a>
+      <nav aria-label="Main navigation" class="p-links">
+        <a href="/integrations">Integrations</a>
+        <a href="/developers">Developers</a>
+        <a href="/faq">FAQ</a>
+        <a href="/help">Help Center</a>
+        <a class="p-cta" href="/#signup">Sign up free</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="hero-head">
+      <span class="eyebrow">Pricing Plans</span>
+      <h1>Simple, transparent pricing for every team</h1>
+      <p class="sub">Start free with fast short links and vector QR codes. Upgrade to Pro for custom domains, 1-year telemetry, and AI tools.</p>
+      <div class="toggle-row" role="group" aria-label="Billing currency">
+        <button type="button" id="btnPkr" class="toggle-btn" aria-pressed="true">PKR (Rs)</button>
+        <button type="button" id="btnUsd" class="toggle-btn" aria-pressed="false">USD ($)</button>
+      </div>
+    </div>
+
+    <section aria-label="Plan tiers" class="grid">
+      <article class="card">
+        <h2 class="tier">Free</h2>
+        <div class="price" data-pkr="Rs 0" data-usd="$0">Rs 0</div>
+        <div class="period">forever free</div>
+        <p class="desc">Perfect for creators and individuals testing branded link generation.</p>
+        <ul class="feat-list">
+          <li><span class="check" aria-hidden="true">✓</span> 50 short links per month</li>
+          <li><span class="check" aria-hidden="true">✓</span> Standard vector QR codes</li>
+          <li><span class="check" aria-hidden="true">✓</span> 7-day analytics retention</li>
+          <li><span class="check" aria-hidden="true">✓</span> 1 Link-in-Bio page</li>
+          <li><span class="check" aria-hidden="true">✓</span> Community &amp; Help Center support</li>
+        </ul>
+        <a href="/#signup" class="btn-plan btn-secondary">Get Started Free</a>
+      </article>
+
+      <article class="card popular">
+        <span class="badge-pop">Most Popular</span>
+        <h2 class="tier">Pro</h2>
+        <div class="price" data-pkr="Rs 1,499" data-usd="$9">Rs 1,499</div>
+        <div class="period">per month</div>
+        <p class="desc">For high-velocity marketers, agencies, and businesses demanding full branding.</p>
+        <ul class="feat-list">
+          <li><span class="check" aria-hidden="true">✓</span> Unlimited short links</li>
+          <li><span class="check" aria-hidden="true">✓</span> Dynamic QR with logo &amp; colors</li>
+          <li><span class="check" aria-hidden="true">✓</span> Password protection, expiry &amp; UTM builder</li>
+          <li><span class="check" aria-hidden="true">✓</span> 1-year analytics + AI summaries</li>
+          <li><span class="check" aria-hidden="true">✓</span> 5 Link-in-Bio pages &amp; custom domains</li>
+        </ul>
+        <a href="/#signup" class="btn-plan btn-primary">Start Pro Free</a>
+      </article>
+
+      <article class="card">
+        <h2 class="tier">Enterprise</h2>
+        <div class="price" data-pkr="Custom" data-usd="Custom">Custom</div>
+        <div class="period">tailored SLA</div>
+        <p class="desc">Dedicated high-throughput infrastructure with custom SLAs, workspaces, and SSO.</p>
+        <ul class="feat-list">
+          <li><span class="check" aria-hidden="true">✓</span> Everything in Pro</li>
+          <li><span class="check" aria-hidden="true">✓</span> Unlimited custom branded domains</li>
+          <li><span class="check" aria-hidden="true">✓</span> REST API v1 + MCP Server access</li>
+          <li><span class="check" aria-hidden="true">✓</span> Team workspaces &amp; audit logs</li>
+          <li><span class="check" aria-hidden="true">✓</span> Dedicated SLA &amp; invoice billing</li>
+        </ul>
+        <a href="/help/contact" class="btn-plan btn-secondary">Contact Sales</a>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer" style="border-top:1px solid #e2e8f0;background:#ffffff;padding:28px 24px;color:#475569;font-size:0.875rem;">
+    <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;">
+      <div>&copy; 2026 HEA Link Inc. Universal Link Infrastructure.</div>
+      <nav aria-label="Footer navigation" style="display:flex;flex-wrap:wrap;gap:16px;">
+        <a href="/" style="color:#334155;text-decoration:none;font-weight:500;">Home</a>
+        <a href="/integrations" style="color:#334155;text-decoration:none;font-weight:500;">Integrations</a>
+        <a href="/developers" style="color:#334155;text-decoration:none;font-weight:500;">Developers</a>
+        <a href="/faq" style="color:#334155;text-decoration:none;font-weight:500;">FAQ</a>
+        <a href="/help" style="color:#334155;text-decoration:none;font-weight:500;">Help Center</a>
+        <a href="/privacy" style="color:#334155;text-decoration:none;font-weight:500;">Privacy</a>
+        <a href="/terms" style="color:#334155;text-decoration:none;font-weight:500;">Terms</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var btnPkr = document.getElementById('btnPkr');
+      var btnUsd = document.getElementById('btnUsd');
+      var prices = document.querySelectorAll('.price[data-pkr]');
+      function setCurrency(cur) {
+        btnPkr.setAttribute('aria-pressed', String(cur === 'pkr'));
+        btnUsd.setAttribute('aria-pressed', String(cur === 'usd'));
+        prices.forEach(function (el) {
+          el.textContent = cur === 'usd' ? el.getAttribute('data-usd') : el.getAttribute('data-pkr');
+        });
+      }
+      if (btnPkr) btnPkr.addEventListener('click', function () { setCurrency('pkr'); });
+      if (btnUsd) btnUsd.addEventListener('click', function () { setCurrency('usd'); });
+    })();
+  </script>
 </body>
 </html>

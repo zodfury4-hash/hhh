@@ -39,8 +39,8 @@ export function Navbar({ onOpenAuth }: NavbarProps) {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-        {/* Brand Logo matching media_1793954313394_7bcdc1e9.png */}
-        <a href="#home" className="flex items-center gap-2 group shrink-0">
+        {/* Brand Logo */}
+        <a href="#home" aria-label="HEA Link Home" className="flex items-center gap-2 group shrink-0 min-h-[44px]">
           <svg
             className="w-8 h-6 text-[#0070f3] group-hover:scale-105 transition-transform"
             viewBox="0 0 54 36"
@@ -379,13 +379,13 @@ export function Navbar({ onOpenAuth }: NavbarProps) {
           <button
             type="button"
             onClick={() => handleAuthAction('login')}
-            className="text-[15px] font-medium text-slate-700 hover:text-[#0070f3] transition-colors px-2 py-1.5 cursor-pointer"
+            className="text-[15px] font-medium text-slate-700 hover:text-[#0070f3] transition-colors px-3 py-2 min-h-[44px] cursor-pointer"
           >
             Log in
           </button>
           <MagneticButton
             onClick={() => handleAuthAction('signup')}
-            className="px-5 py-2.5 bg-[#0070f3] hover:bg-[#0060d4] text-white text-[14px] font-semibold rounded-full shadow-sm transition-all"
+            className="px-5 py-2.5 min-h-[44px] bg-[#0070f3] hover:bg-[#0060d4] text-white text-[14px] font-semibold rounded-full shadow-sm transition-all"
           >
             <span className="flex items-center gap-1.5">
               Sign up free
@@ -398,8 +398,9 @@ export function Navbar({ onOpenAuth }: NavbarProps) {
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           type="button"
-          className="lg:hidden p-2 text-slate-700 hover:text-[#0070f3] rounded-lg transition-colors"
+          className="lg:hidden p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-700 hover:text-[#0070f3] rounded-lg transition-colors"
           aria-label="Toggle menu"
+          aria-expanded={mobileMenuOpen}
         >
           {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
@@ -411,26 +412,26 @@ export function Navbar({ onOpenAuth }: NavbarProps) {
           style={{ backgroundColor: '#ffffff', opacity: 1, backdropFilter: 'none', WebkitBackdropFilter: 'none' }}
           className="lg:hidden bg-white solid-card-dropdown border-t border-slate-200 px-6 py-6 space-y-4 shadow-2xl z-50"
         >
-          <div className="flex flex-col space-y-3 font-semibold text-slate-800 text-sm">
-            <a href="#shortlinks" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#0070f3]">
+          <div className="flex flex-col space-y-1 font-semibold text-slate-800 text-sm">
+            <a href="#shortlinks" onClick={() => setMobileMenuOpen(false)} className="py-3 min-h-[44px] flex items-center hover:text-[#0070f3]">
               URL Shortener
             </a>
-            <a href="#qrcodes" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#0070f3]">
+            <a href="#qrcodes" onClick={() => setMobileMenuOpen(false)} className="py-3 min-h-[44px] flex items-center hover:text-[#0070f3]">
               QR Code Studio
             </a>
-            <a href="#biopages" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#0070f3]">
+            <a href="#biopages" onClick={() => setMobileMenuOpen(false)} className="py-3 min-h-[44px] flex items-center hover:text-[#0070f3]">
               Bio Landing Pages
             </a>
-            <a href="#analytics" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#0070f3]">
+            <a href="#analytics" onClick={() => setMobileMenuOpen(false)} className="py-3 min-h-[44px] flex items-center hover:text-[#0070f3]">
               Live Analytics
             </a>
-            <a href="#ai" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#0070f3]">
+            <a href="#ai" onClick={() => setMobileMenuOpen(false)} className="py-3 min-h-[44px] flex items-center hover:text-[#0070f3]">
               AI Tools
             </a>
-            <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#0070f3]">
+            <a href="/pricing" onClick={() => setMobileMenuOpen(false)} className="py-3 min-h-[44px] flex items-center hover:text-[#0070f3]">
               Pricing
             </a>
-            <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#0070f3]">
+            <a href="/faq" onClick={() => setMobileMenuOpen(false)} className="py-3 min-h-[44px] flex items-center hover:text-[#0070f3]">
               FAQ
             </a>
           </div>
@@ -442,7 +443,7 @@ export function Navbar({ onOpenAuth }: NavbarProps) {
                 setMobileMenuOpen(false);
                 handleAuthAction('login');
               }}
-              className="w-full text-center py-2.5 font-semibold text-[#0b132b] bg-slate-100/80 rounded-xl"
+              className="w-full text-center py-3 min-h-[44px] font-semibold text-[#0b132b] bg-slate-100/80 rounded-xl"
             >
               Log in
             </button>
@@ -452,7 +453,7 @@ export function Navbar({ onOpenAuth }: NavbarProps) {
                 setMobileMenuOpen(false);
                 handleAuthAction('signup');
               }}
-              className="w-full text-center py-2.5 font-semibold text-white bg-[#0070f3] rounded-xl shadow-btn-glow"
+              className="w-full text-center py-3 min-h-[44px] font-semibold text-white bg-[#0070f3] rounded-xl shadow-btn-glow"
             >
               Sign up free →
             </button>

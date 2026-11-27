@@ -66,7 +66,7 @@ const PLANS: Plan[] = [
       'Custom invoice billing',
     ],
     ctaText: 'Contact Sales',
-    ctaLink: '#pricing',
+    ctaLink: '/help/contact',
     popular: false,
   },
 ];
@@ -90,22 +90,24 @@ export function PricingSection() {
 
           {/* Currency Toggle */}
           <div className="pt-3 flex items-center justify-center gap-3">
-            <span className={`text-xs font-bold ${currency === 'PKR' ? 'text-[#0070f3]' : 'text-slate-400'}`}>
+            <span className={`text-xs font-bold ${currency === 'PKR' ? 'text-[#0070f3]' : 'text-slate-600'}`}>
               PKR (Rs)
             </span>
             <button
               type="button"
+              role="switch"
+              aria-checked={currency === 'USD'}
               onClick={() => setCurrency(currency === 'PKR' ? 'USD' : 'PKR')}
-              aria-label="Toggle currency"
-              className="relative w-12 h-6 rounded-full bg-blue-100 p-0.5 border border-blue-200 transition-colors"
+              aria-label="Toggle billing currency between PKR and USD"
+              className="relative w-12 h-7 rounded-full bg-blue-100 p-1 border border-blue-200 transition-colors"
             >
               <div
                 className={`w-5 h-5 rounded-full bg-[#0070f3] shadow-sm transition-transform ${
-                  currency === 'USD' ? 'translate-x-6' : 'translate-x-0'
+                  currency === 'USD' ? 'translate-x-5' : 'translate-x-0'
                 }`}
               />
             </button>
-            <span className={`text-xs font-bold ${currency === 'USD' ? 'text-[#0070f3]' : 'text-slate-400'}`}>
+            <span className={`text-xs font-bold ${currency === 'USD' ? 'text-[#0070f3]' : 'text-slate-600'}`}>
               USD ($)
             </span>
           </div>

@@ -73,7 +73,9 @@ export function Hero() {
                     <source srcSet="./images/hero-infinity-hd.webp" type="image/webp" />
                     <img
                       src="./images/hero-infinity-hd.png"
-                      alt="HEA Link 3D Blue Infinity"
+                      alt="HEA Link Blue Infinity"
+                      width={500}
+                      height={500}
                       className="w-full max-w-[500px] h-auto object-contain select-none pointer-events-none drop-shadow-xl"
                       loading="eager"
                     />

@@ -2,26 +2,32 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Core Web Pages -->
   <url>
-    <loc>https://healink.store/</loc>
-    <lastmod>2026-11-24</lastmod>
+    <loc>https://www.healink.store/</loc>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://healink.store/privacy.html</loc>
-    <lastmod>2026-11-24</lastmod>
+    <loc>https://www.healink.store/pricing</loc>
+    <lastmod>2026-11-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.healink.store/privacy</loc>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://healink.store/terms.html</loc>
-    <lastmod>2026-11-24</lastmod>
+    <loc>https://www.healink.store/terms</loc>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://healink.store/report-abuse.html</loc>
-    <lastmod>2026-11-24</lastmod>
+    <loc>https://www.healink.store/report-abuse</loc>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>

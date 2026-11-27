@@ -77,27 +77,30 @@ app.use(
   })
 );
 
-// 2. CORS Allowlist
+// 2. CORS Allowlist (always permit true same-origin browser module/preflight requests)
 const allowedOrigins = config.corsOrigins;
 
 app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
-        return callback(null, true);
+  cors((req, callback) => {
+    const origin = req.header('Origin');
+    if (!origin) return callback(null, { origin: false });
+    if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+      return callback(null, { origin: true, credentials: true });
+    }
+    try {
+      const u = new URL(origin);
+      const reqHost = (req.get('host') || '').toLowerCase();
+      if (reqHost && u.host.toLowerCase() === reqHost) {
+        return callback(null, { origin: true, credentials: true });
       }
-      if (process.env.NODE_ENV === 'development') {
-        try {
-          const u = new URL(origin);
-          if (u.hostname === 'localhost' || u.hostname === '127.0.0.1') {
-            return callback(null, true);
-          }
-        } catch (_e) {}
+      if (
+        process.env.NODE_ENV !== 'production' &&
+        (u.hostname === 'localhost' || u.hostname === '127.0.0.1')
+      ) {
+        return callback(null, { origin: true, credentials: true });
       }
-      return callback(new Error('CORS request blocked by security policy'));
-    },
-    credentials: true
+    } catch (_e) {}
+    return callback(new Error('CORS request blocked by security policy'));
   })
 );
 
@@ -251,12 +254,12 @@ app.get('/signup', (req, res) => res.redirect('/#signup'));
 app.get('/dashboard', (req, res) => res.redirect('/app.html#dashboard'));
 app.get('/app', (req, res) => res.redirect('/app.html#dashboard'));
 
+const { sendHtmlWithNonce } = require('./utils/cspNonce');
 const publicDir = path.join(projectRoot, 'public');
 
-// Serve React landing page for root
+// Serve React landing page for root (with per-request CSP nonce for JSON-LD schema)
 app.get(['/', '/index.html'], (req, res) => {
-  res.setHeader('Cache-Control', 'no-cache, must-revalidate');
-  return res.sendFile(path.join(publicDir, 'index.html'));
+  return sendHtmlWithNonce(res, path.join(publicDir, 'index.html'));
 });
 
 // Serve dashboard SPA for /app and /dashboard paths
@@ -287,8 +290,6 @@ const PUBLIC_PAGE_ROUTES = [
   [['/terms'], 'public/terms.html'],
   [['/report-abuse'], 'public/report-abuse.html']
 ];
-
-const { sendHtmlWithNonce } = require('./utils/cspNonce');
 
 for (const [paths, relFile] of PUBLIC_PAGE_ROUTES) {
   app.get(paths, (req, res) => sendHtmlWithNonce(res, path.join(projectRoot, relFile)));

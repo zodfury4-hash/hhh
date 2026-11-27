@@ -54,3 +54,27 @@ h1, h2, h3, h4, .hero-title, .auth-title, .dash-header h2, .dash-hero-title, .vi
 button, input, select, textarea {
   font-family: inherit;
 }
+
+:focus-visible {
+  outline: 2px solid #0070f3;
+  outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+  .wrap {
+    padding: 0 18px;
+  }
+  button, a[role="button"], .cta-btn {
+    min-height: 44px;
+  }
+}
+
+[dir="rtl"] body {
+  direction: rtl;
+  text-align: right;
+}
+
+[dir="rtl"] .topbar,
+[dir="rtl"] .nav-links {
+  flex-direction: row-reverse;
+}

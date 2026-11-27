@@ -35,34 +35,37 @@ export function Footer() {
                 href="https://twitter.com"
                 target="_blank"
                 rel="noreferrer"
-                className="p-2 rounded-lg bg-white/80 hover:text-[#0070f3] border border-slate-200/60 shadow-sm transition-colors text-slate-600"
+                aria-label="HEA Link on X (Twitter)"
+                className="min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-lg bg-white/80 hover:text-[#0070f3] border border-slate-200/60 shadow-sm transition-colors text-slate-600"
               >
-                <Twitter className="w-4 h-4" />
+                <Twitter className="w-4 h-4" aria-hidden="true" />
               </a>
               <a
                 href="https://github.com"
                 target="_blank"
                 rel="noreferrer"
-                className="p-2 rounded-lg bg-white/80 hover:text-[#0070f3] border border-slate-200/60 shadow-sm transition-colors text-slate-600"
+                aria-label="HEA Link on GitHub"
+                className="min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-lg bg-white/80 hover:text-[#0070f3] border border-slate-200/60 shadow-sm transition-colors text-slate-600"
               >
-                <Github className="w-4 h-4" />
+                <Github className="w-4 h-4" aria-hidden="true" />
               </a>
               <a
                 href="https://linkedin.com"
                 target="_blank"
                 rel="noreferrer"
-                className="p-2 rounded-lg bg-white/80 hover:text-[#0070f3] border border-slate-200/60 shadow-sm transition-colors text-slate-600"
+                aria-label="HEA Link on LinkedIn"
+                className="min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-lg bg-white/80 hover:text-[#0070f3] border border-slate-200/60 shadow-sm transition-colors text-slate-600"
               >
-                <Linkedin className="w-4 h-4" />
+                <Linkedin className="w-4 h-4" aria-hidden="true" />
               </a>
             </div>
           </div>
 
           {/* Column 1: Products */}
           <div>
-            <h4 className="font-bold text-xs uppercase tracking-wider text-slate-900 mb-4">
+            <h2 className="font-bold text-xs uppercase tracking-wider text-slate-900 mb-4">
               Products
-            </h4>
+            </h2>
             <ul className="space-y-2.5 text-sm text-slate-600">
               <li>
                 <a href="#home" className="hover:text-[#0070f3] transition-colors">
@@ -94,9 +97,9 @@ export function Footer() {
 
           {/* Column 2: Solutions */}
           <div>
-            <h4 className="font-bold text-xs uppercase tracking-wider text-slate-900 mb-4">
+            <h2 className="font-bold text-xs uppercase tracking-wider text-slate-900 mb-4">
               Solutions
-            </h4>
+            </h2>
             <ul className="space-y-2.5 text-sm text-slate-600">
               <li>
                 <a href="#solutions" className="hover:text-[#0070f3] transition-colors">
@@ -104,23 +107,18 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href="#solutions" className="hover:text-[#0070f3] transition-colors">
-                  Digital Marketing
+                <a href="/pricing" className="hover:text-[#0070f3] transition-colors">
+                  Pricing Plans
                 </a>
               </li>
               <li>
-                <a href="#solutions" className="hover:text-[#0070f3] transition-colors">
-                  Customer Support
+                <a href="/integrations" className="hover:text-[#0070f3] transition-colors">
+                  Integrations Hub
                 </a>
               </li>
               <li>
-                <a href="#pricing" className="hover:text-[#0070f3] transition-colors">
-                  Enterprise Tier
-                </a>
-              </li>
-              <li>
-                <a href="#features" className="hover:text-[#0070f3] transition-colors">
-                  REST API & SDKs
+                <a href="/developers" className="hover:text-[#0070f3] transition-colors">
+                  REST API &amp; SDKs
                 </a>
               </li>
             </ul>
@@ -128,9 +126,9 @@ export function Footer() {
 
           {/* Column 3: Company */}
           <div>
-            <h4 className="font-bold text-xs uppercase tracking-wider text-slate-900 mb-4">
+            <h2 className="font-bold text-xs uppercase tracking-wider text-slate-900 mb-4">
               Platform
-            </h4>
+            </h2>
             <ul className="space-y-2.5 text-sm text-slate-600">
               <li>
                 <a href="#login" className="hover:text-[#0070f3] transition-colors">
@@ -143,12 +141,22 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href="#faq" className="hover:text-[#0070f3] transition-colors">
-                  Help & FAQ
+                <a href="/help" className="hover:text-[#0070f3] transition-colors">
+                  Help Center &amp; FAQ
                 </a>
               </li>
               <li>
-                <span className="inline-flex items-center gap-1.5 text-xs text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                <a href="/privacy" className="hover:text-[#0070f3] transition-colors">
+                  Privacy Policy
+                </a>
+              </li>
+              <li>
+                <a href="/terms" className="hover:text-[#0070f3] transition-colors">
+                  Terms of Service
+                </a>
+              </li>
+              <li>
+                <span className="inline-flex items-center gap-1.5 text-xs text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   Systems Operational
                 </span>
@@ -158,10 +166,10 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-600">
           <div>© 2026 HEA Link Inc. All rights reserved. Built with precision and care.</div>
           <div className="flex items-center gap-1 text-slate-600">
-            Crafted for speed, conversion &amp; privacy <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500 inline ml-1" />
+            Crafted for speed, conversion &amp; privacy <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500 inline ml-1" aria-hidden="true" />
           </div>
         </div>
       </div>

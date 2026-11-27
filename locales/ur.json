@@ -1,0 +1,37 @@
+{
+  "_meta": {
+    "version": "1.0.0",
+    "locale": "ur",
+    "language": "Urdu",
+    "dir": "rtl"
+  },
+  "common": {
+    "brand_name": "HEA Link",
+    "actions": {
+      "save": "محفوظ کریں",
+      "cancel": "منسوخ کریں",
+      "delete": "حذف کریں",
+      "edit": "ترمیم کریں",
+      "copy": "کاپی کریں",
+      "close": "بند کریں",
+      "download": "ڈاؤن لوڈ",
+      "submit": "جمع کرائیں",
+      "search": "تلاش کریں"
+    },
+    "status": {
+      "active": "فعال",
+      "locked": "مقفل",
+      "just_now": "ابھی"
+    }
+  },
+  "landing": {
+    "navigation": {
+      "platform": "پلیٹ فارم",
+      "solutions": "حل",
+      "resources": "وسائل",
+      "pricing": "قیمتیں",
+      "login": "لاگ ان",
+      "signup_free": "مفت سائن اپ کریں ←"
+    }
+  }
+}
