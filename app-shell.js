@@ -915,6 +915,7 @@
         'custom-domains': 'Custom Domains',
         integrations: 'Integrations',
         settings: 'Settings',
+        keys: 'API Keys',
         assist: 'HEA Assist AI',
         notifications: 'Notifications',
         resources: 'Help & Resources'
@@ -1014,6 +1015,18 @@
         case 'settings':
 
           renderSettings(pane);
+
+          break;
+
+        case 'keys':
+
+          renderApiKeys(pane);
+
+          break;
+
+        case 'notifications':
+
+          renderNotifications(pane);
 
           break;
 
@@ -3424,7 +3437,7 @@
     }
 
 
-    const pages = getStoredPages();
+    let pages = getStoredPages();
 
     const origin = window.location.origin;
 
@@ -4418,6 +4431,8 @@
 
     function renderView() {
 
+      pages = getStoredPages();
+
       // 1. STEP 1: TEMPLATE CATALOG (Matching media_1793732573801_be66eb25.png)
 
       if (mode === 'catalog') {
@@ -5129,11 +5144,12 @@
               window.appShell.toast(bioData.error || 'Failed to publish bio page');
               return;
             }
-            const savedBio = bioData && bioData.bio ? {
+            const serverBio = bioData && (bioData.page || bioData.bio);
+            const savedBio = serverBio ? {
               ...newPage,
-              ...bioData.bio,
-              id: bioData.bio._id || bioData.bio.id || newPage.slug,
-              url: `${(domain && domain !== 'healink.store' && domain !== window.location.hostname) ? 'https://' + domain : window.location.origin}/m/${bioData.bio.slug || slug}`
+              ...serverBio,
+              id: serverBio._id || serverBio.id || newPage.slug,
+              url: `${(domain && domain !== 'healink.store' && domain !== window.location.hostname) ? 'https://' + domain : window.location.origin}/m/${serverBio.slug || slug}`
             } : newPage;
             cachedBios.unshift(savedBio);
             window.appShell.toast(`Page created successfully: ${savedBio.url}`);
@@ -6324,120 +6340,74 @@
   function renderIntegrations(container) {
 
     const apps = [
-
-      { name: 'Adobe Express', desc: 'Add short links and QR Codes to your designs without switching apps', icon: '🎨' },
-
-      { name: 'Authvia', desc: 'Turn text messages into a payment channel with trackable short links', icon: '💳' },
-
-      { name: 'HEA app for Android', desc: 'Create and share short links from your Android phone', icon: '🤖' },
-
-      { name: 'HEA app for iPhone', desc: 'Create, share, and track from your iPhone or iPad', icon: '🍏' },
-
-      { name: 'HEA Model Context Protocol (MCP)', desc: 'Get the full power of HEA Link inside any AI assistant', icon: '⚙️' },
-
-      { name: 'Blog2Social', desc: 'Automatically generate short links for your social posts and manage in one place', icon: '🔄' }
-
+      { name: 'Adobe Express', cat: 'Creative', desc: 'Add short links and QR Codes to your designs without switching apps', icon: '🎨' },
+      { name: 'Authvia', cat: 'CRM & Sales', desc: 'Turn text messages into a payment channel with trackable short links', icon: '💳' },
+      { name: 'HEA app for Android', cat: 'Mobile App', desc: 'Create and share short links from your Android phone', icon: '🤖' },
+      { name: 'HEA app for iPhone', cat: 'Mobile App', desc: 'Create, share, and track from your iPhone or iPad', icon: '🍏' },
+      { name: 'HEA Model Context Protocol (MCP)', cat: 'AI', desc: 'Get the full power of HEA Link inside any AI assistant', icon: '⚙️' },
+      { name: 'Blog2Social', cat: 'Automation', desc: 'Automatically generate short links for your social posts and manage in one place', icon: '🔄' }
     ];
 
-    container.innerHTML = `
+    const categories = ['All', 'AI', 'Automation', 'Creative', 'CRM & Sales', 'Mobile App'];
+    let selectedCat = 'All';
 
-      <div class="view-header">
-
-        <h2>Integrations</h2>
-
-        <a href="#" style="color:#38bdf8;font-size:14px;font-weight:700;text-decoration:none;">Manage my integrations</a>
-
-      </div>
-
-      <!-- Shopify Banner (Screenshot 12.02.42 AM) -->
-
-      <div class="shopify-cream-banner">
-
-        <div>
-
-          <div style="font-size:28px;font-weight:900;color:#0070f3;margin-bottom:12px;">🛍️ shopify</div>
-
-          <h3 style="font-size:22px;font-weight:800;color:#0070f3;margin:0 0 10px;">Automatically attribute orders to specific HEA links</h3>
-
-          <p style="color:#334155;font-size:13px;line-height:1.5;margin:0 0 18px;">
-
-            Shorten links to products, collections, and more directly from Shopify to identify which campaigns generate real ROI.
-
-          </p>
-
-          <button class="sso-btn" style="width:auto;padding:10px 20px;font-weight:700;background:#0070f3;color:#ffffff;border:none;border-radius:10px;box-shadow:0 4px 14px rgba(0,112,243,0.3);" onclick="window.appShell.toast('Shopify app integration opened')">
-
-            Install Shopify app
-
-          </button>
-
+    function drawIntegrations() {
+      const visibleApps = selectedCat === 'All' ? apps : apps.filter((a) => a.cat === selectedCat);
+      container.innerHTML = `
+        <div class="view-header">
+          <h2>Integrations</h2>
+          <a href="/integrations" style="color:#38bdf8;font-size:14px;font-weight:700;text-decoration:none;">Manage my integrations ↗</a>
         </div>
 
-        <div style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:16px;box-shadow:0 4px 12px rgba(0,0,0,0.03);">
-
-          <div style="display:flex;justify-content:space-between;border-bottom:1px solid #e2e8f0;padding-bottom:6px;margin-bottom:8px;font-size:11px;font-weight:700;color:#64748b;">
-
-            <span>Link title</span>
-
-            <span>Short link</span>
-
-            <span>Orders</span>
-
+        <div class="shopify-cream-banner">
+          <div>
+            <div style="font-size:28px;font-weight:900;color:#0070f3;margin-bottom:12px;">🛍️ shopify</div>
+            <h3 style="font-size:22px;font-weight:800;color:#0070f3;margin:0 0 10px;">Automatically attribute orders to specific HEA links</h3>
+            <p style="color:#334155;font-size:13px;line-height:1.5;margin:0 0 18px;">
+              Shorten links to products, collections, and more directly from Shopify to identify which campaigns generate real ROI.
+            </p>
+            <a href="/integrations" class="sso-btn" style="display:inline-flex;align-items:center;width:auto;padding:10px 20px;font-weight:700;background:#0070f3;color:#ffffff;border:none;border-radius:10px;text-decoration:none;box-shadow:0 4px 14px rgba(0,112,243,0.3);">
+              Configure Webhooks &amp; Apps
+            </a>
           </div>
-
-          <div style="font-size:12px;color:#0b132b;font-weight:600;padding:6px 0;">Maven Armchair • yourbrand.co/3yt77uB • 3</div>
-
-          <div style="font-size:12px;color:#0b132b;font-weight:600;padding:6px 0;">Floral Accent Chair • yourbrand.co/instagram • 56</div>
-
-          <div style="text-align:right;font-size:18px;font-weight:900;color:#0070f3;margin-top:10px;">$26,880.00</div>
-
+          <div style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:16px;box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid #e2e8f0;padding-bottom:6px;margin-bottom:8px;font-size:11px;font-weight:700;color:#64748b;">
+              <span>Link title</span>
+              <span>Short link</span>
+              <span>Orders</span>
+            </div>
+            <div style="font-size:12px;color:#0b132b;font-weight:600;padding:6px 0;">Maven Armchair • yourbrand.co/3yt77uB • 3</div>
+            <div style="font-size:12px;color:#0b132b;font-weight:600;padding:6px 0;">Floral Accent Chair • yourbrand.co/instagram • 56</div>
+            <div style="text-align:right;font-size:18px;font-weight:900;color:#0070f3;margin-top:10px;">$26,880.00</div>
+          </div>
         </div>
 
-      </div>
+        <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:12px;margin-bottom:20px;">
+          ${categories.map((p) => `
+            <button type="button" class="home-type-tab int-cat-pill ${selectedCat === p ? 'active' : ''}" data-cat="${p}" style="white-space:nowrap;padding:6px 14px;font-size:12px;">${p}</button>
+          `).join('')}
+        </div>
 
-      <!-- Search & Filters (Hidden as requested) -->
+        <div class="dash-grid-3 integrations-grid" style="display:grid;grid-template-columns:repeat(3, 1fr);gap:20px;">
+          ${visibleApps.map((a) => `
+            <div class="integration-card-white" style="cursor:pointer;" onclick="window.location.href='/integrations'">
+              <div style="font-size:28px;margin-bottom:12px;">${a.icon}</div>
+              <h4 style="font-size:16px;font-weight:700;color:#0b132b;margin:0 0 6px;">${a.name}</h4>
+              <p style="color:#64748b;font-size:13px;line-height:1.4;margin:0;">${a.desc}</p>
+            </div>
+          `).join('')}
+        </div>
+      `;
 
-      <div style="display:none !important;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      container.querySelectorAll('.int-cat-pill').forEach((btn) => {
+        btn.onclick = () => {
+          selectedCat = btn.dataset.cat || 'All';
+          drawIntegrations();
+        };
+      });
+    }
 
-        <input type="text" class="topbar-search-input" style="max-width:320px;" placeholder="Search 50+ native apps &amp; webhooks...">
-
-        <span style="font-size:13px;color:#94a3b8;cursor:pointer;">A - Z ⇅</span>
-
-      </div>
-
-      <!-- Filter pills (Screenshot 12.02.42 AM 1) -->
-
-      <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:12px;margin-bottom:20px;">
-
-        ${['Featured', 'AI', 'Analytics & Attribution', 'Automation', 'Browser Extensions', 'Creative', 'CRM & Sales', 'Email Marketing', 'Mobile App'].map((p, i) => `
-
-          <button class="home-type-tab ${i === 0 ? 'active' : ''}" style="white-space:nowrap;padding:6px 14px;font-size:12px;">${p}</button>
-
-        `).join('')}
-
-      </div>
-
-      <!-- Apps Grid (Screenshot 12.02.42 AM 1) -->
-
-      <div class="dash-grid-3 integrations-grid" style="display:grid;grid-template-columns:repeat(3, 1fr);gap:20px;">
-
-        ${apps.map(a => `
-
-          <div class="integration-card-white">
-
-            <div style="font-size:28px;margin-bottom:12px;">${a.icon}</div>
-
-            <h4 style="font-size:16px;font-weight:700;color:#0b132b;margin:0 0 6px;">${a.name}</h4>
-
-            <p style="color:#64748b;font-size:13px;line-height:1.4;margin:0;">${a.desc}</p>
-
-          </div>
-
-        `).join('')}
-
-      </div>
-
-    `;
+    drawIntegrations();
 
   }
 
@@ -6693,7 +6663,7 @@
                 <div style="font-size:15px;font-weight:800;color:#0070f3;">Current Plan: Free Starter</div>
                 <div style="font-size:13px;color:#475569;margin-top:3px;">You have used 3 of 10 monthly branded links.</div>
               </div>
-              <button class="auth-submit-btn" style="margin:0;padding:8px 18px;width:auto;" onclick="location.hash='#pricing'">Upgrade Plan</button>
+              <button type="button" class="auth-submit-btn" style="margin:0;padding:8px 18px;width:auto;" onclick="if(typeof window.openCheckoutModal==='function') window.openCheckoutModal('pro');">Upgrade Plan</button>
             </div>
           </div>
 
@@ -7264,6 +7234,126 @@
 
 
   
+  function escapeHtml(str) {
+    return String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  // ---------------- 11b. API KEYS SCREEN ---------------- //
+  async function renderApiKeys(container) {
+    container.innerHTML = `
+      <div class="view-header">
+        <div class="header-title-col">
+          <h2>API Keys</h2>
+          <p class="view-subtitle">Create and revoke developer keys scoped to your signed-in account (${escapeHtml(appUser.email || '')}).</p>
+        </div>
+      </div>
+      <div class="dash-white-card" style="padding:24px;margin-bottom:20px;max-width:720px;">
+        <h3 style="margin:0 0 12px;font-size:16px;font-weight:700;color:#0b132b;">Create New API Key</h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <input id="apiKeyNameInput" type="text" class="home-shorten-input" style="flex:1;min-width:220px;" placeholder="e.g. Production Backend Key" maxlength="80">
+          <button type="button" id="btnGenerateApiKey" class="auth-submit-btn" style="width:auto;margin:0;padding:10px 20px;">Generate Key</button>
+        </div>
+        <div id="apiKeyRawReveal" style="display:none;margin-top:14px;padding:12px 14px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;font-size:13px;color:#065f46;word-break:break-all;"></div>
+      </div>
+      <div class="dash-white-card" style="padding:24px;max-width:720px;">
+        <h3 style="margin:0 0 12px;font-size:16px;font-weight:700;color:#0b132b;">Active Keys</h3>
+        <div id="apiKeysList" style="color:#64748b;font-size:13px;">Loading API keys...</div>
+      </div>
+    `;
+
+    async function loadKeys() {
+      const listEl = $('#apiKeysList');
+      const token = getAuthToken();
+      if (!listEl || !token) return;
+      try {
+        const res = await fetch('/api/keys', { headers: { Authorization: 'Bearer ' + token } });
+        if (res.status === 401) { handleUnauthorizedSession(); return; }
+        const data = await res.json();
+        const keys = Array.isArray(data.keys) ? data.keys : [];
+        if (keys.length === 0) {
+          listEl.innerHTML = '<div style="padding:12px 0;color:#64748b;">No API keys created yet.</div>';
+          return;
+        }
+        listEl.innerHTML = keys.map((k) => {
+          const kid = k.keyId || k._id || k.id;
+          return `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f1f5f9;">
+              <div>
+                <div style="font-weight:700;color:#0b132b;">${escapeHtml(k.name || 'API Key')}</div>
+                <div style="font-size:12px;color:#64748b;">Prefix: <code>${escapeHtml(k.prefix || 'hea_live_')}...</code></div>
+              </div>
+              <button type="button" class="btn-revoke-key" data-id="${escapeHtml(kid)}" style="background:#fee2e2;color:#b91c1c;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;">Revoke</button>
+            </div>
+          `;
+        }).join('');
+        listEl.querySelectorAll('.btn-revoke-key').forEach((btn) => {
+          btn.onclick = async () => {
+            const id = btn.dataset.id;
+            const dRes = await fetch('/api/keys/' + encodeURIComponent(id), {
+              method: 'DELETE',
+              headers: { Authorization: 'Bearer ' + getAuthToken() }
+            });
+            if (dRes.ok) {
+              toast('API key revoked');
+              loadKeys();
+            } else {
+              toast('Failed to revoke API key');
+            }
+          };
+        });
+      } catch (_e) {
+        listEl.innerHTML = '<div style="color:#ef4444;">Unable to load API keys.</div>';
+      }
+    }
+
+    const genBtn = $('#btnGenerateApiKey');
+    if (genBtn) {
+      genBtn.onclick = async () => {
+        const name = ($('#apiKeyNameInput')?.value || '').trim();
+        if (!name) { toast('Enter a key name'); return; }
+        const res = await fetch('/api/keys', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + getAuthToken() },
+          body: JSON.stringify({ name })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          const msg = (data.error && data.error.message) || data.error || 'Failed to generate API key';
+          toast(msg);
+          if (res.status === 403) {
+            const reveal = $('#apiKeyRawReveal');
+            if (reveal) {
+              reveal.style.display = 'block';
+              reveal.style.background = '#fffbeb';
+              reveal.style.borderColor = '#fde68a';
+              reveal.style.color = '#92400e';
+              reveal.innerHTML = `${escapeHtml(msg)} <button type="button" onclick="if(typeof window.openCheckoutModal==='function') window.openCheckoutModal('pro');" style="margin-left:8px;padding:4px 10px;border:none;border-radius:6px;background:#0070f3;color:#fff;font-weight:700;cursor:pointer;">Upgrade</button>`;
+            }
+          }
+          return;
+        }
+        const reveal = $('#apiKeyRawReveal');
+        if (reveal && data.rawKey) {
+          reveal.style.display = 'block';
+          reveal.style.background = '#ecfdf5';
+          reveal.style.borderColor = '#a7f3d0';
+          reveal.style.color = '#065f46';
+          reveal.innerHTML = `<strong>Copy now (shown once):</strong> <code>${escapeHtml(data.rawKey)}</code>`;
+        }
+        if ($('#apiKeyNameInput')) $('#apiKeyNameInput').value = '';
+        toast('API Key generated');
+        loadKeys();
+      };
+    }
+
+    loadKeys();
+  }
+
   // ---------------- 12. NOTIFICATIONS CENTER VIEW (100% Data-Driven) ---------------- //
   async function renderNotifications(container) {
     let items = [];
@@ -7518,6 +7608,71 @@
     });
   }
 
+
+  function getLocalAiReply(promptText) {
+    const text = (promptText || '').toLowerCase();
+    const storedLinks = getStoredLinks();
+
+    if (/title|catchy|headline|name|subject/i.test(text)) {
+      return `💡 <b>High-Converting Title Recommendations:</b><br><br>
+1. <b>Curiosity Hook:</b> "The 1 Growth Strategy Top Brands Use in 2026"<br>
+2. <b>VIP &amp; Urgency:</b> "Exclusive Access: Claim Your 40% Limited Drop"<br>
+3. <b>Direct Value:</b> "Free Creator Resource Hub: Everything You Need"<br>
+4. <b>Action-Oriented:</b> "Get Started in 60 Seconds — Instant Setup"<br>
+5. <b>Social Proof:</b> "Join 10,000+ Teams Using HEA Link Daily"<br><br>
+<small style="color:#94a3b8;">✨ <b>Pro Tip:</b> Shorter titles with brackets like <i>[Free Resource]</i> achieve 31% higher click-through rates.</small>`;
+    }
+
+    if (/utm|parameter|fb|facebook|ad|campaign|meta/i.test(text)) {
+      return `🎯 <b>Recommended UTM Setup for Meta &amp; Facebook Ads:</b><br><br>
+<div style="background:rgba(0,0,0,0.35);padding:10px 14px;border-radius:10px;font-family:monospace;font-size:12px;line-height:1.7;border:1px solid rgba(56,189,248,0.3);color:#38bdf8;">
+?utm_source=facebook<br>
+&amp;utm_medium=paid_social<br>
+&amp;utm_campaign=summer_promo_2026<br>
+&amp;utm_content=feed_carousel_v1<br>
+&amp;utm_term=ecommerce_buyers
+</div><br>
+<small style="color:#94a3b8;">✅ <b>Best Practice:</b> Always use lowercase snake_case for UTM tags to prevent duplicated campaign dimensions in Google Analytics 4 &amp; MongoDB.</small>`;
+    }
+
+    if (/qr|scan|camera|code|print/i.test(text)) {
+      return `📱 <b>How to Maximize Your QR Code Scans:</b><br><br>
+1. <b>Clear Call to Action:</b> Never show a naked QR code. Always add an enticing prompt frame like <i>"Scan for 20% Off Menu"</i> or <i>"Scan to Connect WiFi"</i>.<br>
+2. <b>High Contrast:</b> Always use a deep dark foreground on a bright light background (e.g. #090f22 on #ffffff). Inverted colors reduce scan rates on budget sensors.<br>
+3. <b>Ideal Print Dimensions:</b> Minimum 2.5 × 2.5 cm (1 × 1 in) for tabletop menus, and 8 × 8 cm for posters viewed from 2 meters away.<br>
+4. <b>Dynamic Short Link:</b> By encoding a compact short link (e.g. <code>tinyurl.com/7xK9p2</code>), the QR pixel grid remains clean and scans 4× faster in low light!`;
+    }
+
+    if (/bio|instagram|tiktok|profile|tree/i.test(text)) {
+      return `📄 <b>Link-in-Bio High-Conversion Blueprint:</b><br><br>
+1. <b>The Golden First 2 Slots:</b> 68% of total page clicks go to your first two links. Put your highest revenue driver or newsletter signup there.<br>
+2. <b>Max 5 to 6 Links Total:</b> Giving visitors too many choices causes analysis paralysis and drops overall CTR by up to 25%.<br>
+3. <b>Visual Badges &amp; Thumbnails:</b> Add clear icons (e.g. 🛍️ Shop, 🎙️ Podcast, 📅 Book Call) to guide the eye in under 1 second.<br>
+4. <b>Active Weekly Updates:</b> Rotate your featured link based on your latest content or promotional drop.`;
+    }
+
+    if (/analytic|click|traffic|conversion|stat|how are/i.test(text)) {
+      const count = storedLinks.length;
+      const clicks = storedLinks.reduce((acc, l) => {
+        const c = typeof l.clicks === 'number' ? l.clicks : (Array.isArray(l.clicks) ? l.clicks.length : 0);
+        return acc + c;
+      }, 0);
+      return `📊 <b>Your Live Workspace Performance:</b><br><br>
+• Total Active Links: <b>${count}</b><br>
+• Total Recorded Clicks: <b>${clicks}</b><br>
+• Top Platform: <b>Mobile Safari &amp; Chrome (72%)</b><br>
+• Dominant Referrers: <b>Direct (45%), Instagram (35%), WhatsApp (20%)</b><br><br>
+<small style="color:#10b981;">💡 <b>Recommendation:</b> Deploy dynamic vector QR codes on physical flyers to boost offline-to-online conversions.</small>`;
+    }
+
+    return `✨ <b>HEA Assist Insights:</b><br><br>
+I analyzed: <i>"${(promptText || '').replace(/[<>&"]/g, '')}"</i>.<br><br>
+Here are recommended optimizations for your links and campaigns:<br>
+1. <b>Shorten &amp; Brand:</b> Use custom slugs (e.g. <code>/vip-access</code>) to boost click trust.<br>
+2. <b>Export Vector QR:</b> Generate high-resolution QR codes with custom styling for marketing materials.<br>
+3. <b>Track Conversions:</b> Monitor real-time audience analytics from your dashboard anytime.<br><br>
+<small style="color:#94a3b8;">Ask me for catchy titles, UTM templates, bio page tips, or click breakdowns!</small>`;
+  }
 
   // ---------------- 11. HEA ASSIST DEDICATED AI STUDIO VIEW ---------------- //
   function renderAssist(container) {
@@ -7913,134 +8068,6 @@
       sidebarEl.setAttribute('data-lenis-prevent', 'true');
 
       sidebarEl.addEventListener('wheel', e => e.stopPropagation(), { passive: true });
-
-    }
-
-    function getLocalAiReply(promptText) {
-
-      const text = (promptText || '').toLowerCase();
-
-      const storedLinks = getStoredLinks();
-
-      // 1. Suggest catchy title
-
-      if (/title|catchy|headline|name|subject/i.test(text)) {
-
-        return `💡 <b>High-Converting Title Recommendations:</b><br><br>
-
-1. <b>Curiosity Hook:</b> "The 1 Growth Strategy Top Brands Use in 2026"<br>
-
-2. <b>VIP &amp; Urgency:</b> "Exclusive Access: Claim Your 40% Limited Drop"<br>
-
-3. <b>Direct Value:</b> "Free Creator Resource Hub: Everything You Need"<br>
-
-4. <b>Action-Oriented:</b> "Get Started in 60 Seconds — Instant Setup"<br>
-
-5. <b>Social Proof:</b> "Join 10,000+ Teams Using HEA Link Daily"<br><br>
-
-<small style="color:#94a3b8;">✨ <b>Pro Tip:</b> Shorter titles with brackets like <i>[Free Resource]</i> achieve 31% higher click-through rates.</small>`;
-
-      }
-
-      // 2. UTM parameters for FB ad
-
-      if (/utm|parameter|fb|facebook|ad|campaign|meta/i.test(text)) {
-
-        return `🎯 <b>Recommended UTM Setup for Meta &amp; Facebook Ads:</b><br><br>
-
-<div style="background:rgba(0,0,0,0.35);padding:10px 14px;border-radius:10px;font-family:monospace;font-size:12px;line-height:1.7;border:1px solid rgba(56,189,248,0.3);color:#38bdf8;">
-
-?utm_source=facebook<br>
-
-&amp;utm_medium=paid_social<br>
-
-&amp;utm_campaign=summer_promo_2026<br>
-
-&amp;utm_content=feed_carousel_v1<br>
-
-&amp;utm_term=ecommerce_buyers
-
-</div><br>
-
-<small style="color:#94a3b8;">✅ <b>Best Practice:</b> Always use lowercase snake_case for UTM tags to prevent duplicated campaign dimensions in Google Analytics 4 &amp; MongoDB.</small>`;
-
-      }
-
-      // 3. How to get more QR scans
-
-      if (/qr|scan|camera|code|print/i.test(text)) {
-
-        return `📱 <b>How to Maximize Your QR Code Scans:</b><br><br>
-
-1. <b>Clear Call to Action:</b> Never show a naked QR code. Always add an enticing prompt frame like <i>"Scan for 20% Off Menu"</i> or <i>"Scan to Connect WiFi"</i>.<br>
-
-2. <b>High Contrast:</b> Always use a deep dark foreground on a bright light background (e.g. #090f22 on #ffffff). Inverted colors reduce scan rates on budget sensors.<br>
-
-3. <b>Ideal Print Dimensions:</b> Minimum 2.5 × 2.5 cm (1 × 1 in) for tabletop menus, and 8 × 8 cm for posters viewed from 2 meters away.<br>
-
-4. <b>Dynamic Short Link:</b> By encoding a compact short link (e.g. <code>tinyurl.com/7xK9p2</code>), the QR pixel grid remains clean and scans 4× faster in low light!`;
-
-      }
-
-      // 4. Link-in-bio best practices
-
-      if (/bio|instagram|tiktok|profile|tree/i.test(text)) {
-
-        return `📄 <b>Link-in-Bio High-Conversion Blueprint:</b><br><br>
-
-1. <b>The Golden First 2 Slots:</b> 68% of total page clicks go to your first two links. Put your highest revenue driver or newsletter signup there.<br>
-
-2. <b>Max 5 to 6 Links Total:</b> Giving visitors too many choices causes analysis paralysis and drops overall CTR by up to 25%.<br>
-
-3. <b>Visual Badges &amp; Thumbnails:</b> Add clear icons (e.g. 🛍️ Shop, 🎙️ Podcast, 📅 Book Call) to guide the eye in under 1 second.<br>
-
-4. <b>Active Weekly Updates:</b> Rotate your featured link based on your latest content or promotional drop.`;
-
-      }
-
-      // 5. Analytics & conversion
-
-      if (/analytic|click|traffic|conversion|stat|how are/i.test(text)) {
-
-        const count = storedLinks.length;
-
-        const clicks = storedLinks.reduce((acc, l) => {
-
-          const c = typeof l.clicks === 'number' ? l.clicks : (Array.isArray(l.clicks) ? l.clicks.length : 0);
-
-          return acc + c;
-
-        }, 0);
-
-        return `📊 <b>Your Live Workspace Performance:</b><br><br>
-
-• Total Active Links: <b>${count}</b><br>
-
-• Total Recorded Clicks: <b>${clicks}</b><br>
-
-• Top Platform: <b>Mobile Safari &amp; Chrome (72%)</b><br>
-
-• Dominant Referrers: <b>Direct (45%), Instagram (35%), WhatsApp (20%)</b><br><br>
-
-<small style="color:#10b981;">💡 <b>Recommendation:</b> Deploy dynamic vector QR codes on physical flyers to boost offline-to-online conversions.</small>`;
-
-      }
-
-      // General smart fallback
-
-      return `✨ <b>HEA Assist Insights:</b><br><br>
-
-I analyzed: <i>"${(promptText || '').replace(/[<>&"]/g, '')}"</i>.<br><br>
-
-Here are recommended optimizations for your links and campaigns:<br>
-
-1. <b>Shorten &amp; Brand:</b> Use custom slugs (e.g. <code>/vip-access</code>) to boost click trust.<br>
-
-2. <b>Export Vector QR:</b> Generate high-resolution QR codes with custom styling for marketing materials.<br>
-
-3. <b>Track Conversions:</b> Monitor real-time audience analytics from your dashboard anytime.<br><br>
-
-<small style="color:#94a3b8;">Ask me for catchy titles, UTM templates, bio page tips, or click breakdowns!</small>`;
 
     }
 
@@ -8471,7 +8498,7 @@ Here are recommended optimizations for your links and campaigns:<br>
         return;
       }
 
-      const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'assist', 'notifications', 'app'];
+      const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'keys', 'assist', 'notifications', 'app'];
 
       if (!raw || raw === 'home' || raw === 'app' || raw === 'login' || raw === 'signup') {
         location.hash = '#dashboard';
@@ -8511,7 +8538,7 @@ Here are recommended optimizations for your links and campaigns:<br>
       return;
     }
 
-    const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'assist', 'notifications', 'app'];
+    const appViews = ['dashboard', 'create-link', 'links', 'qr', 'qr-detail', 'pages', 'analytics', 'campaigns', 'domains', 'integrations', 'settings', 'keys', 'assist', 'notifications', 'app'];
     document.body.classList.add('app-mode');
     const as = $('#appShell');
     if (as) as.hidden = false;

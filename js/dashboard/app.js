@@ -515,10 +515,6 @@ function route() {
   session = getVerifiedSession();
   const rawHash = (location.hash.slice(1) || '').split('?')[0].toLowerCase();
 
-  if (rawHash === 'integrations') {
-    window.location.href = '/integrations';
-    return;
-  }
   if (rawHash === 'utm' || rawHash === 'utm-guide' || rawHash === 'campaigns-guide') {
     window.location.href = '/resources/utm-guide';
     return;
@@ -568,6 +564,7 @@ function route() {
     'domains',
     'integrations',
     'settings',
+    'keys',
     'assist',
     'notifications',
     'app'
