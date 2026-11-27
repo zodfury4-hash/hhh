@@ -334,15 +334,7 @@ export function renderQr(container, mode) {
             Design dynamic vector QR codes with custom colors, embedded logos, and real-time scan analytics.
           </p>
         </div>
-        <div class="header-actions-col">
-          <button class="header-primary-btn" id="btnNewQrHero">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            <span>Create QR Code</span>
-          </button>
-        </div>
+        <div class="header-actions-col"></div>
       </div>
 
       <div class="qr-filter-bar">
@@ -358,6 +350,14 @@ export function renderQr(container, mode) {
         <button class="sso-btn" style="width:auto;padding:8px 14px;font-size:13px;">📅 Filter by created date</button>
 
         <button class="sso-btn" style="width:auto;padding:8px 14px;font-size:13px;">⊞ Add filters</button>
+
+        <button class="header-primary-btn" id="btnNewQrHero">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>Create QR Code</span>
+        </button>
 
       </div>
 
@@ -435,7 +435,7 @@ export function renderQr(container, mode) {
 
     $('#btnNewQrHero').onclick = () => {
 
-      qrMode = 'empty';
+      qrMode = 'create';
 
       renderView();
 

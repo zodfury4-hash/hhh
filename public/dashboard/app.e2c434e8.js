@@ -1021,15 +1021,7 @@
             Design dynamic vector QR codes with custom colors, embedded logos, and real-time scan analytics.
           </p>
         </div>
-        <div class="header-actions-col">
-          <button class="header-primary-btn" id="btnNewQrHero">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            <span>Create QR Code</span>
-          </button>
-        </div>
+        <div class="header-actions-col"></div>
       </div>
 
       <div class="qr-filter-bar">
@@ -1045,6 +1037,14 @@
         <button class="sso-btn" style="width:auto;padding:8px 14px;font-size:13px;">\u{1F4C5} Filter by created date</button>
 
         <button class="sso-btn" style="width:auto;padding:8px 14px;font-size:13px;">\u229E Add filters</button>
+
+        <button class="header-primary-btn" id="btnNewQrHero">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>Create QR Code</span>
+        </button>
 
       </div>
 
@@ -1108,7 +1108,7 @@
 
       </div>
 
-    `,i("#btnNewQrHero").onclick=()=>{n="empty",c()};let s=i("#qrSearchInput");s&&(s.oninput=()=>{let a=s.value.toLowerCase();$(".qr-card-item").forEach(l=>{l.style.display=l.textContent.toLowerCase().includes(a)?"flex":"none"})}),setTimeout(()=>{d.forEach((a,l)=>{let r=i(`#qrCardCanvas_${l}`);r&&typeof window.drawQR=="function"&&window.drawQR(r,a.realShort||a.url||a.dest||a.url||o+"/"+(a.slug||""),u.appUser.selectedQrColor||"#ff007f","#ffffff",160)})},50)}c()}function ot(e,t){let o=window.location.origin;u.activeQrId=t||"";let d=Z(),n=d.find(c=>c.id===u.activeQrId||c.slug===u.activeQrId)||d[0];if(!n){E("qr","create");return}e.innerHTML=`
+    `,i("#btnNewQrHero").onclick=()=>{n="create",c()};let s=i("#qrSearchInput");s&&(s.oninput=()=>{let a=s.value.toLowerCase();$(".qr-card-item").forEach(l=>{l.style.display=l.textContent.toLowerCase().includes(a)?"flex":"none"})}),setTimeout(()=>{d.forEach((a,l)=>{let r=i(`#qrCardCanvas_${l}`);r&&typeof window.drawQR=="function"&&window.drawQR(r,a.realShort||a.url||a.dest||a.url||o+"/"+(a.slug||""),u.appUser.selectedQrColor||"#ff007f","#ffffff",160)})},50)}c()}function ot(e,t){let o=window.location.origin;u.activeQrId=t||"";let d=Z(),n=d.find(c=>c.id===u.activeQrId||c.slug===u.activeQrId)||d[0];if(!n){E("qr","create");return}e.innerHTML=`
 
     <!-- Header row matching Screenshot 12.02.39 AM 2 -->
 
