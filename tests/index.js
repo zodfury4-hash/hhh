@@ -112,4 +112,9 @@ if (suite21.status !== 0) {
   process.exit(suite21.status || 1);
 }
 
-console.log('\n🎉 ALL TESTS PASSED SUCCESSFULLY ACROSS ALL 21 TEST SUITES!');
+const suite22 = spawnSync(process.execPath, [path.join(__dirname, 'phase3-security.test.js')], { stdio: 'inherit' });
+if (suite22.status !== 0) {
+  process.exit(suite22.status || 1);
+}
+
+console.log('\n🎉 ALL TESTS PASSED SUCCESSFULLY ACROSS ALL 22 TEST SUITES!');

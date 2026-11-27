@@ -8,6 +8,7 @@ const HelpFeedback = require('../models/HelpFeedback');
 const SupportTicket = require('../models/SupportTicket');
 const mailer = require('../utils/mailer');
 const rateLimiter = require('../middleware/rateLimiter');
+const { sendHtmlWithNonce } = require('../utils/cspNonce');
 
 const router = express.Router();
 const projectRoot = path.resolve(__dirname, '..', '..');
@@ -32,14 +33,14 @@ const supportTicketSchema = z.object({
  * GET /help -> Help Home Hub
  */
 router.get('/help', (req, res) => {
-  return res.sendFile(path.join(projectRoot, 'pages', 'help-home.html'));
+  return sendHtmlWithNonce(res, path.join(projectRoot, 'pages', 'help-home.html'));
 });
 
 /**
  * GET /help/contact -> Contact Support Form
  */
 router.get('/help/contact', (req, res) => {
-  return res.sendFile(path.join(projectRoot, 'pages', 'help-contact.html'));
+  return sendHtmlWithNonce(res, path.join(projectRoot, 'pages', 'help-contact.html'));
 });
 
 /**
@@ -53,7 +54,7 @@ router.get('/help/:category/:slug', (req, res) => {
 
   const articlePath = path.join(projectRoot, 'pages', 'help', safeCategory, `${safeSlug}.html`);
   if (fs.existsSync(articlePath)) {
-    return res.sendFile(articlePath);
+    return sendHtmlWithNonce(res, articlePath);
   }
 
   // If not found, redirect to Help Hub

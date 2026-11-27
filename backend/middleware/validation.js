@@ -131,6 +131,9 @@ function isValidDestinationUrl(urlString) {
     if (isPrivateOrReservedHost(host)) {
       return false;
     }
+    if (config.primaryHosts && config.primaryHosts.has(host)) {
+      return false;
+    }
     if (BLOCKED_DOMAINS.has(host)) {
       return false;
     }

@@ -1,12 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const { authMiddleware } = require('../middleware/auth');
+const { apiKeysLimiter } = require('../middleware/rateLimiter');
+const { recordAuditLog } = require('../services/auditService');
 const ApiKey = require('../models/ApiKey');
 const ApiUsage = require('../models/ApiUsage');
 const { getEntitlements, assertWithinLimit } = require('../config/plans');
 
 // POST /api/keys - Create a new API Key
-router.post('/api/keys', authMiddleware, async (req, res, next) => {
+router.post('/api/keys', apiKeysLimiter, authMiddleware, async (req, res, next) => {
   try {
     const { name, scopes, isTest, expiresInDays } = req.body || {};
     if (!name || typeof name !== 'string' || !name.trim()) {
@@ -35,6 +37,16 @@ router.post('/api/keys', authMiddleware, async (req, res, next) => {
       expiresInDays: typeof expiresInDays === 'number' ? expiresInDays : null
     });
 
+    recordAuditLog({
+      workspaceId: userEmail,
+      actorEmail: userEmail,
+      action: 'api_key.created',
+      targetType: 'api_key',
+      targetId: result.key.keyId || '',
+      meta: { name: result.key.name, isTest: !!isTest },
+      ip: req.ip
+    });
+
     return res.status(201).json({
       success: true,
       message: 'API Key generated successfully. Copy it now; you will not be able to view the secret again.',
@@ -60,7 +72,7 @@ router.get('/api/keys', authMiddleware, async (req, res, next) => {
 });
 
 // DELETE /api/keys/:id - Revoke an API key
-router.delete('/api/keys/:id', authMiddleware, async (req, res, next) => {
+router.delete('/api/keys/:id', apiKeysLimiter, authMiddleware, async (req, res, next) => {
   try {
     const { id } = req.params;
     const revoked = await ApiKey.revokeKey(id, req.user.email);
@@ -72,6 +84,14 @@ router.delete('/api/keys/:id', authMiddleware, async (req, res, next) => {
         }
       });
     }
+    recordAuditLog({
+      workspaceId: req.user.email,
+      actorEmail: req.user.email,
+      action: 'api_key.revoked',
+      targetType: 'api_key',
+      targetId: id,
+      ip: req.ip
+    });
     return res.json({
       success: true,
       message: 'API key revoked successfully.'

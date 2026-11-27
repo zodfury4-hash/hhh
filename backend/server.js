@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const path = require('path');
 const config = require('./config');
 
@@ -20,7 +21,13 @@ const PORT = config.port;
 const MONGODB_URI = config.mongoUri;
 const projectRoot = path.join(__dirname, '..');
 
-// 1. Helmet Security Headers with robust CSP
+// Per-request cryptographic CSP nonce
+app.use((req, res, next) => {
+  res.locals.cspNonce = crypto.randomBytes(16).toString('base64');
+  next();
+});
+
+// 1. Helmet Security Headers with strict nonce CSP (zero unsafe-eval / unsafe-inline in scriptSrc)
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -28,15 +35,10 @@ app.use(
         defaultSrc: ["'self'"],
         scriptSrc: [
           "'self'",
-          "'unsafe-inline'",
-          "'unsafe-eval'",
-          'https://cdnjs.cloudflare.com',
-          'https://cdn.jsdelivr.net',
+          (req, res) => `'nonce-${res.locals.cspNonce}'`,
           'https://js.stripe.com',
-          'https://apis.google.com',
           'https://accounts.google.com',
-          'https://appleid.cdn-apple.com',
-          'https://www.gstatic.com'
+          'https://appleid.cdn-apple.com'
         ],
         scriptSrcAttr: ["'unsafe-inline'"],
         workerSrc: ["'self'", 'blob:'],
@@ -44,17 +46,9 @@ app.use(
           "'self'",
           "'unsafe-inline'",
           'https://fonts.googleapis.com',
-          'https://cdnjs.cloudflare.com',
-          'https://cdn.jsdelivr.net',
           'https://accounts.google.com'
         ],
-        fontSrc: [
-          "'self'",
-          'data:',
-          'https://fonts.gstatic.com',
-          'https://cdnjs.cloudflare.com',
-          'https://cdn.jsdelivr.net'
-        ],
+        fontSrc: ["'self'", 'data:', 'https://fonts.gstatic.com'],
         imgSrc: ["'self'", 'data:', 'blob:', 'https:', 'http:'],
         connectSrc: [
           "'self'",
@@ -73,6 +67,9 @@ app.use(
           'https://appleid.apple.com'
         ],
         objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
+        frameAncestors: ["'none'"],
         upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null
       }
     },
@@ -287,8 +284,10 @@ const PUBLIC_PAGE_ROUTES = [
   [['/report-abuse'], 'report-abuse.html']
 ];
 
+const { sendHtmlWithNonce } = require('./utils/cspNonce');
+
 for (const [paths, relFile] of PUBLIC_PAGE_ROUTES) {
-  app.get(paths, (req, res) => res.sendFile(path.join(projectRoot, relFile)));
+  app.get(paths, (req, res) => sendHtmlWithNonce(res, path.join(projectRoot, relFile)));
 }
 
 // Serve static project files with intelligent caching

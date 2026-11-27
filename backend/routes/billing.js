@@ -7,6 +7,7 @@ const { isDbConnected } = require('../middleware/dbCheck');
 const { optionalAuth } = require('../middleware/auth');
 const { PLANS } = require('../config/plans');
 const { createNotification } = require('../services/notificationService');
+const { recordAuditLog } = require('../services/auditService');
 
 /* =========================================================
    STRIPE PAYMENT GATEWAY & SECURE PRO CHECKOUT ENGINE
@@ -265,6 +266,42 @@ router.post('/api/stripe/webhook', async (req, res) => {
         } catch (_nErr) {}
       } catch (e) {
         console.error('Error applying webhook payment:', e);
+      }
+    }
+  } else if (
+    event.type === 'customer.subscription.deleted' ||
+    event.type === 'invoice.payment_failed' ||
+    event.type === 'charge.refunded'
+  ) {
+    const obj = event.data && event.data.object ? event.data.object : {};
+    const email = (obj.metadata && obj.metadata.userEmail) || obj.customer_email || obj.receipt_email || '';
+    const eventId = event.id;
+    const customerId = obj.customer || null;
+
+    if (isDbConnected()) {
+      const alreadyProcessed = await ProcessedPayment.findOne({ paymentId: eventId });
+      if (alreadyProcessed) {
+        return res.json({ received: true, alreadyProcessed: true });
+      }
+      await ProcessedPayment.create({
+        paymentId: eventId,
+        email: (email || customerId || 'unknown').toLowerCase().trim(),
+        plan: 'Free',
+        amount: -(obj.amount_refunded || obj.amount_due || 0),
+        source: `webhook_${event.type}`
+      });
+
+      const filter = email ? { email: email.toLowerCase().trim() } : customerId ? { stripeCustomerId: customerId } : null;
+      if (filter) {
+        await User.findOneAndUpdate(filter, { isPro: false, plan: 'Free' });
+        recordAuditLog({
+          workspaceId: email || customerId,
+          actorEmail: email || 'stripe_webhook',
+          action: `billing.${event.type}`,
+          targetType: 'subscription',
+          targetId: eventId,
+          ip: req.ip
+        });
       }
     }
   }

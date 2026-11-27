@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const { authMiddleware } = require('../middleware/auth');
+const { apiKeysLimiter } = require('../middleware/rateLimiter');
+const { recordAuditLog } = require('../services/auditService');
 const ApiToken = require('../models/ApiToken');
 
 // POST /api/tokens - Generate a new Personal Access Token (PAT)
-router.post('/api/tokens', authMiddleware, async (req, res, next) => {
+router.post('/api/tokens', apiKeysLimiter, authMiddleware, async (req, res, next) => {
   try {
     const { name, scopes, expiresInDays } = req.body || {};
     if (!name || typeof name !== 'string' || !name.trim()) {
@@ -16,6 +18,16 @@ router.post('/api/tokens', authMiddleware, async (req, res, next) => {
       name: name.trim().slice(0, 60),
       scopes: Array.isArray(scopes) && scopes.length > 0 ? scopes : undefined,
       expiresInDays: typeof expiresInDays === 'number' ? expiresInDays : 90
+    });
+
+    recordAuditLog({
+      workspaceId: req.user.email,
+      actorEmail: req.user.email,
+      action: 'api_token.created',
+      targetType: 'api_token',
+      targetId: result.token.tokenId || '',
+      meta: { name: result.token.name },
+      ip: req.ip
     });
 
     return res.status(201).json({
@@ -43,13 +55,21 @@ router.get('/api/tokens', authMiddleware, async (req, res, next) => {
 });
 
 // DELETE /api/tokens/:id - Revoke a PAT
-router.delete('/api/tokens/:id', authMiddleware, async (req, res, next) => {
+router.delete('/api/tokens/:id', apiKeysLimiter, authMiddleware, async (req, res, next) => {
   try {
     const { id } = req.params;
     const revoked = await ApiToken.revokeToken(id, req.user.email);
     if (!revoked) {
       return res.status(404).json({ error: 'Token not found or already revoked' });
     }
+    recordAuditLog({
+      workspaceId: req.user.email,
+      actorEmail: req.user.email,
+      action: 'api_token.revoked',
+      targetType: 'api_token',
+      targetId: id,
+      ip: req.ip
+    });
     return res.json({
       success: true,
       message: 'Personal Access Token revoked successfully'

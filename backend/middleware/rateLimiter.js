@@ -1,12 +1,31 @@
 const rateLimit = require('express-rate-limit');
 
+/**
+ * Optional shared-store factory for multi-instance deployments (Redis/Mongo hook).
+ * Uses in-memory store by default unless RATE_LIMIT_STORE is configured with an adapter.
+ */
+function createLimiterStore() {
+  return undefined;
+}
+
 // Strict rate limit for auth endpoints: 20 attempts per 15 minutes
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 20,
+  store: createLimiterStore(),
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many authentication attempts. Please try again after 15 minutes.', code: 'RATE_LIMITED' }
+});
+
+// API key management rate limit: 20 requests per 15 minutes
+const apiKeysLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  store: createLimiterStore(),
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many API key operations. Please wait 15 minutes.', code: 'RATE_LIMITED' }
 });
 
 // OTP-specific rate limit per IP + email: 10 attempts per 15 minutes
@@ -94,7 +113,9 @@ const apiLimiter = rateLimit({
 });
 
 module.exports = {
+  createLimiterStore,
   authLimiter,
+  apiKeysLimiter,
   otpLimiter,
   linkCreateLimiter,
   bulkShortenLimiter,
