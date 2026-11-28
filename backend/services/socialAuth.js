@@ -1,5 +1,4 @@
 const { OAuth2Client } = require('google-auth-library');
-const { createRemoteJWKSet, jwtVerify } = require('jose');
 const config = require('../config');
 
 const APPLE_ISSUER = 'https://appleid.apple.com';
@@ -8,6 +7,14 @@ const APPLE_JWKS_URL = new URL('https://appleid.apple.com/auth/keys');
 let cachedGoogleClient = null;
 let cachedGoogleClientId = null;
 let cachedAppleJwks = null;
+let cachedJose = null;
+
+async function getJose() {
+  if (!cachedJose) {
+    cachedJose = await import('jose');
+  }
+  return cachedJose;
+}
 
 function getGoogleClient(clientId) {
   if (!cachedGoogleClient || cachedGoogleClientId !== clientId) {
@@ -17,8 +24,9 @@ function getGoogleClient(clientId) {
   return cachedGoogleClient;
 }
 
-function getAppleJwks() {
+async function getAppleJwks() {
   if (!cachedAppleJwks) {
+    const { createRemoteJWKSet } = await getJose();
     cachedAppleJwks = createRemoteJWKSet(APPLE_JWKS_URL);
   }
   return cachedAppleJwks;
@@ -88,7 +96,8 @@ async function verifyAppleIdentityToken(identityToken) {
     throw makeAuthError('Apple identityToken is required.', 400, 'MISSING_CREDENTIAL');
   }
 
-  const jwks = getAppleJwks();
+  const { jwtVerify } = await getJose();
+  const jwks = await getAppleJwks();
   let result;
   try {
     result = await jwtVerify(identityToken, jwks, {
