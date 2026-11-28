@@ -29,7 +29,7 @@ function validateEnv(opts = {}) {
   const test = env === 'test';
   const rawEnv = opts.rawEnv || process.env;
 
-  const mongoUri = rawEnv.MONGODB_URI || '';
+  const mongoUri = (rawEnv.MONGODB_URI || '').trim().replace(/^['"]|['"]$/g, '');
   const jwtSecret = rawEnv.JWT_SECRET || '';
   const routerSecret = rawEnv.INTERNAL_ROUTER_SECRET || '';
   const corsOrigin = rawEnv.CORS_ORIGIN || '';
@@ -95,7 +95,7 @@ const config = {
   isProd,
   isTest,
   port: parseInt(process.env.PORT || '3000', 10),
-  mongoUri: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/healink',
+  mongoUri: (process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/healink').trim().replace(/^['"]|['"]$/g, ''),
   jwtSecret: JWT_SECRET,
   corsOrigins: (
     process.env.CORS_ORIGIN ||

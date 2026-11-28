@@ -20,7 +20,7 @@ const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 const app = express();
 app.set('trust proxy', config.trustProxy);
 const PORT = config.port;
-const MONGODB_URI = config.mongoUri;
+const MONGODB_URI = (config.mongoUri || '').trim().replace(/^['"]|['"]$/g, '');
 const projectRoot = path.join(__dirname, '..');
 
 // Correlation Request ID + structured Pino HTTP request logging
