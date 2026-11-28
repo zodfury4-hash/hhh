@@ -230,6 +230,7 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     database: dbState === 1 ? 'connected' : dbState === 2 ? 'connecting' : 'disconnected',
+    email: config.features.emailOtp ? 'configured' : 'disabled',
     environment: process.env.NODE_ENV || 'development'
   });
 });

@@ -20,7 +20,13 @@ const logger = pino({
       '*.clientSecret',
       'MONGODB_URI',
       'JWT_SECRET',
-      'SMTP_PASS'
+      'SMTP_PASS',
+      'STRIPE_SECRET_KEY',
+      'RESEND_API_KEY',
+      'BREVO_API_KEY',
+      'EMAIL_API_KEY',
+      'APPLE_CLIENT_SECRET',
+      'GOOGLE_CLIENT_SECRET'
     ],
     censor: '[REDACTED]'
   },
