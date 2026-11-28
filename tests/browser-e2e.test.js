@@ -107,13 +107,13 @@ async function runBrowserE2E() {
     await Promise.all([User.syncIndexes(), Link.syncIndexes(), QRCode.syncIndexes(), BioPage.syncIndexes()]);
   }
 
-  const PORT = Number(process.env.E2E_PORT || 3105);
-  const BASE_URL = `http://127.0.0.1:${PORT}`;
   const server = http.createServer(app);
   await new Promise((resolve, reject) => {
     server.once('error', reject);
-    server.listen(PORT, '127.0.0.1', resolve);
+    server.listen(0, '127.0.0.1', resolve);
   });
+  const PORT = server.address().port;
+  const BASE_URL = `http://127.0.0.1:${PORT}`;
   console.log(`  🌐 Express listening on ${BASE_URL}`);
 
   const executablePath = findBrowserExecutable();

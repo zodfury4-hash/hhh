@@ -863,13 +863,13 @@ router.post('/api/auth/google', authLimiter, async (req, res) => {
       user: formatUserResponse(user)
     });
   } catch (err) {
-    const status = err.statusCode || 500;
+    const status = err.statusCode || (err.message && /invalid|expired|token/i.test(err.message) ? 401 : 500);
     if (status >= 500) {
       console.error('Google Auth Route Error:', err);
     }
     return res.status(status).json({
       error: err.message || 'Google authentication failed.',
-      code: err.code || 'GOOGLE_AUTH_ERROR'
+      code: err.code || (status === 401 ? 'INVALID_GOOGLE_TOKEN' : 'GOOGLE_AUTH_ERROR')
     });
   }
 });

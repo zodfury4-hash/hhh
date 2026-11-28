@@ -37,8 +37,8 @@ async function runPhase3Tests() {
   console.log('  ✅ PASS: URL validator blocks dangerous schemes, private IPs, and self-domain redirect loops');
 
   const server = http.createServer(app);
-  await new Promise((resolve) => server.listen(3000, '127.0.0.1', resolve));
-  const baseUrl = 'http://127.0.0.1:3000';
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const baseUrl = `http://127.0.0.1:${server.address().port}`;
 
   let browser;
   try {
