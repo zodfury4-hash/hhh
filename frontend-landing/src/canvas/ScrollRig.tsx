@@ -5,8 +5,6 @@ import { InfinityKnot } from './Infinity';
 import { OrbitRing } from './Ring';
 import { DriftingParticles } from './Particles';
 import { GroundShadow } from './GroundShadow';
-import { QrCubes } from './QrCubes';
-import { PhoneMockup } from './PhoneMockup';
 import { GlobeTelemetry } from './Globe';
 import { useScrollProgress } from '../hooks/useScrollProgress';
 import { useReducedMotion } from '../hooks/useReducedMotion';
@@ -40,10 +38,6 @@ export function ScrollRig({ mousePosition }: ScrollRigProps) {
   const isBioScene = scroll >= 0.44 && scroll < 0.62;
   const isAnalyticsScene = scroll >= 0.60 && scroll < 0.76;
   const isCtaScene = scroll >= 0.86;
-
-  // Scene-specific relative progress
-  const qrProgress = isQrScene ? (scroll - 0.28) / 0.16 : 0;
-  const bioProgress = isBioScene ? (scroll - 0.44) / 0.16 : 0;
 
   useFrame(() => {
     if (!knotGroupRef.current) return;
@@ -83,10 +77,11 @@ export function ScrollRig({ mousePosition }: ScrollRigProps) {
       targetScale = 0.85;
       knotOpacity = 1;
     } else if (isBioScene) {
-      // Bio Pages: Infinity moves to upper corner
-      targetX = isMobile ? 0 : -2.6;
-      targetY = 1.4;
-      targetScale = 0.55;
+      // Bio Pages: Seamless floating knot
+      targetX = isMobile ? 0 : 2.2;
+      targetY = -0.4;
+      targetScale = 0.85;
+      knotOpacity = 1;
     } else if (isAnalyticsScene) {
       // Analytics: Upper floating ornament
       targetX = isMobile ? 0 : 2.8;
@@ -126,10 +121,7 @@ export function ScrollRig({ mousePosition }: ScrollRigProps) {
 
       {/* 2. Scene 2: Diamond animation hidden as requested */}
 
-      {/* 3. Scene 3: 3D Smartphone Chassis Mockup */}
-      <group position={[isMobile ? 0 : 2.2, 0, 0]}>
-        <PhoneMockup progress={bioProgress} active={isBioScene} />
-      </group>
+      {/* 3. Scene 3: Smartphone 3D animation hidden as requested */}
 
       {/* 4. Scene 4: 3D Globe with Traffic Arcs */}
       <group position={[isMobile ? 0 : -2.0, 0, 0]}>
