@@ -217,8 +217,10 @@ app.post('/api/abuse/report', abuseReportLimiter, validate(abuseReportSchema), a
 // 8. System Liveness (/health) & Readiness (/ready) Endpoints
 app.get('/health', (req, res) => {
   const dbState = mongoose.connection.readyState;
-  const allowMemTest = process.env.NODE_ENV === 'test' && process.env.DISABLE_MEMSTORE !== 'true';
-  const isHealthy = dbState === 1 || allowMemTest;
+  const allowMem =
+    (process.env.NODE_ENV === 'test' || process.env.ALLOW_IN_MEMORY_FALLBACK === 'true') &&
+    process.env.DISABLE_MEMSTORE !== 'true';
+  const isHealthy = dbState === 1 || allowMem;
   const statusCode = isHealthy ? 200 : 503;
 
   res.status(statusCode).json({
@@ -234,8 +236,10 @@ app.get('/health', (req, res) => {
 
 app.get('/ready', (req, res) => {
   const dbState = mongoose.connection.readyState;
-  const allowMemTest = process.env.NODE_ENV === 'test' && process.env.DISABLE_MEMSTORE !== 'true';
-  const dbReady = dbState === 1 || allowMemTest;
+  const allowMem =
+    (process.env.NODE_ENV === 'test' || process.env.ALLOW_IN_MEMORY_FALLBACK === 'true') &&
+    process.env.DISABLE_MEMSTORE !== 'true';
+  const dbReady = dbState === 1 || allowMem;
   const jwtReady = typeof config.jwtSecret === 'string' && config.jwtSecret.length >= 32;
   const ready = dbReady && jwtReady;
 
@@ -244,7 +248,7 @@ app.get('/ready', (req, res) => {
     ready,
     reqId: req.id,
     checks: {
-      database: dbState === 1 ? 'up' : allowMemTest ? 'memstore-test' : 'down',
+      database: dbState === 1 ? 'up' : allowMem ? 'memstore' : 'down',
       config: jwtReady ? 'valid' : 'invalid',
       mailTransport: config.features.emailOtp ? 'configured' : 'disabled'
     },
