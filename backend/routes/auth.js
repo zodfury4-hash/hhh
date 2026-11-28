@@ -741,18 +741,46 @@ router.get('/api/config', (req, res) => {
   });
 });
 
-// 12. Google Sign-In Authentication Endpoint (Strict ID Token Verification Only)
+// 12. Google Sign-In Authentication Endpoint (Supports ID Token or Access Token)
 router.post('/api/auth/google', authLimiter, async (req, res) => {
   try {
     const idToken = (req.body && (req.body.credential || req.body.idToken)) || '';
-    if (!idToken || typeof idToken !== 'string') {
+    const accessToken = (req.body && req.body.accessToken) || '';
+    if (!idToken && !accessToken) {
       return res.status(400).json({
-        error: 'Google ID token (credential) is required.',
+        error: 'Google ID token (credential) or access token is required.',
         code: 'MISSING_CREDENTIAL'
       });
     }
 
-    const verified = await socialAuth.verifyGoogleIdToken(idToken);
+    let verified = null;
+    if (accessToken) {
+      const gRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      if (!gRes.ok) {
+        return res.status(401).json({
+          error: 'Invalid or expired Google access token.',
+          code: 'INVALID_GOOGLE_TOKEN'
+        });
+      }
+      const gUser = await gRes.json();
+      if (!gUser.email || gUser.email_verified === false) {
+        return res.status(401).json({
+          error: 'Google account email is not verified.',
+          code: 'EMAIL_NOT_VERIFIED'
+        });
+      }
+      verified = {
+        sub: String(gUser.sub),
+        email: String(gUser.email).toLowerCase().trim(),
+        name: (gUser.name || gUser.email.split('@')[0]).trim(),
+        avatar: gUser.picture || '',
+        emailVerified: true
+      };
+    } else {
+      verified = await socialAuth.verifyGoogleIdToken(idToken);
+    }
     const cleanEmail = verified.email;
     const displayName = verified.name || cleanEmail.split('@')[0];
 

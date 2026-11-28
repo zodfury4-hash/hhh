@@ -245,7 +245,7 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
     }
   };
 
-  // Google Single Sign-On via Google Identity Services + Backend ID Token verification
+  // Google Single Sign-On via Google Identity Services (OAuth2 Popup with fallback)
   const handleGoogleSso = async () => {
     try {
       setIsLoading(true);
@@ -259,10 +259,49 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
       }
 
       const g = (window as any).google;
-      if (!g || !g.accounts || !g.accounts.id) {
+      if (!g || !g.accounts) {
         throw new Error('Google Sign-In SDK is still loading. Please try again.');
       }
 
+      // Priority 1: Google OAuth2 Token Client (opens real account chooser popup, bypasses One Tap blocking)
+      if (g.accounts.oauth2 && typeof g.accounts.oauth2.initTokenClient === 'function') {
+        const client = g.accounts.oauth2.initTokenClient({
+          client_id: clientId,
+          scope: 'email profile openid',
+          callback: async (tokenResponse: any) => {
+            try {
+              if (!tokenResponse?.access_token) {
+                setIsLoading(false);
+                return;
+              }
+              const res = await fetch('/api/auth/google', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ accessToken: tokenResponse.access_token }),
+              });
+              const data = await res.json();
+              if (!res.ok || !data.success || !data.token) {
+                throw new Error(data.error || 'Google authentication failed.');
+              }
+              completeAuthSession(data, `Welcome, ${data.user?.name || 'User'}! Launching dashboard...`);
+            } catch (err: any) {
+              setError(sanitizeErrorMessage(err));
+            } finally {
+              setIsLoading(false);
+            }
+          },
+          error_callback: (err: any) => {
+            setIsLoading(false);
+            if (err?.type !== 'popup_closed') {
+              setError('Google sign-in popup was closed.');
+            }
+          },
+        });
+        client.requestAccessToken({ prompt: 'select_account' });
+        return;
+      }
+
+      // Priority 2: Fallback to Google ID Token initialize & prompt
       await new Promise<void>((resolve, reject) => {
         g.accounts.id.initialize({
           client_id: clientId,
