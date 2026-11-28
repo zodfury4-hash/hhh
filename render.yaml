@@ -5,7 +5,7 @@ services:
     plan: starter
     region: oregon
     autoDeploy: true
-    buildCommand: npm ci && npm run build:landing
+    buildCommand: npm ci && npm --prefix frontend-landing ci && npm run build:landing
     startCommand: npm start
     healthCheckPath: /health
     envVars:

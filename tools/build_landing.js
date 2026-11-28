@@ -15,6 +15,13 @@ if (fs.existsSync(publicAssetsDir)) {
 }
 fs.mkdirSync(publicAssetsDir, { recursive: true });
 
+// Ensure dependencies are installed in frontend-landing
+const nodeModules = path.join(landingDir, 'node_modules');
+if (!fs.existsSync(nodeModules)) {
+  console.log('[build_landing] Installing frontend-landing dependencies...');
+  execSync('npm ci', { cwd: landingDir, stdio: 'inherit' });
+}
+
 execSync('npm run build', { cwd: landingDir, stdio: 'inherit' });
 
 fs.copyFileSync(path.join(distDir, 'index.html'), path.join(publicDir, 'index.html'));
