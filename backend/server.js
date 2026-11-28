@@ -288,6 +288,11 @@ app.get('/login', (req, res) => res.redirect('/#login'));
 app.get('/signup', (req, res) => res.redirect('/#signup'));
 app.get('/dashboard', (req, res) => res.redirect('/app.html#dashboard'));
 app.get('/app', (req, res) => res.redirect('/app.html#dashboard'));
+app.get('/solutions', (req, res) => res.redirect('/#solutions'));
+app.get('/qr-code', (req, res) => res.redirect('/#qr-codes'));
+app.get('/bio-pages', (req, res) => res.redirect('/#bio-pages'));
+app.get('/analytics', (req, res) => res.redirect('/#analytics'));
+app.get('/ai', (req, res) => res.redirect('/#ai'));
 
 const { sendHtmlWithNonce } = require('./utils/cspNonce');
 const publicDir = path.join(projectRoot, 'public');
@@ -309,16 +314,12 @@ app.get(['/app.html', '/app', '/dashboard'], (req, res) => {
 // Explicit clean URL route table for all public marketing, docs, AI, and legal pages
 const PUBLIC_PAGE_ROUTES = [
   [['/pricing'], 'pages/pricing.html'],
-  [['/solutions'], 'pages/solutions.html'],
-  [['/qr-code'], 'pages/qr-code.html'],
-  [['/bio-pages'], 'pages/bio-pages.html'],
-  [['/analytics'], 'pages/analytics.html'],
   [['/integrations'], 'pages/integrations.html'],
   [['/developers'], 'pages/developers.html'],
   [['/faq'], 'pages/faq.html'],
   [['/help-contact'], 'pages/help-contact.html'],
   [['/ai/slug-generator', '/ai/slugs'], 'pages/ai-slug-generator.html'],
-  [['/ai/assist', '/ai'], 'pages/ai-assist.html'],
+  [['/ai/assist'], 'pages/ai-assist.html'],
   [['/ai/mcp'], 'pages/ai-mcp.html'],
   [['/resources/utm-guide', '/utm-guide'], 'pages/resources-utm-guide.html'],
   [['/privacy'], 'public/privacy.html'],

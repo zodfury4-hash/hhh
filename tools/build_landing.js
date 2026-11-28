@@ -9,17 +9,13 @@ const distDir = path.join(landingDir, 'dist');
 const distAssetsDir = path.join(distDir, 'assets');
 const publicAssetsDir = path.join(publicDir, 'assets');
 
+// Clean and empty public/assets before copying fresh build output
+if (fs.existsSync(publicAssetsDir)) {
+  fs.rmSync(publicAssetsDir, { recursive: true, force: true });
+}
+fs.mkdirSync(publicAssetsDir, { recursive: true });
+
 execSync('npm run build', { cwd: landingDir, stdio: 'inherit' });
-
-if (!fs.existsSync(publicAssetsDir)) {
-  fs.mkdirSync(publicAssetsDir, { recursive: true });
-}
-
-for (const file of fs.readdirSync(publicAssetsDir)) {
-  if (/^index-.*\.(js|css)$/i.test(file)) {
-    fs.unlinkSync(path.join(publicAssetsDir, file));
-  }
-}
 
 fs.copyFileSync(path.join(distDir, 'index.html'), path.join(publicDir, 'index.html'));
 
@@ -27,4 +23,4 @@ for (const file of fs.readdirSync(distAssetsDir)) {
   fs.copyFileSync(path.join(distAssetsDir, file), path.join(publicAssetsDir, file));
 }
 
-console.log('[build_landing] Built frontend-landing and synced public/index.html + public/assets/.');
+console.log('[build_landing] Emptied public/assets, built frontend-landing and synced fresh assets.');
