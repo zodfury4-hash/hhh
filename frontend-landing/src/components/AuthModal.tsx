@@ -73,6 +73,7 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
   const [password, setPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [verifyCode, setVerifyCode] = useState('');
+  const [resendCooldown, setResendCooldown] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
@@ -84,6 +85,13 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
     configured: false,
     clientId: '',
   });
+
+  useEffect(() => {
+    if (resendCooldown > 0) {
+      const timer = setTimeout(() => setResendCooldown((c) => c - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCooldown]);
 
   // Sync mode whenever initialMode changes & fetch server auth config
   useEffect(() => {
@@ -290,6 +298,32 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
           }
         });
       });
+    } catch (err: any) {
+      setError(sanitizeErrorMessage(err));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    if (resendCooldown > 0 || isLoading) return;
+    try {
+      setIsLoading(true);
+      setError('');
+      setSuccessMsg('');
+      const cleanEmail = email.toLowerCase().trim();
+      const res = await fetch('/api/auth/resend-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: cleanEmail }),
+      });
+      const data = await parseJsonSafe(res);
+      if (res.ok && data?.success) {
+        setSuccessMsg('A fresh 6-digit code has been sent to your email!');
+        setResendCooldown(45);
+      } else {
+        setError(data?.error || 'Failed to resend verification code. Please wait a moment.');
+      }
     } catch (err: any) {
       setError(sanitizeErrorMessage(err));
     } finally {
@@ -663,21 +697,60 @@ export function AuthModal({ isOpen, initialMode = 'login', onClose }: AuthModalP
                 </div>
               )}
 
-              {/* Verify OTP Code Input */}
+              {/* Verify OTP Code Input & Email Card */}
               {mode === 'verify' && (
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-700 mb-0.5">
-                    6-Digit Verification Code
-                  </label>
-                  <input
-                    type="text"
-                    maxLength={6}
-                    required
-                    value={verifyCode}
-                    onChange={(e) => setVerifyCode(e.target.value)}
-                    placeholder="123456"
-                    className="w-full py-2 px-3 text-center tracking-widest font-mono text-base font-bold rounded-xl border border-slate-200/80 bg-white/70 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0070f3] transition-all"
-                  />
+                <div className="space-y-3">
+                  <div className="p-3 rounded-2xl bg-blue-50/90 border border-blue-100 flex items-center gap-3 shadow-xs">
+                    <div className="w-10 h-10 rounded-xl bg-blue-600/10 text-[#0070f3] flex items-center justify-center shrink-0">
+                      <Mail className="w-5 h-5 text-[#0070f3]" />
+                    </div>
+                    <div className="text-left overflow-hidden">
+                      <p className="text-[11px] font-semibold text-slate-600">Verification code sent to:</p>
+                      <p className="text-xs font-bold text-[#0070f3] truncate font-mono">{email}</p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                      Enter 6-Digit Verification Code
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={6}
+                      required
+                      autoFocus
+                      value={verifyCode}
+                      onChange={(e) => setVerifyCode(e.target.value.replace(/\D/g, ''))}
+                      placeholder="123456"
+                      className="w-full py-2.5 px-3 text-center tracking-[0.4em] font-mono text-xl font-bold rounded-xl border border-slate-200/80 bg-white/70 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0070f3] transition-all shadow-inner"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1 text-[11px]">
+                    <span className="text-slate-500">Didn't receive the email?</span>
+                    <button
+                      type="button"
+                      onClick={handleResendCode}
+                      disabled={isLoading || resendCooldown > 0}
+                      className="font-bold text-[#0070f3] hover:underline cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+                    >
+                      {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend Code'}
+                    </button>
+                  </div>
+
+                  <div className="pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMode('signup');
+                        setError('');
+                        setSuccessMsg('');
+                      }}
+                      className="w-full text-center text-[11px] font-medium text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+                    >
+                      Wrong email address? <span className="underline font-semibold">Change email</span>
+                    </button>
+                  </div>
                 </div>
               )}
 
