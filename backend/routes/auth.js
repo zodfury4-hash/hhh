@@ -84,6 +84,9 @@ router.post('/api/auth/register', authLimiter, validate(registerSchema), async (
       if (process.env.NODE_ENV === 'production' && !isEmailServiceConfigured()) {
         if (process.env.ALLOW_IN_MEMORY_FALLBACK === 'true' || isMemStoreAllowed()) {
           existingUser.isVerified = true;
+          if (isDbConnected() && typeof existingUser.save === 'function') {
+            await existingUser.save();
+          }
           const token = generateAuthToken(existingUser);
           setAuthCookies(res, token);
           return res.json({
@@ -135,17 +138,30 @@ router.post('/api/auth/register', authLimiter, validate(registerSchema), async (
       if (process.env.ALLOW_IN_MEMORY_FALLBACK === 'true' || isMemStoreAllowed()) {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-        const autoUser = {
-          id: 'u_' + Date.now(),
-          name: displayName,
-          email: cleanEmail,
-          password: hashedPassword,
-          isVerified: true,
-          tokenVersion: 0,
-          role: 'user',
-          plan: 'Free'
-        };
-        memStore.users.push(autoUser);
+        let autoUser = null;
+        if (isDbConnected()) {
+          autoUser = await User.create({
+            name: displayName,
+            email: cleanEmail,
+            password: hashedPassword,
+            isVerified: true,
+            tokenVersion: 0,
+            role: 'user',
+            plan: 'Free'
+          });
+        } else {
+          autoUser = {
+            id: 'u_' + Date.now(),
+            name: displayName,
+            email: cleanEmail,
+            password: hashedPassword,
+            isVerified: true,
+            tokenVersion: 0,
+            role: 'user',
+            plan: 'Free'
+          };
+          memStore.users.push(autoUser);
+        }
         const token = generateAuthToken(autoUser);
         setAuthCookies(res, token);
         return res.json({
@@ -237,9 +253,11 @@ router.post('/api/auth/verify-email', authLimiter, otpLimiter, validate(verifyEm
     let user = null;
     if (isDbConnected()) {
       user = await User.findOne({ email: cleanEmail });
-    } else if (isMemStoreAllowed()) {
+    }
+    if (!user && (isMemStoreAllowed() || process.env.ALLOW_IN_MEMORY_FALLBACK === 'true')) {
       user = memStore.users.find((u) => u.email === cleanEmail);
-    } else {
+    }
+    if (!user && !isDbConnected() && !isMemStoreAllowed()) {
       throw createDbUnavailableError();
     }
 
@@ -320,9 +338,11 @@ router.post('/api/auth/resend-code', authLimiter, otpLimiter, validate(forgotPas
     let user = null;
     if (isDbConnected()) {
       user = await User.findOne({ email: cleanEmail });
-    } else if (isMemStoreAllowed()) {
+    }
+    if (!user && (isMemStoreAllowed() || process.env.ALLOW_IN_MEMORY_FALLBACK === 'true')) {
       user = memStore.users.find((u) => u.email === cleanEmail);
-    } else {
+    }
+    if (!user && !isDbConnected() && !isMemStoreAllowed()) {
       throw createDbUnavailableError();
     }
 
@@ -387,9 +407,11 @@ router.post('/api/auth/forgot-password', authLimiter, otpLimiter, validate(forgo
     let user = null;
     if (isDbConnected()) {
       user = await User.findOne({ email: cleanEmail });
-    } else if (isMemStoreAllowed()) {
+    }
+    if (!user && (isMemStoreAllowed() || process.env.ALLOW_IN_MEMORY_FALLBACK === 'true')) {
       user = memStore.users.find((u) => u.email === cleanEmail);
-    } else {
+    }
+    if (!user && !isDbConnected() && !isMemStoreAllowed()) {
       throw createDbUnavailableError();
     }
 
@@ -448,9 +470,11 @@ router.post('/api/auth/reset-password', authLimiter, otpLimiter, validate(resetP
     let user = null;
     if (isDbConnected()) {
       user = await User.findOne({ email: cleanEmail });
-    } else if (isMemStoreAllowed()) {
+    }
+    if (!user && (isMemStoreAllowed() || process.env.ALLOW_IN_MEMORY_FALLBACK === 'true')) {
       user = memStore.users.find((u) => u.email === cleanEmail);
-    } else {
+    }
+    if (!user && !isDbConnected() && !isMemStoreAllowed()) {
       throw createDbUnavailableError();
     }
 
@@ -521,9 +545,11 @@ router.post('/api/auth/login', authLimiter, validate(loginSchema), async (req, r
     let user = null;
     if (isDbConnected()) {
       user = await User.findOne({ email: cleanEmail });
-    } else if (isMemStoreAllowed()) {
+    }
+    if (!user && (isMemStoreAllowed() || process.env.ALLOW_IN_MEMORY_FALLBACK === 'true')) {
       user = memStore.users.find((u) => u.email === cleanEmail);
-    } else {
+    }
+    if (!user && !isDbConnected() && !isMemStoreAllowed()) {
       throw createDbUnavailableError();
     }
 
