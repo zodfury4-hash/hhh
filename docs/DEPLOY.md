@@ -1,91 +1,101 @@
-# HEA Link Production Deployment Checklist
+# HEA Link Production Deployment Checklist (Render)
 
-This project runs a full-stack Node.js/Express 5 server (`server.js` -> `backend/server.js`) with MongoDB/Mongoose and serves the Vite-built React landing page (`/`), dashboard (`/app.html`), clean marketing URLs (`/pricing`, `/integrations`, `/developers`, etc.), short-link redirects (`/:slug`, `/r/:slug`), and API routes (`/api/*`).
+HEA Link is a full-stack Node.js / Express 5 application with MongoDB/Mongoose. It serves the Vite-built React landing page (`/`), authenticated dashboard workspace (`/app.html`), clean marketing URLs (`/pricing`, `/integrations`, `/developers`, etc.), dynamic short links (`/:slug`), vector QR codes, and API services (`/api/*`).
 
-> Do NOT deploy on GitHub Pages. Static hosts reject `POST /api/*` (`405`) and break clean URLs (`404`).
+> **Target Platform:** Render (`render.yaml` blueprint or Dockerfile container).  
+> **Never Deploy to GitHub Pages:** Static hosts reject `POST /api/*` requests (`405 Method Not Allowed`) and cannot resolve server routes or MongoDB transactions.
 
 ---
 
-## 1. MongoDB Atlas Setup (Database)
-1. Create a free **M0** cluster in MongoDB Atlas (`ap-south-1` or `us-east-1` close to your host).
-2. Under **Database Access**, create a dedicated user with **Read and write to any database** (e.g. `healink_prod`) and a strong generated password.
-3. Under **Network Access**, allow access from your Node host's outbound IPs (or `0.0.0.0/0` only alongside strong credentials + TLS if your PaaS uses dynamic IPs).
-4. Copy the SRV connection string (`mongodb+srv://<user>:<password>@<cluster>.mongodb.net/healink?retryWrites=true&w=majority`).
+## 1. Quick Checklist
 
-## 2. Node Hosting (Render via `render.yaml` or Docker via `Dockerfile`)
-### Option A: Render
-1. Push your branch to GitHub and create a **Blueprint** or **Web Service** on Render pointing to `render.yaml`.
-2. Verify:
-   - Build Command: `npm ci && npm run build:landing`
-   - Start Command: `npm start`
-   - Health Check Path: `/health`
-3. Populate every `sync: false` secret in Render **Environment**.
+- [ ] **Render Blueprint**: Connected to `render.yaml` (Node.js runtime, `npm ci && npm run build:landing`, `npm start`).
+- [ ] **Cloud Database**: MongoDB Atlas cluster with active database user credentials and network IP access (`0.0.0.0/0` on dynamic cloud PaaS).
+- [ ] **Email Delivery**: SMTP credentials (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`) OR HTTP API provider (`EMAIL_PROVIDER=resend` / `brevo` + `EMAIL_API_KEY`).
+- [ ] **Google OAuth**: `GOOGLE_CLIENT_ID` configured in Render environment and added to Google Cloud Console Authorized JavaScript origins (`https://healink.store`, `https://www.healink.store`).
+- [ ] **DNS Records**: Namecheap / Cloudflare DNS configured for `healink.store` (Apex) and `cname.healink.store` (CNAME target).
 
-### Option B: Any Container Host (Docker)
-Build and run with `Dockerfile` (`node:22-alpine`, non-root `healink` user, built-in `/health` `HEALTHCHECK`):
-```bash
-docker build -t healink:latest .
-docker run -d -p 3000:3000 --env-file .env.production healink:latest
-```
+---
 
-### Option C: Vercel (`vercel.json` + `api/index.js`)
-1. Import the GitHub repository in Vercel (or run `npx vercel login && npx vercel --prod` from the project root).
-2. `vercel.json` automatically configures `installCommand`, `buildCommand`, `includeFiles`, and Express rewrites through `api/index.js` so all `/api/*` endpoints, `/pricing`, `/app.html`, and shortlinks work without `405` errors.
-3. In Vercel **Project → Settings → Environment Variables**, add all required variables (`MONGODB_URI`, `JWT_SECRET`, `INTERNAL_ROUTER_SECRET`, `CORS_ORIGIN`, `PRIMARY_HOSTS`, and `SMTP_*` or `EMAIL_PROVIDER` + `EMAIL_API_KEY`) for **Production** and **Preview**, then trigger a redeploy.
+## 2. Render Deployment (`render.yaml`)
+
+1. Connect the GitHub repository in your **Render Dashboard** as a **Blueprint** or **Web Service**.
+2. Service specifications:
+   - **Environment**: Node
+   - **Build Command**: `npm ci && npm run build:landing`
+   - **Start Command**: `npm start`
+   - **Health Check Path**: `/health`
+   - **Port**: `3000`
+3. Fill in all environment secrets in **Render Dashboard → Environment**.
+
+---
 
 ## 3. Required Production Environment Variables
-| Variable | Requirement in `NODE_ENV=production` |
+
+| Variable | Requirement & Description |
 | :--- | :--- |
-| `NODE_ENV` | `production` |
-| `MONGODB_URI` | Required. Must NOT be `localhost` or `127.0.0.1`. |
-| `JWT_SECRET` | Required. At least 32 random characters; no placeholder values. |
-| `INTERNAL_ROUTER_SECRET` | Required. Must NOT be missing or the default dev value. |
-| `CORS_ORIGIN` | Required. Comma-separated origins, e.g. `https://www.healink.store,https://healink.store`. |
+| `NODE_ENV` | Must be `production`. |
+| `PORT` | `3000` (Render default). |
+| `MONGODB_URI` | **Required.** Must be a cloud connection string (e.g. `mongodb+srv://...`). Localhost/127.0.0.1 triggers a fatal startup error in production. |
+| `JWT_SECRET` | **Required.** At least 32 cryptographically random characters (`openssl rand -hex 32`). Weak placeholders fail validation. |
+| `INTERNAL_ROUTER_SECRET` | **Required.** Secret token for internal proxy and domain validation routes. |
+| `CORS_ORIGIN` | **Required.** Comma-separated allowed origins: `https://healink.store,https://www.healink.store`. |
 | `PRIMARY_HOSTS` | `healink.store,www.healink.store` |
-| `CNAME_TARGET` | `cname.healink.store` (or your host CNAME target) |
-| `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `EMAIL_FROM` | Required for signup & password-reset OTP email delivery. Without SMTP, `/api/config` marks email verification unavailable. |
-| `GOOGLE_CLIENT_ID` | Optional. Required to enable Google Sign-In. |
-| `APPLE_CLIENT_ID` | Optional. Required to enable Apple Sign-In. |
-| `STRIPE_PUBLISHABLE_KEY` / `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` | Optional. Required for Pro checkout & webhooks. |
-| `INTEGRATIONS_ENC_KEY` | Recommended 64-hex-char AES-256 key (`crypto.randomBytes(32).toString('hex')`). |
+| `CNAME_TARGET` | `cname.healink.store` |
+| `EMAIL_PROVIDER` & `EMAIL_API_KEY` *(or `SMTP_*`)* | **Required.** Email transport for verification OTPs and password resets. In production, startup fails if both are missing. |
+| `GOOGLE_CLIENT_ID` | **Required.** Google OAuth2 Client ID for Google Sign-In. Startup fails in production if missing. |
+| `APPLE_CLIENT_ID` | **Optional.** Apple Services ID. **Note:** Apple Sign-In stays completely hidden in the UI unless `APPLE_CLIENT_ID` is set. |
+| `STRIPE_SECRET_KEY` & `STRIPE_WEBHOOK_SECRET` | **Optional.** Stripe billing for Pro upgrades and webhook processing. |
+| `INTEGRATIONS_ENC_KEY` | Recommended 64-character hex key for encrypting webhook credentials at rest. |
 
-## 4. DNS Migration (`www.healink.store` away from GitHub Pages)
-1. Remove any GitHub Pages A records (`185.199.108-111.153`) and any `*.github.io` CNAME on your DNS provider.
-2. Add a `CNAME` record for `www` pointing to your Render/PaaS hostname (e.g. `healink-app.onrender.com`).
-3. Configure apex (`healink.store`) ALIAS/ANAME or `A` record as instructed by your host and wait for TLS certificate issuance.
+---
 
-## 5. Third-Party Console Callbacks & Webhooks
-- **Google OAuth (Google Cloud Console → Credentials):**
-  - Authorized JavaScript origins: `https://www.healink.store`, `https://healink.store`
-  - Authorized redirect URIs: `https://www.healink.store`, `https://www.healink.store/#login`
-- **Apple Sign-In (Apple Developer → Services ID):**
-  - Domains & Subdomains: `www.healink.store`
-  - Return URL: `https://www.healink.store/api/auth/apple`
-- **Stripe Webhooks (Stripe Dashboard → Developers → Webhooks):**
-  - Endpoint URL: `https://www.healink.store/api/stripe/webhook`
-  - Events: `checkout.session.completed`, `customer.subscription.deleted`, `invoice.payment_failed`, `charge.refunded`
-  - Copy the signing secret (`whsec_...`) to `STRIPE_WEBHOOK_SECRET`.
-- **SMTP (Gmail App Password / Resend / Brevo):**
-  - For Gmail: enable 2-Step Verification, create a 16-char App Password, set `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`, `SMTP_SECURE=false`.
-  - On hosts blocking outbound SMTP port 587/465, set `EMAIL_PROVIDER=resend` or `EMAIL_PROVIDER=brevo` with `EMAIL_API_KEY`.
+## 4. DNS Configuration for `healink.store`
 
-## 6. Post-Deploy Verification & Rollback
-1. Run smoke check:
+Configure the following records on your DNS provider (Namecheap / Cloudflare):
+
+| Type | Host / Name | Target / Value | TTL | Note |
+| :--- | :--- | :--- | :--- | :--- |
+| **A** | `@` | Render outbound IP / ANAME | Automatic | Directs apex domain to Render. |
+| **CNAME** | `www` | `healink-app.onrender.com` | Automatic | Subdomain routing. |
+| **CNAME** | `cname` | `healink-app.onrender.com` | Automatic | Target for user-branded custom domains. |
+
+---
+
+## 5. Third-Party Console Configurations
+
+### Google Cloud Console (OAuth 2.0 Credentials)
+1. Go to **APIs & Services → Credentials → OAuth 2.0 Client IDs**.
+2. Under **Authorized JavaScript origins**, add:
+   - `https://healink.store`
+   - `https://www.healink.store`
+3. Under **Authorized redirect URIs**, add:
+   - `https://healink.store`
+   - `https://www.healink.store`
+4. Save and allow 2–3 minutes for edge propagation.
+
+### Apple Developer (Services ID)
+- If configuring Apple Sign-In, add `healink.store` to Domains & Return URLs (`https://healink.store/api/auth/apple`).
+- When `APPLE_CLIENT_ID` is not supplied, the Apple Sign-In button automatically remains hidden in all login and signup modals.
+
+---
+
+## 6. Verification & Health Monitoring
+
+1. **Liveness Check**:
    ```bash
-   node scripts/smoke.js https://www.healink.store
+   curl -s https://healink.store/health
+   # Expected: 200 {"ok":true,"status":"healthy","database":"connected","environment":"production"}
    ```
-2. Verify `/health` returns `200`, `/` and `/pricing` return `200`, unknown paths return `404`, and `POST /api/auth/login` with empty body returns `400` (not `405`).
-3. **Rollback:** In Render → **Deploys**, select the previous known-good deploy and click **Rollback to this deploy** (or redeploy the prior container image tag). If schema/index changes occurred, restore the latest automated MongoDB Atlas snapshot before rolling back application traffic.
-
-## 7. Observability, Backups & Maintenance Operations
-- **Liveness vs Readiness:**
-  - `GET /health` reports process health, uptime, and database state (`200` when healthy, `503` when DB degraded).
-  - `GET /ready` verifies DB readiness, JWT configuration validity, and mail transport status (`200` ready, `503` not ready).
-- **Uptime Monitoring:** Point UptimeRobot / BetterStack HTTP monitor at `https://www.healink.store/ready` (60s interval) with alerts on non-200 responses.
-- **Error Tracking & Request Correlation:**
-  - Every HTTP request carries `X-Request-Id` and emits redacted structured Pino JSON logs.
-  - Set `SENTRY_DSN` in production to forward unhandled `5xx` errors automatically.
-- **Database Backups & TTL Retention:**
-  - Enable MongoDB Atlas Cloud Backups / continuous snapshots (or M0 daily export via `mongodump`).
-  - `clicks` collection includes an automatic TTL index (`expires`) and `{ linkId: 1, timestamp: -1 }` query index.
-  - Built-in background cleanup (`backend/utils/cleanup.js`) prunes expired guest links and stale OTP tokens periodically without blocking requests.
+2. **Readiness Check**:
+   ```bash
+   curl -s https://healink.store/ready
+   # Expected: 200 {"ready":true,"checks":{"db":true,"jwt":true,"email":true}}
+   ```
+3. **Route Validation**:
+   - `GET /` $\rightarrow$ 200 (React landing)
+   - `GET /app.html#dashboard` $\rightarrow$ 200 (Dashboard workspace)
+   - `GET /pricing` $\rightarrow$ 200
+   - `GET /integrations` $\rightarrow$ 200
+   - `GET /developers` $\rightarrow$ 200
+   - `POST /api/auth/login` (empty body) $\rightarrow$ 400 (Never 405 Method Not Allowed)

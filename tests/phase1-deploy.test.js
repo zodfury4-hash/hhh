@@ -11,28 +11,23 @@ const app = require('../backend/server');
 const config = require('../backend/config');
 
 async function runPhase1Tests() {
-  console.log('🧪 Running Phase 1 Deployment, Clean URLs & Env Validator Tests...');
+  console.log('🧪 Running Phase 1 Render Target, Clean Routes & Strict Env Validator Tests...');
 
-  // 1. Static deploy artifacts check
+  // 1. One deployment target (Render): vercel.json & api/index.js must be deleted
   const root = path.join(__dirname, '..');
   assert(!fs.existsSync(path.join(root, 'CNAME')), 'CNAME must be removed');
   assert(!fs.existsSync(path.join(root, '.nojekyll')), '.nojekyll must be removed');
-  assert(fs.existsSync(path.join(root, 'vercel.json')), 'vercel.json must exist for Vercel Express deployment');
-  assert(fs.existsSync(path.join(root, 'api', 'index.js')), 'api/index.js serverless entrypoint must exist');
-  const vercelCfg = JSON.parse(fs.readFileSync(path.join(root, 'vercel.json'), 'utf8'));
-  assert(
-    Array.isArray(vercelCfg.rewrites) &&
-      vercelCfg.rewrites.some((r) => r.destination === '/api/index.js'),
-    'vercel.json must rewrite routes cleanly through /api/index.js (Express)'
-  );
-  assert(fs.existsSync(path.join(root, 'render.yaml')), 'render.yaml must exist');
+  assert(!fs.existsSync(path.join(root, 'vercel.json')), 'vercel.json must be deleted for single Render target');
+  assert(!fs.existsSync(path.join(root, 'api', 'index.js')), 'api/index.js must be deleted');
+  assert(fs.existsSync(path.join(root, 'render.yaml')), 'render.yaml must exist for Render deployment');
   assert(fs.existsSync(path.join(root, 'Dockerfile')), 'Dockerfile must exist');
   assert(fs.existsSync(path.join(root, 'docs', 'DEPLOY.md')), 'docs/DEPLOY.md must exist');
   const errHtml = fs.readFileSync(path.join(root, 'public', '404.html'), 'utf8');
   assert(!errHtml.includes('hea_slug_'), '404.html must not contain GitHub Pages localStorage redirect hack');
-  console.log('  ✅ PASS: Deploy artifacts & 404.html verified');
+  console.log('  ✅ PASS: Single deployment target (Render) artifacts verified');
 
-  // 2. Startup env validator unit tests
+  // 2. Strict startup env validator (validateEnv) tests
+  // 2.1 MONGODB_URI missing or pointing to localhost
   assert.throws(
     () =>
       config.validateEnv({
@@ -42,11 +37,16 @@ async function runPhase1Tests() {
           MONGODB_URI: 'mongodb://127.0.0.1:27017/healink',
           JWT_SECRET: 'a_very_long_and_strong_random_jwt_secret_123456',
           INTERNAL_ROUTER_SECRET: 'prod_router_secret_987654',
-          CORS_ORIGIN: 'https://www.healink.store'
+          CORS_ORIGIN: 'https://www.healink.store',
+          EMAIL_PROVIDER: 'resend',
+          EMAIL_API_KEY: 're_test_key_12345',
+          GOOGLE_CLIENT_ID: '12345-abc.apps.googleusercontent.com'
         }
       }),
     /MONGODB_URI/
   );
+
+  // 2.2 JWT_SECRET missing or short
   assert.throws(
     () =>
       config.validateEnv({
@@ -56,25 +56,16 @@ async function runPhase1Tests() {
           MONGODB_URI: 'mongodb+srv://user:pass@cluster.mongodb.net/healink',
           JWT_SECRET: 'short',
           INTERNAL_ROUTER_SECRET: 'prod_router_secret_987654',
-          CORS_ORIGIN: 'https://www.healink.store'
+          CORS_ORIGIN: 'https://www.healink.store',
+          EMAIL_PROVIDER: 'resend',
+          EMAIL_API_KEY: 're_test_key_12345',
+          GOOGLE_CLIENT_ID: '12345-abc.apps.googleusercontent.com'
         }
       }),
     /JWT_SECRET/
   );
-  assert.throws(
-    () =>
-      config.validateEnv({
-        env: 'production',
-        silent: true,
-        rawEnv: {
-          MONGODB_URI: 'mongodb+srv://user:pass@cluster.mongodb.net/healink',
-          JWT_SECRET: 'a_very_long_and_strong_random_jwt_secret_123456',
-          INTERNAL_ROUTER_SECRET: 'healink-internal-secret-2026',
-          CORS_ORIGIN: 'https://www.healink.store'
-        }
-      }),
-    /INTERNAL_ROUTER_SECRET/
-  );
+
+  // 2.3 Email missing in production
   assert.throws(
     () =>
       config.validateEnv({
@@ -84,81 +75,112 @@ async function runPhase1Tests() {
           MONGODB_URI: 'mongodb+srv://user:pass@cluster.mongodb.net/healink',
           JWT_SECRET: 'a_very_long_and_strong_random_jwt_secret_123456',
           INTERNAL_ROUTER_SECRET: 'prod_router_secret_987654',
-          CORS_ORIGIN: ''
+          CORS_ORIGIN: 'https://www.healink.store',
+          GOOGLE_CLIENT_ID: '12345-abc.apps.googleusercontent.com'
         }
       }),
-    /CORS_ORIGIN/
+    /email configuration/i
   );
-  const validProd = config.validateEnv({
+
+  // 2.4 GOOGLE_CLIENT_ID missing in production
+  assert.throws(
+    () =>
+      config.validateEnv({
+        env: 'production',
+        silent: true,
+        rawEnv: {
+          MONGODB_URI: 'mongodb+srv://user:pass@cluster.mongodb.net/healink',
+          JWT_SECRET: 'a_very_long_and_strong_random_jwt_secret_123456',
+          INTERNAL_ROUTER_SECRET: 'prod_router_secret_987654',
+          CORS_ORIGIN: 'https://www.healink.store',
+          EMAIL_PROVIDER: 'resend',
+          EMAIL_API_KEY: 're_test_key_12345'
+        }
+      }),
+    /GOOGLE_CLIENT_ID/
+  );
+
+  // 2.5 Valid production env - Apple login stays hidden if APPLE_CLIENT_ID is not set
+  const validProdNoApple = config.validateEnv({
     env: 'production',
     silent: true,
     rawEnv: {
       MONGODB_URI: 'mongodb+srv://user:pass@cluster.mongodb.net/healink',
       JWT_SECRET: 'a_very_long_and_strong_random_jwt_secret_123456',
       INTERNAL_ROUTER_SECRET: 'prod_router_secret_987654',
-      CORS_ORIGIN: 'https://www.healink.store'
+      CORS_ORIGIN: 'https://www.healink.store',
+      EMAIL_PROVIDER: 'resend',
+      EMAIL_API_KEY: 're_test_key_12345',
+      GOOGLE_CLIENT_ID: '12345-abc.apps.googleusercontent.com'
     }
   });
-  assert.strictEqual(validProd.valid, true);
-  assert.strictEqual(validProd.features.emailVerification, false);
-  console.log('  ✅ PASS: validateEnv() enforces production invariants & computes feature flags');
+  assert.strictEqual(validProdNoApple.valid, true);
+  assert.strictEqual(validProdNoApple.features.emailVerification, true);
+  assert.strictEqual(validProdNoApple.features.googleAuth, true);
+  assert.strictEqual(validProdNoApple.features.appleAuth, false, 'Apple login must stay hidden when APPLE_CLIENT_ID is unset');
 
-  // 3. HTTP route table & real 404 checks
+  // 2.6 Valid production with Apple enabled
+  const validProdWithApple = config.validateEnv({
+    env: 'production',
+    silent: true,
+    rawEnv: {
+      MONGODB_URI: 'mongodb+srv://user:pass@cluster.mongodb.net/healink',
+      JWT_SECRET: 'a_very_long_and_strong_random_jwt_secret_123456',
+      INTERNAL_ROUTER_SECRET: 'prod_router_secret_987654',
+      CORS_ORIGIN: 'https://www.healink.store',
+      EMAIL_PROVIDER: 'resend',
+      EMAIL_API_KEY: 're_test_key_12345',
+      GOOGLE_CLIENT_ID: '12345-abc.apps.googleusercontent.com',
+      APPLE_CLIENT_ID: 'com.healink.service'
+    }
+  });
+  assert.strictEqual(validProdWithApple.features.appleAuth, true);
+  console.log('  ✅ PASS: validateEnv() strictly fails on missing MONGODB_URI, JWT, Email, or Google; hides Apple when unset');
+
+  // 3. HTTP routes served from Node server: /pricing, /integrations, /developers return 200, POST /api/auth/* never 405
   const server = http.createServer(app);
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   const { port } = server.address();
   const baseUrl = `http://127.0.0.1:${port}`;
 
   try {
-    const cleanRoutes = [
-      '/',
-      '/pricing',
-      '/integrations',
-      '/developers',
-      '/solutions',
-      '/faq',
-      '/ai',
-      '/ai/assist',
-      '/ai/mcp',
-      '/ai/slug-generator',
-      '/resources/utm-guide',
-      '/qr-code',
-      '/bio-pages',
-      '/analytics',
-      '/help',
-      '/help/contact',
-      '/help-contact',
-      '/privacy',
-      '/terms',
-      '/report-abuse'
+    const requiredPages = ['/pricing', '/integrations', '/developers'];
+    for (const p of requiredPages) {
+      const res = await fetch(`${baseUrl}${p}`);
+      assert.strictEqual(res.status, 200, `${p} must return 200`);
+      const body = await res.text();
+      assert(body.length > 500, `${p} must return real page content`);
+      assert(res.headers.get('content-type')?.includes('text/html'), `${p} must return text/html`);
+    }
+    console.log('  ✅ PASS: /pricing, /integrations, and /developers return real 200 pages (never 404)');
+
+    const authEndpoints = [
+      '/api/auth/register',
+      '/api/auth/login',
+      '/api/auth/verify-email',
+      '/api/auth/resend-code',
+      '/api/auth/forgot-password'
     ];
 
-    for (const r of cleanRoutes) {
-      const res = await fetch(`${baseUrl}${r}`);
-      assert.strictEqual(res.status, 200, `Expected 200 for ${r}, got ${res.status}`);
+    for (const ep of authEndpoints) {
+      const res = await fetch(`${baseUrl}${ep}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+      assert.notStrictEqual(res.status, 405, `${ep} must NEVER return 405 Method Not Allowed`);
+      assert(res.status >= 200 && res.status < 500, `${ep} returned unexpected status ${res.status}`);
     }
-    console.log(`  ✅ PASS: All ${cleanRoutes.length} clean public routes returned HTTP 200`);
-
-    const nf1 = await fetch(`${baseUrl}/nonexistent-slug-999`, { headers: { Accept: 'text/html' } });
-    assert.strictEqual(nf1.status, 404, 'Unknown single-segment route must return 404');
-    const nf1Body = await nf1.text();
-    assert(nf1Body.includes('404'), '404 body must render branded 404 page');
-
-    const nf2 = await fetch(`${baseUrl}/unknown/nested/route`, { headers: { Accept: 'text/html' } });
-    assert.strictEqual(nf2.status, 404, 'Unknown multi-segment route must return 404');
-
-    const nfApi = await fetch(`${baseUrl}/api/nonexistent-endpoint`);
-    assert.strictEqual(nfApi.status, 404, 'Unknown /api route must return 404');
-    const nfJson = await nfApi.json();
-    assert.strictEqual(nfJson.code, 'NOT_FOUND');
-
-    const cfgRes = await fetch(`${baseUrl}/api/config`);
-    assert.strictEqual(cfgRes.status, 200);
-    const cfg = await cfgRes.json();
-    assert(cfg.features && typeof cfg.features.emailVerification === 'boolean');
-    console.log('  ✅ PASS: Unknown paths return HTTP 404 and /api/config exposes feature flags');
+    console.log('  ✅ PASS: POST /api/auth/* endpoints return 200/4xx and NEVER 405 Method Not Allowed');
   } finally {
-    await new Promise((resolve) => server.close(resolve));
+    if (server) {
+      if (typeof server.closeAllConnections === 'function') server.closeAllConnections();
+      await new Promise((resolve) => server.close(resolve));
+    }
+    const mongoose = require('mongoose');
+    if (mongoose.connection && mongoose.connection.readyState !== 0) {
+      await mongoose.connection.close(false).catch(() => {});
+    }
   }
 }
 

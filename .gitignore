@@ -5,6 +5,7 @@ dist/
 # Logs & Debug Output
 logs/
 *.log
+*.zip
 
 # Environment & Secrets (STRICTLY FORBIDDEN FROM COMMITS)
 .env

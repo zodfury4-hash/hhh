@@ -34,6 +34,10 @@ function validateEnv(opts = {}) {
   const routerSecret = rawEnv.INTERNAL_ROUTER_SECRET || '';
   const corsOrigin = rawEnv.CORS_ORIGIN || '';
 
+  const hasEmail =
+    (Boolean(rawEnv.SMTP_HOST) && isConfiguredSecret(rawEnv.SMTP_USER) && isConfiguredSecret(rawEnv.SMTP_PASS)) ||
+    (Boolean(rawEnv.EMAIL_PROVIDER) && isConfiguredSecret(rawEnv.EMAIL_API_KEY));
+
   if (prod && (rawEnv.ALLOW_IN_MEMORY_FALLBACK !== 'true' && process.env.ALLOW_IN_MEMORY_FALLBACK !== 'true')) {
     if (!mongoUri || /localhost|127\.0\.0\.1/i.test(mongoUri)) {
       throw new Error('FATAL: Production MONGODB_URI must be configured and cannot point to localhost/127.0.0.1.');
@@ -47,6 +51,12 @@ function validateEnv(opts = {}) {
     if (!corsOrigin.trim()) {
       throw new Error('FATAL: Production CORS_ORIGIN must be explicitly configured.');
     }
+    if (!hasEmail) {
+      throw new Error('FATAL: Production email configuration missing. Configure SMTP_* or EMAIL_PROVIDER and EMAIL_API_KEY.');
+    }
+    if (!isConfiguredSecret(rawEnv.GOOGLE_CLIENT_ID)) {
+      throw new Error('FATAL: Production GOOGLE_CLIENT_ID must be configured for Google Authentication.');
+    }
   } else if (!test) {
     if (!jwtSecret || jwtSecret.length < 32) {
       throw new Error('FATAL: JWT_SECRET environment variable is missing or shorter than 32 characters.');
@@ -54,9 +64,7 @@ function validateEnv(opts = {}) {
   }
 
   const features = {
-    emailVerification:
-      (Boolean(rawEnv.SMTP_HOST) && isConfiguredSecret(rawEnv.SMTP_USER) && isConfiguredSecret(rawEnv.SMTP_PASS)) ||
-      (Boolean(rawEnv.EMAIL_PROVIDER) && isConfiguredSecret(rawEnv.EMAIL_API_KEY)),
+    emailVerification: hasEmail,
     googleAuth: isConfiguredSecret(rawEnv.GOOGLE_CLIENT_ID),
     appleAuth: isConfiguredSecret(rawEnv.APPLE_CLIENT_ID),
     stripeBilling: isConfiguredSecret(rawEnv.STRIPE_SECRET_KEY) && isConfiguredSecret(rawEnv.STRIPE_WEBHOOK_SECRET),

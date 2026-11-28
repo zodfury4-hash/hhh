@@ -15,6 +15,7 @@
     "lint": "eslint backend tests tools scripts dashboard/src",
     "format": "prettier --write backend tests tools scripts dashboard/src",
     "seed:admin": "node scripts/seed-admin.js",
+    "pack": "node scripts/pack.js",
     "smoke": "node scripts/smoke.js",
     "test": "node tests/index.js",
     "test:unit": "node --test --experimental-test-coverage tests/unit-core.test.js",
