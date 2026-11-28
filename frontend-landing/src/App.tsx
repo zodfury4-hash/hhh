@@ -65,6 +65,19 @@ export function App() {
 
   useLenis();
 
+  // Smoothly fade out and remove instant HTML splash screen once React boots
+  useEffect(() => {
+    const splash = document.getElementById('app-splash');
+    if (splash) {
+      splash.style.opacity = '0';
+      splash.style.pointerEvents = 'none';
+      const removeTimer = window.setTimeout(() => {
+        splash.remove();
+      }, 500);
+      return () => window.clearTimeout(removeTimer);
+    }
+  }, []);
+
   // Defer WebGL Three.js scene mount until after first paint so LCP/FCP remain instant
   useEffect(() => {
     let cancelled = false;
