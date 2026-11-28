@@ -1,7 +1,20 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Navbar } from './components/Navbar';
 import { Hero } from './sections/Hero';
 import { HeroBadges } from './sections/HeroBadges';
+import { SkipperCarousel } from './sections/SkipperCarousel';
+import { ShortLinksSection } from './sections/ShortLinks';
+import { QrCodesSection } from './sections/QrCodes';
+import { BioPagesSection } from './sections/BioPages';
+import { AnalyticsSection } from './sections/Analytics';
+import { CoreFeatures } from './sections/CoreFeatures';
+import { AiAdvanced } from './sections/AiAdvanced';
+import { StepsSection } from './sections/Steps';
+import { FeaturesSection } from './sections/Features';
+import { PricingSection } from './sections/Pricing';
+import { FaqSection } from './sections/Faq';
+import { FinalCtaSection } from './sections/FinalCta';
 import { Footer } from './components/Footer';
 import { CustomCursor } from './components/CustomCursor';
 import { getVerifiedSession } from './lib/auth';
@@ -14,44 +27,9 @@ const MasterScene = lazy(() =>
 const AuthModal = lazy(() =>
   import('./components/AuthModal').then((m) => ({ default: m.AuthModal }))
 );
-const SkipperCarousel = lazy(() =>
-  import('./sections/SkipperCarousel').then((m) => ({ default: m.SkipperCarousel }))
-);
-const ShortLinksSection = lazy(() =>
-  import('./sections/ShortLinks').then((m) => ({ default: m.ShortLinksSection }))
-);
-const QrCodesSection = lazy(() =>
-  import('./sections/QrCodes').then((m) => ({ default: m.QrCodesSection }))
-);
-const BioPagesSection = lazy(() =>
-  import('./sections/BioPages').then((m) => ({ default: m.BioPagesSection }))
-);
-const AnalyticsSection = lazy(() =>
-  import('./sections/Analytics').then((m) => ({ default: m.AnalyticsSection }))
-);
-const CoreFeatures = lazy(() =>
-  import('./sections/CoreFeatures').then((m) => ({ default: m.CoreFeatures }))
-);
-const AiAdvanced = lazy(() =>
-  import('./sections/AiAdvanced').then((m) => ({ default: m.AiAdvanced }))
-);
-const StepsSection = lazy(() =>
-  import('./sections/Steps').then((m) => ({ default: m.StepsSection }))
-);
-const FeaturesSection = lazy(() =>
-  import('./sections/Features').then((m) => ({ default: m.FeaturesSection }))
-);
-const PricingSection = lazy(() =>
-  import('./sections/Pricing').then((m) => ({ default: m.PricingSection }))
-);
-const FaqSection = lazy(() =>
-  import('./sections/Faq').then((m) => ({ default: m.FaqSection }))
-);
-const FinalCtaSection = lazy(() =>
-  import('./sections/FinalCta').then((m) => ({ default: m.FinalCtaSection }))
-);
 
 export function App() {
+  const [loading, setLoading] = useState(true);
   const [sceneReady, setSceneReady] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [authModal, setAuthModal] = useState<{
@@ -65,7 +43,7 @@ export function App() {
 
   useLenis();
 
-  // Smoothly fade out and remove instant HTML splash screen once React boots
+  // Smoothly remove instant HTML splash screen once React boots
   useEffect(() => {
     const splash = document.getElementById('app-splash');
     if (splash) {
@@ -73,9 +51,17 @@ export function App() {
       splash.style.pointerEvents = 'none';
       const removeTimer = window.setTimeout(() => {
         splash.remove();
-      }, 500);
+      }, 350);
       return () => window.clearTimeout(removeTimer);
     }
+  }, []);
+
+  // Fast original brand preloader (750ms)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 750);
+    return () => clearTimeout(timer);
   }, []);
 
   // Defer WebGL Three.js scene mount until after first paint so LCP/FCP remain instant
@@ -113,6 +99,7 @@ export function App() {
     return () => window.removeEventListener('hashchange', handleHash);
   }, []);
 
+  // Track cursor for 3D parallax
   useEffect(() => {
     if (isReduced) return;
     const handleGlobalMouseMove = (e: MouseEvent) => {
@@ -126,16 +113,49 @@ export function App() {
 
   return (
     <div className="relative min-h-screen selection:bg-[#0070f3] selection:text-white overflow-x-hidden">
+      {/* 1. Desktop Custom Follow Cursor */}
       <CustomCursor />
 
-      {/* Deferred 3D Canvas Behind HTML */}
+      {/* 2. Original Light-Blue Fluid Preloader */}
+      <AnimatePresence>
+        {loading && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.35, ease: 'easeInOut' }}
+            className="fixed inset-0 z-[100] bg-[#eef6ff] flex flex-col items-center justify-center gap-4"
+          >
+            <div className="relative w-16 h-12 flex items-center justify-center">
+              <svg
+                className="w-16 h-12 text-[#0070f3] animate-pulse"
+                viewBox="0 0 54 36"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M15.5 8C10.25 8 6 12.25 6 17.5C6 22.75 10.25 27 15.5 27C21.2 27 24.6 20.8 27 17.5C29.4 14.2 32.8 8 38.5 8C43.75 8 48 12.25 48 17.5C48 22.75 43.75 27 38.5 27C32.8 27 29.4 20.8 27 17.5C24.6 14.2 21.2 8 15.5 8Z"
+                  stroke="#0070f3"
+                  strokeWidth="6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+            <div className="text-xs font-bold tracking-widest text-[#0070f3] uppercase animate-pulse">
+              HEA Link
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 3. Deferred 3D Canvas Behind HTML */}
       {sceneReady && (
         <Suspense fallback={null}>
           <MasterScene mousePosition={mousePos} />
         </Suspense>
       )}
 
-      {/* Sticky Glass Navbar with Full Mega Menus */}
+      {/* 4. Sticky Glass Navbar with Full Mega Menus */}
       <Navbar
         onOpenAuth={(mode) => {
           if (getVerifiedSession()) {
@@ -146,28 +166,28 @@ export function App() {
         }}
       />
 
-      {/* Complete Rich Landing UI */}
+      {/* 5. Complete Rich Landing UI */}
       <main id="main-content" className="relative z-10">
         <Hero />
         <HeroBadges />
-        <Suspense fallback={null}>
-          <SkipperCarousel />
-          <ShortLinksSection />
-          <QrCodesSection />
-          <BioPagesSection />
-          <AnalyticsSection />
-          <CoreFeatures />
-          <AiAdvanced />
-          <StepsSection />
-          <FeaturesSection />
-          <PricingSection />
-          <FaqSection />
-          <FinalCtaSection />
-        </Suspense>
+        <SkipperCarousel />
+        <ShortLinksSection />
+        <QrCodesSection />
+        <BioPagesSection />
+        <AnalyticsSection />
+        <CoreFeatures />
+        <AiAdvanced />
+        <StepsSection />
+        <FeaturesSection />
+        <PricingSection />
+        <FaqSection />
+        <FinalCtaSection />
       </main>
 
+      {/* 6. Comprehensive Glass Footer */}
       <Footer />
 
+      {/* 7. Interactive Auth Modal */}
       {authModal.isOpen && (
         <Suspense fallback={null}>
           <AuthModal
